@@ -2,11 +2,12 @@
 node_modules/
 .next/
 out/
+.vercel/
 
 # Local environment files and secrets
 .env
-.env.local
-.env*.local
+.env.*
+!.env.example
 
 # Logs and local tooling
 *.log
