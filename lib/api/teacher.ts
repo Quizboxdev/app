@@ -56,9 +56,26 @@ export async function getTeacherAnalytics(teacherId: string) {
   const classAnalytics = (classes ?? []).map((row) => ({ ...row, ...summarizeClassScores((grades.data ?? []).filter((grade) => grade.class_id === row.id).map((grade) => Number(grade.percentage)), rosterCounts.get(row.id) ?? 0) }));
   const masteryByNode = new Map<string, any[]>();
   (mastery.data ?? []).forEach((row) => masteryByNode.set(row.curriculum_node_id, [...(masteryByNode.get(row.curriculum_node_id) ?? []), row]));
-  const indicatorRows = (events.data ?? []).map((event: any) => { const node = Array.isArray(event.curriculum_nodes) ? event.curriculum_nodes[0] : event.curriculum_nodes; const nodeMastery = masteryByNode.get(event.curriculum_node_id) ?? []; return { code: node?.code, title: node?.title, student_user_id: event.student_user_id, is_correct: event.is_correct, mastery_score: nodeMastery.find((row) => row.student_user_id === event.student_user_id)?.mastery_score, proficiency_state: nodeMastery.find((row) => row.student_user_id === event.student_user_id)?.proficiency_state }; });
+  const indicatorRows = (events.data ?? []).map((event: any) => { const node = Array.isArray(event.curriculum_nodes) ? event.curriculum_nodes[0] : event.curriculum_nodes; const nodeMastery = masteryByNode.get(event.curriculum_node_id) ?? []; return { code: node?.code, title: node?.title, student_user_id: event.student_user_id, is_correct: event.is_correct, mastery_score: nodeMastery.find((row) => row.student_user_id === event.student_user_id)?.mastery_score, proficiency_state: nodeMastery.find((row) => row.student_user_id === event.student_user_id)?.proficiency_state, class_id: event.class_id, curriculum_node_id: event.curriculum_node_id }; });
   const indicators = summarizeIndicators(indicatorRows);
-  return { classes: classAnalytics, indicators, needsAttention: indicators.filter((row) => row.averageMastery < 68 || row.averageAccuracy < 68).map((row) => ({ ...row, className: "Teacher class" })) };
+  return { classes: classAnalytics, indicators, needsAttention: indicators.filter((row) => row.averageMastery < 68 || row.averageAccuracy < 68).map((row) => ({ ...row, className: "Teacher class", classId: indicatorRows.find((event) => event.code === row.code)?.class_id, curriculumNodeId: indicatorRows.find((event) => event.code === row.code)?.curriculum_node_id })) };
+}
+
+export async function listIndicatorLearners(classId: string, curriculumNodeId: string) {
+  const supabase = getSupabaseBrowserClient();
+  const [roster, events, mastery] = await Promise.all([
+    supabase.from("class_memberships").select("student_user_id,student_name,student_email").eq("class_id", classId).eq("status", "active"),
+    supabase.from("learning_events").select("student_user_id,is_correct,occurred_at").eq("class_id", classId).eq("curriculum_node_id", curriculumNodeId).order("occurred_at", { ascending: false }),
+    supabase.from("mastery_records").select("student_user_id,mastery_score,proficiency_state,attempts_count,recent_accuracy,last_practiced_at").eq("curriculum_node_id", curriculumNodeId),
+  ]);
+  for (const result of [roster, events, mastery]) if (result.error) throw result.error;
+  const evidence = new Map<string, any[]>();
+  (events.data ?? []).forEach((row) => evidence.set(row.student_user_id, [...(evidence.get(row.student_user_id) ?? []), row]));
+  const masteryByStudent = new Map((mastery.data ?? []).map((row) => [row.student_user_id, row]));
+  return (roster.data ?? []).filter((student) => evidence.has(student.student_user_id)).map((student) => {
+    const rows = evidence.get(student.student_user_id) ?? [], latest = rows[0], record = masteryByStudent.get(student.student_user_id);
+    return { ...student, latestScore: latest?.is_correct ? 100 : 0, masteryScore: record?.mastery_score ?? 0, proficiencyState: record?.proficiency_state ?? "Learning", attemptsCount: record?.attempts_count ?? rows.length, recentAccuracy: record?.recent_accuracy ?? (rows.filter((row) => row.is_correct).length / rows.length * 100), lastPracticedAt: record?.last_practiced_at ?? latest?.occurred_at };
+  });
 }
 
 export async function listTeacherClasses(teacherId: string) {
