@@ -63,7 +63,7 @@ begin
   insert into public.assignment_targets(assignment_id,class_id,student_id,membership_id,status)
   select v_assignment.id,v_class.id,cm.student_id,cm.id,'ACTIVE'
   from public.class_memberships cm
-  where cm.class_id = v_class.id and upper(cm.status) = 'ACTIVE'
+  where cm.class_id = v_class.id and cm.status = 'active'
     and (p_target_student_ids is null or cm.student_user_id = any(p_target_student_ids))
   on conflict do nothing;
   return jsonb_build_object('assignment_id',v_assignment.id,'assessment_id',v_assessment.id,'question_count',v_available,'recipient_mode',v_assignment.recipient_mode,'status','PUBLISHED');
