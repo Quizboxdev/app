@@ -1,0 +1,3794 @@
+{
+  "summary": {
+    "generatedAt": "2026-10-01T15:53:42.982Z",
+    "sourceRoot": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum",
+    "totalSourceFiles": 96,
+    "curricula": [
+      "Ghana Common Core Programme",
+      "Ghana Source Curriculum"
+    ],
+    "educationLevels": [
+      "Basic Primary",
+      "JHS / Common Core",
+      "SHS"
+    ],
+    "grades": [
+      "B10",
+      "B4",
+      "B5",
+      "B6",
+      "B7",
+      "B8",
+      "B9",
+      "SHS1",
+      "SHS2",
+      "SHS3"
+    ],
+    "subjects": [
+      "ARABIC",
+      "CHEMISTRY",
+      "Computing",
+      "English Language",
+      "FRENCH",
+      "HISTORY",
+      "Mathematics",
+      "Our World Our People",
+      "PHYSICS",
+      "Religious and Moral Education",
+      "Science",
+      "Social Studies",
+      "TWI"
+    ],
+    "normalizedCurriculumNodes": 2109,
+    "questionRecordsDiscovered": 82,
+    "validQuestions": 0,
+    "warnings": 8,
+    "rejected": 74,
+    "duplicates": 0,
+    "successfullyPrepared": 8,
+    "parseErrors": 0
+  },
+  "questions": [
+    {
+      "question": {
+        "externalSourceId": "bb51dc1d390cf0da8f4611c54d8cfe9d6df765d4966458d4c974ab840aa83a33:1",
+        "sourceFile": "B6-COMPUTING-Questions.pdf",
+        "sourceHash": "bb51dc1d390cf0da8f4611c54d8cfe9d6df765d4966458d4c974ab840aa83a33",
+        "educationLevel": "Basic Primary",
+        "grade": "B6",
+        "subject": "Computing",
+        "questionType": "multiple_choice",
+        "questionText": "............. is just like a computerized typewriter",
+        "options": [
+          {
+            "key": "A",
+            "text": "Computer"
+          },
+          {
+            "key": "B",
+            "text": "Word document"
+          },
+          {
+            "key": "C",
+            "text": "word processor"
+          },
+          {
+            "key": "D",
+            "text": "word typewriter"
+          }
+        ],
+        "correctAnswer": "A",
+        "source": "B6-COMPUTING-Questions.pdf",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        }
+      ],
+      "fingerprint": "a8805fd78cbd0df63ae147eaadb6a309af7e7b6b0ba764fb384d86d2ef8dee93",
+      "classification": "warning"
+    },
+    {
+      "question": {
+        "externalSourceId": "bb51dc1d390cf0da8f4611c54d8cfe9d6df765d4966458d4c974ab840aa83a33:4",
+        "sourceFile": "B6-COMPUTING-Questions.pdf",
+        "sourceHash": "bb51dc1d390cf0da8f4611c54d8cfe9d6df765d4966458d4c974ab840aa83a33",
+        "educationLevel": "Basic Primary",
+        "grade": "B6",
+        "subject": "Computing",
+        "questionType": "multiple_choice",
+        "questionText": ".............. is a simple word processor that included with almost all versions of Ms from window 95 upwards",
+        "options": [
+          {
+            "key": "A",
+            "text": "Word pad"
+          },
+          {
+            "key": "B",
+            "text": "Words pad"
+          },
+          {
+            "key": "C",
+            "text": "Word processor"
+          },
+          {
+            "key": "D",
+            "text": "Word"
+          }
+        ],
+        "correctAnswer": "A",
+        "source": "B6-COMPUTING-Questions.pdf",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        }
+      ],
+      "fingerprint": "252d6b912375851c34371be353c3e44e4df2f50163192fdc789fee242fc61ebe",
+      "classification": "warning"
+    },
+    {
+      "question": {
+        "externalSourceId": "bb51dc1d390cf0da8f4611c54d8cfe9d6df765d4966458d4c974ab840aa83a33:6",
+        "sourceFile": "B6-COMPUTING-Questions.pdf",
+        "sourceHash": "bb51dc1d390cf0da8f4611c54d8cfe9d6df765d4966458d4c974ab840aa83a33",
+        "educationLevel": "Basic Primary",
+        "grade": "B6",
+        "subject": "Computing",
+        "questionType": "multiple_choice",
+        "questionText": "................ are files and data that you create or print yourself",
+        "options": [
+          {
+            "key": "A",
+            "text": "Movies"
+          },
+          {
+            "key": "B",
+            "text": "Documents"
+          },
+          {
+            "key": "C",
+            "text": "Programs"
+          },
+          {
+            "key": "D",
+            "text": "Photos"
+          }
+        ],
+        "source": "B6-COMPUTING-Questions.pdf",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "MISSING_ANSWER",
+          "message": "MCQ has no correct answer."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        }
+      ],
+      "fingerprint": "8fb3832638b9a91cf699000b713f61f3338442c3cff830c6194ca62785915ce9",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "bb51dc1d390cf0da8f4611c54d8cfe9d6df765d4966458d4c974ab840aa83a33:7",
+        "sourceFile": "B6-COMPUTING-Questions.pdf",
+        "sourceHash": "bb51dc1d390cf0da8f4611c54d8cfe9d6df765d4966458d4c974ab840aa83a33",
+        "educationLevel": "Basic Primary",
+        "grade": "B6",
+        "subject": "Computing",
+        "questionType": "multiple_choice",
+        "questionText": "There is a significant change in the way text is typed in",
+        "options": [
+          {
+            "key": "A",
+            "text": "........ a) Monitor"
+          },
+          {
+            "key": "B",
+            "text": "Document"
+          },
+          {
+            "key": "C",
+            "text": "Chalkboard"
+          },
+          {
+            "key": "D",
+            "text": "Keyboard"
+          }
+        ],
+        "source": "B6-COMPUTING-Questions.pdf",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "MISSING_ANSWER",
+          "message": "MCQ has no correct answer."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        }
+      ],
+      "fingerprint": "ecea36f4e672e793c07e67c14fb6a20dd4e93682976f528c7cdf370b2632ca0b",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "bb51dc1d390cf0da8f4611c54d8cfe9d6df765d4966458d4c974ab840aa83a33:8",
+        "sourceFile": "B6-COMPUTING-Questions.pdf",
+        "sourceHash": "bb51dc1d390cf0da8f4611c54d8cfe9d6df765d4966458d4c974ab840aa83a33",
+        "educationLevel": "Basic Primary",
+        "grade": "B6",
+        "subject": "Computing",
+        "questionType": "multiple_choice",
+        "questionText": "The ........... print is automatically transferred to the next line once you reach the end of your previous line in the same paragraph",
+        "options": [
+          {
+            "key": "A",
+            "text": "Control"
+          },
+          {
+            "key": "B",
+            "text": "Pointing"
+          },
+          {
+            "key": "C",
+            "text": "Insertion"
+          },
+          {
+            "key": "D",
+            "text": "Retrieving"
+          }
+        ],
+        "source": "B6-COMPUTING-Questions.pdf",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "MISSING_ANSWER",
+          "message": "MCQ has no correct answer."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        }
+      ],
+      "fingerprint": "04408168fcbe3b1c83815c9f976c91461ea9ccbcc63997b2b74355ad63957c8f",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "bb51dc1d390cf0da8f4611c54d8cfe9d6df765d4966458d4c974ab840aa83a33:1",
+        "sourceFile": "B6-COMPUTING-Questions.pdf",
+        "sourceHash": "bb51dc1d390cf0da8f4611c54d8cfe9d6df765d4966458d4c974ab840aa83a33",
+        "educationLevel": "Basic Primary",
+        "grade": "B6",
+        "subject": "Computing",
+        "questionType": "multiple_choice",
+        "questionText": "a. What is internet? (2 marks) b. identify the basic requirements needed to establish internet connection. (5 marks) c. List 3 uses of internet . (3 marks) 2)",
+        "options": [
+          {
+            "key": "A",
+            "text": "What is router? (3 marks)"
+          },
+          {
+            "key": "B",
+            "text": "Explain what an internet address is. (3 marks)"
+          },
+          {
+            "key": "C",
+            "text": "List any 3 internet browsers you know. (4 marks) 3) a. What is word processor? (2 marks) b. What is word pad? (2 marks) c. Write the steps to start word pad. (5 marks)"
+          },
+          {
+            "key": "D",
+            "text": "What are the short cut keys to create a new document. (1 mark)"
+          }
+        ],
+        "correctAnswer": "A",
+        "source": "B6-COMPUTING-Questions.pdf",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        }
+      ],
+      "fingerprint": "07165f8f5a80256e82f2e7b430f34428c12dc0dfa9c278ad5436b1e85afdddaf",
+      "classification": "warning"
+    },
+    {
+      "question": {
+        "externalSourceId": "bb51dc1d390cf0da8f4611c54d8cfe9d6df765d4966458d4c974ab840aa83a33:4",
+        "sourceFile": "B6-COMPUTING-Questions.pdf",
+        "sourceHash": "bb51dc1d390cf0da8f4611c54d8cfe9d6df765d4966458d4c974ab840aa83a33",
+        "educationLevel": "Basic Primary",
+        "grade": "B6",
+        "subject": "Computing",
+        "questionType": "multiple_choice",
+        "questionText": "a. How do you enter text in word pad? (2 marks) b. What is the use of saving a file. (3 marks) c. Why is text selection useful before performing any task. (2 marks) d. What is the use of editing text. (3 marks) 5) Provide the full names for the following abbreviations",
+        "options": [
+          {
+            "key": "A",
+            "text": "WWW (2 marks)"
+          },
+          {
+            "key": "B",
+            "text": "IP (2 marks)"
+          },
+          {
+            "key": "C",
+            "text": "TCP (2 marks)"
+          },
+          {
+            "key": "D",
+            "text": "URL (2 marks) e. HTTP (2 marks)"
+          }
+        ],
+        "correctAnswer": "A",
+        "source": "B6-COMPUTING-Questions.pdf",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        }
+      ],
+      "fingerprint": "bf0dde3c2bfee98e3f29fd50089d8876f42aeaf0bb99dedef0d43a2c3790dfd7",
+      "classification": "warning"
+    },
+    {
+      "question": {
+        "externalSourceId": "397502377f8c566e69d2ae64fa39969166547de1cf6dda7cd5d45c8a1dad7aca:17",
+        "sourceFile": "TERM-3-B4-OWOP.pdf",
+        "sourceHash": "397502377f8c566e69d2ae64fa39969166547de1cf6dda7cd5d45c8a1dad7aca",
+        "educationLevel": "Basic Primary",
+        "grade": "B4",
+        "subject": "Our World Our People",
+        "questionType": "multiple_choice",
+        "questionText": ".......... is used for clearing weeds. a. Rake b. Cutlass c. Hand trowel 18. We get food like ........ from gardens. a. Pizza b. Vegetables and fruits c. Drinks 19. Cabbage is a type of ............. a. fruit b. vegetable c. drink 20. To use water responsibly means to use water ...... a. wisely b. foolishly c. small 21. Do not leave the ............ on after use. a. tap b. river c. sea 22. Prayer is the means by which we communicate with ....... a. God b. satan c. angels 23. Caring for the environment means ....... a. taking care of all that God has created b. cutting trees c. killing animals 24. A person who can be trusted is .......... a. loving b. faithful c. respectful 25. Good manners are important in the life of a ...........",
+        "options": [
+          {
+            "key": "A",
+            "text": "person b. animal c. calf 26. The country to the north of Ghana is .............. a. Nigeria b. Togo c. Burkina Faso 27. ................. are people from Togo a. Ghnaians"
+          },
+          {
+            "key": "B",
+            "text": "Togolese c. Burkinabés 28. it is ................... To obey people in authority. a. important b. bad c. wrong 29. our parents and teachers are people in authority because they ................ Us a. control b. love"
+          },
+          {
+            "key": "C",
+            "text": "hate SECTION B Answer all questions. 1. a) What is a rock? b) Where can we find rocks? c) List any three (3) minerals we get from rocks."
+          },
+          {
+            "key": "D",
+            "text": "Mention any four (4) items obtained from rocks that are used for building a house."
+          }
+        ],
+        "source": "TERM-3-B4-OWOP.pdf",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "MISSING_ANSWER",
+          "message": "MCQ has no correct answer."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        }
+      ],
+      "fingerprint": "5e516281fcf13ef9633fe2c5932afb3c0c0d0e2f871e468cb09fa9423c9c3126",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "75cf4ce01f023827611c0fc65131d1839488cef55ed97e8cef5d7e12c5e0c48b:2",
+        "sourceFile": "TERM-3-B5-OWOP-QUESTIONS-1.pdf",
+        "sourceHash": "75cf4ce01f023827611c0fc65131d1839488cef55ed97e8cef5d7e12c5e0c48b",
+        "educationLevel": "Basic Primary",
+        "grade": "B5",
+        "subject": "Our World Our People",
+        "questionType": "multiple_choice",
+        "questionText": "Which of the following betrayed Jesus Christ?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Peter"
+          },
+          {
+            "key": "B",
+            "text": "Matthew"
+          },
+          {
+            "key": "C",
+            "text": "John"
+          },
+          {
+            "key": "D",
+            "text": "Judas Iscariot"
+          }
+        ],
+        "source": "TERM-3-B5-OWOP-QUESTIONS-1.pdf",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "MISSING_ANSWER",
+          "message": "MCQ has no correct answer."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        }
+      ],
+      "fingerprint": "fe6dfead058707b37ca2d81d1092c883abe414a1097ed9dd2b8743c983251fb3",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "75cf4ce01f023827611c0fc65131d1839488cef55ed97e8cef5d7e12c5e0c48b:4",
+        "sourceFile": "TERM-3-B5-OWOP-QUESTIONS-1.pdf",
+        "sourceHash": "75cf4ce01f023827611c0fc65131d1839488cef55ed97e8cef5d7e12c5e0c48b",
+        "educationLevel": "Basic Primary",
+        "grade": "B5",
+        "subject": "Our World Our People",
+        "questionType": "multiple_choice",
+        "questionText": "What is the Akan n ame given to the Golden Stool?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Sikadwa Kofi"
+          },
+          {
+            "key": "B",
+            "text": "Sikadwa"
+          },
+          {
+            "key": "C",
+            "text": "Sikadwa Yaw"
+          },
+          {
+            "key": "D",
+            "text": "Ohiadwa Kofi"
+          }
+        ],
+        "source": "TERM-3-B5-OWOP-QUESTIONS-1.pdf",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "MISSING_ANSWER",
+          "message": "MCQ has no correct answer."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        }
+      ],
+      "fingerprint": "e52feb33dfd533507566b74d0c436d562c34d27872ab2b4720043725a9ba737d",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "75cf4ce01f023827611c0fc65131d1839488cef55ed97e8cef5d7e12c5e0c48b:5",
+        "sourceFile": "TERM-3-B5-OWOP-QUESTIONS-1.pdf",
+        "sourceHash": "75cf4ce01f023827611c0fc65131d1839488cef55ed97e8cef5d7e12c5e0c48b",
+        "educationLevel": "Basic Primary",
+        "grade": "B5",
+        "subject": "Our World Our People",
+        "questionType": "multiple_choice",
+        "questionText": "Who commanded the golden stool from the sky?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Mohammed"
+          },
+          {
+            "key": "B",
+            "text": "Jesus Christ"
+          },
+          {
+            "key": "C",
+            "text": "King Osei Tutu"
+          },
+          {
+            "key": "D",
+            "text": "Okomfo Anokye"
+          }
+        ],
+        "source": "TERM-3-B5-OWOP-QUESTIONS-1.pdf",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "MISSING_ANSWER",
+          "message": "MCQ has no correct answer."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        }
+      ],
+      "fingerprint": "3eefd875cbab68627885af2c78b229a86537506f0214194b7e152401c27b38dd",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "75cf4ce01f023827611c0fc65131d1839488cef55ed97e8cef5d7e12c5e0c48b:6",
+        "sourceFile": "TERM-3-B5-OWOP-QUESTIONS-1.pdf",
+        "sourceHash": "75cf4ce01f023827611c0fc65131d1839488cef55ed97e8cef5d7e12c5e0c48b",
+        "educationLevel": "Basic Primary",
+        "grade": "B5",
+        "subject": "Our World Our People",
+        "questionType": "multiple_choice",
+        "questionText": "The first temptation of Jesus Christ by the devil was to jump from the top of the temple at Jerusalem.",
+        "options": [
+          {
+            "key": "A",
+            "text": "True"
+          },
+          {
+            "key": "B",
+            "text": "False 7. The songs and recitations believers sing or recite during worship are called________ songs and recitation. a. Christians b. Religious"
+          },
+          {
+            "key": "C",
+            "text": "Islamic"
+          },
+          {
+            "key": "D",
+            "text": "Traditionalist"
+          }
+        ],
+        "source": "TERM-3-B5-OWOP-QUESTIONS-1.pdf",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "MISSING_ANSWER",
+          "message": "MCQ has no correct answer."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        }
+      ],
+      "fingerprint": "f5a4fde3deffb050475466f3c7e2af90a6cfbf44445cd28560fbb0c2d7d6c734",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "75cf4ce01f023827611c0fc65131d1839488cef55ed97e8cef5d7e12c5e0c48b:8",
+        "sourceFile": "TERM-3-B5-OWOP-QUESTIONS-1.pdf",
+        "sourceHash": "75cf4ce01f023827611c0fc65131d1839488cef55ed97e8cef5d7e12c5e0c48b",
+        "educationLevel": "Basic Primary",
+        "grade": "B5",
+        "subject": "Our World Our People",
+        "questionType": "multiple_choice",
+        "questionText": "An art of sound with rhythm or rhyme is known as _______",
+        "options": [
+          {
+            "key": "A",
+            "text": "song"
+          },
+          {
+            "key": "B",
+            "text": "recitation"
+          },
+          {
+            "key": "C",
+            "text": "passage"
+          },
+          {
+            "key": "D",
+            "text": "message"
+          }
+        ],
+        "source": "TERM-3-B5-OWOP-QUESTIONS-1.pdf",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "MISSING_ANSWER",
+          "message": "MCQ has no correct answer."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        }
+      ],
+      "fingerprint": "5ddbb802f17a6f3d6d47f679d2d31cbc21818a70a5627125de1380dcdc0c009b",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "75cf4ce01f023827611c0fc65131d1839488cef55ed97e8cef5d7e12c5e0c48b:13",
+        "sourceFile": "TERM-3-B5-OWOP-QUESTIONS-1.pdf",
+        "sourceHash": "75cf4ce01f023827611c0fc65131d1839488cef55ed97e8cef5d7e12c5e0c48b",
+        "educationLevel": "Basic Primary",
+        "grade": "B5",
+        "subject": "Our World Our People",
+        "questionType": "multiple_choice",
+        "questionText": "All the following are among the five pillars of Islam except_____.",
+        "options": [
+          {
+            "key": "A",
+            "text": "Hajj"
+          },
+          {
+            "key": "B",
+            "text": "Ramadan fasting"
+          },
+          {
+            "key": "C",
+            "text": "Zakat"
+          },
+          {
+            "key": "D",
+            "text": "Fajir 14.______ is the object of worship for Muslims. a. God b. Supreme Being c. Jesus Christ d. Allah"
+          }
+        ],
+        "source": "TERM-3-B5-OWOP-QUESTIONS-1.pdf",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "MISSING_ANSWER",
+          "message": "MCQ has no correct answer."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        }
+      ],
+      "fingerprint": "32a5577233f215c9ae75fb279422305129e6e648ca6d323329500ba37336f95a",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "75cf4ce01f023827611c0fc65131d1839488cef55ed97e8cef5d7e12c5e0c48b:15",
+        "sourceFile": "TERM-3-B5-OWOP-QUESTIONS-1.pdf",
+        "sourceHash": "75cf4ce01f023827611c0fc65131d1839488cef55ed97e8cef5d7e12c5e0c48b",
+        "educationLevel": "Basic Primary",
+        "grade": "B5",
+        "subject": "Our World Our People",
+        "questionType": "multiple_choice",
+        "questionText": "Which of the following countries is the leading greenhouse gas producer?",
+        "options": [
+          {
+            "key": "A",
+            "text": "USA"
+          },
+          {
+            "key": "B",
+            "text": "China"
+          },
+          {
+            "key": "C",
+            "text": "Russia"
+          },
+          {
+            "key": "D",
+            "text": "India"
+          }
+        ],
+        "source": "TERM-3-B5-OWOP-QUESTIONS-1.pdf",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "MISSING_ANSWER",
+          "message": "MCQ has no correct answer."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        }
+      ],
+      "fingerprint": "fd619a19923a6bcf20ecfcf580e55d7ad517ef8523ceb251dd747ed8645bc02a",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "cb086e0cc62e37c1f9a81706b53451363c6efa04801a865c0ba08f15cd05aaa7:1",
+        "sourceFile": "TERM-3-B5-SCIENCE-QUESTIONS.pdf",
+        "sourceHash": "cb086e0cc62e37c1f9a81706b53451363c6efa04801a865c0ba08f15cd05aaa7",
+        "educationLevel": "Basic Primary",
+        "grade": "B5",
+        "subject": "Science",
+        "questionType": "multiple_choice",
+        "questionText": "The following materials are used to clean the environment except.........",
+        "options": [
+          {
+            "key": "A",
+            "text": "broom"
+          },
+          {
+            "key": "B",
+            "text": "shovel"
+          },
+          {
+            "key": "C",
+            "text": "rake spoon 2. Which of the following cleaning tools is used for clearing weeds? a. cutlass b. broom c. ceiling brush"
+          },
+          {
+            "key": "D",
+            "text": "waste bin"
+          }
+        ],
+        "source": "TERM-3-B5-SCIENCE-QUESTIONS.pdf",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "MISSING_ANSWER",
+          "message": "MCQ has no correct answer."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        }
+      ],
+      "fingerprint": "290a37ac000282de6fc60d70751d0ea034516be877721ca9688b6099e2e06d4c",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "cb086e0cc62e37c1f9a81706b53451363c6efa04801a865c0ba08f15cd05aaa7:4",
+        "sourceFile": "TERM-3-B5-SCIENCE-QUESTIONS.pdf",
+        "sourceHash": "cb086e0cc62e37c1f9a81706b53451363c6efa04801a865c0ba08f15cd05aaa7",
+        "educationLevel": "Basic Primary",
+        "grade": "B5",
+        "subject": "Science",
+        "questionType": "multiple_choice",
+        "questionText": "The surface of the washing board is .........",
+        "options": [
+          {
+            "key": "A",
+            "text": "ridged"
+          },
+          {
+            "key": "B",
+            "text": "smooth"
+          },
+          {
+            "key": "C",
+            "text": "rough"
+          },
+          {
+            "key": "D",
+            "text": "nice"
+          }
+        ],
+        "source": "TERM-3-B5-SCIENCE-QUESTIONS.pdf",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "MISSING_ANSWER",
+          "message": "MCQ has no correct answer."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        }
+      ],
+      "fingerprint": "76ba00e30dd18620f6dfc9b383de657c55b9bca0af54a1ce770645c323f44ba8",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "cb086e0cc62e37c1f9a81706b53451363c6efa04801a865c0ba08f15cd05aaa7:7",
+        "sourceFile": "TERM-3-B5-SCIENCE-QUESTIONS.pdf",
+        "sourceHash": "cb086e0cc62e37c1f9a81706b53451363c6efa04801a865c0ba08f15cd05aaa7",
+        "educationLevel": "Basic Primary",
+        "grade": "B5",
+        "subject": "Science",
+        "questionType": "multiple_choice",
+        "questionText": "The following are detergents used to wash clothes except ........",
+        "options": [
+          {
+            "key": "A",
+            "text": "key soup"
+          },
+          {
+            "key": "B",
+            "text": "omo"
+          },
+          {
+            "key": "C",
+            "text": "ice cream"
+          },
+          {
+            "key": "D",
+            "text": "ariel"
+          }
+        ],
+        "source": "TERM-3-B5-SCIENCE-QUESTIONS.pdf",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "MISSING_ANSWER",
+          "message": "MCQ has no correct answer."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        }
+      ],
+      "fingerprint": "04254b45b280b789bf12ac8e0352645fb6c5387ed037d4b474648dc7e5ed377b",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "cb086e0cc62e37c1f9a81706b53451363c6efa04801a865c0ba08f15cd05aaa7:9",
+        "sourceFile": "TERM-3-B5-SCIENCE-QUESTIONS.pdf",
+        "sourceHash": "cb086e0cc62e37c1f9a81706b53451363c6efa04801a865c0ba08f15cd05aaa7",
+        "educationLevel": "Basic Primary",
+        "grade": "B5",
+        "subject": "Science",
+        "questionType": "multiple_choice",
+        "questionText": "An object in a fridge gets cold by ........heat.",
+        "options": [
+          {
+            "key": "A",
+            "text": "admitting"
+          },
+          {
+            "key": "B",
+            "text": "losing"
+          },
+          {
+            "key": "C",
+            "text": "gaining"
+          },
+          {
+            "key": "D",
+            "text": "selling"
+          }
+        ],
+        "source": "TERM-3-B5-SCIENCE-QUESTIONS.pdf",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "MISSING_ANSWER",
+          "message": "MCQ has no correct answer."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        }
+      ],
+      "fingerprint": "7403aecf5aa18c0ff3a57185f7f66128529cb8442dad9a6345070f84ca0c7848",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "cb086e0cc62e37c1f9a81706b53451363c6efa04801a865c0ba08f15cd05aaa7:11",
+        "sourceFile": "TERM-3-B5-SCIENCE-QUESTIONS.pdf",
+        "sourceHash": "cb086e0cc62e37c1f9a81706b53451363c6efa04801a865c0ba08f15cd05aaa7",
+        "educationLevel": "Basic Primary",
+        "grade": "B5",
+        "subject": "Science",
+        "questionType": "multiple_choice",
+        "questionText": "When heat is gained, temperature is .......",
+        "options": [
+          {
+            "key": "A",
+            "text": "increased"
+          },
+          {
+            "key": "B",
+            "text": "decreased"
+          },
+          {
+            "key": "C",
+            "text": "maintained"
+          },
+          {
+            "key": "D",
+            "text": "maximized."
+          }
+        ],
+        "source": "TERM-3-B5-SCIENCE-QUESTIONS.pdf",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "MISSING_ANSWER",
+          "message": "MCQ has no correct answer."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        }
+      ],
+      "fingerprint": "550a71b0f21d43e65ebc3df4db3bb8b478f2702b890baf840ff6386e50144fba",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "cb086e0cc62e37c1f9a81706b53451363c6efa04801a865c0ba08f15cd05aaa7:12",
+        "sourceFile": "TERM-3-B5-SCIENCE-QUESTIONS.pdf",
+        "sourceHash": "cb086e0cc62e37c1f9a81706b53451363c6efa04801a865c0ba08f15cd05aaa7",
+        "educationLevel": "Basic Primary",
+        "grade": "B5",
+        "subject": "Science",
+        "questionType": "multiple_choice",
+        "questionText": "The hotness and coldness of an object is is known as ............",
+        "options": [
+          {
+            "key": "A",
+            "text": "force"
+          },
+          {
+            "key": "B",
+            "text": "heat"
+          },
+          {
+            "key": "C",
+            "text": "temperature"
+          },
+          {
+            "key": "D",
+            "text": "work"
+          }
+        ],
+        "source": "TERM-3-B5-SCIENCE-QUESTIONS.pdf",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "MISSING_ANSWER",
+          "message": "MCQ has no correct answer."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        }
+      ],
+      "fingerprint": "ad62f8e80a0d3cf9bec6173cfcc21e511d2de81f73b4daf8fc604d914ec4605d",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "cb086e0cc62e37c1f9a81706b53451363c6efa04801a865c0ba08f15cd05aaa7:13",
+        "sourceFile": "TERM-3-B5-SCIENCE-QUESTIONS.pdf",
+        "sourceHash": "cb086e0cc62e37c1f9a81706b53451363c6efa04801a865c0ba08f15cd05aaa7",
+        "educationLevel": "Basic Primary",
+        "grade": "B5",
+        "subject": "Science",
+        "questionType": "multiple_choice",
+        "questionText": "Which type of energy is stored in the batteries of torchlight?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Sound"
+          },
+          {
+            "key": "B",
+            "text": "Radiant"
+          },
+          {
+            "key": "C",
+            "text": "Chemical"
+          },
+          {
+            "key": "D",
+            "text": "Mechanical"
+          }
+        ],
+        "source": "TERM-3-B5-SCIENCE-QUESTIONS.pdf",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "MISSING_ANSWER",
+          "message": "MCQ has no correct answer."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        }
+      ],
+      "fingerprint": "087ee01167c38d5776cd326e2d62ed9126b47e7f48485227e6b54bff6e216dda",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "cb086e0cc62e37c1f9a81706b53451363c6efa04801a865c0ba08f15cd05aaa7:14",
+        "sourceFile": "TERM-3-B5-SCIENCE-QUESTIONS.pdf",
+        "sourceHash": "cb086e0cc62e37c1f9a81706b53451363c6efa04801a865c0ba08f15cd05aaa7",
+        "educationLevel": "Basic Primary",
+        "grade": "B5",
+        "subject": "Science",
+        "questionType": "multiple_choice",
+        "questionText": "All the following are forms of energy except ........",
+        "options": [
+          {
+            "key": "A",
+            "text": "light"
+          },
+          {
+            "key": "B",
+            "text": "heat"
+          },
+          {
+            "key": "C",
+            "text": "moon"
+          },
+          {
+            "key": "D",
+            "text": "sound"
+          }
+        ],
+        "source": "TERM-3-B5-SCIENCE-QUESTIONS.pdf",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "MISSING_ANSWER",
+          "message": "MCQ has no correct answer."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        }
+      ],
+      "fingerprint": "b2dabaaa2e00a13ab3dc6c5f4fa3d54f7d60186be0225fd63fae242a8398efeb",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "cb086e0cc62e37c1f9a81706b53451363c6efa04801a865c0ba08f15cd05aaa7:15",
+        "sourceFile": "TERM-3-B5-SCIENCE-QUESTIONS.pdf",
+        "sourceHash": "cb086e0cc62e37c1f9a81706b53451363c6efa04801a865c0ba08f15cd05aaa7",
+        "educationLevel": "Basic Primary",
+        "grade": "B5",
+        "subject": "Science",
+        "questionType": "multiple_choice",
+        "questionText": "The following are examples of habitats except .........",
+        "options": [
+          {
+            "key": "A",
+            "text": "stone"
+          },
+          {
+            "key": "B",
+            "text": "terrestrial"
+          },
+          {
+            "key": "C",
+            "text": "aquatic"
+          },
+          {
+            "key": "D",
+            "text": "arboreal"
+          }
+        ],
+        "source": "TERM-3-B5-SCIENCE-QUESTIONS.pdf",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "MISSING_ANSWER",
+          "message": "MCQ has no correct answer."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        }
+      ],
+      "fingerprint": "e4e46b3902fba4e4f0a19b995a972f3117f13ed31dce026492377ce057939501",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "cb086e0cc62e37c1f9a81706b53451363c6efa04801a865c0ba08f15cd05aaa7:16",
+        "sourceFile": "TERM-3-B5-SCIENCE-QUESTIONS.pdf",
+        "sourceHash": "cb086e0cc62e37c1f9a81706b53451363c6efa04801a865c0ba08f15cd05aaa7",
+        "educationLevel": "Basic Primary",
+        "grade": "B5",
+        "subject": "Science",
+        "questionType": "multiple_choice",
+        "questionText": "Which form of energy produces sound in a television set?",
+        "options": [
+          {
+            "key": "A",
+            "text": "sound energy"
+          },
+          {
+            "key": "B",
+            "text": "light energy"
+          },
+          {
+            "key": "C",
+            "text": "heat energy"
+          },
+          {
+            "key": "D",
+            "text": "radiation"
+          }
+        ],
+        "source": "TERM-3-B5-SCIENCE-QUESTIONS.pdf",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "MISSING_ANSWER",
+          "message": "MCQ has no correct answer."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        }
+      ],
+      "fingerprint": "4f9f0b98fc85d3832d45cff97d8d7374de6eccbecbc933056f555253419eda69",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "cb086e0cc62e37c1f9a81706b53451363c6efa04801a865c0ba08f15cd05aaa7:17",
+        "sourceFile": "TERM-3-B5-SCIENCE-QUESTIONS.pdf",
+        "sourceHash": "cb086e0cc62e37c1f9a81706b53451363c6efa04801a865c0ba08f15cd05aaa7",
+        "educationLevel": "Basic Primary",
+        "grade": "B5",
+        "subject": "Science",
+        "questionType": "multiple_choice",
+        "questionText": "Which group of the following animals live in water?",
+        "options": [
+          {
+            "key": "A",
+            "text": "fish and lizard"
+          },
+          {
+            "key": "B",
+            "text": "frog and bird"
+          },
+          {
+            "key": "C",
+            "text": "fish and crocodile"
+          },
+          {
+            "key": "D",
+            "text": "bird and sheep"
+          }
+        ],
+        "source": "TERM-3-B5-SCIENCE-QUESTIONS.pdf",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "MISSING_ANSWER",
+          "message": "MCQ has no correct answer."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        }
+      ],
+      "fingerprint": "1336b592a52169be9e47b47c22b1c330497cc6071f46bcc80193b0c25f41566b",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "cb086e0cc62e37c1f9a81706b53451363c6efa04801a865c0ba08f15cd05aaa7:18",
+        "sourceFile": "TERM-3-B5-SCIENCE-QUESTIONS.pdf",
+        "sourceHash": "cb086e0cc62e37c1f9a81706b53451363c6efa04801a865c0ba08f15cd05aaa7",
+        "educationLevel": "Basic Primary",
+        "grade": "B5",
+        "subject": "Science",
+        "questionType": "multiple_choice",
+        "questionText": "Which planet is closest to the sun ?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Mars"
+          },
+          {
+            "key": "B",
+            "text": "Earth"
+          },
+          {
+            "key": "C",
+            "text": "Mercury"
+          },
+          {
+            "key": "D",
+            "text": "Uranus"
+          }
+        ],
+        "source": "TERM-3-B5-SCIENCE-QUESTIONS.pdf",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "MISSING_ANSWER",
+          "message": "MCQ has no correct answer."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        }
+      ],
+      "fingerprint": "84163859c2d7b7750a34fc1b46c0e7a49c99a0bcc2ab5cee87459b4a4f669f20",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "cb086e0cc62e37c1f9a81706b53451363c6efa04801a865c0ba08f15cd05aaa7:19",
+        "sourceFile": "TERM-3-B5-SCIENCE-QUESTIONS.pdf",
+        "sourceHash": "cb086e0cc62e37c1f9a81706b53451363c6efa04801a865c0ba08f15cd05aaa7",
+        "educationLevel": "Basic Primary",
+        "grade": "B5",
+        "subject": "Science",
+        "questionType": "multiple_choice",
+        "questionText": "The sun is not at the center of the solar system.",
+        "options": [
+          {
+            "key": "A",
+            "text": "True"
+          },
+          {
+            "key": "B",
+            "text": "False 20. How many planets do we have now? a. 8 b. 5 d. 9 e. 10 21. Which of the following uses sunlight to produce their food? a. Animals b. Stones"
+          },
+          {
+            "key": "C",
+            "text": "Plants"
+          },
+          {
+            "key": "D",
+            "text": "Firefly"
+          }
+        ],
+        "source": "TERM-3-B5-SCIENCE-QUESTIONS.pdf",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "MISSING_ANSWER",
+          "message": "MCQ has no correct answer."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        }
+      ],
+      "fingerprint": "17b74baa30aa69df1fea6984501c3465a4fb373b2d88519bfeec47900b35ddc3",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "cb086e0cc62e37c1f9a81706b53451363c6efa04801a865c0ba08f15cd05aaa7:22",
+        "sourceFile": "TERM-3-B5-SCIENCE-QUESTIONS.pdf",
+        "sourceHash": "cb086e0cc62e37c1f9a81706b53451363c6efa04801a865c0ba08f15cd05aaa7",
+        "educationLevel": "Basic Primary",
+        "grade": "B5",
+        "subject": "Science",
+        "questionType": "multiple_choice",
+        "questionText": "The seed cannot germinate without the presence of warmth and water.",
+        "options": [
+          {
+            "key": "A",
+            "text": "True"
+          },
+          {
+            "key": "B",
+            "text": "False 23. The process whereby seeds develop into young plant is known as ...... a. germination b. reproduction"
+          },
+          {
+            "key": "C",
+            "text": "respiration"
+          },
+          {
+            "key": "D",
+            "text": "creation"
+          }
+        ],
+        "source": "TERM-3-B5-SCIENCE-QUESTIONS.pdf",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "MISSING_ANSWER",
+          "message": "MCQ has no correct answer."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        }
+      ],
+      "fingerprint": "b59c7dbeaf3e1e78ab99bd9119b02f7edd45f48ac14937d010560cc086689cd2",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "cb086e0cc62e37c1f9a81706b53451363c6efa04801a865c0ba08f15cd05aaa7:25",
+        "sourceFile": "TERM-3-B5-SCIENCE-QUESTIONS.pdf",
+        "sourceHash": "cb086e0cc62e37c1f9a81706b53451363c6efa04801a865c0ba08f15cd05aaa7",
+        "educationLevel": "Basic Primary",
+        "grade": "B5",
+        "subject": "Science",
+        "questionType": "multiple_choice",
+        "questionText": "Which part of the plant holds it firmly in the soul?",
+        "options": [
+          {
+            "key": "A",
+            "text": "branches"
+          },
+          {
+            "key": "B",
+            "text": "flowers"
+          },
+          {
+            "key": "C",
+            "text": "leaves"
+          },
+          {
+            "key": "D",
+            "text": "roots"
+          }
+        ],
+        "source": "TERM-3-B5-SCIENCE-QUESTIONS.pdf",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "MISSING_ANSWER",
+          "message": "MCQ has no correct answer."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        }
+      ],
+      "fingerprint": "40422c3261fc8647400c00df95a940e768fdacb41ae5bc2d8e418cbeacfa6c52",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "cb086e0cc62e37c1f9a81706b53451363c6efa04801a865c0ba08f15cd05aaa7:26",
+        "sourceFile": "TERM-3-B5-SCIENCE-QUESTIONS.pdf",
+        "sourceHash": "cb086e0cc62e37c1f9a81706b53451363c6efa04801a865c0ba08f15cd05aaa7",
+        "educationLevel": "Basic Primary",
+        "grade": "B5",
+        "subject": "Science",
+        "questionType": "multiple_choice",
+        "questionText": "The following diseases are caused by using unsafe water except........",
+        "options": [
+          {
+            "key": "A",
+            "text": "ectopic"
+          },
+          {
+            "key": "B",
+            "text": "diarrhea"
+          },
+          {
+            "key": "C",
+            "text": "typhoid fever"
+          },
+          {
+            "key": "D",
+            "text": "cholera"
+          }
+        ],
+        "source": "TERM-3-B5-SCIENCE-QUESTIONS.pdf",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "MISSING_ANSWER",
+          "message": "MCQ has no correct answer."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        }
+      ],
+      "fingerprint": "043636d5c1ad276dbe1df003b798bda24c859890c11e03bd69c837a846a98ad4",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "cb086e0cc62e37c1f9a81706b53451363c6efa04801a865c0ba08f15cd05aaa7:27",
+        "sourceFile": "TERM-3-B5-SCIENCE-QUESTIONS.pdf",
+        "sourceHash": "cb086e0cc62e37c1f9a81706b53451363c6efa04801a865c0ba08f15cd05aaa7",
+        "educationLevel": "Basic Primary",
+        "grade": "B5",
+        "subject": "Science",
+        "questionType": "multiple_choice",
+        "questionText": "Which of the following is most important for survival?",
+        "options": [
+          {
+            "key": "A",
+            "text": "petrol"
+          },
+          {
+            "key": "B",
+            "text": "water"
+          },
+          {
+            "key": "C",
+            "text": "honey"
+          },
+          {
+            "key": "D",
+            "text": "milk"
+          }
+        ],
+        "source": "TERM-3-B5-SCIENCE-QUESTIONS.pdf",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "MISSING_ANSWER",
+          "message": "MCQ has no correct answer."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        }
+      ],
+      "fingerprint": "a049eb76aeb8e682c9ee7495aca1af0210b283edc03cc28819e7bf6f09930efd",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "cb086e0cc62e37c1f9a81706b53451363c6efa04801a865c0ba08f15cd05aaa7:28",
+        "sourceFile": "TERM-3-B5-SCIENCE-QUESTIONS.pdf",
+        "sourceHash": "cb086e0cc62e37c1f9a81706b53451363c6efa04801a865c0ba08f15cd05aaa7",
+        "educationLevel": "Basic Primary",
+        "grade": "B5",
+        "subject": "Science",
+        "questionType": "multiple_choice",
+        "questionText": "Air is a mixture of ........",
+        "options": [
+          {
+            "key": "A",
+            "text": "solids"
+          },
+          {
+            "key": "B",
+            "text": "gases"
+          },
+          {
+            "key": "C",
+            "text": "liquid"
+          },
+          {
+            "key": "D",
+            "text": "fixes"
+          }
+        ],
+        "source": "TERM-3-B5-SCIENCE-QUESTIONS.pdf",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "MISSING_ANSWER",
+          "message": "MCQ has no correct answer."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        }
+      ],
+      "fingerprint": "e184568d7d7fe93f1bdfd792a1ae732f6c6d71a443515673deb4975567eb1b9c",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "cb086e0cc62e37c1f9a81706b53451363c6efa04801a865c0ba08f15cd05aaa7:30",
+        "sourceFile": "TERM-3-B5-SCIENCE-QUESTIONS.pdf",
+        "sourceHash": "cb086e0cc62e37c1f9a81706b53451363c6efa04801a865c0ba08f15cd05aaa7",
+        "educationLevel": "Basic Primary",
+        "grade": "B5",
+        "subject": "Science",
+        "questionType": "multiple_choice",
+        "questionText": "All the following are examples of parts of plant except .........",
+        "options": [
+          {
+            "key": "A",
+            "text": "stem"
+          },
+          {
+            "key": "B",
+            "text": "soil"
+          },
+          {
+            "key": "C",
+            "text": "leaves"
+          },
+          {
+            "key": "D",
+            "text": "roots"
+          }
+        ],
+        "source": "TERM-3-B5-SCIENCE-QUESTIONS.pdf",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "MISSING_ANSWER",
+          "message": "MCQ has no correct answer."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        }
+      ],
+      "fingerprint": "23a46e7aa11df04ba0a5c546cbab426be0d927e205dbf5ff2b828b225e47f3a9",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "acc6f322fa69ad45c7366b7291c35e2a678b9cc21782786ea599624184e7d8f1:1",
+        "sourceFile": "Term-3-B6-Science-Another-Set.pdf",
+        "sourceHash": "acc6f322fa69ad45c7366b7291c35e2a678b9cc21782786ea599624184e7d8f1",
+        "educationLevel": "Basic Primary",
+        "grade": "B6",
+        "subject": "Science",
+        "questionType": "multiple_choice",
+        "questionText": "The part of the clinical thermometer which helps to prevent the liquid from falling back is the ...............",
+        "options": [
+          {
+            "key": "A",
+            "text": "Bulb"
+          },
+          {
+            "key": "B",
+            "text": "Constriction"
+          },
+          {
+            "key": "C",
+            "text": "Stem"
+          },
+          {
+            "key": "D",
+            "text": "capillary scale"
+          }
+        ],
+        "source": "Term-3-B6-Science-Another-Set.pdf",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "MISSING_ANSWER",
+          "message": "MCQ has no correct answer."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        }
+      ],
+      "fingerprint": "1d7c8954e8027d71e000828d7bf077219a7ebae8325bf698fdba731fa6bbe263",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "acc6f322fa69ad45c7366b7291c35e2a678b9cc21782786ea599624184e7d8f1:2",
+        "sourceFile": "Term-3-B6-Science-Another-Set.pdf",
+        "sourceHash": "acc6f322fa69ad45c7366b7291c35e2a678b9cc21782786ea599624184e7d8f1",
+        "educationLevel": "Basic Primary",
+        "grade": "B6",
+        "subject": "Science",
+        "questionType": "multiple_choice",
+        "questionText": "The normal body temperature of human beings is ................",
+        "options": [
+          {
+            "key": "A",
+            "text": "34oC"
+          },
+          {
+            "key": "B",
+            "text": "35oC"
+          },
+          {
+            "key": "C",
+            "text": "36oC"
+          },
+          {
+            "key": "D",
+            "text": "37oC"
+          }
+        ],
+        "correctAnswer": "A",
+        "source": "Term-3-B6-Science-Another-Set.pdf",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        }
+      ],
+      "fingerprint": "277bfe1e2061f7ef09281dc0b41a37cecb476976be5fab06a50749460eb81874",
+      "classification": "warning"
+    },
+    {
+      "question": {
+        "externalSourceId": "acc6f322fa69ad45c7366b7291c35e2a678b9cc21782786ea599624184e7d8f1:3",
+        "sourceFile": "Term-3-B6-Science-Another-Set.pdf",
+        "sourceHash": "acc6f322fa69ad45c7366b7291c35e2a678b9cc21782786ea599624184e7d8f1",
+        "educationLevel": "Basic Primary",
+        "grade": "B6",
+        "subject": "Science",
+        "questionType": "multiple_choice",
+        "questionText": "........ is an electrical component that is used to control the flow of electric current in an electric circuit.",
+        "options": [
+          {
+            "key": "A",
+            "text": "Load"
+          },
+          {
+            "key": "B",
+            "text": "switch"
+          },
+          {
+            "key": "C",
+            "text": "resistor"
+          },
+          {
+            "key": "D",
+            "text": "connecting wires"
+          }
+        ],
+        "correctAnswer": "A",
+        "source": "Term-3-B6-Science-Another-Set.pdf",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        }
+      ],
+      "fingerprint": "29e7b315167661f4742dfb5a65978299b28c40f8a5b876ecdd17e08b32a30d96",
+      "classification": "warning"
+    },
+    {
+      "question": {
+        "externalSourceId": "acc6f322fa69ad45c7366b7291c35e2a678b9cc21782786ea599624184e7d8f1:4",
+        "sourceFile": "Term-3-B6-Science-Another-Set.pdf",
+        "sourceHash": "acc6f322fa69ad45c7366b7291c35e2a678b9cc21782786ea599624184e7d8f1",
+        "educationLevel": "Basic Primary",
+        "grade": "B6",
+        "subject": "Science",
+        "questionType": "multiple_choice",
+        "questionText": "The source of electrical energy in a circuit is ...............",
+        "options": [
+          {
+            "key": "A",
+            "text": "The battery"
+          },
+          {
+            "key": "B",
+            "text": "the bulb"
+          },
+          {
+            "key": "C",
+            "text": "the switch"
+          },
+          {
+            "key": "D",
+            "text": "the resistor"
+          }
+        ],
+        "correctAnswer": "A",
+        "source": "Term-3-B6-Science-Another-Set.pdf",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        }
+      ],
+      "fingerprint": "01490090aca71577a7b6d1666945885f5f82f6990c82b07a6c01e1dfe7f77430",
+      "classification": "warning"
+    },
+    {
+      "question": {
+        "externalSourceId": "acc6f322fa69ad45c7366b7291c35e2a678b9cc21782786ea599624184e7d8f1:5",
+        "sourceFile": "Term-3-B6-Science-Another-Set.pdf",
+        "sourceHash": "acc6f322fa69ad45c7366b7291c35e2a678b9cc21782786ea599624184e7d8f1",
+        "educationLevel": "Basic Primary",
+        "grade": "B6",
+        "subject": "Science",
+        "questionType": "multiple_choice",
+        "questionText": "The displacement of an object due to the application of a force on it is ...............",
+        "options": [
+          {
+            "key": "A",
+            "text": "Energy"
+          },
+          {
+            "key": "B",
+            "text": "force d. pull d. work 6. The following are classes or types of simple machines except ................ a. Levers b. machines"
+          },
+          {
+            "key": "C",
+            "text": "inclined planes"
+          },
+          {
+            "key": "D",
+            "text": "pulleys"
+          }
+        ],
+        "source": "Term-3-B6-Science-Another-Set.pdf",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "MISSING_ANSWER",
+          "message": "MCQ has no correct answer."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        }
+      ],
+      "fingerprint": "8fcc140d7aaa6d9f1b8aa6645465843226c3c76b5bed7bb73f4e312b8cfbf13e",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "acc6f322fa69ad45c7366b7291c35e2a678b9cc21782786ea599624184e7d8f1:7",
+        "sourceFile": "Term-3-B6-Science-Another-Set.pdf",
+        "sourceHash": "acc6f322fa69ad45c7366b7291c35e2a678b9cc21782786ea599624184e7d8f1",
+        "educationLevel": "Basic Primary",
+        "grade": "B6",
+        "subject": "Science",
+        "questionType": "multiple_choice",
+        "questionText": "............ is the way of keeping the body clean and healthy.",
+        "options": [
+          {
+            "key": "A",
+            "text": "Body odour"
+          },
+          {
+            "key": "B",
+            "text": "body hygiene"
+          },
+          {
+            "key": "C",
+            "text": "personal hygiene"
+          },
+          {
+            "key": "D",
+            "text": "personal odour"
+          }
+        ],
+        "source": "Term-3-B6-Science-Another-Set.pdf",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "MISSING_ANSWER",
+          "message": "MCQ has no correct answer."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        }
+      ],
+      "fingerprint": "291b9defae570021b81349b34bb96093ab81a8a0142c1c8a8c3362007860d034",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "acc6f322fa69ad45c7366b7291c35e2a678b9cc21782786ea599624184e7d8f1:8",
+        "sourceFile": "Term-3-B6-Science-Another-Set.pdf",
+        "sourceHash": "acc6f322fa69ad45c7366b7291c35e2a678b9cc21782786ea599624184e7d8f1",
+        "educationLevel": "Basic Primary",
+        "grade": "B6",
+        "subject": "Science",
+        "questionType": "multiple_choice",
+        "questionText": "................... Is a part of body that produce odour.",
+        "options": [
+          {
+            "key": "A",
+            "text": "Armpits"
+          },
+          {
+            "key": "B",
+            "text": "head"
+          },
+          {
+            "key": "C",
+            "text": "ears"
+          },
+          {
+            "key": "D",
+            "text": "leg"
+          }
+        ],
+        "source": "Term-3-B6-Science-Another-Set.pdf",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "MISSING_ANSWER",
+          "message": "MCQ has no correct answer."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        }
+      ],
+      "fingerprint": "e50863c955b20ad5fdb5745f76f4bcb7fa40d87b54b14fbc0ba5b1398f7b1d00",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "acc6f322fa69ad45c7366b7291c35e2a678b9cc21782786ea599624184e7d8f1:11",
+        "sourceFile": "Term-3-B6-Science-Another-Set.pdf",
+        "sourceHash": "acc6f322fa69ad45c7366b7291c35e2a678b9cc21782786ea599624184e7d8f1",
+        "educationLevel": "Basic Primary",
+        "grade": "B6",
+        "subject": "Science",
+        "questionType": "multiple_choice",
+        "questionText": "All the following are symptoms of meningitis except .........",
+        "options": [
+          {
+            "key": "A",
+            "text": "Fever"
+          },
+          {
+            "key": "B",
+            "text": "diarrhea"
+          },
+          {
+            "key": "C",
+            "text": "headache"
+          },
+          {
+            "key": "D",
+            "text": "stiff neck"
+          }
+        ],
+        "source": "Term-3-B6-Science-Another-Set.pdf",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "MISSING_ANSWER",
+          "message": "MCQ has no correct answer."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        }
+      ],
+      "fingerprint": "db49675d4d463ec6a48c681fa2234065742b799fe9f8cb9578cc4150fa193a0f",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "acc6f322fa69ad45c7366b7291c35e2a678b9cc21782786ea599624184e7d8f1:12",
+        "sourceFile": "Term-3-B6-Science-Another-Set.pdf",
+        "sourceHash": "acc6f322fa69ad45c7366b7291c35e2a678b9cc21782786ea599624184e7d8f1",
+        "educationLevel": "Basic Primary",
+        "grade": "B6",
+        "subject": "Science",
+        "questionType": "multiple_choice",
+        "questionText": "The scientific process of making soap is called ................................",
+        "options": [
+          {
+            "key": "A",
+            "text": "Fermentation"
+          },
+          {
+            "key": "B",
+            "text": "crystallization"
+          },
+          {
+            "key": "C",
+            "text": "saponification"
+          },
+          {
+            "key": "D",
+            "text": "boiling"
+          }
+        ],
+        "source": "Term-3-B6-Science-Another-Set.pdf",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "MISSING_ANSWER",
+          "message": "MCQ has no correct answer."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        }
+      ],
+      "fingerprint": "e63a7ea1ad1c68fe21296596aa1726db9abefa66b64cb4dadd743614a7222385",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "acc6f322fa69ad45c7366b7291c35e2a678b9cc21782786ea599624184e7d8f1:13",
+        "sourceFile": "Term-3-B6-Science-Another-Set.pdf",
+        "sourceHash": "acc6f322fa69ad45c7366b7291c35e2a678b9cc21782786ea599624184e7d8f1",
+        "educationLevel": "Basic Primary",
+        "grade": "B6",
+        "subject": "Science",
+        "questionType": "multiple_choice",
+        "questionText": "The scientific concept in which cooking oil production is based is fermentation and ............",
+        "options": [
+          {
+            "key": "A",
+            "text": "Boiling"
+          },
+          {
+            "key": "B",
+            "text": "evaporation"
+          },
+          {
+            "key": "C",
+            "text": "crystallization"
+          },
+          {
+            "key": "D",
+            "text": "saponification"
+          }
+        ],
+        "source": "Term-3-B6-Science-Another-Set.pdf",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "MISSING_ANSWER",
+          "message": "MCQ has no correct answer."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        }
+      ],
+      "fingerprint": "9bc98732116237fa2524a54b18b0a85b1e4c26678b07a91fb1319120fd42dfb7",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "acc6f322fa69ad45c7366b7291c35e2a678b9cc21782786ea599624184e7d8f1:16",
+        "sourceFile": "Term-3-B6-Science-Another-Set.pdf",
+        "sourceHash": "acc6f322fa69ad45c7366b7291c35e2a678b9cc21782786ea599624184e7d8f1",
+        "educationLevel": "Basic Primary",
+        "grade": "B6",
+        "subject": "Science",
+        "questionType": "multiple_choice",
+        "questionText": "The LED, the electric bulb and radio set are examples of .................",
+        "options": [
+          {
+            "key": "A",
+            "text": "Load"
+          },
+          {
+            "key": "B",
+            "text": "connecting wires"
+          },
+          {
+            "key": "C",
+            "text": "switch"
+          },
+          {
+            "key": "D",
+            "text": "battery"
+          }
+        ],
+        "source": "Term-3-B6-Science-Another-Set.pdf",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "MISSING_ANSWER",
+          "message": "MCQ has no correct answer."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        }
+      ],
+      "fingerprint": "5d8f0f7e0486ec2ca82b774b7aa8ac881869a3799bbfa3d7ea2dce215b0c14e3",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "acc6f322fa69ad45c7366b7291c35e2a678b9cc21782786ea599624184e7d8f1:20",
+        "sourceFile": "Term-3-B6-Science-Another-Set.pdf",
+        "sourceHash": "acc6f322fa69ad45c7366b7291c35e2a678b9cc21782786ea599624184e7d8f1",
+        "educationLevel": "Basic Primary",
+        "grade": "B6",
+        "subject": "Science",
+        "questionType": "multiple_choice",
+        "questionText": "All the following are ways of removing bad odour except........................",
+        "options": [
+          {
+            "key": "A",
+            "text": "Bathing"
+          },
+          {
+            "key": "B",
+            "text": "brushing of teeth"
+          },
+          {
+            "key": "C",
+            "text": "defecating"
+          },
+          {
+            "key": "D",
+            "text": "shaving armpits"
+          }
+        ],
+        "source": "Term-3-B6-Science-Another-Set.pdf",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "MISSING_ANSWER",
+          "message": "MCQ has no correct answer."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        }
+      ],
+      "fingerprint": "18ec6fec93da8d9b8ebeb361a12f94edbcfd541f441f6165674f1aff82f728fb",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "acc6f322fa69ad45c7366b7291c35e2a678b9cc21782786ea599624184e7d8f1:22",
+        "sourceFile": "Term-3-B6-Science-Another-Set.pdf",
+        "sourceHash": "acc6f322fa69ad45c7366b7291c35e2a678b9cc21782786ea599624184e7d8f1",
+        "educationLevel": "Basic Primary",
+        "grade": "B6",
+        "subject": "Science",
+        "questionType": "multiple_choice",
+        "questionText": "............... is a change in the usual weather found in the place.",
+        "options": [
+          {
+            "key": "A",
+            "text": "Climate change"
+          },
+          {
+            "key": "B",
+            "text": "weather change"
+          },
+          {
+            "key": "C",
+            "text": "air pollution"
+          },
+          {
+            "key": "D",
+            "text": "greenhouse effect"
+          }
+        ],
+        "source": "Term-3-B6-Science-Another-Set.pdf",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "MISSING_ANSWER",
+          "message": "MCQ has no correct answer."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        }
+      ],
+      "fingerprint": "219879276f24982fb821835c14ef142e50fbe0700b7471d34815905797603995",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "acc6f322fa69ad45c7366b7291c35e2a678b9cc21782786ea599624184e7d8f1:24",
+        "sourceFile": "Term-3-B6-Science-Another-Set.pdf",
+        "sourceHash": "acc6f322fa69ad45c7366b7291c35e2a678b9cc21782786ea599624184e7d8f1",
+        "educationLevel": "Basic Primary",
+        "grade": "B6",
+        "subject": "Science",
+        "questionType": "multiple_choice",
+        "questionText": "Which disease is characterized by an inflammation of the protective membrane of the brain and spinal cord?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Malaria"
+          },
+          {
+            "key": "B",
+            "text": "meningitis"
+          },
+          {
+            "key": "C",
+            "text": "eczema"
+          },
+          {
+            "key": "D",
+            "text": "rashes"
+          }
+        ],
+        "source": "Term-3-B6-Science-Another-Set.pdf",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "MISSING_ANSWER",
+          "message": "MCQ has no correct answer."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        }
+      ],
+      "fingerprint": "a3d16f7aab5792df01bff2b406f2743e145ff15684bc89b681152fd10308daa8",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "acc6f322fa69ad45c7366b7291c35e2a678b9cc21782786ea599624184e7d8f1:28",
+        "sourceFile": "Term-3-B6-Science-Another-Set.pdf",
+        "sourceHash": "acc6f322fa69ad45c7366b7291c35e2a678b9cc21782786ea599624184e7d8f1",
+        "educationLevel": "Basic Primary",
+        "grade": "B6",
+        "subject": "Science",
+        "questionType": "multiple_choice",
+        "questionText": "The crowbar is a simple machine used for ................. stuck nails rom wood.",
+        "options": [
+          {
+            "key": "A",
+            "text": "Planting"
+          },
+          {
+            "key": "B",
+            "text": "inserting"
+          },
+          {
+            "key": "C",
+            "text": "removing"
+          },
+          {
+            "key": "D",
+            "text": "cutting"
+          }
+        ],
+        "source": "Term-3-B6-Science-Another-Set.pdf",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "MISSING_ANSWER",
+          "message": "MCQ has no correct answer."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        }
+      ],
+      "fingerprint": "dea00bc96e1aa989703c9ddb83b62d43f02e619806d3f77503e18ba040878f72",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "acc6f322fa69ad45c7366b7291c35e2a678b9cc21782786ea599624184e7d8f1:29",
+        "sourceFile": "Term-3-B6-Science-Another-Set.pdf",
+        "sourceHash": "acc6f322fa69ad45c7366b7291c35e2a678b9cc21782786ea599624184e7d8f1",
+        "educationLevel": "Basic Primary",
+        "grade": "B6",
+        "subject": "Science",
+        "questionType": "multiple_choice",
+        "questionText": "................. is the smell that comes from body.",
+        "options": [
+          {
+            "key": "A",
+            "text": "Personal hygiene"
+          },
+          {
+            "key": "B",
+            "text": "body odour"
+          },
+          {
+            "key": "C",
+            "text": "personal odour"
+          },
+          {
+            "key": "D",
+            "text": "body hygiene"
+          }
+        ],
+        "source": "Term-3-B6-Science-Another-Set.pdf",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "MISSING_ANSWER",
+          "message": "MCQ has no correct answer."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        }
+      ],
+      "fingerprint": "da070663f697030c9f5ed546b0a28d68f64486148e3bd8ff47ec0ac7b2aaa6b0",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "acc6f322fa69ad45c7366b7291c35e2a678b9cc21782786ea599624184e7d8f1:30",
+        "sourceFile": "Term-3-B6-Science-Another-Set.pdf",
+        "sourceHash": "acc6f322fa69ad45c7366b7291c35e2a678b9cc21782786ea599624184e7d8f1",
+        "educationLevel": "Basic Primary",
+        "grade": "B6",
+        "subject": "Science",
+        "questionType": "multiple_choice",
+        "questionText": "When gases act like the glass in the greenhouse by letting and preventing the heat given off from escaping back into space, it is called .......................",
+        "options": [
+          {
+            "key": "A",
+            "text": "Greenhouse effect"
+          },
+          {
+            "key": "B",
+            "text": "global warming"
+          },
+          {
+            "key": "C",
+            "text": "climate change"
+          },
+          {
+            "key": "D",
+            "text": "drought"
+          }
+        ],
+        "source": "Term-3-B6-Science-Another-Set.pdf",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "MISSING_ANSWER",
+          "message": "MCQ has no correct answer."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        }
+      ],
+      "fingerprint": "26e918cc531fda82d3d2f591d69f5ea6d890e3dcc172af0109ca4dd298b799e8",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "eb198bae53665770ae84945fe6b761e9332cfd6afbb97fd5efd0a9291a31e51a:1",
+        "sourceFile": "Term-3-Basic-6-RME.pdf",
+        "sourceHash": "eb198bae53665770ae84945fe6b761e9332cfd6afbb97fd5efd0a9291a31e51a",
+        "educationLevel": "Basic Primary",
+        "grade": "B6",
+        "subject": "Religious and Moral Education",
+        "questionType": "multiple_choice",
+        "questionText": "According to the Holy Bible, what was created on the second day?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Heaven and the earth"
+          },
+          {
+            "key": "B",
+            "text": "Smaller animals"
+          },
+          {
+            "key": "C",
+            "text": "Plants and the trees"
+          },
+          {
+            "key": "D",
+            "text": "Greater light"
+          }
+        ],
+        "source": "Term-3-Basic-6-RME.pdf",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "MISSING_ANSWER",
+          "message": "MCQ has no correct answer."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        }
+      ],
+      "fingerprint": "3eaef8ab5469868a668ab23135e24645adf6107fe6e2831d7a2e3e559ef89795",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "eb198bae53665770ae84945fe6b761e9332cfd6afbb97fd5efd0a9291a31e51a:2",
+        "sourceFile": "Term-3-Basic-6-RME.pdf",
+        "sourceHash": "eb198bae53665770ae84945fe6b761e9332cfd6afbb97fd5efd0a9291a31e51a",
+        "educationLevel": "Basic Primary",
+        "grade": "B6",
+        "subject": "Religious and Moral Education",
+        "questionType": "multiple_choice",
+        "questionText": "The omniscience of God portrays Him as",
+        "options": [
+          {
+            "key": "A",
+            "text": "all forgiving"
+          },
+          {
+            "key": "B",
+            "text": "ever present"
+          },
+          {
+            "key": "C",
+            "text": "very gracious"
+          },
+          {
+            "key": "D",
+            "text": "all knowing"
+          }
+        ],
+        "source": "Term-3-Basic-6-RME.pdf",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "MISSING_ANSWER",
+          "message": "MCQ has no correct answer."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        }
+      ],
+      "fingerprint": "31a82b0a443dc361ee7e84c1b1ebd9de0b84d76e671afd82785ee9fcef14fbef",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "eb198bae53665770ae84945fe6b761e9332cfd6afbb97fd5efd0a9291a31e51a:3",
+        "sourceFile": "Term-3-Basic-6-RME.pdf",
+        "sourceHash": "eb198bae53665770ae84945fe6b761e9332cfd6afbb97fd5efd0a9291a31e51a",
+        "educationLevel": "Basic Primary",
+        "grade": "B6",
+        "subject": "Religious and Moral Education",
+        "questionType": "multiple_choice",
+        "questionText": "The ninety-nine names of God can be found only in",
+        "options": [
+          {
+            "key": "A",
+            "text": "Christianity and Islam"
+          },
+          {
+            "key": "B",
+            "text": "Christianity"
+          },
+          {
+            "key": "C",
+            "text": "Islam"
+          },
+          {
+            "key": "D",
+            "text": "African Traditional Religion"
+          }
+        ],
+        "source": "Term-3-Basic-6-RME.pdf",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "MISSING_ANSWER",
+          "message": "MCQ has no correct answer."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        }
+      ],
+      "fingerprint": "6c0f91b5ebfba58d3fb992c055faaa9ae7acbdc888763786ec5fdd4043d0ca80",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "eb198bae53665770ae84945fe6b761e9332cfd6afbb97fd5efd0a9291a31e51a:4",
+        "sourceFile": "Term-3-Basic-6-RME.pdf",
+        "sourceHash": "eb198bae53665770ae84945fe6b761e9332cfd6afbb97fd5efd0a9291a31e51a",
+        "educationLevel": "Basic Primary",
+        "grade": "B6",
+        "subject": "Religious and Moral Education",
+        "questionType": "multiple_choice",
+        "questionText": "Which of the following is a harvest festival?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Adae"
+          },
+          {
+            "key": "B",
+            "text": "Hogbetsotso"
+          },
+          {
+            "key": "C",
+            "text": "Homowo"
+          },
+          {
+            "key": "D",
+            "text": "Aboakyer"
+          }
+        ],
+        "source": "Term-3-Basic-6-RME.pdf",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "MISSING_ANSWER",
+          "message": "MCQ has no correct answer."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        }
+      ],
+      "fingerprint": "c80c9012a0ad3ddddf0177edc8ba344a4a54867eb6d683ff46240b6f175c9723",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "eb198bae53665770ae84945fe6b761e9332cfd6afbb97fd5efd0a9291a31e51a:7",
+        "sourceFile": "Term-3-Basic-6-RME.pdf",
+        "sourceHash": "eb198bae53665770ae84945fe6b761e9332cfd6afbb97fd5efd0a9291a31e51a",
+        "educationLevel": "Basic Primary",
+        "grade": "B6",
+        "subject": "Religious and Moral Education",
+        "questionType": "multiple_choice",
+        "questionText": "The second Caliph of Islam was",
+        "options": [
+          {
+            "key": "A",
+            "text": "Ali"
+          },
+          {
+            "key": "B",
+            "text": "Abubakar"
+          },
+          {
+            "key": "C",
+            "text": "Umar"
+          },
+          {
+            "key": "D",
+            "text": "Uthman"
+          }
+        ],
+        "source": "Term-3-Basic-6-RME.pdf",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "MISSING_ANSWER",
+          "message": "MCQ has no correct answer."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        }
+      ],
+      "fingerprint": "55e6b1a4f59e4678b231ffdb128acea0c2138104765d779e1e31fc2c537a2ac7",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "eb198bae53665770ae84945fe6b761e9332cfd6afbb97fd5efd0a9291a31e51a:13",
+        "sourceFile": "Term-3-Basic-6-RME.pdf",
+        "sourceHash": "eb198bae53665770ae84945fe6b761e9332cfd6afbb97fd5efd0a9291a31e51a",
+        "educationLevel": "Basic Primary",
+        "grade": "B6",
+        "subject": "Religious and Moral Education",
+        "questionType": "multiple_choice",
+        "questionText": "Which of the following behaviours pollutes our environment?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Cutting down trees"
+          },
+          {
+            "key": "B",
+            "text": "Killing birds and animals"
+          },
+          {
+            "key": "C",
+            "text": "Throwing rubbish around"
+          },
+          {
+            "key": "D",
+            "text": "Clearing the land for building"
+          }
+        ],
+        "source": "Term-3-Basic-6-RME.pdf",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "MISSING_ANSWER",
+          "message": "MCQ has no correct answer."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        }
+      ],
+      "fingerprint": "15b07edb60f48f6b81f261a77e9bc8c3493b962054e47fc0ba183d308b93bd7f",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "eb198bae53665770ae84945fe6b761e9332cfd6afbb97fd5efd0a9291a31e51a:14",
+        "sourceFile": "Term-3-Basic-6-RME.pdf",
+        "sourceHash": "eb198bae53665770ae84945fe6b761e9332cfd6afbb97fd5efd0a9291a31e51a",
+        "educationLevel": "Basic Primary",
+        "grade": "B6",
+        "subject": "Religious and Moral Education",
+        "questionType": "multiple_choice",
+        "questionText": "Authority is instituted in the society to ensure",
+        "options": [
+          {
+            "key": "A",
+            "text": "respect for adults"
+          },
+          {
+            "key": "B",
+            "text": "peace and order"
+          },
+          {
+            "key": "C",
+            "text": "the right to vote"
+          },
+          {
+            "key": "D",
+            "text": "freedom of speech"
+          }
+        ],
+        "source": "Term-3-Basic-6-RME.pdf",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "MISSING_ANSWER",
+          "message": "MCQ has no correct answer."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        }
+      ],
+      "fingerprint": "c5c4a3f90b9ff93c86ce8415169f287a29c3a16abb6a72adeab6d8fa9df28397",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "eb198bae53665770ae84945fe6b761e9332cfd6afbb97fd5efd0a9291a31e51a:15",
+        "sourceFile": "Term-3-Basic-6-RME.pdf",
+        "sourceHash": "eb198bae53665770ae84945fe6b761e9332cfd6afbb97fd5efd0a9291a31e51a",
+        "educationLevel": "Basic Primary",
+        "grade": "B6",
+        "subject": "Religious and Moral Education",
+        "questionType": "multiple_choice",
+        "questionText": "The most important requirement for a happy and prosperous life is",
+        "options": [
+          {
+            "key": "A",
+            "text": "loyalty"
+          },
+          {
+            "key": "B",
+            "text": "respect"
+          },
+          {
+            "key": "C",
+            "text": "courage"
+          },
+          {
+            "key": "D",
+            "text": "hardwork"
+          }
+        ],
+        "source": "Term-3-Basic-6-RME.pdf",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "MISSING_ANSWER",
+          "message": "MCQ has no correct answer."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        }
+      ],
+      "fingerprint": "4d0d1f3b4dc19372b72f9eeb9339ea88e8973f2647ba43a2fa44501d253a7270",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "eb198bae53665770ae84945fe6b761e9332cfd6afbb97fd5efd0a9291a31e51a:16",
+        "sourceFile": "Term-3-Basic-6-RME.pdf",
+        "sourceHash": "eb198bae53665770ae84945fe6b761e9332cfd6afbb97fd5efd0a9291a31e51a",
+        "educationLevel": "Basic Primary",
+        "grade": "B6",
+        "subject": "Religious and Moral Education",
+        "questionType": "multiple_choice",
+        "questionText": "A member of the Catholic Youth Organisation (CYO) is called a",
+        "options": [
+          {
+            "key": "A",
+            "text": "deacon"
+          },
+          {
+            "key": "B",
+            "text": "voyager"
+          },
+          {
+            "key": "C",
+            "text": "soldier"
+          },
+          {
+            "key": "D",
+            "text": "crusader"
+          }
+        ],
+        "source": "Term-3-Basic-6-RME.pdf",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "MISSING_ANSWER",
+          "message": "MCQ has no correct answer."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        }
+      ],
+      "fingerprint": "383157e79dfe150a6e530d239de6e36a07335504754bca6018a254c5ff741e76",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "eb198bae53665770ae84945fe6b761e9332cfd6afbb97fd5efd0a9291a31e51a:17",
+        "sourceFile": "Term-3-Basic-6-RME.pdf",
+        "sourceHash": "eb198bae53665770ae84945fe6b761e9332cfd6afbb97fd5efd0a9291a31e51a",
+        "educationLevel": "Basic Primary",
+        "grade": "B6",
+        "subject": "Religious and Moral Education",
+        "questionType": "multiple_choice",
+        "questionText": "Which of the following behaviours best shows comportment?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Controlling one” seating habit"
+          },
+          {
+            "key": "B",
+            "text": "Controlling one “sexual behaviour"
+          },
+          {
+            "key": "C",
+            "text": "Controlling one‟temper when provoked"
+          },
+          {
+            "key": "D",
+            "text": "Controlling the way one laughs at school"
+          }
+        ],
+        "source": "Term-3-Basic-6-RME.pdf",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "MISSING_ANSWER",
+          "message": "MCQ has no correct answer."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        }
+      ],
+      "fingerprint": "eb236b2f42dbab6ad510a6665083e67f9676356d527ccfbaaf283428f61cd42d",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "eb198bae53665770ae84945fe6b761e9332cfd6afbb97fd5efd0a9291a31e51a:18",
+        "sourceFile": "Term-3-Basic-6-RME.pdf",
+        "sourceHash": "eb198bae53665770ae84945fe6b761e9332cfd6afbb97fd5efd0a9291a31e51a",
+        "educationLevel": "Basic Primary",
+        "grade": "B6",
+        "subject": "Religious and Moral Education",
+        "questionType": "multiple_choice",
+        "questionText": "The expression work and happiness implies one",
+        "options": [
+          {
+            "key": "A",
+            "text": "likes working always"
+          },
+          {
+            "key": "B",
+            "text": "dances whilst working"
+          },
+          {
+            "key": "C",
+            "text": "works while playing"
+          },
+          {
+            "key": "D",
+            "text": "enjoys the fruit of his labour"
+          }
+        ],
+        "source": "Term-3-Basic-6-RME.pdf",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "MISSING_ANSWER",
+          "message": "MCQ has no correct answer."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        }
+      ],
+      "fingerprint": "672ffe57f9f3a66e1b2ad0fe4372c26b18eb51eda855287dd0ee1342e3ec3dc0",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "eb198bae53665770ae84945fe6b761e9332cfd6afbb97fd5efd0a9291a31e51a:21",
+        "sourceFile": "Term-3-Basic-6-RME.pdf",
+        "sourceHash": "eb198bae53665770ae84945fe6b761e9332cfd6afbb97fd5efd0a9291a31e51a",
+        "educationLevel": "Basic Primary",
+        "grade": "B6",
+        "subject": "Religious and Moral Education",
+        "questionType": "multiple_choice",
+        "questionText": "The peaceful way of asking for one “rights include",
+        "options": [
+          {
+            "key": "A",
+            "text": "lobbying"
+          },
+          {
+            "key": "B",
+            "text": "kidnapping"
+          },
+          {
+            "key": "C",
+            "text": "playing games"
+          },
+          {
+            "key": "D",
+            "text": "rioting"
+          }
+        ],
+        "source": "Term-3-Basic-6-RME.pdf",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "MISSING_ANSWER",
+          "message": "MCQ has no correct answer."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        }
+      ],
+      "fingerprint": "623ea25d1277334b6b09deb43a41aad9a7971850e699fdfe57bf74ffa7f0b670",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "eb198bae53665770ae84945fe6b761e9332cfd6afbb97fd5efd0a9291a31e51a:24",
+        "sourceFile": "Term-3-Basic-6-RME.pdf",
+        "sourceHash": "eb198bae53665770ae84945fe6b761e9332cfd6afbb97fd5efd0a9291a31e51a",
+        "educationLevel": "Basic Primary",
+        "grade": "B6",
+        "subject": "Religious and Moral Education",
+        "questionType": "multiple_choice",
+        "questionText": "As a child, your duties include all these except",
+        "options": [
+          {
+            "key": "A",
+            "text": "fetching water"
+          },
+          {
+            "key": "B",
+            "text": "weeding the compound"
+          },
+          {
+            "key": "C",
+            "text": "preparing meals"
+          },
+          {
+            "key": "D",
+            "text": "paying fees"
+          }
+        ],
+        "source": "Term-3-Basic-6-RME.pdf",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "MISSING_ANSWER",
+          "message": "MCQ has no correct answer."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        }
+      ],
+      "fingerprint": "41b96631f33a4dc66d6f45035ca5d5ced418bb4a534ea7f1e40cc1c43892e66d",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "eb198bae53665770ae84945fe6b761e9332cfd6afbb97fd5efd0a9291a31e51a:26",
+        "sourceFile": "Term-3-Basic-6-RME.pdf",
+        "sourceHash": "eb198bae53665770ae84945fe6b761e9332cfd6afbb97fd5efd0a9291a31e51a",
+        "educationLevel": "Basic Primary",
+        "grade": "B6",
+        "subject": "Religious and Moral Education",
+        "questionType": "multiple_choice",
+        "questionText": "Which of the following is not an example of a stimulant?",
+        "options": [
+          {
+            "key": "A",
+            "text": "Alcohol"
+          },
+          {
+            "key": "B",
+            "text": "cocaine"
+          },
+          {
+            "key": "C",
+            "text": "Chloroquine"
+          },
+          {
+            "key": "D",
+            "text": "marijuana"
+          }
+        ],
+        "source": "Term-3-Basic-6-RME.pdf",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "MISSING_ANSWER",
+          "message": "MCQ has no correct answer."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        }
+      ],
+      "fingerprint": "a49fcc0e666d1c15426775bcbcbe8d9057ad195c1166ea05744549b219865f27",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "eb198bae53665770ae84945fe6b761e9332cfd6afbb97fd5efd0a9291a31e51a:28",
+        "sourceFile": "Term-3-Basic-6-RME.pdf",
+        "sourceHash": "eb198bae53665770ae84945fe6b761e9332cfd6afbb97fd5efd0a9291a31e51a",
+        "educationLevel": "Basic Primary",
+        "grade": "B6",
+        "subject": "Religious and Moral Education",
+        "questionType": "multiple_choice",
+        "questionText": "When a child develops the sense of responsibility he/ she",
+        "options": [
+          {
+            "key": "A",
+            "text": "wins many prizes at school"
+          },
+          {
+            "key": "B",
+            "text": "passes all his examinations"
+          },
+          {
+            "key": "C",
+            "text": "becomes tolerant and sincere"
+          },
+          {
+            "key": "D",
+            "text": "enjoys peace and success in life"
+          }
+        ],
+        "source": "Term-3-Basic-6-RME.pdf",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "MISSING_ANSWER",
+          "message": "MCQ has no correct answer."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        }
+      ],
+      "fingerprint": "3a680a48a84a09ee2a548a5b9ad324e68d28a5a93e8ac2db30ca6316baa497f1",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "0835f65d9f45cf04bda835a335edb2f2e28cff854beb910679c039b760b5ece5:2",
+        "sourceFile": "WASSCE-WAEC-2015-May-June-Core-General-Mathematics-Past-Questions-Paper-1-Objectives.pdf",
+        "sourceHash": "0835f65d9f45cf04bda835a335edb2f2e28cff854beb910679c039b760b5ece5",
+        "educationLevel": "SHS",
+        "grade": "SHS1",
+        "subject": "Mathematics",
+        "questionType": "multiple_choice",
+        "questionText": "The sum of Find the values of m and n.",
+        "options": [
+          {
+            "key": "A",
+            "text": "m = 0, n = 0"
+          },
+          {
+            "key": "B",
+            "text": "m = 1, n = 0"
+          },
+          {
+            "key": "C",
+            "text": "m = 0, n = 1"
+          },
+          {
+            "key": "D",
+            "text": "m = 1, n = 1"
+          }
+        ],
+        "source": "WASSCE-WAEC-2015-May-June-Core-General-Mathematics-Past-Questions-Paper-1-Objectives.pdf",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "MISSING_ANSWER",
+          "message": "MCQ has no correct answer."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        }
+      ],
+      "fingerprint": "d040678168c49d7c70acd08b4685e9065bc478628d80488e60ea566e6b6229bd",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "0835f65d9f45cf04bda835a335edb2f2e28cff854beb910679c039b760b5ece5:3",
+        "sourceFile": "WASSCE-WAEC-2015-May-June-Core-General-Mathematics-Past-Questions-Paper-1-Objectives.pdf",
+        "sourceHash": "0835f65d9f45cf04bda835a335edb2f2e28cff854beb910679c039b760b5ece5",
+        "educationLevel": "SHS",
+        "grade": "SHS1",
+        "subject": "Mathematics",
+        "questionType": "multiple_choice",
+        "questionText": "A trader bought an engine for $15,000.00 outside Nigeria. If the exchange rate is $0.075 to N1.00, how much did the engine cost in naira?",
+        "options": [
+          {
+            "key": "A",
+            "text": "N250,000.00"
+          },
+          {
+            "key": "B",
+            "text": "N200,000.00"
+          },
+          {
+            "key": "C",
+            "text": "N150,000.00"
+          },
+          {
+            "key": "D",
+            "text": "N100,000.00"
+          }
+        ],
+        "source": "WASSCE-WAEC-2015-May-June-Core-General-Mathematics-Past-Questions-Paper-1-Objectives.pdf",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "MISSING_ANSWER",
+          "message": "MCQ has no correct answer."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        }
+      ],
+      "fingerprint": "185d3ee57d58af445ff6d6243248a70c0007b0cceaa576cb35cfb13793e17620",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "0835f65d9f45cf04bda835a335edb2f2e28cff854beb910679c039b760b5ece5:5",
+        "sourceFile": "WASSCE-WAEC-2015-May-June-Core-General-Mathematics-Past-Questions-Paper-1-Objectives.pdf",
+        "sourceHash": "0835f65d9f45cf04bda835a335edb2f2e28cff854beb910679c039b760b5ece5",
+        "educationLevel": "SHS",
+        "grade": "SHS1",
+        "subject": "Mathematics",
+        "questionType": "multiple_choice",
+        "questionText": "Find the 7th term of the sequence: 2,5,10,17,26,...",
+        "options": [
+          {
+            "key": "A",
+            "text": "37"
+          },
+          {
+            "key": "B",
+            "text": "48"
+          },
+          {
+            "key": "C",
+            "text": "50"
+          },
+          {
+            "key": "D",
+            "text": "63"
+          }
+        ],
+        "source": "WASSCE-WAEC-2015-May-June-Core-General-Mathematics-Past-Questions-Paper-1-Objectives.pdf",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "MISSING_ANSWER",
+          "message": "MCQ has no correct answer."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        }
+      ],
+      "fingerprint": "30a3da9c304066815a4dcea67453ae0a8023a887bb9402f65389d7e33f94fca7",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "0835f65d9f45cf04bda835a335edb2f2e28cff854beb910679c039b760b5ece5:9",
+        "sourceFile": "WASSCE-WAEC-2015-May-June-Core-General-Mathematics-Past-Questions-Paper-1-Objectives.pdf",
+        "sourceHash": "0835f65d9f45cf04bda835a335edb2f2e28cff854beb910679c039b760b5ece5",
+        "educationLevel": "SHS",
+        "grade": "SHS1",
+        "subject": "Mathematics",
+        "questionType": "multiple_choice",
+        "questionText": "Find the equation whose roots are 3/4 and −4",
+        "options": [
+          {
+            "key": "A",
+            "text": "4x2−13x+12=0"
+          },
+          {
+            "key": "B",
+            "text": "4x2−13x−12=0"
+          },
+          {
+            "key": "C",
+            "text": "4x2+13x−12=0"
+          },
+          {
+            "key": "D",
+            "text": "4x2+13x+12=0"
+          }
+        ],
+        "source": "WASSCE-WAEC-2015-May-June-Core-General-Mathematics-Past-Questions-Paper-1-Objectives.pdf",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "MISSING_ANSWER",
+          "message": "MCQ has no correct answer."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        }
+      ],
+      "fingerprint": "956b2fd7754b6141f388eaf33ac8fb840318d437ee40031001f25468d3d65c9f",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "0835f65d9f45cf04bda835a335edb2f2e28cff854beb910679c039b760b5ece5:11",
+        "sourceFile": "WASSCE-WAEC-2015-May-June-Core-General-Mathematics-Past-Questions-Paper-1-Objectives.pdf",
+        "sourceHash": "0835f65d9f45cf04bda835a335edb2f2e28cff854beb910679c039b760b5ece5",
+        "educationLevel": "SHS",
+        "grade": "SHS1",
+        "subject": "Mathematics",
+        "questionType": "multiple_choice",
+        "questionText": "Adding 42 to a given positive number gives the same result as squaring the number. find the number.",
+        "options": [
+          {
+            "key": "A",
+            "text": "14"
+          },
+          {
+            "key": "B",
+            "text": "13"
+          },
+          {
+            "key": "C",
+            "text": "7"
+          },
+          {
+            "key": "D",
+            "text": "6"
+          }
+        ],
+        "source": "WASSCE-WAEC-2015-May-June-Core-General-Mathematics-Past-Questions-Paper-1-Objectives.pdf",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "MISSING_ANSWER",
+          "message": "MCQ has no correct answer."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        }
+      ],
+      "fingerprint": "645917a475dbb34d6baf414d02ed47174e82ca60f6f83fd0e98efb6ebb47a178",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "0835f65d9f45cf04bda835a335edb2f2e28cff854beb910679c039b760b5ece5:12",
+        "sourceFile": "WASSCE-WAEC-2015-May-June-Core-General-Mathematics-Past-Questions-Paper-1-Objectives.pdf",
+        "sourceHash": "0835f65d9f45cf04bda835a335edb2f2e28cff854beb910679c039b760b5ece5",
+        "educationLevel": "SHS",
+        "grade": "SHS1",
+        "subject": "Mathematics",
+        "questionType": "multiple_choice",
+        "questionText": "Ada draws the graphs of y=x2–x–2 and y=2x–1on the same axes. Which of these equations is she solving?",
+        "options": [
+          {
+            "key": "A",
+            "text": "x2−x−3=0"
+          },
+          {
+            "key": "B",
+            "text": "x2−3x−1=0"
+          },
+          {
+            "key": "C",
+            "text": "x2−3x−3=0"
+          },
+          {
+            "key": "D",
+            "text": "x2+3x−1=0"
+          }
+        ],
+        "source": "WASSCE-WAEC-2015-May-June-Core-General-Mathematics-Past-Questions-Paper-1-Objectives.pdf",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "MISSING_ANSWER",
+          "message": "MCQ has no correct answer."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        }
+      ],
+      "fingerprint": "97b945bf6eaad8c49bd49b44a21377d3330fe4d007ef75328cc6a679d4587bb2",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "0835f65d9f45cf04bda835a335edb2f2e28cff854beb910679c039b760b5ece5:13",
+        "sourceFile": "WASSCE-WAEC-2015-May-June-Core-General-Mathematics-Past-Questions-Paper-1-Objectives.pdf",
+        "sourceHash": "0835f65d9f45cf04bda835a335edb2f2e28cff854beb910679c039b760b5ece5",
+        "educationLevel": "SHS",
+        "grade": "SHS1",
+        "subject": "Mathematics",
+        "questionType": "multiple_choice",
+        "questionText": "The volume of a cone of height 3cm is (38)^1/2 cm3. Find the radius of its base. [ Take π=22/7]",
+        "options": [
+          {
+            "key": "A",
+            "text": "3.0cm"
+          },
+          {
+            "key": "B",
+            "text": "3.5cm"
+          },
+          {
+            "key": "C",
+            "text": "4.0cm"
+          },
+          {
+            "key": "D",
+            "text": "4.5cm"
+          }
+        ],
+        "correctAnswer": "D",
+        "source": "WASSCE-WAEC-2015-May-June-Core-General-Mathematics-Past-Questions-Paper-1-Objectives.pdf",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        }
+      ],
+      "fingerprint": "be06287244d637a1da969101fc763936c6cf2a074078643f9dbbf265ac06df2b",
+      "classification": "warning"
+    },
+    {
+      "question": {
+        "externalSourceId": "0835f65d9f45cf04bda835a335edb2f2e28cff854beb910679c039b760b5ece5:14",
+        "sourceFile": "WASSCE-WAEC-2015-May-June-Core-General-Mathematics-Past-Questions-Paper-1-Objectives.pdf",
+        "sourceHash": "0835f65d9f45cf04bda835a335edb2f2e28cff854beb910679c039b760b5ece5",
+        "educationLevel": "SHS",
+        "grade": "SHS1",
+        "subject": "Mathematics",
+        "questionType": "multiple_choice",
+        "questionText": "A sector of a circle with radius 6cm subtends an angle of 60∘ at the centre. Calculate its perimeter in terms of π.",
+        "options": [
+          {
+            "key": "A",
+            "text": "2(π+6)cm"
+          },
+          {
+            "key": "B",
+            "text": "2(π+3)cm"
+          },
+          {
+            "key": "C",
+            "text": "2(π+2)cm"
+          },
+          {
+            "key": "D",
+            "text": "2(π+12)cm"
+          }
+        ],
+        "source": "WASSCE-WAEC-2015-May-June-Core-General-Mathematics-Past-Questions-Paper-1-Objectives.pdf",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "MISSING_ANSWER",
+          "message": "MCQ has no correct answer."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        }
+      ],
+      "fingerprint": "aa3aca2a12a57c674022b499ce17f7e64568651a23adeb4a4ae4ca631ba9e1c9",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "0835f65d9f45cf04bda835a335edb2f2e28cff854beb910679c039b760b5ece5:15",
+        "sourceFile": "WASSCE-WAEC-2015-May-June-Core-General-Mathematics-Past-Questions-Paper-1-Objectives.pdf",
+        "sourceHash": "0835f65d9f45cf04bda835a335edb2f2e28cff854beb910679c039b760b5ece5",
+        "educationLevel": "SHS",
+        "grade": "SHS1",
+        "subject": "Mathematics",
+        "questionType": "multiple_choice",
+        "questionText": "The dimensions of a rectangular tank are 2m by 7m by 11m. If its volume is equal to that of a cylindrical tank of height 4cm, calculate the base radius of the cylindrical tank. [Take π=22/7]",
+        "options": [
+          {
+            "key": "A",
+            "text": "14m"
+          },
+          {
+            "key": "B",
+            "text": "7m"
+          },
+          {
+            "key": "C",
+            "text": "(3)^1/2"
+          },
+          {
+            "key": "D",
+            "text": "(1)^3/4"
+          }
+        ],
+        "source": "WASSCE-WAEC-2015-May-June-Core-General-Mathematics-Past-Questions-Paper-1-Objectives.pdf",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "MISSING_ANSWER",
+          "message": "MCQ has no correct answer."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        }
+      ],
+      "fingerprint": "d08db999a9c0cab86a776cca05151a5f091e5153b384bd5a3f3d55466bf1cb22",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "0835f65d9f45cf04bda835a335edb2f2e28cff854beb910679c039b760b5ece5:20",
+        "sourceFile": "WASSCE-WAEC-2015-May-June-Core-General-Mathematics-Past-Questions-Paper-1-Objectives.pdf",
+        "sourceHash": "0835f65d9f45cf04bda835a335edb2f2e28cff854beb910679c039b760b5ece5",
+        "educationLevel": "SHS",
+        "grade": "SHS1",
+        "subject": "Mathematics",
+        "questionType": "multiple_choice",
+        "questionText": "Find the size of angle ∠PRS.",
+        "options": [
+          {
+            "key": "A",
+            "text": "76∘"
+          },
+          {
+            "key": "B",
+            "text": "71∘"
+          },
+          {
+            "key": "C",
+            "text": "38∘"
+          },
+          {
+            "key": "D",
+            "text": "33∘ x 0 1 1/4 2 4 y 3 5 1/2 The table shows some values for a linear graph. Use it to answer questions 21 and"
+          }
+        ],
+        "source": "WASSCE-WAEC-2015-May-June-Core-General-Mathematics-Past-Questions-Paper-1-Objectives.pdf",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "MISSING_ANSWER",
+          "message": "MCQ has no correct answer."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        }
+      ],
+      "fingerprint": "9e19226b976862e79d3cf38971c7cb3b3224716f9a89a457eecdab743d8d1d55",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "0835f65d9f45cf04bda835a335edb2f2e28cff854beb910679c039b760b5ece5:22",
+        "sourceFile": "WASSCE-WAEC-2015-May-June-Core-General-Mathematics-Past-Questions-Paper-1-Objectives.pdf",
+        "sourceHash": "0835f65d9f45cf04bda835a335edb2f2e28cff854beb910679c039b760b5ece5",
+        "educationLevel": "SHS",
+        "grade": "SHS1",
+        "subject": "Mathematics",
+        "questionType": "multiple_choice",
+        "questionText": "What is the value of y when x=2?",
+        "options": [
+          {
+            "key": "A",
+            "text": "5"
+          },
+          {
+            "key": "B",
+            "text": "7"
+          },
+          {
+            "key": "C",
+            "text": "9"
+          },
+          {
+            "key": "D",
+            "text": "11"
+          }
+        ],
+        "source": "WASSCE-WAEC-2015-May-June-Core-General-Mathematics-Past-Questions-Paper-1-Objectives.pdf",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "MISSING_ANSWER",
+          "message": "MCQ has no correct answer."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        }
+      ],
+      "fingerprint": "2334368d2dd1b971ad1150db8a6fb8a7a2ebcde7d59353371d9eebce50511425",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "0835f65d9f45cf04bda835a335edb2f2e28cff854beb910679c039b760b5ece5:25",
+        "sourceFile": "WASSCE-WAEC-2015-May-June-Core-General-Mathematics-Past-Questions-Paper-1-Objectives.pdf",
+        "sourceHash": "0835f65d9f45cf04bda835a335edb2f2e28cff854beb910679c039b760b5ece5",
+        "educationLevel": "SHS",
+        "grade": "SHS1",
+        "subject": "Mathematics",
+        "questionType": "multiple_choice",
+        "questionText": "The angle of elevation of an aircraft from a point K on the horizontal ground is 30∘. If the aircraft is 800m above the ground, how far is it from K?",
+        "options": [
+          {
+            "key": "A",
+            "text": "400m"
+          },
+          {
+            "key": "B",
+            "text": "692.82m"
+          },
+          {
+            "key": "C",
+            "text": "923.76m"
+          },
+          {
+            "key": "D",
+            "text": "1,600.00m"
+          }
+        ],
+        "source": "WASSCE-WAEC-2015-May-June-Core-General-Mathematics-Past-Questions-Paper-1-Objectives.pdf",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "MISSING_ANSWER",
+          "message": "MCQ has no correct answer."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        }
+      ],
+      "fingerprint": "9a1765e0c6815dbda101ee78864ebb46cb2f52ef66d83a89aa5d953500479806",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "0835f65d9f45cf04bda835a335edb2f2e28cff854beb910679c039b760b5ece5:26",
+        "sourceFile": "WASSCE-WAEC-2015-May-June-Core-General-Mathematics-Past-Questions-Paper-1-Objectives.pdf",
+        "sourceHash": "0835f65d9f45cf04bda835a335edb2f2e28cff854beb910679c039b760b5ece5",
+        "educationLevel": "SHS",
+        "grade": "SHS1",
+        "subject": "Mathematics",
+        "questionType": "multiple_choice",
+        "questionText": "The population of students in a school is 810. If this is represented on a pie chart, calculate the sector angle for a class of 72 students.",
+        "options": [
+          {
+            "key": "A",
+            "text": "32∘"
+          },
+          {
+            "key": "B",
+            "text": "45∘"
+          },
+          {
+            "key": "C",
+            "text": "60∘"
+          },
+          {
+            "key": "D",
+            "text": "75∘"
+          }
+        ],
+        "source": "WASSCE-WAEC-2015-May-June-Core-General-Mathematics-Past-Questions-Paper-1-Objectives.pdf",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "MISSING_ANSWER",
+          "message": "MCQ has no correct answer."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        }
+      ],
+      "fingerprint": "72b69aec921e2c883e6cafff487b8d6d3d4166d2a4d092665f56cd25fb1276c8",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "0835f65d9f45cf04bda835a335edb2f2e28cff854beb910679c039b760b5ece5:27",
+        "sourceFile": "WASSCE-WAEC-2015-May-June-Core-General-Mathematics-Past-Questions-Paper-1-Objectives.pdf",
+        "sourceHash": "0835f65d9f45cf04bda835a335edb2f2e28cff854beb910679c039b760b5ece5",
+        "educationLevel": "SHS",
+        "grade": "SHS1",
+        "subject": "Mathematics",
+        "questionType": "multiple_choice",
+        "questionText": "The scores of twenty students in a test are as follows: 44,47,48,49,50,51,52,53,53,54,58,59,60,61,63,65,67,70,73,75. Find the third quartile.",
+        "options": [
+          {
+            "key": "A",
+            "text": "62"
+          },
+          {
+            "key": "B",
+            "text": "63"
+          },
+          {
+            "key": "C",
+            "text": "64"
+          },
+          {
+            "key": "D",
+            "text": "65 Scores 0 - 4 5 -9 10 - 14 Frequency 2 1 2"
+          }
+        ],
+        "source": "WASSCE-WAEC-2015-May-June-Core-General-Mathematics-Past-Questions-Paper-1-Objectives.pdf",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "MISSING_ANSWER",
+          "message": "MCQ has no correct answer."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        }
+      ],
+      "fingerprint": "9a91b3a20e896c3a5a42c5b3de52b5e7de354958d15f9e870e813ba502842697",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "0835f65d9f45cf04bda835a335edb2f2e28cff854beb910679c039b760b5ece5:28",
+        "sourceFile": "WASSCE-WAEC-2015-May-June-Core-General-Mathematics-Past-Questions-Paper-1-Objectives.pdf",
+        "sourceHash": "0835f65d9f45cf04bda835a335edb2f2e28cff854beb910679c039b760b5ece5",
+        "educationLevel": "SHS",
+        "grade": "SHS1",
+        "subject": "Mathematics",
+        "questionType": "multiple_choice",
+        "questionText": "The table shows the distribution of the scores of some students in a test. Calculate the mean score.",
+        "options": [
+          {
+            "key": "A",
+            "text": "5.6"
+          },
+          {
+            "key": "B",
+            "text": "6.2"
+          },
+          {
+            "key": "C",
+            "text": "6.6"
+          },
+          {
+            "key": "D",
+            "text": "7.0"
+          }
+        ],
+        "source": "WASSCE-WAEC-2015-May-June-Core-General-Mathematics-Past-Questions-Paper-1-Objectives.pdf",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "MISSING_ANSWER",
+          "message": "MCQ has no correct answer."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        }
+      ],
+      "fingerprint": "1c142f8f01aa544d3c92cfe8bebe5d3bc6566e003b2348ff0f2a440366cf2d56",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "0835f65d9f45cf04bda835a335edb2f2e28cff854beb910679c039b760b5ece5:29",
+        "sourceFile": "WASSCE-WAEC-2015-May-June-Core-General-Mathematics-Past-Questions-Paper-1-Objectives.pdf",
+        "sourceHash": "0835f65d9f45cf04bda835a335edb2f2e28cff854beb910679c039b760b5ece5",
+        "educationLevel": "SHS",
+        "grade": "SHS1",
+        "subject": "Mathematics",
+        "questionType": "multiple_choice",
+        "questionText": "The probabilities that Kebba, Ebou and Omar will hit a target are 2/3, 3/4 and 4/5 respectively. Find the probability that only Kebba will hit the target.",
+        "options": [
+          {
+            "key": "A",
+            "text": "7/5"
+          },
+          {
+            "key": "B",
+            "text": "7/60"
+          },
+          {
+            "key": "C",
+            "text": "1/30"
+          },
+          {
+            "key": "D",
+            "text": "1/60"
+          }
+        ],
+        "source": "WASSCE-WAEC-2015-May-June-Core-General-Mathematics-Past-Questions-Paper-1-Objectives.pdf",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "MISSING_ANSWER",
+          "message": "MCQ has no correct answer."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        }
+      ],
+      "fingerprint": "dc2282d36c3da1ec21348bee19ec7c2a1eed5d460283d853d783ddc5cfecdeca",
+      "classification": "rejected"
+    }
+  ],
+  "parseErrors": []
+}

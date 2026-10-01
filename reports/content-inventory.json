@@ -1,0 +1,1403 @@
+{
+  "summary": {
+    "generatedAt": "2026-10-01T15:53:42.982Z",
+    "sourceRoot": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum",
+    "totalSourceFiles": 96,
+    "curricula": [
+      "Ghana Common Core Programme",
+      "Ghana Source Curriculum"
+    ],
+    "educationLevels": [
+      "Basic Primary",
+      "JHS / Common Core",
+      "SHS"
+    ],
+    "grades": [
+      "B10",
+      "B4",
+      "B5",
+      "B6",
+      "B7",
+      "B8",
+      "B9",
+      "SHS1",
+      "SHS2",
+      "SHS3"
+    ],
+    "subjects": [
+      "ARABIC",
+      "CHEMISTRY",
+      "Computing",
+      "English Language",
+      "FRENCH",
+      "HISTORY",
+      "Mathematics",
+      "Our World Our People",
+      "PHYSICS",
+      "Religious and Moral Education",
+      "Science",
+      "Social Studies",
+      "TWI"
+    ],
+    "normalizedCurriculumNodes": 2109,
+    "questionRecordsDiscovered": 82,
+    "validQuestions": 0,
+    "warnings": 8,
+    "rejected": 74,
+    "duplicates": 0,
+    "successfullyPrepared": 8,
+    "parseErrors": 0
+  },
+  "sources": [
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\2022-BECE-MATHS-SCHEME.pdf",
+      "relativePath": "2022-BECE-MATHS-SCHEME.pdf",
+      "extension": ".pdf",
+      "bytes": 6083083,
+      "sha256": "2d344449082c7c823991ac131f93ce5b63728d1514f63f50bbbe436c29038550",
+      "parseability": "supported",
+      "grades": [],
+      "subject": "Mathematics",
+      "contentType": "marking_scheme"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\B4-COMPUTING-1.pdf",
+      "relativePath": "B4-COMPUTING-1.pdf",
+      "extension": ".pdf",
+      "bytes": 388548,
+      "sha256": "fae0b7f85ecf8fe99453f36962b4cf880dcfebfc38e039128c22eddacee77fd7",
+      "parseability": "supported",
+      "grades": [
+        "B4"
+      ],
+      "educationLevel": "Basic Primary",
+      "subject": "Computing",
+      "contentType": "unknown"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\B4-CREATIVE-ARTS-1.pdf",
+      "relativePath": "B4-CREATIVE-ARTS-1.pdf",
+      "extension": ".pdf",
+      "bytes": 255021,
+      "sha256": "3001054dd8af2abb06b4e836f96a11de295fd462569efdd563da7709f4c9dc9a",
+      "parseability": "supported",
+      "grades": [
+        "B4"
+      ],
+      "educationLevel": "Basic Primary",
+      "contentType": "unknown"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\B4-ENGLISH-1.pdf",
+      "relativePath": "B4-ENGLISH-1.pdf",
+      "extension": ".pdf",
+      "bytes": 362501,
+      "sha256": "b144ca7cd1884dd397a578fb9fff1d1dc6ac312e4f1e523a726eb74c944e7cdd",
+      "parseability": "supported",
+      "grades": [
+        "B4"
+      ],
+      "educationLevel": "Basic Primary",
+      "subject": "English Language",
+      "contentType": "unknown"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\B4-ENGLISH-3.pdf",
+      "relativePath": "B4-ENGLISH-3.pdf",
+      "extension": ".pdf",
+      "bytes": 23998,
+      "sha256": "7d4c26816d3be5b6921cac1a8874d611a0b5fbca8dc00c197baf11adc2b18f71",
+      "parseability": "supported",
+      "grades": [
+        "B4"
+      ],
+      "educationLevel": "Basic Primary",
+      "subject": "English Language",
+      "contentType": "unknown"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\B4-HISTORY-1.pdf",
+      "relativePath": "B4-HISTORY-1.pdf",
+      "extension": ".pdf",
+      "bytes": 431696,
+      "sha256": "569e0326585ed91becc309fed41ebf4c41aeaebb7eca5457dae837ce88c11448",
+      "parseability": "supported",
+      "grades": [
+        "B4"
+      ],
+      "educationLevel": "Basic Primary",
+      "subject": "HISTORY",
+      "contentType": "unknown"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\B4-ICT -3.pdf",
+      "relativePath": "B4-ICT -3.pdf",
+      "extension": ".pdf",
+      "bytes": 29988,
+      "sha256": "7f5a6067f339665f96e0493fea39e43b9c636035a3a4b27cef17ef227aa5d382",
+      "parseability": "supported",
+      "grades": [
+        "B4"
+      ],
+      "educationLevel": "Basic Primary",
+      "subject": "Computing",
+      "contentType": "unknown"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\B4-MATHEMATICS-3.pdf",
+      "relativePath": "B4-MATHEMATICS-3.pdf",
+      "extension": ".pdf",
+      "bytes": 29899,
+      "sha256": "3eb207852a9b692fe62a8eaf9c01ae1c60f1e52de66ee285a4eecd48bc49fbbe",
+      "parseability": "supported",
+      "grades": [
+        "B4"
+      ],
+      "educationLevel": "Basic Primary",
+      "subject": "Mathematics",
+      "contentType": "unknown"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\B4-MATHS-1.pdf",
+      "relativePath": "B4-MATHS-1.pdf",
+      "extension": ".pdf",
+      "bytes": 565657,
+      "sha256": "0ca3d24e8940d4fdf09802956b2f0c7eeac90bb7fef1be4e15ea2c736e4cc4ce",
+      "parseability": "supported",
+      "grades": [
+        "B4"
+      ],
+      "educationLevel": "Basic Primary",
+      "subject": "Mathematics",
+      "contentType": "unknown"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\B4-OWOP-1-1-1.pdf",
+      "relativePath": "B4-OWOP-1-1-1.pdf",
+      "extension": ".pdf",
+      "bytes": 251851,
+      "sha256": "c2559549595ad600b9fe194e6be0f330830c1f7c53c1bc941fbda479f3f9a341",
+      "parseability": "supported",
+      "grades": [
+        "B4"
+      ],
+      "educationLevel": "Basic Primary",
+      "subject": "Our World Our People",
+      "contentType": "unknown"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\B4-RME.pdf",
+      "relativePath": "B4-RME.pdf",
+      "extension": ".pdf",
+      "bytes": 333413,
+      "sha256": "6bd34bd3ffeb74ab34c905dbc99cea3f9f9e1a7458cb3ba2c12db4b0d7134fab",
+      "parseability": "supported",
+      "grades": [
+        "B4"
+      ],
+      "educationLevel": "Basic Primary",
+      "subject": "Religious and Moral Education",
+      "contentType": "unknown"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\B4-SCIENCE (1).pdf",
+      "relativePath": "B4-SCIENCE (1).pdf",
+      "extension": ".pdf",
+      "bytes": 252639,
+      "sha256": "22934405556c59f5d07ea3c8cf7e3674ba1e595ff0230e087ad14fe9c0b6e6c0",
+      "parseability": "supported",
+      "grades": [
+        "B4"
+      ],
+      "educationLevel": "Basic Primary",
+      "subject": "Science",
+      "contentType": "unknown"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\B4-SCIENCE.pdf",
+      "relativePath": "B4-SCIENCE.pdf",
+      "extension": ".pdf",
+      "bytes": 252639,
+      "sha256": "22934405556c59f5d07ea3c8cf7e3674ba1e595ff0230e087ad14fe9c0b6e6c0",
+      "parseability": "supported",
+      "grades": [
+        "B4"
+      ],
+      "educationLevel": "Basic Primary",
+      "subject": "Science",
+      "contentType": "unknown"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\B5-COMPUTING.pdf",
+      "relativePath": "B5-COMPUTING.pdf",
+      "extension": ".pdf",
+      "bytes": 250953,
+      "sha256": "5fb2a89bd933470947f19294cc57714222be01318069cfc5c632d590ee6fe5c8",
+      "parseability": "supported",
+      "grades": [
+        "B5"
+      ],
+      "educationLevel": "Basic Primary",
+      "subject": "Computing",
+      "contentType": "unknown"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\B5-ENGLISH-1.pdf",
+      "relativePath": "B5-ENGLISH-1.pdf",
+      "extension": ".pdf",
+      "bytes": 239047,
+      "sha256": "3b8f42f5727f2eb44f523dfefa291b5e659fbb1f2cb47c7a29071541519532e1",
+      "parseability": "supported",
+      "grades": [
+        "B5"
+      ],
+      "educationLevel": "Basic Primary",
+      "subject": "English Language",
+      "contentType": "unknown"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\B5-HISTORY.pdf",
+      "relativePath": "B5-HISTORY.pdf",
+      "extension": ".pdf",
+      "bytes": 344727,
+      "sha256": "8c2782073a372a68c0c097a3e0f02e4911f43b7fc61addebabbb49191c35a090",
+      "parseability": "supported",
+      "grades": [
+        "B5"
+      ],
+      "educationLevel": "Basic Primary",
+      "subject": "HISTORY",
+      "contentType": "unknown"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\B5-MATHS.pdf",
+      "relativePath": "B5-MATHS.pdf",
+      "extension": ".pdf",
+      "bytes": 373751,
+      "sha256": "963650fe944c9dbb7893304c506632ba55611639c76b2a22bc89d3f73d9ab784",
+      "parseability": "supported",
+      "grades": [
+        "B5"
+      ],
+      "educationLevel": "Basic Primary",
+      "subject": "Mathematics",
+      "contentType": "unknown"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\B5-OWOP.pdf",
+      "relativePath": "B5-OWOP.pdf",
+      "extension": ".pdf",
+      "bytes": 251914,
+      "sha256": "84edf74c877e5d0000ae253ea3d38d0ed9d4f521f790bd273c6c46038e24c14f",
+      "parseability": "supported",
+      "grades": [
+        "B5"
+      ],
+      "educationLevel": "Basic Primary",
+      "subject": "Our World Our People",
+      "contentType": "unknown"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\B5-RME.pdf",
+      "relativePath": "B5-RME.pdf",
+      "extension": ".pdf",
+      "bytes": 247865,
+      "sha256": "64ee959ca3e79e8de54f052d3d12badc34b564b77f0dfa684aa2df80778ee4bd",
+      "parseability": "supported",
+      "grades": [
+        "B5"
+      ],
+      "educationLevel": "Basic Primary",
+      "subject": "Religious and Moral Education",
+      "contentType": "unknown"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\B5-SCIENCE-1.pdf",
+      "relativePath": "B5-SCIENCE-1.pdf",
+      "extension": ".pdf",
+      "bytes": 343132,
+      "sha256": "205b8858aceedf0af06216a4068f7cff5e1faec82ddf585c1ff689b1d4fe4e4d",
+      "parseability": "supported",
+      "grades": [
+        "B5"
+      ],
+      "educationLevel": "Basic Primary",
+      "subject": "Science",
+      "contentType": "unknown"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\B6-COMPUTING-1.pdf",
+      "relativePath": "B6-COMPUTING-1.pdf",
+      "extension": ".pdf",
+      "bytes": 250936,
+      "sha256": "24d5f6e03eddeb0ca4fb4ee9b3325134b2cdcb42905a618cd78b6b33362cc2a5",
+      "parseability": "supported",
+      "grades": [
+        "B6"
+      ],
+      "educationLevel": "Basic Primary",
+      "subject": "Computing",
+      "contentType": "unknown"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\B6-COMPUTING-Questions.pdf",
+      "relativePath": "B6-COMPUTING-Questions.pdf",
+      "extension": ".pdf",
+      "bytes": 28519,
+      "sha256": "bb51dc1d390cf0da8f4611c54d8cfe9d6df765d4966458d4c974ab840aa83a33",
+      "parseability": "supported",
+      "grades": [
+        "B6"
+      ],
+      "educationLevel": "Basic Primary",
+      "subject": "Computing",
+      "contentType": "questions"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\B6-CREATIVE-ARTS-1-1 (1).pdf",
+      "relativePath": "B6-CREATIVE-ARTS-1-1 (1).pdf",
+      "extension": ".pdf",
+      "bytes": 398424,
+      "sha256": "e2b75fa29f3933401680b6a8ed840987ed80b8c1eefbd3004499e586d3c0758e",
+      "parseability": "supported",
+      "grades": [
+        "B6"
+      ],
+      "educationLevel": "Basic Primary",
+      "contentType": "unknown"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\B6-CREATIVE-ARTS-1-1.pdf",
+      "relativePath": "B6-CREATIVE-ARTS-1-1.pdf",
+      "extension": ".pdf",
+      "bytes": 398424,
+      "sha256": "e2b75fa29f3933401680b6a8ed840987ed80b8c1eefbd3004499e586d3c0758e",
+      "parseability": "supported",
+      "grades": [
+        "B6"
+      ],
+      "educationLevel": "Basic Primary",
+      "contentType": "unknown"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\B6-CREATIVE-ARTS.pdf",
+      "relativePath": "B6-CREATIVE-ARTS.pdf",
+      "extension": ".pdf",
+      "bytes": 27869,
+      "sha256": "4124c181e372220c0949e2ea2cf493fc8b632e895341fccee6177da41be52f9e",
+      "parseability": "supported",
+      "grades": [
+        "B6"
+      ],
+      "educationLevel": "Basic Primary",
+      "contentType": "unknown"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\B6-ENGLISH-1.pdf",
+      "relativePath": "B6-ENGLISH-1.pdf",
+      "extension": ".pdf",
+      "bytes": 329984,
+      "sha256": "3a210a7493ce28996d39001c0eb320c50fed0fe0df9657b9c3a172ed9f0a3670",
+      "parseability": "supported",
+      "grades": [
+        "B6"
+      ],
+      "educationLevel": "Basic Primary",
+      "subject": "English Language",
+      "contentType": "unknown"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\B6-HISTORY-1.pdf",
+      "relativePath": "B6-HISTORY-1.pdf",
+      "extension": ".pdf",
+      "bytes": 251052,
+      "sha256": "a217bd05a8cb1d1cfa254d9870064d7c0b24f687a59c7f61394d101f7970d9bd",
+      "parseability": "supported",
+      "grades": [
+        "B6"
+      ],
+      "educationLevel": "Basic Primary",
+      "subject": "HISTORY",
+      "contentType": "unknown"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\B6-MATHS-1.pdf",
+      "relativePath": "B6-MATHS-1.pdf",
+      "extension": ".pdf",
+      "bytes": 244959,
+      "sha256": "7f47bc51e3beca193c22a61dbc0dcebc447eaa0ba6cafc9b3fac71c6d7e79eb1",
+      "parseability": "supported",
+      "grades": [
+        "B6"
+      ],
+      "educationLevel": "Basic Primary",
+      "subject": "Mathematics",
+      "contentType": "unknown"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\B6-RME-1.pdf",
+      "relativePath": "B6-RME-1.pdf",
+      "extension": ".pdf",
+      "bytes": 250131,
+      "sha256": "f37acc7a67427a396ed12140f689cd20524c283a51a2323527c9df4fffb4d9fc",
+      "parseability": "supported",
+      "grades": [
+        "B6"
+      ],
+      "educationLevel": "Basic Primary",
+      "subject": "Religious and Moral Education",
+      "contentType": "unknown"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\B6-SCIENCE-1.pdf",
+      "relativePath": "B6-SCIENCE-1.pdf",
+      "extension": ".pdf",
+      "bytes": 251455,
+      "sha256": "9c66da6a3fbe38ae03504a2fdbd08b5c611f6d9117ab4782e0c20b143a9e0ba4",
+      "parseability": "supported",
+      "grades": [
+        "B6"
+      ],
+      "educationLevel": "Basic Primary",
+      "subject": "Science",
+      "contentType": "unknown"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\B7.-T1.-ENG.pdf",
+      "relativePath": "B7.-T1.-ENG.pdf",
+      "extension": ".pdf",
+      "bytes": 212908,
+      "sha256": "e4e3cd6edd1483474855d1bdfcdc5e71c6266548e0074a173f201e4717f531c7",
+      "parseability": "supported",
+      "grades": [
+        "B7"
+      ],
+      "educationLevel": "JHS / Common Core",
+      "contentType": "unknown"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\B7.-T1.-MATHS.pdf",
+      "relativePath": "B7.-T1.-MATHS.pdf",
+      "extension": ".pdf",
+      "bytes": 242045,
+      "sha256": "2df6e6b1fa7e6de9a35f44d1cc093fd96cf5b1d93a23d3a89ccb2d90ccc1e5f3",
+      "parseability": "supported",
+      "grades": [
+        "B7"
+      ],
+      "educationLevel": "JHS / Common Core",
+      "subject": "Mathematics",
+      "contentType": "unknown"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\B7.-T1.-SCI.pdf",
+      "relativePath": "B7.-T1.-SCI.pdf",
+      "extension": ".pdf",
+      "bytes": 219478,
+      "sha256": "e2b62f8707a0da047a82a9babdc299c1bef0a305354aa67b61185a90c5dbe4a5",
+      "parseability": "supported",
+      "grades": [
+        "B7"
+      ],
+      "educationLevel": "JHS / Common Core",
+      "contentType": "unknown"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\B7.-T1.-SOC.pdf",
+      "relativePath": "B7.-T1.-SOC.pdf",
+      "extension": ".pdf",
+      "bytes": 183906,
+      "sha256": "9b42533857d6907e015cb62ab030f0e9f8c800365c06bbfa029b1a41da0134dd",
+      "parseability": "supported",
+      "grades": [
+        "B7"
+      ],
+      "educationLevel": "JHS / Common Core",
+      "subject": "Social Studies",
+      "contentType": "unknown"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\B8.-T1.-ENG.pdf",
+      "relativePath": "B8.-T1.-ENG.pdf",
+      "extension": ".pdf",
+      "bytes": 352682,
+      "sha256": "79bd39e2490f99de264bbb26b9006d41b4a86b71b8367d712c4cf398912ee78f",
+      "parseability": "supported",
+      "grades": [
+        "B8"
+      ],
+      "educationLevel": "JHS / Common Core",
+      "contentType": "unknown"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\B8.-T1.-MATHS.pdf",
+      "relativePath": "B8.-T1.-MATHS.pdf",
+      "extension": ".pdf",
+      "bytes": 267407,
+      "sha256": "4727a712f57f8b129df03a07e64ff5e0e32f4bc532b2bef06eb17072001b3fed",
+      "parseability": "supported",
+      "grades": [
+        "B8"
+      ],
+      "educationLevel": "JHS / Common Core",
+      "subject": "Mathematics",
+      "contentType": "unknown"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\B8.-T1.-RME.pdf",
+      "relativePath": "B8.-T1.-RME.pdf",
+      "extension": ".pdf",
+      "bytes": 216758,
+      "sha256": "383c518192db33c84434893fc4410c8934b13dad217a2f836a5ffd9551ea54a4",
+      "parseability": "supported",
+      "grades": [
+        "B8"
+      ],
+      "educationLevel": "JHS / Common Core",
+      "subject": "Religious and Moral Education",
+      "contentType": "unknown"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\B8.-T1.-SCI.pdf",
+      "relativePath": "B8.-T1.-SCI.pdf",
+      "extension": ".pdf",
+      "bytes": 266542,
+      "sha256": "2ba4f574d5219bdc14a71d24b210d9f66bf1290b63d86b52763e0eb1c8b5ba8d",
+      "parseability": "supported",
+      "grades": [
+        "B8"
+      ],
+      "educationLevel": "JHS / Common Core",
+      "contentType": "unknown"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\B8.-T1.-SOC.pdf",
+      "relativePath": "B8.-T1.-SOC.pdf",
+      "extension": ".pdf",
+      "bytes": 220294,
+      "sha256": "01a7a751d7781f60416aa59cc31773fe2ca7e938980a6490f327aac354c2a0d5",
+      "parseability": "supported",
+      "grades": [
+        "B8"
+      ],
+      "educationLevel": "JHS / Common Core",
+      "subject": "Social Studies",
+      "contentType": "unknown"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\BECE English 2022 Marking Scheme.pdf",
+      "relativePath": "BECE English 2022 Marking Scheme.pdf",
+      "extension": ".pdf",
+      "bytes": 2005547,
+      "sha256": "aad8737033543c251a86b71a51b34e1c4c28c8763c5ddd31adf290f29f3abe59",
+      "parseability": "supported",
+      "grades": [],
+      "subject": "English Language",
+      "contentType": "marking_scheme"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\Career-Technology.pdf",
+      "relativePath": "Career-Technology.pdf",
+      "extension": ".pdf",
+      "bytes": 1100195,
+      "sha256": "e264b6d7988611e7628480ea595192039afe0923656f4f8b8c559a4341ced8d8",
+      "parseability": "supported",
+      "grades": [],
+      "contentType": "unknown"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\COMPUTING-CCP-CURRICULUM-B7-B10.pdf",
+      "relativePath": "COMPUTING-CCP-CURRICULUM-B7-B10.pdf",
+      "extension": ".pdf",
+      "bytes": 1275263,
+      "sha256": "96332e1468768dc986df9bce0abba98e9a826b93c74c8d255f7c16c2cf56e95d",
+      "parseability": "supported",
+      "grades": [
+        "B7",
+        "B10",
+        "B8",
+        "B9"
+      ],
+      "educationLevel": "JHS / Common Core",
+      "subject": "Computing",
+      "contentType": "curriculum"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\Core-Maths-NvDc-19 (1).pdf",
+      "relativePath": "Core-Maths-NvDc-19 (1).pdf",
+      "extension": ".pdf",
+      "bytes": 2021312,
+      "sha256": "56f788de094220c04e62d4f933707e33ee823f47c57c23e1c99f78ece6b4145a",
+      "parseability": "supported",
+      "grades": [],
+      "subject": "Mathematics",
+      "contentType": "unknown"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\Core-Maths-NvDc-19.pdf",
+      "relativePath": "Core-Maths-NvDc-19.pdf",
+      "extension": ".pdf",
+      "bytes": 2021312,
+      "sha256": "56f788de094220c04e62d4f933707e33ee823f47c57c23e1c99f78ece6b4145a",
+      "parseability": "supported",
+      "grades": [],
+      "subject": "Mathematics",
+      "contentType": "unknown"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\Creative-Arts-and-Designs.pdf",
+      "relativePath": "Creative-Arts-and-Designs.pdf",
+      "extension": ".pdf",
+      "bytes": 2426787,
+      "sha256": "b820de3ecef7bce40d91d0d4f3a390ac43acb807c9d1aa8b39b6374fac1db06e",
+      "parseability": "supported",
+      "grades": [],
+      "contentType": "unknown"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\Emaths-2019.pdf",
+      "relativePath": "Emaths-2019.pdf",
+      "extension": ".pdf",
+      "bytes": 2373804,
+      "sha256": "57c7fa0145a2d8935b2f94bb2ac9e3cedda1205393f00cf9162d4ebc75dda848",
+      "parseability": "supported",
+      "grades": [],
+      "subject": "Mathematics",
+      "contentType": "unknown"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\Emaths-2020.pdf",
+      "relativePath": "Emaths-2020.pdf",
+      "extension": ".pdf",
+      "bytes": 248702,
+      "sha256": "71c5c631e69efa26c168b2df50e18bf608b8d36a46c139b80b7493e843a2da40",
+      "parseability": "supported",
+      "grades": [],
+      "subject": "Mathematics",
+      "contentType": "unknown"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\emaths-NovDec-2019.pdf",
+      "relativePath": "emaths-NovDec-2019.pdf",
+      "extension": ".pdf",
+      "bytes": 1840913,
+      "sha256": "ec178661242f74ae5fb2fe3a4463b80b159c2de369c175b3cd25c08038b8d2d7",
+      "parseability": "supported",
+      "grades": [],
+      "subject": "Mathematics",
+      "contentType": "unknown"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\Emaths-NovDec-2020.pdf",
+      "relativePath": "Emaths-NovDec-2020.pdf",
+      "extension": ".pdf",
+      "bytes": 715995,
+      "sha256": "a8a130ae24a6514ab6abed087b338218417835dd79acc53f0c558206dad58026",
+      "parseability": "supported",
+      "grades": [],
+      "subject": "Mathematics",
+      "contentType": "unknown"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\FRENCH-CCP-CURRICULUM-FOR-B7-B10 (1).pdf",
+      "relativePath": "FRENCH-CCP-CURRICULUM-FOR-B7-B10 (1).pdf",
+      "extension": ".pdf",
+      "bytes": 2995568,
+      "sha256": "c095bc1269b4bc9fb5b6e5f3caaf2ffc4f0ed65138831d2f0b7e8d04396d16d0",
+      "parseability": "supported",
+      "grades": [
+        "B7",
+        "B10",
+        "B8",
+        "B9"
+      ],
+      "educationLevel": "JHS / Common Core",
+      "subject": "FRENCH",
+      "contentType": "curriculum"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\FRENCH-CCP-CURRICULUM-FOR-B7-B10.pdf",
+      "relativePath": "FRENCH-CCP-CURRICULUM-FOR-B7-B10.pdf",
+      "extension": ".pdf",
+      "bytes": 2995568,
+      "sha256": "c095bc1269b4bc9fb5b6e5f3caaf2ffc4f0ed65138831d2f0b7e8d04396d16d0",
+      "parseability": "supported",
+      "grades": [
+        "B7",
+        "B10",
+        "B8",
+        "B9"
+      ],
+      "educationLevel": "JHS / Common Core",
+      "subject": "FRENCH",
+      "contentType": "curriculum"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\GES-New-JHS-Syllabus-ARABIC-CCP-CURRICULUM-FOR-B7-B10.pdf",
+      "relativePath": "GES-New-JHS-Syllabus-ARABIC-CCP-CURRICULUM-FOR-B7-B10.pdf",
+      "extension": ".pdf",
+      "bytes": 2724232,
+      "sha256": "df9257fefeef5bf1ab16cf258103ae2643d4bf33b43d2a6f02a422cd607ec20e",
+      "parseability": "supported",
+      "grades": [
+        "B7",
+        "B10",
+        "B8",
+        "B9"
+      ],
+      "educationLevel": "JHS / Common Core",
+      "subject": "ARABIC",
+      "contentType": "curriculum"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\GES-New-JHS-Syllabus-ENGLISH-CCP-CURRICULUM-FOR-B7-10.pdf",
+      "relativePath": "GES-New-JHS-Syllabus-ENGLISH-CCP-CURRICULUM-FOR-B7-10.pdf",
+      "extension": ".pdf",
+      "bytes": 1468749,
+      "sha256": "0c94cfd2e6f243e352dc4c687b350cc6d157e95442260025bc9cac56d7f55a5e",
+      "parseability": "supported",
+      "grades": [
+        "B7"
+      ],
+      "educationLevel": "JHS / Common Core",
+      "subject": "English Language",
+      "contentType": "curriculum"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\GES-New-JHS-Syllabus-GHANAIAN-LANGUAGE-CCP-CURRICULUM-B7-B10.pdf",
+      "relativePath": "GES-New-JHS-Syllabus-GHANAIAN-LANGUAGE-CCP-CURRICULUM-B7-B10.pdf",
+      "extension": ".pdf",
+      "bytes": 1140740,
+      "sha256": "8da04c8b7663b40e3a5b93496c199f18fdd0a598fe8a0a0e0fa6170d8e5f47cd",
+      "parseability": "supported",
+      "grades": [
+        "B7",
+        "B10",
+        "B8",
+        "B9"
+      ],
+      "educationLevel": "JHS / Common Core",
+      "contentType": "curriculum"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\GES-New-JHS-Syllabus-MATHEMATICS-CCP-CURRICULUM-B7-B10.pdf",
+      "relativePath": "GES-New-JHS-Syllabus-MATHEMATICS-CCP-CURRICULUM-B7-B10.pdf",
+      "extension": ".pdf",
+      "bytes": 7440143,
+      "sha256": "4401921d5681b9ca8f1940edb67e1dab4b7e8033c1f4af9421bf603c8c56e107",
+      "parseability": "supported",
+      "grades": [
+        "B7",
+        "B10",
+        "B8",
+        "B9"
+      ],
+      "educationLevel": "JHS / Common Core",
+      "subject": "Mathematics",
+      "contentType": "curriculum"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\GES-New-JHS-Syllabus-RME-CCP-CURRICULUM-FOR-B7-B10.pdf",
+      "relativePath": "GES-New-JHS-Syllabus-RME-CCP-CURRICULUM-FOR-B7-B10.pdf",
+      "extension": ".pdf",
+      "bytes": 1123506,
+      "sha256": "0d0a3fae2dddc21e48b9e539f617eff4d9022fc2940f2c3fd5bb7280307d18f6",
+      "parseability": "supported",
+      "grades": [
+        "B7",
+        "B10",
+        "B8",
+        "B9"
+      ],
+      "educationLevel": "JHS / Common Core",
+      "subject": "Religious and Moral Education",
+      "contentType": "curriculum"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\GES-New-JHS-Syllabus-SCIENCE-CCP-CURRICULUM-B7-B10.pdf",
+      "relativePath": "GES-New-JHS-Syllabus-SCIENCE-CCP-CURRICULUM-B7-B10.pdf",
+      "extension": ".pdf",
+      "bytes": 2749704,
+      "sha256": "9f4bc80789d693c6c35ce160d2d2a5753bb556b1bbdd772117a06266b79ba077",
+      "parseability": "supported",
+      "grades": [
+        "B7",
+        "B10",
+        "B8",
+        "B9"
+      ],
+      "educationLevel": "JHS / Common Core",
+      "subject": "Science",
+      "contentType": "curriculum"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\May-June-WASSCE-WAEC-Core-General-Mathematics-Past-questions-Paper-1-2013-Obejectives-Ghana.pdf",
+      "relativePath": "May-June-WASSCE-WAEC-Core-General-Mathematics-Past-questions-Paper-1-2013-Obejectives-Ghana.pdf",
+      "extension": ".pdf",
+      "bytes": 1730839,
+      "sha256": "ae47579526615a1b0d4680a16b8dab03667d7cfb9ebef50be7f9ef6c3aadd8f5",
+      "parseability": "supported",
+      "grades": [
+        "SHS1",
+        "SHS2",
+        "SHS3"
+      ],
+      "educationLevel": "SHS",
+      "subject": "Mathematics",
+      "contentType": "questions"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\May-June-WASSCE-WAEC-Core-General-Mathematics-Past-questions-Paper-2-2013-Theory-Ghana.pdf",
+      "relativePath": "May-June-WASSCE-WAEC-Core-General-Mathematics-Past-questions-Paper-2-2013-Theory-Ghana.pdf",
+      "extension": ".pdf",
+      "bytes": 1154694,
+      "sha256": "52caf43cee2a8110ea89f85ece8c773839a145704a651499760cda41c65628ef",
+      "parseability": "supported",
+      "grades": [
+        "SHS1",
+        "SHS2",
+        "SHS3"
+      ],
+      "educationLevel": "SHS",
+      "subject": "Mathematics",
+      "contentType": "questions"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\May-June-WASSCE-WAEC-Core-General-Mathematics-Science-Past-Questions-Objectives-Paper-1-2012-Ghana.pdf",
+      "relativePath": "May-June-WASSCE-WAEC-Core-General-Mathematics-Science-Past-Questions-Objectives-Paper-1-2012-Ghana.pdf",
+      "extension": ".pdf",
+      "bytes": 2106983,
+      "sha256": "d9b1eb19f6e960738efb5dfc2c542c774767ae9f78835d8c6a80f9d04fe17a46",
+      "parseability": "supported",
+      "grades": [
+        "SHS1",
+        "SHS2",
+        "SHS3"
+      ],
+      "educationLevel": "SHS",
+      "subject": "Mathematics",
+      "contentType": "questions"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\Nov-Dec-2011-WASSCE-Elective-Chemistry-Paper-2-Objectives-Theory.pdf",
+      "relativePath": "Nov-Dec-2011-WASSCE-Elective-Chemistry-Paper-2-Objectives-Theory.pdf",
+      "extension": ".pdf",
+      "bytes": 4083525,
+      "sha256": "1ba2b960420ffa80595943cf0a610c6b65a64549844c5af71f88dc04c42043a4",
+      "parseability": "supported",
+      "grades": [
+        "SHS1",
+        "SHS2",
+        "SHS3"
+      ],
+      "educationLevel": "SHS",
+      "subject": "CHEMISTRY",
+      "contentType": "questions"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\PHYSICAL-EDUCATION-AND-HEALTH-CCP-CURRICULUM-B7-B10.pdf",
+      "relativePath": "PHYSICAL-EDUCATION-AND-HEALTH-CCP-CURRICULUM-B7-B10.pdf",
+      "extension": ".pdf",
+      "bytes": 1924294,
+      "sha256": "7dc7e98313e4d7355816cc828f8f401b68be3b70e6b90c7defd3c2aa95f58832",
+      "parseability": "supported",
+      "grades": [
+        "B7",
+        "B10",
+        "B8",
+        "B9"
+      ],
+      "educationLevel": "JHS / Common Core",
+      "contentType": "curriculum"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\RME-2022-bece-scheme.pdf",
+      "relativePath": "RME-2022-bece-scheme.pdf",
+      "extension": ".pdf",
+      "bytes": 2414036,
+      "sha256": "ba0e3e81f96ad4d93685c5a3a20dbf208ca10f649f14457ecd5c7471c5ef42f7",
+      "parseability": "supported",
+      "grades": [],
+      "subject": "Religious and Moral Education",
+      "contentType": "marking_scheme"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\SOCIAL-STUDIES-CCP-CURRICULUM-B7-B10.pdf",
+      "relativePath": "SOCIAL-STUDIES-CCP-CURRICULUM-B7-B10.pdf",
+      "extension": ".pdf",
+      "bytes": 1756562,
+      "sha256": "294a1bdd4f2902eb62d6123a5cbcbe0c81a5d6caa40cd58c5de4764136923485",
+      "parseability": "supported",
+      "grades": [
+        "B7",
+        "B10",
+        "B8",
+        "B9"
+      ],
+      "educationLevel": "JHS / Common Core",
+      "subject": "Social Studies",
+      "contentType": "curriculum"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\Social-Studies-Scheme-2022.pdf",
+      "relativePath": "Social-Studies-Scheme-2022.pdf",
+      "extension": ".pdf",
+      "bytes": 7654213,
+      "sha256": "bc7a4ade375884bc5e03c23a684ae68a68a38df9f50728297d69722d7862f1fa",
+      "parseability": "supported",
+      "grades": [],
+      "subject": "Social Studies",
+      "contentType": "marking_scheme"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\TERM-3-B4-CREATIVE-ARTS-QUESTIONS-PLUS-MARKING-SCHEME.pdf",
+      "relativePath": "TERM-3-B4-CREATIVE-ARTS-QUESTIONS-PLUS-MARKING-SCHEME.pdf",
+      "extension": ".pdf",
+      "bytes": 78439,
+      "sha256": "6069671d178d75bb64bc93d6071b19a965ab32624c9c4128c892e98914a90f55",
+      "parseability": "supported",
+      "grades": [
+        "B4"
+      ],
+      "educationLevel": "Basic Primary",
+      "contentType": "marking_scheme"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\Term-3-B4-French.pdf",
+      "relativePath": "Term-3-B4-French.pdf",
+      "extension": ".pdf",
+      "bytes": 20366,
+      "sha256": "2eea714bc9003c081fcd3722620a1bd67cd75fc5836d1d4d791383edf37edcec",
+      "parseability": "supported",
+      "grades": [
+        "B4"
+      ],
+      "educationLevel": "Basic Primary",
+      "subject": "FRENCH",
+      "contentType": "questions"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\TERM-3-B4-HISTORY-1.pdf",
+      "relativePath": "TERM-3-B4-HISTORY-1.pdf",
+      "extension": ".pdf",
+      "bytes": 19530,
+      "sha256": "a9ac3dc0fb562ff4695cb938bb6f46b999458ddb89a82a80c7c8ef187ccae922",
+      "parseability": "supported",
+      "grades": [
+        "B4"
+      ],
+      "educationLevel": "Basic Primary",
+      "subject": "HISTORY",
+      "contentType": "questions"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\TERM-3-B4-OWOP.pdf",
+      "relativePath": "TERM-3-B4-OWOP.pdf",
+      "extension": ".pdf",
+      "bytes": 17624,
+      "sha256": "397502377f8c566e69d2ae64fa39969166547de1cf6dda7cd5d45c8a1dad7aca",
+      "parseability": "supported",
+      "grades": [
+        "B4"
+      ],
+      "educationLevel": "Basic Primary",
+      "subject": "Our World Our People",
+      "contentType": "questions"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\Term-3-B5-French (1).pdf",
+      "relativePath": "Term-3-B5-French (1).pdf",
+      "extension": ".pdf",
+      "bytes": 19350,
+      "sha256": "c2cfdacb08f19273acd9aae66c16a6e1e907a87c32e1d295410ac9ccb3bd2297",
+      "parseability": "supported",
+      "grades": [
+        "B5"
+      ],
+      "educationLevel": "Basic Primary",
+      "subject": "FRENCH",
+      "contentType": "questions"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\Term-3-B5-French.pdf",
+      "relativePath": "Term-3-B5-French.pdf",
+      "extension": ".pdf",
+      "bytes": 19350,
+      "sha256": "c2cfdacb08f19273acd9aae66c16a6e1e907a87c32e1d295410ac9ccb3bd2297",
+      "parseability": "supported",
+      "grades": [
+        "B5"
+      ],
+      "educationLevel": "Basic Primary",
+      "subject": "FRENCH",
+      "contentType": "questions"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\Term-3-B5-MATHS.pdf",
+      "relativePath": "Term-3-B5-MATHS.pdf",
+      "extension": ".pdf",
+      "bytes": 19465,
+      "sha256": "c9a3637c30f7fb5d9e87e3ca1ca04aff2bebebcf8e61256721bb316a2df331eb",
+      "parseability": "supported",
+      "grades": [
+        "B5"
+      ],
+      "educationLevel": "Basic Primary",
+      "subject": "Mathematics",
+      "contentType": "questions"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\TERM-3-B5-OWOP-QUESTIONS-1.pdf",
+      "relativePath": "TERM-3-B5-OWOP-QUESTIONS-1.pdf",
+      "extension": ".pdf",
+      "bytes": 23170,
+      "sha256": "75cf4ce01f023827611c0fc65131d1839488cef55ed97e8cef5d7e12c5e0c48b",
+      "parseability": "supported",
+      "grades": [
+        "B5"
+      ],
+      "educationLevel": "Basic Primary",
+      "subject": "Our World Our People",
+      "contentType": "questions"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\TERM-3-B5-RME.pdf",
+      "relativePath": "TERM-3-B5-RME.pdf",
+      "extension": ".pdf",
+      "bytes": 59168,
+      "sha256": "a07e57427e291d085b255993f001045fc2afb36de3ae03605c36731571e5f1da",
+      "parseability": "supported",
+      "grades": [
+        "B5"
+      ],
+      "educationLevel": "Basic Primary",
+      "subject": "Religious and Moral Education",
+      "contentType": "questions"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\TERM-3-B5-SCIENCE-QUESTIONS.pdf",
+      "relativePath": "TERM-3-B5-SCIENCE-QUESTIONS.pdf",
+      "extension": ".pdf",
+      "bytes": 24229,
+      "sha256": "cb086e0cc62e37c1f9a81706b53451363c6efa04801a865c0ba08f15cd05aaa7",
+      "parseability": "supported",
+      "grades": [
+        "B5"
+      ],
+      "educationLevel": "Basic Primary",
+      "subject": "Science",
+      "contentType": "questions"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\Term-3-B6-French.pdf",
+      "relativePath": "Term-3-B6-French.pdf",
+      "extension": ".pdf",
+      "bytes": 20126,
+      "sha256": "817a02c97bc0a05ceb3b3a126095184f4fb8372a38e26eba7b94bfef5bc22c4a",
+      "parseability": "supported",
+      "grades": [
+        "B6"
+      ],
+      "educationLevel": "Basic Primary",
+      "subject": "FRENCH",
+      "contentType": "questions"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\Term-3-B6-HISTORY.pdf",
+      "relativePath": "Term-3-B6-HISTORY.pdf",
+      "extension": ".pdf",
+      "bytes": 21763,
+      "sha256": "2ae8a04fb87cc2261b42b5b9e6a0a4810e8c420f3597af1660bbd1a568ea61a3",
+      "parseability": "supported",
+      "grades": [
+        "B6"
+      ],
+      "educationLevel": "Basic Primary",
+      "subject": "HISTORY",
+      "contentType": "questions"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\Term-3-B6-OWOP.pdf",
+      "relativePath": "Term-3-B6-OWOP.pdf",
+      "extension": ".pdf",
+      "bytes": 21565,
+      "sha256": "c43ac16269ca381e291f13edff7dc56462728a25f0df2d2980cb0b496b19e3ac",
+      "parseability": "supported",
+      "grades": [
+        "B6"
+      ],
+      "educationLevel": "Basic Primary",
+      "subject": "Our World Our People",
+      "contentType": "questions"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\Term-3-B6-Science-Another-Set.pdf",
+      "relativePath": "Term-3-B6-Science-Another-Set.pdf",
+      "extension": ".pdf",
+      "bytes": 76523,
+      "sha256": "acc6f322fa69ad45c7366b7291c35e2a678b9cc21782786ea599624184e7d8f1",
+      "parseability": "supported",
+      "grades": [
+        "B6"
+      ],
+      "educationLevel": "Basic Primary",
+      "subject": "Science",
+      "contentType": "questions"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\Term-3-Basic-6-RME.pdf",
+      "relativePath": "Term-3-Basic-6-RME.pdf",
+      "extension": ".pdf",
+      "bytes": 32419,
+      "sha256": "eb198bae53665770ae84945fe6b761e9332cfd6afbb97fd5efd0a9291a31e51a",
+      "parseability": "supported",
+      "grades": [
+        "B6"
+      ],
+      "educationLevel": "Basic Primary",
+      "subject": "Religious and Moral Education",
+      "contentType": "questions"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\Term3-B6-English-2.pdf",
+      "relativePath": "Term3-B6-English-2.pdf",
+      "extension": ".pdf",
+      "bytes": 27697,
+      "sha256": "e0dde204fd9433b2c32839bf3a4c67352fe7d7e3b70650d7b86f1e08e0d11512",
+      "parseability": "supported",
+      "grades": [
+        "B6"
+      ],
+      "educationLevel": "Basic Primary",
+      "subject": "English Language",
+      "contentType": "questions"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\TWI-1.pdf",
+      "relativePath": "TWI-1.pdf",
+      "extension": ".pdf",
+      "bytes": 23143,
+      "sha256": "3d06b045bacb18b649de28b904a4db458c41f7b99ffc53cd79aad39fa981e74e",
+      "parseability": "supported",
+      "grades": [],
+      "subject": "TWI",
+      "contentType": "unknown"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\WAEC markig scheme 2020.pdf",
+      "relativePath": "WAEC markig scheme 2020.pdf",
+      "extension": ".pdf",
+      "bytes": 1070730,
+      "sha256": "6fe6bac617832f2ae5e86bbe5f02191df0e2ae410a9a4ae09fa983be03e2bf2e",
+      "parseability": "supported",
+      "grades": [],
+      "contentType": "marking_scheme"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\waec-wassce-core-general-mathematics-maths-nov-dec-past-questions-paper-2-theory-2010-gh1.pdf",
+      "relativePath": "waec-wassce-core-general-mathematics-maths-nov-dec-past-questions-paper-2-theory-2010-gh1.pdf",
+      "extension": ".pdf",
+      "bytes": 1065819,
+      "sha256": "0cf59338761649c8c0be056ae6ca9d7410bb93958605cec75cafb40a5246df42",
+      "parseability": "supported",
+      "grades": [
+        "SHS1",
+        "SHS2",
+        "SHS3"
+      ],
+      "educationLevel": "SHS",
+      "subject": "Mathematics",
+      "contentType": "questions"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\waec-wassce-elective-physics-nov-dec-past-questions-paper-2-theory-objectives-2011-gh-Autosaved.pdf",
+      "relativePath": "waec-wassce-elective-physics-nov-dec-past-questions-paper-2-theory-objectives-2011-gh-Autosaved.pdf",
+      "extension": ".pdf",
+      "bytes": 3190435,
+      "sha256": "d9508683c97c2537867a445e912f3d5e7fea9dc043defe5633a735a3d6b13691",
+      "parseability": "supported",
+      "grades": [
+        "SHS1",
+        "SHS2",
+        "SHS3"
+      ],
+      "educationLevel": "SHS",
+      "subject": "PHYSICS",
+      "contentType": "questions"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\WASSCE_General-core-Maths-paper-1_20111.pdf",
+      "relativePath": "WASSCE_General-core-Maths-paper-1_20111.pdf",
+      "extension": ".pdf",
+      "bytes": 2532626,
+      "sha256": "9e22ff0511011c11c3bc265929dcff6a1037ae569e73986be4be911256c54cbc",
+      "parseability": "supported",
+      "grades": [
+        "SHS1",
+        "SHS2",
+        "SHS3"
+      ],
+      "educationLevel": "SHS",
+      "subject": "Mathematics",
+      "contentType": "questions"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\WASSCE-_-WAEC-MAY-_-JUNE-2016-CORE-_-GENERAL-MATHEMATICS-PAPER-1-_OBJECTIVES_.pdf",
+      "relativePath": "WASSCE-_-WAEC-MAY-_-JUNE-2016-CORE-_-GENERAL-MATHEMATICS-PAPER-1-_OBJECTIVES_.pdf",
+      "extension": ".pdf",
+      "bytes": 3577289,
+      "sha256": "2fc58d94d37bf081dd94717625152b75e6a240b150b171578bd382706a16b01b",
+      "parseability": "supported",
+      "grades": [
+        "SHS1",
+        "SHS2",
+        "SHS3"
+      ],
+      "educationLevel": "SHS",
+      "subject": "Mathematics",
+      "contentType": "questions"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\WASSCE-_-WAEC-MAY-_-JUNE-2016-CORE-_-GENERAL-MATHEMATICS-PAPER-2-_THEORY_.pdf",
+      "relativePath": "WASSCE-_-WAEC-MAY-_-JUNE-2016-CORE-_-GENERAL-MATHEMATICS-PAPER-2-_THEORY_.pdf",
+      "extension": ".pdf",
+      "bytes": 1652579,
+      "sha256": "7c7367a0c1bf9a4d83d40adda91021300cfdfd398151765bad3c425083eeaf8d",
+      "parseability": "supported",
+      "grades": [
+        "SHS1",
+        "SHS2",
+        "SHS3"
+      ],
+      "educationLevel": "SHS",
+      "subject": "Mathematics",
+      "contentType": "questions"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\Wassce-cmaths-2019.pdf",
+      "relativePath": "Wassce-cmaths-2019.pdf",
+      "extension": ".pdf",
+      "bytes": 3095261,
+      "sha256": "bdde75aac1f6cdaea832b18ceb3de0c9517485cd89d313180c7c03e2178d0751",
+      "parseability": "supported",
+      "grades": [
+        "SHS1",
+        "SHS2",
+        "SHS3"
+      ],
+      "educationLevel": "SHS",
+      "subject": "Mathematics",
+      "contentType": "questions"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\wassce-further-math-2011-obj.pdf",
+      "relativePath": "wassce-further-math-2011-obj.pdf",
+      "extension": ".pdf",
+      "bytes": 1880060,
+      "sha256": "822423420bbcd8960b758da8b4d32d3b2b13f969838c088ae54a5025c1ff0869",
+      "parseability": "supported",
+      "grades": [
+        "SHS1",
+        "SHS2",
+        "SHS3"
+      ],
+      "educationLevel": "SHS",
+      "contentType": "questions"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\WASSCE-General-core-Maths-Past-Question-Paper-2.pdf",
+      "relativePath": "WASSCE-General-core-Maths-Past-Question-Paper-2.pdf",
+      "extension": ".pdf",
+      "bytes": 1127916,
+      "sha256": "c5c12771c00655d45fef78fd19b357591b8551573c40431b5a4d45b6235f6d06",
+      "parseability": "supported",
+      "grades": [
+        "SHS1",
+        "SHS2",
+        "SHS3"
+      ],
+      "educationLevel": "SHS",
+      "subject": "Mathematics",
+      "contentType": "questions"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\WASSCE-WAEC-2015-May-June-Core-General-Mathematics-Past-Questions-Paper-1-Objectives.pdf",
+      "relativePath": "WASSCE-WAEC-2015-May-June-Core-General-Mathematics-Past-Questions-Paper-1-Objectives.pdf",
+      "extension": ".pdf",
+      "bytes": 462458,
+      "sha256": "0835f65d9f45cf04bda835a335edb2f2e28cff854beb910679c039b760b5ece5",
+      "parseability": "supported",
+      "grades": [
+        "SHS1",
+        "SHS2",
+        "SHS3"
+      ],
+      "educationLevel": "SHS",
+      "subject": "Mathematics",
+      "contentType": "questions"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\WASSCE-WAEC-Computer-Studies-May-June-2015-Past-Question-Paper-3.pdf",
+      "relativePath": "WASSCE-WAEC-Computer-Studies-May-June-2015-Past-Question-Paper-3.pdf",
+      "extension": ".pdf",
+      "bytes": 1483247,
+      "sha256": "34405074597e6b39bcd3482b371a376a01e20f2c46b6a73ab58b5dbbf37ef0db",
+      "parseability": "supported",
+      "grades": [
+        "SHS1",
+        "SHS2",
+        "SHS3"
+      ],
+      "educationLevel": "SHS",
+      "contentType": "questions"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\WASSCE-WAEC-May-June-2006-Chemistry-Practical-Alternative-A.pdf",
+      "relativePath": "WASSCE-WAEC-May-June-2006-Chemistry-Practical-Alternative-A.pdf",
+      "extension": ".pdf",
+      "bytes": 1169185,
+      "sha256": "09ab19eabccbd760342ee703dc83de6cca99c0d98795445b527e06180b0afdb0",
+      "parseability": "supported",
+      "grades": [
+        "SHS1",
+        "SHS2",
+        "SHS3"
+      ],
+      "educationLevel": "SHS",
+      "subject": "CHEMISTRY",
+      "contentType": "questions"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\WASSCE-WAEC-May-June-2006-Chemistry-Theory.pdf",
+      "relativePath": "WASSCE-WAEC-May-June-2006-Chemistry-Theory.pdf",
+      "extension": ".pdf",
+      "bytes": 2723857,
+      "sha256": "c597c73e11fd4a3a65b3ffc3e4013afa6476c018f39b6d668053e5b9ec35cdaa",
+      "parseability": "supported",
+      "grades": [
+        "SHS1",
+        "SHS2",
+        "SHS3"
+      ],
+      "educationLevel": "SHS",
+      "subject": "CHEMISTRY",
+      "contentType": "questions"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\WASSCE-WAEC-May-June-2013-Chemistry-Paper-2-Part-A-Objectives.pdf",
+      "relativePath": "WASSCE-WAEC-May-June-2013-Chemistry-Paper-2-Part-A-Objectives.pdf",
+      "extension": ".pdf",
+      "bytes": 2539474,
+      "sha256": "915f4d6af4d871eb3b688b12a9dbc288f35e64375eaadfd58b2d110793b3c290",
+      "parseability": "supported",
+      "grades": [
+        "SHS1",
+        "SHS2",
+        "SHS3"
+      ],
+      "educationLevel": "SHS",
+      "subject": "CHEMISTRY",
+      "contentType": "questions"
+    }
+  ]
+}

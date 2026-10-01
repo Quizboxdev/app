@@ -6,22 +6,32 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "typecheck": "tsc --noEmit"
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "content:audit": "tsx scripts/content-audit.ts ../Curriculum",
+    "content:import:dry-run": "tsx scripts/import-content.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.5.2",
     "@supabase/supabase-js": "^2.49.1",
     "katex": "^0.16.11",
+    "mammoth": "^1.13.0",
     "next": "^15.2.4",
+    "pdf-parse": "^2.4.5",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@types/katex": "^0.16.7",
     "@types/node": "^22.13.10",
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
-    "typescript": "^5.8.2"
+    "eslint": "^9.39.5",
+    "eslint-config-next": "^15.5.26",
+    "tsx": "^4.23.15",
+    "typescript": "^5.8.2",
+    "vitest": "^4.1.11"
   }
 }
