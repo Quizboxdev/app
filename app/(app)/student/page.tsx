@@ -63,6 +63,7 @@ export default function StudentDashboardPage() {
                 <div key={row.id} className="qb-row">
                   <div className="qb-row-main">
                     <strong>{row.assignments?.title ?? "Assignment"}</strong>
+                    {row.assignments?.remediation_node_id && <span className="qb-pill">Remedial Practice</span>}
                     <span>
                       {row.assignments?.subject_code ?? ""}{" "}
                       {row.assignments?.due_at

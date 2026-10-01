@@ -1,5 +1,5 @@
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
-import { summarizeClassScores, summarizeIndicators } from "@/lib/learning/analytics";
+import { summarizeClassLearners, summarizeIndicators } from "@/lib/learning/analytics";
 
 export async function getTeacherDashboard(teacherId: string, userId: string) {
   const supabase = getSupabaseBrowserClient();
@@ -8,7 +8,7 @@ export async function getTeacherDashboard(teacherId: string, userId: string) {
     supabase
       .from("classes")
       .select("*")
-      .or(`primary_teacher_id.eq.${teacherId}`),
+      .or(`primary_teacher_id.eq.${teacherId},teacher_id.eq.${teacherId}`),
     supabase
       .from("assignments")
       .select("*")
@@ -40,20 +40,18 @@ export async function getTeacherDashboard(teacherId: string, userId: string) {
 
 export async function getTeacherAnalytics(teacherId: string) {
   const supabase = getSupabaseBrowserClient();
-  const { data: classes, error: classError } = await supabase.from("classes").select("id,class_name").or(`primary_teacher_id.eq.${teacherId}`);
+  const { data: classes, error: classError } = await supabase.from("classes").select("id,class_name").or(`primary_teacher_id.eq.${teacherId},teacher_id.eq.${teacherId}`);
   if (classError) throw classError;
   const classIds = (classes ?? []).map((row) => row.id);
   if (!classIds.length) return { classes: [], indicators: [], needsAttention: [] };
   const [grades, events, mastery, rosters] = await Promise.all([
-    supabase.from("gradebook").select("class_id,student_user_id,percentage,status").in("class_id", classIds),
+    supabase.from("gradebook").select("class_id,student_user_id,percentage,status,graded_at").in("class_id", classIds).eq("status", "final"),
     supabase.from("learning_events").select("class_id,student_user_id,is_correct,curriculum_node_id,curriculum_nodes(code,title)").in("class_id", classIds),
     supabase.from("mastery_records").select("student_user_id,curriculum_node_id,mastery_score,proficiency_state,last_practiced_at,attempts_count").in("curriculum_node_id", [...new Set((await supabase.from("learning_events").select("curriculum_node_id").in("class_id", classIds)).data?.map((row) => row.curriculum_node_id).filter(Boolean) ?? [])]),
     supabase.from("class_memberships").select("class_id,student_user_id").in("class_id", classIds).eq("status", "active"),
   ]);
   for (const result of [grades, events, mastery, rosters]) if (result.error) throw result.error;
-  const rosterCounts = new Map<string, number>();
-  (rosters.data ?? []).forEach((row) => rosterCounts.set(row.class_id, (rosterCounts.get(row.class_id) ?? 0) + 1));
-  const classAnalytics = (classes ?? []).map((row) => ({ ...row, ...summarizeClassScores((grades.data ?? []).filter((grade) => grade.class_id === row.id).map((grade) => Number(grade.percentage)), rosterCounts.get(row.id) ?? 0) }));
+  const classAnalytics = (classes ?? []).map((row) => ({ ...row, ...summarizeClassLearners((grades.data ?? []).filter((grade) => grade.class_id === row.id), (rosters.data ?? []).filter((member) => member.class_id === row.id).map((member) => member.student_user_id)) }));
   const masteryByNode = new Map<string, any[]>();
   (mastery.data ?? []).forEach((row) => masteryByNode.set(row.curriculum_node_id, [...(masteryByNode.get(row.curriculum_node_id) ?? []), row]));
   const indicatorRows = (events.data ?? []).map((event: any) => { const node = Array.isArray(event.curriculum_nodes) ? event.curriculum_nodes[0] : event.curriculum_nodes; const nodeMastery = masteryByNode.get(event.curriculum_node_id) ?? []; return { code: node?.code, title: node?.title, student_user_id: event.student_user_id, is_correct: event.is_correct, mastery_score: nodeMastery.find((row) => row.student_user_id === event.student_user_id)?.mastery_score, proficiency_state: nodeMastery.find((row) => row.student_user_id === event.student_user_id)?.proficiency_state, class_id: event.class_id, curriculum_node_id: event.curriculum_node_id }; });
@@ -83,7 +81,7 @@ export async function listTeacherClasses(teacherId: string) {
   const { data, error } = await supabase
     .from("classes")
     .select("*, curriculum_nodes!subject_node_id(id,title,subject_code)")
-    .or(`primary_teacher_id.eq.${teacherId}`)
+    .or(`primary_teacher_id.eq.${teacherId},teacher_id.eq.${teacherId}`)
     .order("created_at", { ascending: false });
 
   if (error) throw error;
@@ -184,7 +182,7 @@ export async function listGradebook(teacherId: string) {
   const { data: classes, error: classError } = await supabase
     .from("classes")
     .select("id")
-    .or(`primary_teacher_id.eq.${teacherId}`);
+    .or(`primary_teacher_id.eq.${teacherId},teacher_id.eq.${teacherId}`);
 
   if (classError) throw classError;
 

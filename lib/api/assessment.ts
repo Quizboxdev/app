@@ -1,5 +1,6 @@
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import type { AttemptPayload } from "@/lib/types";
+import type { PracticeFeedback } from "@/lib/learning/feedback";
 
 function unwrapRpc<T>(data: T | null, error: any): T {
   if (error) throw error;
@@ -42,6 +43,19 @@ export async function getAttempt(attemptId: string) {
   });
 
   return unwrapRpc<AttemptPayload>(data, error);
+}
+
+export async function getAttemptMode(attemptId: string) {
+  const { data, error } = await getSupabaseBrowserClient().rpc("qb_attempt_mode", { p_attempt_id: attemptId });
+  return unwrapRpc<string>(data, error);
+}
+
+export async function savePracticeResponse(args: { attemptId: string; questionId: string; selectedAnswer?: string | null; selectedValue?: unknown }) {
+  const { data, error } = await getSupabaseBrowserClient().rpc("qb_save_practice_response", {
+    p_attempt_id: args.attemptId, p_question_id: args.questionId,
+    p_selected_answer: args.selectedAnswer ?? null, p_selected_value: args.selectedValue ?? null,
+  });
+  return unwrapRpc<PracticeFeedback>(data, error);
 }
 
 export async function saveResponse(args: {

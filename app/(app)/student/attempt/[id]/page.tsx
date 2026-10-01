@@ -6,10 +6,13 @@ import QuestionRenderer from "@/components/QuestionRenderer";
 import AnswerInput, { AnswerState } from "@/components/AnswerInput";
 import {
   getAttempt,
+  getAttemptMode,
+  savePracticeResponse,
   saveResponse,
   submitAttempt,
 } from "@/lib/api/assessment";
 import type { AttemptPayload } from "@/lib/types";
+import { canRevealPracticeFeedback, type PracticeFeedback } from "@/lib/learning/feedback";
 
 export default function AttemptPage() {
   const params = useParams<{ id: string }>();
@@ -21,10 +24,17 @@ export default function AttemptPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const startTimes = useRef<Record<string, number>>({});
+  const pendingSave = useRef<Promise<void>>(Promise.resolve());
+  const submitting = useRef(false);
+  const [mode, setMode] = useState("ASSESSMENT");
+  const [feedback, setFeedback] = useState<Record<string, PracticeFeedback>>({});
+  const [confirming, setConfirming] = useState(false);
+  const [submitConfirmation, setSubmitConfirmation] = useState(false);
 
   useEffect(() => {
-    getAttempt(params.id)
-      .then((payload) => {
+    Promise.all([getAttempt(params.id), getAttemptMode(params.id)])
+      .then(([payload, attemptMode]) => {
+        setMode(attemptMode);
         setAttempt(payload);
         setSeconds(Number(payload.remaining_seconds ?? 0));
         const saved: Record<string, AnswerState> = {};
@@ -48,10 +58,11 @@ export default function AttemptPage() {
   }, [attempt]);
 
   useEffect(() => {
-    if (attempt && seconds === 0) {
+    if (attempt && seconds === 0 && !submitting.current) {
+      submitting.current = true;
       submitAttempt(params.id, "time_expired")
         .then(() => router.replace(`/student/results/${params.id}`))
-        .catch((e) => setError(e.message));
+        .catch((e) => { submitting.current = false; setError(e.message); });
     }
   }, [attempt, seconds, params.id, router]);
 
@@ -72,6 +83,7 @@ export default function AttemptPage() {
   async function answer(value: AnswerState) {
     if (!question) return;
     setAnswers((prev) => ({ ...prev, [question.question_id]: value }));
+    setFeedback((prev) => { const next = { ...prev }; delete next[question.question_id]; return next; });
     setSaving(true);
 
     const started = startTimes.current[question.question_id] ?? Date.now();
@@ -81,13 +93,15 @@ export default function AttemptPage() {
     );
 
     try {
-      await saveResponse({
+      const job = pendingSave.current.catch(() => {}).then(async () => { await saveResponse({
         attemptId: params.id,
         questionId: question.question_id,
         selectedAnswer: value.selectedAnswer ?? null,
         selectedValue: value.selectedValue ?? null,
         responseSeconds,
-      });
+      }); });
+      pendingSave.current = job;
+      await job;
     } catch (e: any) {
       setError(e.message);
     } finally {
@@ -96,13 +110,29 @@ export default function AttemptPage() {
   }
 
   async function submit() {
-    if (!confirm("Submit this assessment now?")) return;
+    if (submitting.current || saving || confirming) return;
+    submitting.current = true;
     try {
+      await pendingSave.current;
       await submitAttempt(params.id);
       router.replace(`/student/results/${params.id}`);
     } catch (e: any) {
+      submitting.current = false;
       setError(e.message);
     }
+  }
+
+  async function confirmAnswer() {
+    if (!question || confirming || saving) return;
+    setConfirming(true);
+    const questionId = question.question_id;
+    try {
+      await pendingSave.current;
+      const value = answers[questionId] ?? {};
+      const response = await savePracticeResponse({ attemptId: params.id, questionId, selectedAnswer: value.selectedAnswer, selectedValue: value.selectedValue });
+      setFeedback((prev) => ({ ...prev, [questionId]: response }));
+    } catch (reason: any) { setError(reason.message); }
+    finally { setConfirming(false); }
   }
 
   if (error) return <div className="qb-card qb-error">{error}</div>;
@@ -115,7 +145,7 @@ export default function AttemptPage() {
     <>
       <div className="qb-page-head">
         <div>
-          <h1>Assessment</h1>
+          <h1>{mode === "PRACTICE" ? "Practice" : "Assessment"}</h1>
           <p>
             Question {index + 1} of {attempt.questions.length}
           </p>
@@ -146,6 +176,15 @@ export default function AttemptPage() {
             onChange={answer}
           />
 
+          {mode === "PRACTICE" && <button className="qb-btn" disabled={saving || confirming || (!answers[question.question_id]?.selectedAnswer && answers[question.question_id]?.selectedValue == null)} onClick={confirmAnswer}>{confirming ? "Checking..." : "Confirm answer"}</button>}
+          {canRevealPracticeFeedback(mode, question.question_id, feedback[question.question_id]) && <div role="status" className="qb-feedback">
+            <h3>{feedback[question.question_id].is_correct ? "Correct" : "Incorrect"}</h3>
+            <p>Your answer: {feedback[question.question_id].selected_answer ?? JSON.stringify(feedback[question.question_id].selected_value)}</p>
+            <p>Correct answer: {feedback[question.question_id].correct_answer}</p>
+            {feedback[question.question_id].explanation && <p>{feedback[question.question_id].explanation}</p>}
+            {feedback[question.question_id].hint && <p>Hint: {feedback[question.question_id].hint}</p>}
+          </div>}
+
           <div
             style={{
               display: "flex",
@@ -171,14 +210,15 @@ export default function AttemptPage() {
                   )
                 }
               >
-                Next
+                {mode === "PRACTICE" ? "Continue" : "Next"}
               </button>
             ) : (
-              <button className="qb-btn" onClick={submit}>
-                Submit assessment
+              <button className="qb-btn" onClick={() => setSubmitConfirmation(true)}>
+                {mode === "PRACTICE" ? "Submit practice" : "Submit assessment"}
               </button>
             )}
           </div>
+          {submitConfirmation && <div role="dialog" aria-label="Confirm submission"><p>Submit your answers now?</p><button className="qb-btn" disabled={saving || confirming} onClick={submit}>Confirm submission</button><button className="qb-btn secondary" onClick={() => setSubmitConfirmation(false)}>Keep working</button></div>}
         </div>
 
         <aside className="qb-card">

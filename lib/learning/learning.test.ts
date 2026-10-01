@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { classifyProficiency } from "./proficiency";
 import { calculateMastery } from "./mastery";
 import { calculateAttemptXp, levelFromXp } from "./xp";
-import { summarizeClassScores, summarizeIndicators } from "./analytics";
+import { summarizeClassScores, summarizeClassLearners, summarizeIndicators } from "./analytics";
 
 describe("proficiency bands", () => {
   it.each([[80, "Highly Proficient"], [68, "Proficient"], [54, "Approaching Proficiency"], [40, "Developing"], [39, "Emerging"]] as const)("classifies %s", (score, expected) => expect(classifyProficiency(score)).toBe(expected));
@@ -19,6 +19,19 @@ describe("XP", () => {
 });
 
 describe("learning analytics", () => {
+  it("counts each active learner once using their latest grade", () => {
+    const result = summarizeClassLearners([
+      { student_user_id: "a", percentage: 0, graded_at: "2026-10-01T10:00:00Z" },
+      { student_user_id: "a", percentage: 100, graded_at: "2026-10-01T11:00:00Z" },
+      { student_user_id: "a", percentage: 50, graded_at: "2026-10-01T09:00:00Z" },
+      { student_user_id: "outside", percentage: 0, graded_at: "2026-10-01T12:00:00Z" },
+    ], ["a", "b", "a"]);
+    expect(result.average).toBe(100); expect(result.completionRate).toBe(50);
+    expect(result.bands.map((band) => band.count)).toEqual([1, 0, 0, 0, 0]);
+  });
+  it("does not count ungraded learners as completed", () => {
+    expect(summarizeClassLearners([{ student_user_id: "a", percentage: null, graded_at: null }], ["a"]).completionRate).toBe(0);
+  });
   it("builds canonical class bands and completion", () => {
     const result = summarizeClassScores([90, 70, 55, 42, 30], 10);
     expect(result.average).toBe(57.4);
