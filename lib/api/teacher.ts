@@ -151,6 +151,7 @@ export async function publishAssignment(payload: {
   questionCount: number; difficulty?: string; selectionMode: "AUTOMATIC" | "MANUAL";
   questionIds?: string[]; mode: "PRACTICE" | "ASSESSMENT"; attemptsAllowed: number;
   timeLimitMinutes: number; startAt?: string; dueAt?: string;
+  targetStudentIds?: string[]; remediationSourceAssignmentId?: string; remediationNodeId?: string;
 }) {
   const { data, error } = await getSupabaseBrowserClient().rpc("qb_publish_assignment", {
     p_class_id: payload.classId, p_title: payload.title, p_description: payload.description,
@@ -159,6 +160,7 @@ export async function publishAssignment(payload: {
     p_question_ids: payload.questionIds ?? null, p_mode: payload.mode,
     p_attempts_allowed: payload.attemptsAllowed, p_time_limit_minutes: payload.timeLimitMinutes,
     p_start_at: payload.startAt ?? new Date().toISOString(), p_due_at: payload.dueAt ?? null,
+    p_target_student_ids: payload.targetStudentIds ?? null, p_remediation_source_assignment_id: payload.remediationSourceAssignmentId ?? null, p_remediation_node_id: payload.remediationNodeId ?? null,
   });
   if (error) throw error;
   return data;
