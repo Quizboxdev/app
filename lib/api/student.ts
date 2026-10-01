@@ -8,6 +8,7 @@ export async function getStudentDashboard(studentId: string) {
     membershipsRes,
     assignmentsRes,
     notificationsRes,
+    xpRes,
   ] = await Promise.all([
     supabase.rpc("qb_my_results", { p_limit: 10 }),
     supabase
@@ -25,12 +26,14 @@ export async function getStudentDashboard(studentId: string) {
       .select("*")
       .order("created_at", { ascending: false })
       .limit(10),
+    supabase.rpc("qb_student_xp"),
   ]);
 
   if (resultsRes.error) throw resultsRes.error;
   if (membershipsRes.error) throw membershipsRes.error;
   if (assignmentsRes.error) throw assignmentsRes.error;
   if (notificationsRes.error) throw notificationsRes.error;
+  if (xpRes.error) throw xpRes.error;
 
   const results = (resultsRes.data ?? []) as any[];
   const average =
@@ -44,6 +47,7 @@ export async function getStudentDashboard(studentId: string) {
     memberships: membershipsRes.data ?? [],
     assignments: assignmentsRes.data ?? [],
     notifications: notificationsRes.data ?? [],
+    xp: Array.isArray(xpRes.data) ? xpRes.data[0] ?? { total_xp: 0, level: 1, current_level_xp: 0, next_level_xp: 100 } : xpRes.data,
     stats: {
       completed: results.length,
       average,

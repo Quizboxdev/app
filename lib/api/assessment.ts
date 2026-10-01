@@ -70,12 +70,31 @@ export async function submitAttempt(
 ) {
   const supabase = getSupabaseBrowserClient();
 
-  const { data, error } = await supabase.rpc("qb_submit_attempt", {
+  const { data, error } = await supabase.rpc("qb_complete_attempt", {
     p_attempt_id: attemptId,
     p_submission_reason: reason,
   });
 
   return unwrapRpc<any>(data, error);
+}
+
+export async function getAttemptLearningSummary(attemptId: string) {
+  const supabase = getSupabaseBrowserClient();
+  const [result, events, xp] = await Promise.all([
+    getResult(attemptId),
+    supabase.from("learning_events").select("is_correct,curriculum_node_id,curriculum_nodes(code,title)").eq("attempt_id", attemptId),
+    supabase.from("xp_transactions").select("points,reason").eq("attempt_id", attemptId),
+  ]);
+  if (events.error) throw events.error;
+  if (xp.error) throw xp.error;
+  const byIndicator = new Map<string, { code: string; title: string; correct: number; total: number }>();
+  for (const row of events.data ?? []) {
+    const node: any = Array.isArray(row.curriculum_nodes) ? row.curriculum_nodes[0] : row.curriculum_nodes;
+    const key = row.curriculum_node_id ?? "unmapped";
+    const current = byIndicator.get(key) ?? { code: node?.code ?? "Unmapped", title: node?.title ?? "Unmapped curriculum", correct: 0, total: 0 };
+    current.total += 1; if (row.is_correct) current.correct += 1; byIndicator.set(key, current);
+  }
+  return { result, indicators: [...byIndicator.values()].map((row) => ({ ...row, percentage: row.total ? row.correct / row.total * 100 : 0 })), xpEarned: (xp.data ?? []).reduce((sum, row) => sum + Number(row.points), 0) };
 }
 
 export async function getResult(attemptId: string) {

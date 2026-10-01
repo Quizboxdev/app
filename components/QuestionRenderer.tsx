@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Image from "next/image";
 import katex from "katex";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import type { AttemptQuestion, ContentBlock } from "@/lib/types";
@@ -69,7 +70,7 @@ function AssetImage({
     return <div className="qb-muted qb-small">Loading image…</div>;
   }
 
-  return <img className="qb-question-image" src={url} alt={alt ?? ""} />;
+  return <Image className="qb-question-image" src={url} alt={alt ?? ""} width={960} height={540} unoptimized />;
 }
 
 function Blocks({

@@ -1,0 +1,42 @@
+{
+  "generatedAt": "2026-10-01T18:26:18.486Z",
+  "totalNodes": 2722,
+  "byCurriculum": {
+    "Ghana Common Core Programme 2020": 2385,
+    "Ghana Source Curriculum 2020": 337
+  },
+  "byEducationLevel": {
+    "JHS / Common Core": 2075,
+    "SHS": 647
+  },
+  "byGrade": {
+    "Unclassified": 4,
+    "B7": 716,
+    "SHS1": 645,
+    "B8": 706,
+    "B9": 651
+  },
+  "bySubject": {
+    "Unclassified": 362,
+    "Computing": 280,
+    "FRENCH": 432,
+    "ARABIC": 347,
+    "English Language": 331,
+    "Mathematics": 336,
+    "Religious and Moral Education": 99,
+    "Science": 358,
+    "Social Studies": 177
+  },
+  "byNodeType": {
+    "education_level": 4,
+    "grade": 8,
+    "subject": 36,
+    "content_standard": 664,
+    "learning_indicator": 1357,
+    "sub_strand": 470,
+    "strand": 183
+  },
+  "orphanCount": 0,
+  "duplicateIdentityCount": 0,
+  "invalidParentTypeCount": 0
+}

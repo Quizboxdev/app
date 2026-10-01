@@ -2,11 +2,14 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import StatCard from "@/components/StatCard";
 import { bootstrapUser } from "@/lib/auth";
 import { getStudentDashboard } from "@/lib/api/student";
+import { startAttempt } from "@/lib/api/assessment";
 
 export default function StudentDashboardPage() {
+  const router = useRouter();
   const [data, setData] = useState<any>(null);
   const [error, setError] = useState("");
 
@@ -36,7 +39,8 @@ export default function StudentDashboardPage() {
         </Link>
       </div>
 
-      <div className="qb-grid cols-3">
+      <div className="qb-grid cols-4">
+        <StatCard value={data.xp?.total_xp ?? 0} label={`XP · Level ${data.xp?.level ?? 1}`} />
         <StatCard value={data.stats.completed} label="Completed attempts" />
         <StatCard
           value={`${Math.round(data.stats.average)}%`}
@@ -68,6 +72,7 @@ export default function StudentDashboardPage() {
                         : ""}
                     </span>
                   </div>
+                  {row.assignments?.assessment_id && <button className="qb-btn" onClick={async () => { const attempt: any = await startAttempt({ assessmentId: row.assignments.assessment_id, assignmentId: row.assignment_id, classId: row.class_id }); router.push(`/student/attempt/${attempt.attempt_id}`); }}>Start</button>}
                 </div>
               ))
             ) : (

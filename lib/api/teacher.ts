@@ -41,7 +41,7 @@ export async function listTeacherClasses(teacherId: string) {
   const supabase = getSupabaseBrowserClient();
   const { data, error } = await supabase
     .from("classes")
-    .select("*")
+    .select("*, curriculum_nodes!subject_node_id(id,title,subject_code)")
     .or(`primary_teacher_id.eq.${teacherId}`)
     .order("created_at", { ascending: false });
 
@@ -105,6 +105,24 @@ export async function createAssignment(payload: Record<string, unknown>) {
   return data;
 }
 
+export async function publishAssignment(payload: {
+  classId: string; title: string; description: string; curriculumNodeIds: string[];
+  questionCount: number; difficulty?: string; selectionMode: "AUTOMATIC" | "MANUAL";
+  questionIds?: string[]; mode: "PRACTICE" | "ASSESSMENT"; attemptsAllowed: number;
+  timeLimitMinutes: number; startAt?: string; dueAt?: string;
+}) {
+  const { data, error } = await getSupabaseBrowserClient().rpc("qb_publish_assignment", {
+    p_class_id: payload.classId, p_title: payload.title, p_description: payload.description,
+    p_curriculum_node_ids: payload.curriculumNodeIds, p_question_count: payload.questionCount,
+    p_difficulty: payload.difficulty || null, p_selection_mode: payload.selectionMode,
+    p_question_ids: payload.questionIds ?? null, p_mode: payload.mode,
+    p_attempts_allowed: payload.attemptsAllowed, p_time_limit_minutes: payload.timeLimitMinutes,
+    p_start_at: payload.startAt ?? new Date().toISOString(), p_due_at: payload.dueAt ?? null,
+  });
+  if (error) throw error;
+  return data;
+}
+
 export async function listQuestionBanks(userId: string) {
   const supabase = getSupabaseBrowserClient();
   const { data, error } = await supabase
@@ -138,4 +156,15 @@ export async function listGradebook(teacherId: string) {
 
   if (error) throw error;
   return data ?? [];
+}
+
+export async function getTeacherSubmission(attemptId: string) {
+  const supabase = getSupabaseBrowserClient();
+  const [grade, events] = await Promise.all([
+    supabase.from("gradebook").select("*").eq("attempt_id", attemptId).single(),
+    supabase.from("learning_events").select("is_correct,response_seconds,curriculum_node_id,curriculum_nodes(code,title)").eq("attempt_id", attemptId),
+  ]);
+  if (grade.error) throw grade.error;
+  if (events.error) throw events.error;
+  return { grade: grade.data, events: events.data ?? [] };
 }

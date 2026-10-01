@@ -56,12 +56,13 @@ export default function AttemptPage() {
   }, [attempt, seconds, params.id, router]);
 
   const question = attempt?.questions[index];
+  const questionId = question?.question_id;
 
   useEffect(() => {
-    if (question) {
-      startTimes.current[question.question_id] = Date.now();
+    if (questionId) {
+      startTimes.current[questionId] = Date.now();
     }
-  }, [question?.question_id]);
+  }, [questionId]);
 
   const progress = useMemo(() => {
     if (!attempt?.questions.length) return 0;
