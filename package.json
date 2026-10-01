@@ -12,6 +12,7 @@
     "content:audit": "tsx scripts/content-audit.ts ../Curriculum",
     "content:validate": "tsx scripts/validate-curriculum.ts",
     "content:verify": "tsx scripts/verify-curriculum-import.ts",
+    "seed:dev-acceptance": "tsx scripts/seed-dev-acceptance-questions.ts",
     "content:import:dry-run": "tsx scripts/import-content.ts"
   },
   "dependencies": {
