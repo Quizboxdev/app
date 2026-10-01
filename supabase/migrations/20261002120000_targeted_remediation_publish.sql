@@ -52,7 +52,7 @@ begin
   returning * into v_assessment;
 
   insert into public.assignments(assessment_id,class_id,teacher_id,teacher_user_id,subject_code,subject_name,grade,title,recipient_mode,question_count,difficulty,due_at,time_limit_minutes,attempts_allowed,instructions,status,published_at,tenant_id,curriculum_node_ids,mode,selection_mode,remediation_source_assignment_id,remediation_node_id)
-  values (v_assessment.id,v_class.id,v_teacher,auth.uid(),v_assessment.subject_code,v_assessment.subject_name,v_class.grade,p_title,(case when p_target_student_ids is null then 'class' else 'selected' end)::public.recipient_mode,p_question_count,coalesce(p_difficulty,'mixed'),p_due_at,p_time_limit_minutes,p_attempts_allowed,p_description,'PUBLISHED',now(),v_class.tenant_id,p_curriculum_node_ids,upper(p_mode),upper(p_selection_mode),p_remediation_source_assignment_id,p_remediation_node_id)
+  values (v_assessment.id,v_class.id,v_teacher,auth.uid(),v_assessment.subject_code,v_assessment.subject_name,v_class.grade,p_title,(case when p_target_student_ids is null then 'class' else 'selected' end)::public.recipient_mode,p_question_count,coalesce(p_difficulty,'mixed'),p_due_at,p_time_limit_minutes,p_attempts_allowed,p_description,'published',now(),v_class.tenant_id,p_curriculum_node_ids,upper(p_mode),upper(p_selection_mode),p_remediation_source_assignment_id,p_remediation_node_id)
   returning * into v_assignment;
   update public.assessments set reference_id = v_assignment.id where id = v_assessment.id;
 
