@@ -24,3 +24,14 @@ export async function getQuestionAvailability(nodeIds: string[], grade?: string,
   return data ?? [];
 }
 
+export async function listApprovedQuestionsForNode(nodeId: string, grade?: string) {
+  let query = getSupabaseBrowserClient().from("questions")
+    .select("id,question_code,question_text,option_a,option_b,option_c,option_d,difficulty_label,answer_type")
+    .eq("curriculum_node_id", nodeId).eq("status", "active").in("validation_status", ["approved", "validated"])
+    .order("difficulty_label").order("question_code");
+  if (grade) query = query.eq("grade", grade);
+  const { data, error } = await query;
+  if (error) throw error;
+  return data ?? [];
+}
+
