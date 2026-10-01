@@ -4,7 +4,7 @@ import path from "node:path";
 import * as XLSX from "xlsx";
 import mammoth from "mammoth";
 import { PDFParse } from "pdf-parse";
-import { auditQuestion, educationLevelForGrade, fingerprintQuestion, normalizeGrade, normalizeSubject, normalizeText } from "./normalize";
+import { auditQuestion, canonicalGradeCode, educationLevelForGrade, fingerprintQuestion, normalizeGrade, normalizeSubject, normalizeText } from "./normalize";
 import type { AuditedQuestion, NormalizedCurriculumNode, NormalizedQuestion, SourceDocument } from "./types";
 
 const supported = new Set([".pdf", ".docx", ".xlsx", ".xls", ".csv", ".json", ".txt"]);
@@ -83,7 +83,8 @@ export function extractCurriculumNodes(source: SourceDocument, text: string): No
   const curriculumCode = /CCP/i.test(text.slice(0, 8000)) ? "GH-CCP-2020" : "GH-SOURCE";
   const curriculumName = curriculumCode === "GH-CCP-2020" ? "Ghana Common Core Programme" : "Ghana Source Curriculum";
   const sourceVersion = source.sha256.slice(0, 12);
-  for (const grade of source.grades) {
+  const addStructuralNodes = (sourceGrade: string) => {
+    const grade = canonicalGradeCode(sourceGrade) ?? sourceGrade;
     const educationLevel = educationLevelForGrade(grade) ?? source.educationLevel ?? "Unclassified";
     const levelCode = `LEVEL:${educationLevel.toUpperCase().replace(/[^A-Z0-9]+/g, "_")}`;
     const gradeCode = `GRADE:${grade}`;
@@ -98,17 +99,21 @@ export function extractCurriculumNodes(source: SourceDocument, text: string): No
       curriculumCode, curriculumName, curriculumVersion: "2020", country: "Ghana",
       ...item, educationLevel, grade: item.nodeType === "education_level" ? undefined : grade,
       subject: item.nodeType === "subject" ? source.subject : undefined,
+      sourceGradeCode: item.nodeType === "education_level" ? undefined : sourceGrade,
+      canonicalGradeCode: item.nodeType === "education_level" ? undefined : grade,
       sourceFile: source.relativePath, sourceVersion, active: true,
     });
-  }
-  const pattern = /\b(B(?:[4-9]|10)(?:\.\d+){2,4})\b\s*[:\-–]?\s*([^\n]{3,300})/g;
+  };
+  for (const grade of source.grades) addStructuralNodes(grade);
+  const pattern = /\b(B(?:[4-9]|10)(?:\.\d+){1,4})\b\s*[:\-–]?\s*([^\n]{3,300})/g;
   for (const match of text.matchAll(pattern)) {
     const code = match[1];
     const parts = codeParts(code);
     const nodeType = parts.length >= 5 ? "learning_indicator" : parts.length === 4 ? "content_standard" : parts.length === 3 ? "sub_strand" : "strand";
     const title = normalizeText(match[2]).replace(/-- \d+ of \d+ --.*$/, "").slice(0, 280);
     if (!title || nodes.has(code)) continue;
-    const grade = parts[0];
+    const sourceGrade = parts[0];
+    const grade = canonicalGradeCode(sourceGrade) ?? sourceGrade;
     nodes.set(code, {
       externalSourceId: `${source.sha256}:${code}`,
       curriculumCode,
@@ -119,14 +124,55 @@ export function extractCurriculumNodes(source: SourceDocument, text: string): No
       code,
       title,
       sourceTerminology: nodeType === "learning_indicator" ? "Learning Indicator" : nodeType === "content_standard" ? "Content Standard" : nodeType === "sub_strand" ? "Sub-strand" : "Strand",
-      parentCode: parts.length > 3 ? parts.slice(0, -1).join(".") : `SUBJECT:${grade}:${(source.subject ?? "Unclassified").toUpperCase().replace(/[^A-Z0-9]+/g, "_")}`,
+      parentCode: parts.length > 2 ? parts.slice(0, -1).join(".") : `SUBJECT:${grade}:${(source.subject ?? "Unclassified").toUpperCase().replace(/[^A-Z0-9]+/g, "_")}`,
       educationLevel: educationLevelForGrade(grade),
       grade,
+      sourceGradeCode: sourceGrade,
+      canonicalGradeCode: grade,
       subject: source.subject,
       sourceFile: source.relativePath,
       sourceVersion,
       active: true,
     });
+  }
+  const gradesFoundInCodes = new Set([...nodes.values()].map((node) => node.code.match(/^(B(?:[4-9]|10))\./)?.[1]).filter((grade): grade is string => Boolean(grade)));
+  for (const grade of gradesFoundInCodes) addStructuralNodes(grade);
+  // PDF table extraction can separate an ancestor's code from its label. A
+  // descendant code still provides authoritative evidence that each prefix
+  // exists, so materialize only missing prefixes without inventing a title.
+  for (const node of [...nodes.values()]) {
+    if (!/^B(?:[4-9]|10)(?:\.\d+){1,4}$/.test(node.code)) continue;
+    const parts = codeParts(node.code);
+    for (let length = 2; length < parts.length; length += 1) {
+      const code = parts.slice(0, length).join(".");
+      if (nodes.has(code)) continue;
+      const nodeType = length === 2 ? "strand" : length === 3 ? "sub_strand" : "content_standard";
+      const sourceGrade = parts[0];
+      const grade = canonicalGradeCode(sourceGrade) ?? sourceGrade;
+      const parentCode = length === 2
+        ? `SUBJECT:${grade}:${(source.subject ?? "Unclassified").toUpperCase().replace(/[^A-Z0-9]+/g, "_")}`
+        : parts.slice(0, length - 1).join(".");
+      nodes.set(code, {
+        externalSourceId: `${source.sha256}:${code}:inferred-ancestor`,
+        curriculumCode,
+        curriculumName,
+        curriculumVersion: "2020",
+        country: "Ghana",
+        nodeType,
+        code,
+        title: code,
+        sourceTerminology: nodeType === "content_standard" ? "Content Standard" : nodeType === "sub_strand" ? "Sub-strand" : "Strand",
+        parentCode,
+        educationLevel: educationLevelForGrade(grade),
+        grade,
+        sourceGradeCode: sourceGrade,
+        canonicalGradeCode: grade,
+        subject: source.subject,
+        sourceFile: source.relativePath,
+        sourceVersion,
+        active: true,
+      });
+    }
   }
   return [...nodes.values()];
 }
@@ -138,6 +184,7 @@ function value(row: Record<string, unknown>, ...names: string[]) {
 
 export function normalizeQuestionRow(row: Record<string, unknown>, source: SourceDocument, index: number): NormalizedQuestion {
   const grade = normalizeGrade(value(row, "grade", "gradeform", "level")) ?? source.grades[0];
+  const canonicalGrade = canonicalGradeCode(grade);
   const subject = normalizeSubject(value(row, "subject", "subjectname")) ?? source.subject;
   const options = ["a", "b", "c", "d"].map((key) => ({ key: key.toUpperCase(), text: value(row, `option${key}`, key) })).filter((option) => option.text);
   const answer = value(row, "answer", "correctanswer").toUpperCase().replace(/[^A-D]/g, "").slice(0, 1) || undefined;
@@ -146,8 +193,10 @@ export function normalizeQuestionRow(row: Record<string, unknown>, source: Sourc
     sourceFile: source.relativePath,
     sourceHash: source.sha256,
     curriculumCode: value(row, "curriculum", "curriculumcode") || undefined,
-    educationLevel: educationLevelForGrade(grade),
-    grade,
+    educationLevel: educationLevelForGrade(canonicalGrade),
+    grade: canonicalGrade,
+    sourceGradeCode: grade,
+    canonicalGradeCode: canonicalGrade,
     subject,
     strand: value(row, "strand", "domain", "topic") || undefined,
     subStrand: value(row, "substrand", "subtopic") || undefined,
@@ -195,8 +244,10 @@ export function extractPdfQuestions(source: SourceDocument, text: string): Norma
       externalSourceId: `${source.sha256}:${number}`,
       sourceFile: source.relativePath,
       sourceHash: source.sha256,
-      educationLevel: source.educationLevel,
-      grade: source.grades[0],
+      educationLevel: educationLevelForGrade(canonicalGradeCode(source.grades[0])),
+      grade: canonicalGradeCode(source.grades[0]),
+      sourceGradeCode: source.grades[0],
+      canonicalGradeCode: canonicalGradeCode(source.grades[0]),
       subject: source.subject,
       questionType: "multiple_choice",
       questionText,

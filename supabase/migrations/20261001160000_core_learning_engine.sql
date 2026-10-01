@@ -1,4 +1,4 @@
-begin;
+﻿begin;
 
 create extension if not exists pgcrypto;
 
@@ -22,10 +22,13 @@ create table if not exists public.curriculum_nodes (
   parent_id uuid references public.curriculum_nodes(id) on delete restrict,
   node_type text not null check (node_type in ('education_level','grade','subject','strand','sub_strand','topic','subtopic','content_standard','learning_indicator','learning_objective')),
   code text not null,
+  identity_key text not null,
   title text not null,
   source_terminology text not null,
   education_level text,
   grade_code text,
+  source_grade_code text,
+  canonical_grade_code text,
   subject_code text,
   sort_order integer not null default 0,
   source_file text,
@@ -34,7 +37,7 @@ create table if not exists public.curriculum_nodes (
   is_active boolean not null default true,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
-  unique (curriculum_id, node_type, code)
+  unique (curriculum_id, identity_key)
 );
 
 create index if not exists curriculum_nodes_parent_idx on public.curriculum_nodes(parent_id, sort_order);
@@ -81,6 +84,18 @@ alter table public.questions add column if not exists import_batch_id uuid refer
 alter table public.questions add column if not exists source_version text;
 alter table public.questions add column if not exists version integer not null default 1;
 alter table public.questions add column if not exists hint text;
+alter table public.questions add column if not exists source_grade_code text;
+alter table public.questions add column if not exists canonical_grade_code text;
+
+-- QuizBox content workflow:
+-- status = lifecycle (active/inactive/archived)
+-- validation_status = editorial approval workflow
+alter table public.questions
+  alter column validation_status set default 'review';
+
+update public.questions
+set validation_status = 'review'
+where validation_status is null;
 
 create index if not exists questions_curriculum_filter_idx on public.questions(curriculum_id, curriculum_node_id, grade, subject_code, status, difficulty_code);
 create index if not exists questions_import_batch_idx on public.questions(import_batch_id);
@@ -200,7 +215,10 @@ drop policy if exists xp_owner_read on public.xp_transactions;
 create policy xp_owner_read on public.xp_transactions for select to authenticated using (student_user_id = auth.uid() or public.qb_is_platform_admin());
 
 create or replace function public.qb_proficiency(p_percentage numeric)
-returns text language sql immutable as $$
+returns text
+language sql
+immutable
+as $$
   select case
     when p_percentage >= 80 then 'Highly Proficient'
     when p_percentage >= 68 then 'Proficient'
@@ -210,49 +228,216 @@ returns text language sql immutable as $$
   end
 $$;
 
-create or replace function public.qb_join_class(p_join_code text)
-returns jsonb language plpgsql security definer set search_path = public, auth as $$
-declare v_class public.classes; v_student uuid; v_membership public.class_memberships;
-begin
-  select * into v_class from public.classes where upper(join_code) = upper(trim(p_join_code)) limit 1;
-  if v_class.id is null then raise exception 'INVALID_CLASS_CODE'; end if;
-  if upper(v_class.status) not in ('ACTIVE','PUBLISHED') then raise exception 'CLASS_NOT_ACTIVE'; end if;
-  if v_class.join_code_expires_at is not null and v_class.join_code_expires_at < now() then raise exception 'CLASS_CODE_EXPIRED'; end if;
-  v_student := public.qb_current_student_id();
-  if v_student is null then raise exception 'STUDENT_PROFILE_REQUIRED'; end if;
-  insert into public.class_memberships(class_id, student_id, student_user_id, student_email, student_name, grade, status)
-  select v_class.id, v_student, auth.uid(), p.email, p.full_name, v_class.grade, 'ACTIVE' from public.profiles p where p.id = auth.uid()
-  on conflict (class_id, student_id) do update set status = 'ACTIVE', left_at = null
-  returning * into v_membership;
-  return jsonb_build_object('membership_id', v_membership.id, 'class_id', v_class.id, 'class_name', v_class.class_name, 'status', v_membership.status);
-end $$;
 
-create or replace function public.qb_question_availability(p_curriculum_node_ids uuid[], p_grade text default null, p_subject_code text default null)
-returns table(curriculum_node_id uuid, approved_count bigint, easy_count bigint, medium_count bigint, hard_count bigint, multiple_choice_count bigint, true_false_count bigint)
-language sql stable security invoker as $$
-  select q.curriculum_node_id,
-    count(*) filter (where upper(q.status) in ('APPROVED','PUBLISHED')),
-    count(*) filter (where lower(coalesce(q.difficulty_code,q.difficulty_label)) = 'easy' and upper(q.status) in ('APPROVED','PUBLISHED')),
-    count(*) filter (where lower(coalesce(q.difficulty_code,q.difficulty_label)) = 'medium' and upper(q.status) in ('APPROVED','PUBLISHED')),
-    count(*) filter (where lower(coalesce(q.difficulty_code,q.difficulty_label)) = 'hard' and upper(q.status) in ('APPROVED','PUBLISHED')),
-    count(*) filter (where lower(coalesce(q.answer_type,'')) in ('single_choice','multiple_choice') and upper(q.status) in ('APPROVED','PUBLISHED')),
-    count(*) filter (where lower(coalesce(q.answer_type,'')) = 'true_false' and upper(q.status) in ('APPROVED','PUBLISHED'))
+create or replace function public.qb_join_class(p_join_code text)
+returns jsonb
+language plpgsql
+security definer
+set search_path = public, auth
+as $$
+declare
+  v_class public.classes;
+  v_student uuid;
+  v_membership public.class_memberships;
+begin
+
+  select *
+  into v_class
+  from public.classes
+  where upper(join_code) = upper(trim(p_join_code))
+  limit 1;
+
+  if v_class.id is null then
+    raise exception 'INVALID_CLASS_CODE';
+  end if;
+
+  if v_class.status <> 'active'::public.qb_status then
+    raise exception 'CLASS_NOT_ACTIVE';
+  end if;
+
+  if v_class.join_code_expires_at is not null
+     and v_class.join_code_expires_at < now() then
+    raise exception 'CLASS_CODE_EXPIRED';
+  end if;
+
+  v_student := public.qb_current_student_id();
+
+  if v_student is null then
+    raise exception 'STUDENT_PROFILE_REQUIRED';
+  end if;
+
+  insert into public.class_memberships(
+    class_id,
+    student_id,
+    student_user_id,
+    student_email,
+    student_name,
+    grade,
+    status
+  )
+  select
+    v_class.id,
+    v_student,
+    auth.uid(),
+    p.email,
+    p.full_name,
+    v_class.grade,
+    'active'::public.qb_status
+  from public.profiles p
+  where p.id = auth.uid()
+
+  on conflict (class_id, student_id)
+  do update
+  set
+    status = 'active'::public.qb_status,
+    left_at = null
+
+  returning * into v_membership;
+
+  return jsonb_build_object(
+    'membership_id', v_membership.id,
+    'class_id', v_class.id,
+    'class_name', v_class.class_name,
+    'status', v_membership.status::text
+  );
+
+end
+$$;
+
+
+create or replace function public.qb_question_availability(
+  p_curriculum_node_ids uuid[],
+  p_grade text default null,
+  p_subject_code text default null
+)
+returns table(
+  curriculum_node_id uuid,
+  approved_count bigint,
+  easy_count bigint,
+  medium_count bigint,
+  hard_count bigint,
+  multiple_choice_count bigint,
+  true_false_count bigint
+)
+language sql
+stable
+security invoker
+as $$
+  select
+    q.curriculum_node_id,
+
+    count(*) filter (
+      where q.status = 'active'::public.qb_status
+        and lower(coalesce(q.validation_status, ''))
+            in ('approved','validated')
+    ) as approved_count,
+
+    count(*) filter (
+      where lower(coalesce(q.difficulty_code, q.difficulty_label, '')) = 'easy'
+        and q.status = 'active'::public.qb_status
+        and lower(coalesce(q.validation_status, ''))
+            in ('approved','validated')
+    ) as easy_count,
+
+    count(*) filter (
+      where lower(coalesce(q.difficulty_code, q.difficulty_label, '')) = 'medium'
+        and q.status = 'active'::public.qb_status
+        and lower(coalesce(q.validation_status, ''))
+            in ('approved','validated')
+    ) as medium_count,
+
+    count(*) filter (
+      where lower(coalesce(q.difficulty_code, q.difficulty_label, '')) = 'hard'
+        and q.status = 'active'::public.qb_status
+        and lower(coalesce(q.validation_status, ''))
+            in ('approved','validated')
+    ) as hard_count,
+
+    count(*) filter (
+      where lower(coalesce(q.answer_type, ''))
+            in ('single_choice','multiple_choice')
+        and q.status = 'active'::public.qb_status
+        and lower(coalesce(q.validation_status, ''))
+            in ('approved','validated')
+    ) as multiple_choice_count,
+
+    count(*) filter (
+      where lower(coalesce(q.answer_type, '')) = 'true_false'
+        and q.status = 'active'::public.qb_status
+        and lower(coalesce(q.validation_status, ''))
+            in ('approved','validated')
+    ) as true_false_count
+
   from public.questions q
+
   where q.curriculum_node_id = any(p_curriculum_node_ids)
-    and (p_grade is null or q.grade = p_grade)
-    and (p_subject_code is null or q.subject_code = p_subject_code)
+    and (
+      p_grade is null
+      or q.grade::text = p_grade
+    )
+    and (
+      p_subject_code is null
+      or q.subject_code = p_subject_code
+    )
+
   group by q.curriculum_node_id
 $$;
 
+
 create or replace function public.qb_student_xp()
-returns table(total_xp bigint, level integer, current_level_xp integer, next_level_xp integer)
-language sql stable security invoker as $$
-  with totals as (select coalesce(sum(points),0)::bigint xp from public.xp_transactions where student_user_id = auth.uid()),
-  levels as (select xp, floor(sqrt(xp / 100.0))::integer + 1 lvl from totals)
-  select xp, lvl, (xp - ((lvl - 1) * (lvl - 1) * 100))::integer, ((lvl * lvl * 100) - ((lvl - 1) * (lvl - 1) * 100))::integer from levels
+returns table(
+  total_xp bigint,
+  level integer,
+  current_level_xp integer,
+  next_level_xp integer
+)
+language sql
+stable
+security invoker
+as $$
+  with totals as (
+    select
+      coalesce(sum(points), 0)::bigint as xp
+    from public.xp_transactions
+    where student_user_id = auth.uid()
+  ),
+  levels as (
+    select
+      xp,
+      floor(sqrt(xp / 100.0))::integer + 1 as lvl
+    from totals
+  )
+  select
+    xp as total_xp,
+    lvl as level,
+    (
+      xp - ((lvl - 1) * (lvl - 1) * 100)
+    )::integer as current_level_xp,
+    (
+      (lvl * lvl * 100)
+      - ((lvl - 1) * (lvl - 1) * 100)
+    )::integer as next_level_xp
+  from levels
 $$;
 
-grant select on public.curricula, public.curriculum_nodes, public.mastery_records, public.xp_transactions to authenticated;
-grant execute on function public.qb_proficiency(numeric), public.qb_join_class(text), public.qb_question_availability(uuid[],text,text), public.qb_student_xp() to authenticated;
+
+grant select on
+  public.curricula,
+  public.curriculum_nodes,
+  public.mastery_records,
+  public.xp_transactions
+to authenticated;
+
+grant execute on function public.qb_proficiency(numeric)
+to authenticated;
+
+grant execute on function public.qb_join_class(text)
+to authenticated;
+
+grant execute on function public.qb_question_availability(uuid[], text, text)
+to authenticated;
+
+grant execute on function public.qb_student_xp()
+to authenticated;
 
 commit;

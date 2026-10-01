@@ -10,6 +10,8 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "content:audit": "tsx scripts/content-audit.ts ../Curriculum",
+    "content:validate": "tsx scripts/validate-curriculum.ts",
+    "content:verify": "tsx scripts/verify-curriculum-import.ts",
     "content:import:dry-run": "tsx scripts/import-content.ts"
   },
   "dependencies": {

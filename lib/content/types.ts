@@ -36,6 +36,8 @@ export interface NormalizedCurriculumNode {
   parentCode?: string;
   educationLevel?: string;
   grade?: string;
+  sourceGradeCode?: string;
+  canonicalGradeCode?: string;
   subject?: string;
   sourceFile: string;
   sourceVersion: string;
@@ -49,6 +51,8 @@ export interface NormalizedQuestion {
   curriculumCode?: string;
   educationLevel?: string;
   grade?: string;
+  sourceGradeCode?: string;
+  canonicalGradeCode?: string;
   subject?: string;
   strand?: string;
   subStrand?: string;

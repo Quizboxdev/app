@@ -48,6 +48,11 @@ export function educationLevelForGrade(grade?: string): string | undefined {
   return undefined;
 }
 
+export function canonicalGradeCode(sourceGrade?: string): string | undefined {
+  const normalized = normalizeGrade(sourceGrade);
+  return normalized === "B10" ? "SHS1" : normalized;
+}
+
 export function normalizeText(value: string): string {
   return value.normalize("NFKC").replace(/\s+/g, " ").trim();
 }

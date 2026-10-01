@@ -1,6 +1,6 @@
 {
   "summary": {
-    "generatedAt": "2026-10-01T15:53:42.982Z",
+    "generatedAt": "2026-10-01T18:07:30.599Z",
     "sourceRoot": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum",
     "totalSourceFiles": 96,
     "curricula": [
@@ -39,7 +39,7 @@
       "Social Studies",
       "TWI"
     ],
-    "normalizedCurriculumNodes": 2109,
+    "normalizedCurriculumNodes": 2722,
     "questionRecordsDiscovered": 82,
     "validQuestions": 0,
     "warnings": 8,
