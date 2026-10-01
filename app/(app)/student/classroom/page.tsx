@@ -1,23 +1,44 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { bootstrapUser } from "@/lib/auth";
-import { getStudentClassroom } from "@/lib/api/student";
+import { getStudentClassroom, joinClass } from "@/lib/api/student";
 
 export default function StudentClassroomPage() {
   const [data, setData] = useState<any>(null);
   const [error, setError] = useState("");
+  const [studentId, setStudentId] = useState("");
+  const [joinCode, setJoinCode] = useState("");
+  const [notice, setNotice] = useState("");
+
+  async function refresh(id: string) {
+    setData(await getStudentClassroom(id));
+  }
 
   useEffect(() => {
     bootstrapUser()
       .then((ctx) => {
         const studentId = String((ctx.studentProfile as any)?.id ?? "");
         if (!studentId) throw new Error("Student profile not found.");
+        setStudentId(studentId);
         return getStudentClassroom(studentId);
       })
       .then(setData)
       .catch((e) => setError(e.message));
   }, []);
+
+  async function submitJoin(event: FormEvent) {
+    event.preventDefault();
+    setError(""); setNotice("");
+    try {
+      const result: any = await joinClass(joinCode);
+      setNotice(`Joined ${result.class_name}.`);
+      setJoinCode("");
+      await refresh(studentId);
+    } catch (reason: any) {
+      setError(reason.message === "INVALID_CLASS_CODE" ? "That class code was not found." : reason.message);
+    }
+  }
 
   if (error) return <div className="qb-card qb-error">{error}</div>;
   if (!data) return <div>Loading classroom…</div>;
@@ -30,6 +51,15 @@ export default function StudentClassroomPage() {
           <p>Your joined classes and teacher assignments.</p>
         </div>
       </div>
+
+      <form className="qb-card qb-form" onSubmit={submitJoin}>
+        <h2>Join a class</h2>
+        <div className="qb-actions">
+          <input aria-label="Class join code" placeholder="QB7-X4T9" value={joinCode} onChange={(event) => setJoinCode(event.target.value.toUpperCase())} required />
+          <button className="qb-btn" type="submit">Join class</button>
+        </div>
+        {notice && <p>{notice}</p>}
+      </form>
 
       <div className="qb-grid cols-2">
         <div className="qb-card">

@@ -83,3 +83,15 @@ export async function getStudentClassroom(studentId: string) {
 
   return { memberships: memberships ?? [], assignments };
 }
+
+export async function joinClass(joinCode: string) {
+  const { data, error } = await getSupabaseBrowserClient().rpc("qb_join_class", { p_join_code: joinCode.trim().toUpperCase() });
+  if (error) throw error;
+  return data;
+}
+
+export async function getStudentXp() {
+  const { data, error } = await getSupabaseBrowserClient().rpc("qb_student_xp");
+  if (error) throw error;
+  return Array.isArray(data) ? data[0] ?? null : data;
+}
