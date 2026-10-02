@@ -3,6 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
+    "content:wave:import": "tsx scripts/import-wave-one.ts",
+    "acceptance:run": "tsx scripts/run-acceptance.ts",
     "release:check": "tsx scripts/release-check.ts",
     "security:readiness": "tsx scripts/security-readiness.ts",
     "content:wave": "tsx scripts/content-wave-1.ts",

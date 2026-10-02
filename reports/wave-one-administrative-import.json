@@ -1,0 +1,24 @@
+{
+  "project": "fmgccmqxfjppqydkhaiu",
+  "checkedAt": "2026-10-02T08:09:12.043588+00:00",
+  "operation": "administrative connector import through existing qb_content_ingest; not password-login evidence",
+  "autoApproved": 0,
+  "waveCandidates": 45,
+  "waveObjectives": 9,
+  "waveReviewInactive": 45,
+  "legacyNeedsRevision": 2,
+  "productionReviewQueue": 45,
+  "replayBatchesVerified": 9,
+  "activeApprovedProduction": 0,
+  "batchIds": [
+    "43a37245-e075-41c9-a393-29b0b1770029",
+    "5549a10c-a293-4bbe-a8b7-78772dc1b28b",
+    "5dd094bf-6d7b-43fb-8dd1-ede25563c255",
+    "b10933ff-7b05-4ddf-8be0-42c6b7ca3db2",
+    "c41381e3-cea7-4561-843e-7adda30585be",
+    "ca5f0624-1275-48b2-81a8-2cb7f97c7e6c",
+    "d3eac41c-46d6-4cd1-b05b-76ab94037d4c",
+    "f7d8bfbe-d4b7-4d6e-82ee-e7ac92aa1314",
+    "fdf7da7b-5eb2-4461-b95c-1e82a5d329f0"
+  ]
+}

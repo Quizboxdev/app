@@ -1,0 +1,10 @@
+{
+  "checkedAt": "2026-10-02T07:57:43.157Z",
+  "privatePackageTables": 29,
+  "rows": 3537,
+  "checksumsVerified": true,
+  "schemaArchiveVerified": false,
+  "storageBinariesVerified": false,
+  "transactionConsistentSnapshot": false,
+  "restoreRehearsal": "MANUAL VERIFICATION REQUIRED"
+}

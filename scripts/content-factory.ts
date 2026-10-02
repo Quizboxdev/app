@@ -9,7 +9,7 @@ import { generateQuestions, SampleProvider } from "../lib/content/factory/genera
 loadEnvConfig(process.cwd());
 const [command, file] = process.argv.slice(2);
 const apply = process.argv.includes("--apply");
-const client = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, { auth: { persistSession: false, autoRefreshToken: false } });
+let client = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, { auth: { persistSession: false, autoRefreshToken: false } });
 async function rpc(name: string, args: Record<string, unknown>) {
   const { data, error } = await client.rpc(name, args);
   if (error) throw new Error(error.message.split(":")[0].startsWith("QB_") ? error.message.split(":")[0] : "CONTENT_RPC_FAILED");
@@ -26,18 +26,24 @@ async function paginated(table: string, columns: string) {
 async function main() {
   if (apply && process.argv.includes("--dry-run")) throw new Error("CHOOSE_APPLY_OR_DRY_RUN");
   if (!["coverage", "validate", "duplicates", "generate", "import", "publish", "rejected"].includes(command)) throw new Error("Use coverage | validate file | duplicates file | generate file | import file [--apply] | publish file [--apply] | rejected batch-id");
+  const serverReadOnly = process.argv.includes("--server-readonly");
+  if (serverReadOnly) {
+    if (command !== "coverage" || apply) throw new Error("SERVER_READ_ONLY_COVERAGE_REQUIRED");
+    if (!process.env.SUPABASE_SERVICE_ROLE_KEY) throw new Error("SERVER_READ_ONLY_KEY_REQUIRED");
+    client = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false, autoRefreshToken: false } });
+  }
   // Operator credentials stay local. No service-role key is used for editorial mutations.
-  if (process.env.QB_CONTENT_OPERATOR_EMAIL && process.env.QB_CONTENT_OPERATOR_PASSWORD) {
+  if (!serverReadOnly && process.env.QB_CONTENT_OPERATOR_EMAIL && process.env.QB_CONTENT_OPERATOR_PASSWORD) {
     const { error } = await client.auth.signInWithPassword({ email: process.env.QB_CONTENT_OPERATOR_EMAIL, password: process.env.QB_CONTENT_OPERATOR_PASSWORD });
     if (error) throw new Error("CONTENT_OPERATOR_LOGIN_FAILED");
   }
   const nodes = await paginated("curriculum_nodes", "id,curriculum_id,parent_id,node_type,code,title,grade_code,source_grade_code,canonical_grade_code,subject_code,education_level,is_active") as CurriculumNode[];
   const map = new Map(nodes.map((n) => [n.id, n]));
   if (command === "coverage") {
-    await rpc("qb_content_coverage", {});
+    if (!serverReadOnly) await rpc("qb_content_coverage", {});
     const questions = await paginated("questions", "curriculum_node_id,status,validation_status,source_type,difficulty_label,answer_type,duplicate_group_id");
     const overrides = await paginated("content_coverage_targets", "*");
-    const report = { generatedAt: new Date().toISOString(), ...calculateCoverage(nodes, questions, 10, overrides) };
+    const report = { generatedAt: new Date().toISOString(), access: serverReadOnly ? "server-read-only-operator" : "authenticated-editor", ...calculateCoverage(nodes, questions, 10, overrides) };
     await writeFile("reports/question-coverage.json", JSON.stringify(report, null, 2));
     await writeFile("reports/question-coverage.md", "# Question Coverage\n\n" + Object.entries(report.summary).map(([k,v]) => "- " + k + ": " + v).join("\n") + "\n\n## Grades and Subjects\n\n" + report.nodes.filter((n) => ["grade","subject"].includes(n.node_type)).map((n) => "- " + n.code + " " + n.title + ": " + n.approved + " approved / " + n.indicators + " indicators (" + n.health + ")").join("\n") + "\n\nAcceptance and factory pilot fixtures are excluded from production counts.\n");
     console.log(JSON.stringify(report.summary)); return;

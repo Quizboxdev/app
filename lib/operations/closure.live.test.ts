@@ -1,17 +1,18 @@
 import { beforeAll,describe,it,expect } from "vitest";
 import { createClient,type SupabaseClient } from "@supabase/supabase-js";
-import { acceptancePassword } from "./safety";
+import { acceptanceAccount } from "./acceptance";
 describe.skipIf(process.env.QB_LIVE_ACCEPTANCE!=="1")("production closure authenticated security",()=>{
   let admin:SupabaseClient,student:SupabaseClient,teacher:SupabaseClient,other:SupabaseClient,anon:SupabaseClient,audit:any;
   beforeAll(async()=>{
-    process.loadEnvFile(".env.local");const password=acceptancePassword();
+    process.loadEnvFile(".env.local");
     const make=()=>createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!,process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,{auth:{persistSession:false,autoRefreshToken:false}});
     admin=make();student=make();teacher=make();other=make();anon=make();
-    for(const [client,email] of [[admin,"admin.test"],[student,"student.test"],[teacher,"teacher.test"],[other,"student2.test"]] as const){const login=await client.auth.signInWithPassword({email:email+"@quizbox.local",password});if(login.error)throw new Error("ACCEPTANCE_LOGIN_FAILED");}
+    for(const [client,role] of [[admin,"admin"],[student,"student"],[teacher,"teacher"],[other,"student2"]] as const){const login=await client.auth.signInWithPassword(acceptanceAccount(role));if(login.error)throw new Error("ACCEPTANCE_LOGIN_FAILED");}
     const result=await admin.rpc("qb_production_security_audit");expect(result.error).toBeNull();audit=result.data;
   });
   it("inventories every public definer and admits only the public catalogue anonymously",()=>expect(audit.functions.filter((f:any)=>f.anon).map((f:any)=>f.name)).toEqual(["qb_marketplace_catalog"]));
   it("all public tables have RLS",()=>expect(audit.tables.filter((t:any)=>!t.rls)).toEqual([]));
+  it("failed attempt starts retain their throttle across HTTP errors",async()=>{const failures=[];for(let i=0;i<21;i++){const result=await other.rpc("qb_start_attempt",{p_assessment_id:"00000000-0000-0000-0000-000000000001",p_assignment_id:null,p_class_id:null,p_client_session_id:"failed-budget-test"});expect(result.error).not.toBeNull();failures.push(result.error?.message);}expect(failures).toContain("QB_RATE_LIMITED");});
   it("signup provisioning trigger is installed",()=>expect(audit.signup_trigger).toBe(true));
   it.each(["qb_admin_platform_overview","qb_admin_content_health","qb_production_security_audit"])("anonymous cannot execute %s",async(name)=>expect((await anon.rpc(name)).error).not.toBeNull());
   it.each(["qb_admin_platform_overview","qb_admin_marketplace_metrics","qb_admin_competition_metrics","qb_admin_operations_health","qb_production_security_audit"])("student cannot execute admin data function %s",async(name)=>expect((await student.rpc(name)).error).not.toBeNull());

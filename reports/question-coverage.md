@@ -2,13 +2,13 @@
 
 - totalNodes: 2722
 - totalIndicators: 1357
-- indicatorsWithQuestions: 0
+- indicatorsWithQuestions: 9
 - zeroApproved: 1357
 - belowTarget: 1357
 - meetingTarget: 0
 - coveragePercent: 0
 - productionApproved: 0
-- reviewQueue: 2
+- reviewQueue: 47
 - rejected: 0
 - fixtureQuestions: 39
 - unmappedProduction: 2

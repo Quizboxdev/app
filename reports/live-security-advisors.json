@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-10-02T01:02:54.265Z",
+  "checkedAt": "2026-10-02T07:39:26.204Z",
   "advisories": [
     {
       "name": "rls_enabled_no_policy",
@@ -16,7 +16,7 @@
     {
       "name": "authenticated_security_definer_function_executable",
       "level": "WARN",
-      "count": 76,
+      "count": 77,
       "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0029_authenticated_security_definer_function_executable"
     },
     {

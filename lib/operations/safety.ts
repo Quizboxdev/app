@@ -1,5 +1,5 @@
 export function acceptancePassword(env: Record<string,string|undefined> = process.env): string {
-  if (env.QB_ENVIRONMENT !== "acceptance" || env.NODE_ENV === "production") throw new Error("ACCEPTANCE_ENVIRONMENT_REQUIRED");
+  if (env.QB_ENVIRONMENT !== "acceptance" || env.NODE_ENV === "production" || env.VERCEL_ENV === "production") throw new Error("ACCEPTANCE_ENVIRONMENT_REQUIRED");
   const ref = new URL(env.NEXT_PUBLIC_SUPABASE_URL ?? "https://invalid.local").hostname.split(".")[0];
   if (!env.QB_ACCEPTANCE_PROJECT_REF || ref !== env.QB_ACCEPTANCE_PROJECT_REF || ref === env.QB_PRODUCTION_PROJECT_REF) throw new Error("ACCEPTANCE_PROJECT_NOT_AUTHORIZED");
   if (!env.QB_ACCEPTANCE_PASSWORD) throw new Error("QB_ACCEPTANCE_PASSWORD_REQUIRED");

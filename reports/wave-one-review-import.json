@@ -1,0 +1,151 @@
+{
+  "checkedAt": "2026-10-02T07:57:48.067Z",
+  "mode": "verified-existing",
+  "sourceVersion": "wave-one-original-review-v1",
+  "productionCandidatesPrepared": 45,
+  "productionCandidatesInReview": 45,
+  "productionReviewQueue": 45,
+  "approvedProduction": 0,
+  "autoApproved": 0,
+  "humanReviewRequired": true,
+  "exactDuplicates": 0,
+  "nearDuplicateWarnings": [],
+  "indicators": [
+    {
+      "id": "9c030e3c-eb47-4a47-8d8d-476c51351f8d",
+      "code": "B10.2.4.1.1",
+      "importedTitle": "Perform data filtering, sorting, validation",
+      "sourceObjectiveSummary": "Perform data filtering, sorting, validation",
+      "grade": "SHS1",
+      "sourceGrade": "B10",
+      "subject": "Computing",
+      "curriculumSource": {
+        "file": "COMPUTING-CCP-CURRICULUM-B7-B10.pdf",
+        "sha256": "96332e1468768dc986df9bce0abba98e9a826b93c74c8d255f7c16c2cf56e95d"
+      },
+      "candidates": 5,
+      "validationStatus": "review"
+    },
+    {
+      "id": "6e60d706-4c8c-43d6-b8f0-ffbba502ade7",
+      "code": "B10.2.4.1.3",
+      "importedTitle": ". Demonstrate the use of data tables, pivot",
+      "sourceObjectiveSummary": "Demonstrate the use of data tables, pivot tables, charts and pivot charts.",
+      "grade": "SHS1",
+      "sourceGrade": "B10",
+      "subject": "Computing",
+      "curriculumSource": {
+        "file": "COMPUTING-CCP-CURRICULUM-B7-B10.pdf",
+        "sha256": "96332e1468768dc986df9bce0abba98e9a826b93c74c8d255f7c16c2cf56e95d"
+      },
+      "candidates": 5,
+      "validationStatus": "review"
+    },
+    {
+      "id": "94688337-d6f8-41c4-8ce0-a80f6d257138",
+      "code": "B10.3.3.1.2",
+      "importedTitle": ". Demonstrate how to protect data using",
+      "sourceObjectiveSummary": "Demonstrate how to protect data using alphanumeric credentials and biometrics.",
+      "grade": "SHS1",
+      "sourceGrade": "B10",
+      "subject": "Computing",
+      "curriculumSource": {
+        "file": "COMPUTING-CCP-CURRICULUM-B7-B10.pdf",
+        "sha256": "96332e1468768dc986df9bce0abba98e9a826b93c74c8d255f7c16c2cf56e95d"
+      },
+      "candidates": 5,
+      "validationStatus": "review"
+    },
+    {
+      "id": "65dac471-12b4-417c-b233-1adafc44d876",
+      "code": "B10.1.3.1.1",
+      "importedTitle": "Add and/or subtract, multiply and/or divide given fractions, including",
+      "sourceObjectiveSummary": "Review fractions and solve problems involving basic operations on fractions.",
+      "grade": "SHS1",
+      "sourceGrade": "B10",
+      "subject": "Mathematics",
+      "curriculumSource": {
+        "file": "GES-New-JHS-Syllabus-MATHEMATICS-CCP-CURRICULUM-B7-B10.pdf",
+        "sha256": "4401921d5681b9ca8f1940edb67e1dab4b7e8033c1f4af9421bf603c8c56e107"
+      },
+      "candidates": 5,
+      "validationStatus": "review"
+    },
+    {
+      "id": "dd80a828-3a67-4c01-b88d-bc34a3450a5d",
+      "code": "B10.1.3.1.2",
+      "importedTitle": "Add and/or subtract, multiply and/or divide given fractions, including",
+      "sourceObjectiveSummary": "Add, subtract, multiply and divide fractions using the BODMAS rule to solve problems.",
+      "grade": "SHS1",
+      "sourceGrade": "B10",
+      "subject": "Mathematics",
+      "curriculumSource": {
+        "file": "GES-New-JHS-Syllabus-MATHEMATICS-CCP-CURRICULUM-B7-B10.pdf",
+        "sha256": "4401921d5681b9ca8f1940edb67e1dab4b7e8033c1f4af9421bf603c8c56e107"
+      },
+      "candidates": 5,
+      "validationStatus": "review"
+    },
+    {
+      "id": "a4dccfcd-1f4f-4417-873c-884a9d68384e",
+      "code": "B10.1.3.1.3",
+      "importedTitle": ". Review word problems involving basic operations on fractions",
+      "sourceObjectiveSummary": "Review word problems involving basic operations on fractions.",
+      "grade": "SHS1",
+      "sourceGrade": "B10",
+      "subject": "Mathematics",
+      "curriculumSource": {
+        "file": "GES-New-JHS-Syllabus-MATHEMATICS-CCP-CURRICULUM-B7-B10.pdf",
+        "sha256": "4401921d5681b9ca8f1940edb67e1dab4b7e8033c1f4af9421bf603c8c56e107"
+      },
+      "candidates": 5,
+      "validationStatus": "review"
+    },
+    {
+      "id": "cc3f9b1f-3821-4e3c-9a19-a640f29ff11c",
+      "code": "B10.1.2.1.1",
+      "importedTitle": "Discuss the concepts of specialised cells and how they",
+      "sourceObjectiveSummary": "Discuss specialised cells and how they are formed in dicotyledonous plants and humans.",
+      "grade": "SHS1",
+      "sourceGrade": "B10",
+      "subject": "Science",
+      "curriculumSource": {
+        "file": "GES-New-JHS-Syllabus-SCIENCE-CCP-CURRICULUM-B7-B10.pdf",
+        "sha256": "9f4bc80789d693c6c35ce160d2d2a5753bb556b1bbdd772117a06266b79ba077"
+      },
+      "candidates": 5,
+      "validationStatus": "review"
+    },
+    {
+      "id": "e74982f6-8657-4e64-b49a-a66c16bb4803",
+      "code": "B10.1.2.1.2",
+      "importedTitle": "Examine the functions of specialised cells in Digital Literacy (DL),",
+      "sourceObjectiveSummary": "Examine the functions of epidermal cells, guard cells, cambium and xylem in dicotyledonous plants.",
+      "grade": "SHS1",
+      "sourceGrade": "B10",
+      "subject": "Science",
+      "curriculumSource": {
+        "file": "GES-New-JHS-Syllabus-SCIENCE-CCP-CURRICULUM-B7-B10.pdf",
+        "sha256": "9f4bc80789d693c6c35ce160d2d2a5753bb556b1bbdd772117a06266b79ba077"
+      },
+      "candidates": 5,
+      "validationStatus": "review"
+    },
+    {
+      "id": "a689b846-a3ed-47d3-98b7-df3cd06fc08c",
+      "code": "B10.1.2.1.3",
+      "importedTitle": "Examine the functions of specialised animal cells such",
+      "sourceObjectiveSummary": "Examine the functions of nerve cells, blood cells, muscle cells and sperm cells in humans.",
+      "grade": "SHS1",
+      "sourceGrade": "B10",
+      "subject": "Science",
+      "curriculumSource": {
+        "file": "GES-New-JHS-Syllabus-SCIENCE-CCP-CURRICULUM-B7-B10.pdf",
+        "sha256": "9f4bc80789d693c6c35ce160d2d2a5753bb556b1bbdd772117a06266b79ba077"
+      },
+      "candidates": 5,
+      "validationStatus": "review"
+    }
+  ],
+  "receipts": []
+}

@@ -1,0 +1,11 @@
+import { it,expect } from "vitest";
+import { createHash } from "node:crypto";
+import { readFile } from "node:fs/promises";
+import { verifyBackupEntry } from "./backup";
+const text='[{"id":"fixture"}]',entry={table:"questions",file:"questions.json",rows:1,sha256:createHash("sha256").update(text).digest("hex")};
+it("verifies a private export checksum and count",()=>expect(verifyBackupEntry(text,entry)).toBe(1));
+it("detects modified backup content",()=>expect(()=>verifyBackupEntry("[]",entry)).toThrow("BACKUP_CHECKSUM_MISMATCH"));
+it("detects a mismatched backup row count",()=>expect(()=>verifyBackupEntry(text,{...entry,rows:2})).toThrow("BACKUP_COUNT_MISMATCH"));
+it("rejects backup path traversal",()=>expect(()=>verifyBackupEntry(text,{...entry,file:"../questions.json"})).toThrow());
+it("keeps the production Wave 1 drafts unapproved",async()=>{const report=JSON.parse(await readFile("reports/wave-one-review-import.json","utf8"));expect(report.indicators).toHaveLength(9);expect(report.productionCandidatesPrepared).toBe(45);expect(report.autoApproved).toBe(0);expect(report.humanReviewRequired).toBe(true);expect(report.indicators.every((row:any)=>row.validationStatus==="review")).toBe(true);});
+it("records identifiable acceptance data without declaring physical isolation",async()=>{const report=JSON.parse(await readFile("reports/acceptance-data-inventory.json","utf8"));expect(report.accounts).toHaveLength(6);expect(report.fixtureQuestions).toBeUndefined();expect(report.questions).toHaveLength(39);expect(report.deletions).toBe(0);expect(report.physicallyIsolated).toBe(false);});

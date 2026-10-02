@@ -2,6 +2,7 @@ import { readFile, writeFile } from "node:fs/promises";
 import { createClient } from "@supabase/supabase-js";
 import assert from "node:assert/strict";
 import { acceptancePassword, fixtureMutationAllowed } from "../lib/operations/safety";
+import { acceptanceAccount, acceptanceAccountPassword } from "../lib/operations/acceptance";
 
 async function main() {
   for (const line of (await readFile(".env.local", "utf8")).split(/\r?\n/)) {
@@ -12,15 +13,16 @@ async function main() {
   const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
   const options = { auth: { persistSession: false, autoRefreshToken: false } };
   const admin = createClient(url, process.env.SUPABASE_SERVICE_ROLE_KEY!, options);
-  const password = acceptancePassword();
+  const accountA = acceptanceAccount("student"), accountB = acceptanceAccount("student2"), teacherAccount = acceptanceAccount("teacher");
+  acceptancePassword({ ...process.env, QB_ACCEPTANCE_PASSWORD: accountA.password });
   if (!process.argv.includes("--verify-ui-publication")) fixtureMutationAllowed(process.env, process.argv, "DEV_ACCEPTANCE_FIXTURE");
   if (process.argv.includes("--verify-ui-publication")) {
     const report = JSON.parse(await readFile("reports/practice-acceptance.json", "utf8"));
     const published = await admin.from("assignments").select("id,assessment_id,class_id").eq("title", "DEV Acceptance UI Remediation").order("created_at", { ascending: false }).limit(1).single();
     if (published.error) throw published.error;
-    for (const [email, included] of [["student.test@quizbox.local", true], ["student2.test@quizbox.local", false]] as const) {
+    for (const [account, included] of [[accountA, true], [accountB, false]] as const) {
       const client = createClient(url, anon, options);
-      const login = await client.auth.signInWithPassword({ email, password }); if (login.error) throw login.error;
+      const login = await client.auth.signInWithPassword(account); if (login.error) throw login.error;
       const available = await client.rpc("qb_list_available_assessments"); if (available.error) throw available.error;
       assert.equal(available.data.some((row: any) => row.id === published.data.assessment_id), included);
       if (included) {
@@ -37,7 +39,7 @@ async function main() {
     const report = JSON.parse(await readFile("reports/practice-acceptance.json", "utf8"));
     const attempt = await admin.from("attempts").select("id").eq("assignment_id", report.ui.published.id).eq("student_user_id", report.studentA).order("created_at", { ascending: false }).limit(1).single(); if (attempt.error) throw attempt.error;
     const client = createClient(url, anon, options);
-    const login = await client.auth.signInWithPassword({ email: "student.test@quizbox.local", password }); if (login.error) throw login.error;
+    const login = await client.auth.signInWithPassword(accountA); if (login.error) throw login.error;
     const result = await client.rpc("qb_get_result", { p_attempt_id: attempt.data.id }); if (result.error) throw result.error;
     const xpAfter = await client.rpc("qb_student_xp"); if (xpAfter.error) throw xpAfter.error;
     const retry = await client.rpc("qb_complete_attempt", { p_attempt_id: attempt.data.id, p_submission_reason: "acceptance_retry" }); if (retry.error) throw retry.error;
@@ -55,7 +57,7 @@ async function main() {
   if (process.argv.includes("--verify-completion")) {
     const report = JSON.parse(await readFile("reports/practice-acceptance.json", "utf8"));
     const client = createClient(url, anon, options);
-    const login = await client.auth.signInWithPassword({ email: "student.test@quizbox.local", password });
+    const login = await client.auth.signInWithPassword(accountA);
     if (login.error) throw login.error;
     const result = await client.rpc("qb_get_result", { p_attempt_id: report.attemptId });
     if (result.error) throw result.error;
@@ -75,15 +77,15 @@ async function main() {
     console.log(JSON.stringify({ result: result.data.percentage, before: report.before[0].mastery_score, after: mastery.data[0].mastery_score, evidence: [report.before[0].attempts_count, mastery.data[0].attempts_count], xp: [report.xpBefore, xpAfter.data, xpRetry.data], duplicateCount }, null, 2));
     return;
   }
-  const emailB = "student2.test@quizbox.local";
+  const emailB = accountB.email;
   const checked = (result: { data: any; error: unknown }): any => { if (result.error) throw result.error; if (result.data == null) throw new Error("EMPTY_RESULT"); return result.data; };
   const cls = checked(await admin.from("classes").select("*").eq("class_name", "QuizBox Developer Acceptance Class").single());
-  const studentA = checked(await admin.from("profiles").select("*").eq("email", "student.test@quizbox.local").single());
+  const studentA = checked(await admin.from("profiles").select("*").eq("email", accountA.email).single());
   const listed = await admin.auth.admin.listUsers({ perPage: 1000 });
   if (listed.error) throw listed.error;
   const users = listed.data.users;
   let userB = users.find((user) => user.email === emailB);
-  if (!userB) { const created = await admin.auth.admin.createUser({ email: emailB, password, email_confirm: true }); if (created.error) throw created.error; userB = created.data.user; }
+  if (!userB) { const created = await admin.auth.admin.createUser({ email: emailB, password: accountB.password, email_confirm: true }); if (created.error) throw created.error; userB = created.data.user; }
   checked(await admin.from("profiles").upsert({ id: userB.id, email: emailB, full_name: "QuizBox Acceptance Student B", role: "student", status: "active" }));
   const foundB = await admin.from("student_profiles").select("*").eq("user_id", userB.id).maybeSingle();
   if (foundB.error) throw foundB.error;
@@ -95,8 +97,8 @@ async function main() {
   if (!checked(await admin.from("class_memberships").select("id").eq("class_id", cls.id).eq("student_user_id", userB.id)).length) {
     checked(await admin.from("class_memberships").insert({ class_id: cls.id, student_id: profileB.id, student_user_id: userB.id, student_email: emailB, student_name: "QuizBox Acceptance Student B", grade: cls.grade, status: "active" }));
   }
-  const login = async (email: string) => { const client = createClient(url, anon, options); const result = await client.auth.signInWithPassword({ email, password }); if (result.error) throw result.error; return client; };
-  const [teacher, a, b] = await Promise.all([login("teacher.test@quizbox.local"), login(studentA.email), login(emailB)]);
+  const login = async (email: string) => { const client = createClient(url, anon, options); const result = await client.auth.signInWithPassword({ email, password: acceptanceAccountPassword(email) }); if (result.error) throw result.error; return client; };
+  const [teacher, a, b] = await Promise.all([login(teacherAccount.email), login(studentA.email), login(emailB)]);
   const questions: Array<{ id: string; curriculum_node_id: string }> = checked(await admin.from("questions").select("id,curriculum_node_id").eq("source_type", "DEV_ACCEPTANCE_FIXTURE").eq("subject_code", "Computing").eq("status", "active").eq("validation_status", "approved").limit(2));
   const nodeId = questions[0].curriculum_node_id;
   const args = { p_class_id: cls.id, p_description: "DEV_ACCEPTANCE_FIXTURE secure feedback acceptance", p_curriculum_node_ids: [nodeId], p_question_count: 2, p_selection_mode: "MANUAL", p_question_ids: questions.map((q) => q.id), p_mode: "PRACTICE", p_attempts_allowed: 2, p_time_limit_minutes: 30, p_target_student_ids: [studentA.id], p_remediation_node_id: nodeId };

@@ -9,7 +9,7 @@ import { userFacingError } from "@/lib/errors";
 import { CoverageTargetEditor, QuestionMediaUpload } from "@/components/ContentClosureTools";
 
 type View = "review" | "coverage" | "batches";
-const initialFilters = { search: "", curriculum: "", grade: "", subject: "", node: "", source: "", status: "review", difficulty: "", cognitive: "", type: "", batch: "" };
+const initialFilters = { search: "", curriculum: "", grade: "", subject: "", node: "", source: "production", status: "review", difficulty: "", cognitive: "", type: "", batch: "" };
 const RichPreview = dynamic(() => import("@/components/QuestionRenderer"));
 export default function AdminContentPage() {
   const [view, setView] = useState<View>("review");
@@ -106,9 +106,12 @@ export default function AdminContentPage() {
     {q && <section className="qb-content-review" aria-labelledby="review-heading">
       <div className="qb-page-head"><h2 id="review-heading" ref={heading} tabIndex={-1}>Question Review</h2><button aria-label="Close review" title="Close review" onClick={() => setDetail(null)}><X size={18}/></button></div>
       <RichPreview question={{...q,question_id:q.id}}/><ol type="A">{[q.option_a,q.option_b,q.option_c,q.option_d].map((o,i) => <li key={i}>{o || "-"}</li>)}</ol>
-      <p><strong>Proposed answer:</strong> {q.correct_answer}</p><p><strong>Explanation:</strong> {q.explanation}</p>
+      <p><strong>Proposed answer:</strong> {q.correct_answer}{/^[ABCD]$/.test(q.correct_answer ?? "") ? `: ${q["option_" + q.correct_answer.toLowerCase()]}` : ""}</p><p><strong>Explanation:</strong> {q.explanation}</p>
       <p>{q.indicator_code} / {q.subject_code} / {q.source_grade_code ?? q.grade} / {q.canonical_grade_code ?? q.grade}</p>
       <p><strong>Learning indicator:</strong> {detail.mapping?.title ?? "No curriculum mapping"}</p>
+      {q.tags?.find((tag: string) => tag.startsWith("objective-summary:")) && <p><strong>Curriculum objective summary:</strong> {q.tags.find((tag: string) => tag.startsWith("objective-summary:")).slice("objective-summary:".length)}</p>}
+      <p><strong>Provenance:</strong> {q.source_type} / {q.source_version ?? "Version not supplied"} / {q.editorial_metadata?.provider ?? "Provider not recorded"}</p>
+      <ul style={{overflowWrap:"anywhere"}}>{(q.tags ?? []).filter((tag: string) => tag.startsWith("curriculum-source:") || tag.startsWith("curriculum-page:") || tag.startsWith("curriculum-sha256:")).map((tag: string) => <li key={tag}>{tag}</li>)}</ul>
       <p>{q.difficulty_label} / {q.cognitive_level} / {q.source_type} / version {q.version}</p>
       {q.duplicate_group_id && <p role="status">Duplicate group: {q.duplicate_group_id}</p>}
       <ul>{(detail.validation_errors ?? []).map((code: string) => <li key={code}>{code}</li>)}</ul>

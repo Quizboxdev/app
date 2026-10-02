@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-02T01:14:22.095Z",
+  "generatedAt": "2026-10-02T08:02:24.771Z",
   "decision": "NOT READY",
   "commands": {
     "typecheck": true,
@@ -9,7 +9,7 @@
     "content:audit": true,
     "content:validate": true,
     "content:verify": true,
-    "content:factory -- coverage": true
+    "content:factory -- coverage --server-readonly": true
   },
   "gates": [
     {
@@ -17,35 +17,35 @@
       "id": "approved_production_content",
       "status": "FAIL",
       "severity": "P0",
-      "evidence": "0 active approved mapped production questions"
+      "evidence": "0 approved in latest read-only content receipt; authenticated release audit unavailable"
     },
     {
       "category": "SECURITY",
       "id": "rpc_privileges",
-      "status": "PASS",
+      "status": "MANUAL VERIFICATION REQUIRED",
       "severity": "P0",
-      "evidence": "0 unexpected anonymous definer grants"
+      "evidence": "Fresh authenticated audit unavailable; not certified from stale receipts"
     },
     {
       "category": "DATABASE",
       "id": "rls",
-      "status": "PASS",
+      "status": "MANUAL VERIFICATION REQUIRED",
       "severity": "P0",
-      "evidence": "0 public tables without RLS"
+      "evidence": "Fresh authenticated audit unavailable; not certified from stale receipts"
     },
     {
       "category": "AUTH",
       "id": "signup_provisioning",
-      "status": "PASS",
+      "status": "MANUAL VERIFICATION REQUIRED",
       "severity": "P0",
-      "evidence": "quizbox_signup_profile trigger"
+      "evidence": "Fresh authenticated audit unavailable; not certified from stale receipts"
     },
     {
       "category": "SECURITY",
       "id": "dependencies",
-      "status": "PASS",
+      "status": "MANUAL VERIFICATION REQUIRED",
       "severity": "P0",
-      "evidence": "0 high/critical dependency findings"
+      "evidence": "Fresh authenticated audit unavailable; not certified from stale receipts"
     },
     {
       "category": "APPLICATION",
@@ -57,7 +57,7 @@
     {
       "category": "APPLICATION",
       "id": "authenticated_regression",
-      "status": "PASS",
+      "status": "FAIL",
       "severity": "P0",
       "evidence": "Current run requires QB_LIVE_ACCEPTANCE=1 and acceptance environment credentials"
     },
@@ -83,11 +83,12 @@
       "evidence": "Infrastructure backup and isolated database restore drill need operator verification"
     },
     {
-      "category": "SECURITY",
-      "id": "production_content",
+      "category": "AUTH",
+      "id": "content_operator_authentication",
       "severity": "P0",
       "status": "FAIL",
-      "evidence": "questions active/approved mapped, excluding both fixture namespaces"
+      "evidence": "Update current admin credential in ignored local environment; no user discovery or reset performed"
     }
-  ]
+  ],
+  "authenticatedAuditAvailable": false
 }

@@ -1,0 +1,301 @@
+{
+  "checkedAt": "2026-10-02T06:43:21.614Z",
+  "accounts": [
+    {
+      "id": "79320290-87f6-4448-9fe4-2b8334557e62",
+      "classification": "acceptance identity by explicit email allowlist"
+    },
+    {
+      "id": "f8f751d5-4255-48bc-8274-fef1278cdcdf",
+      "classification": "acceptance identity by explicit email allowlist"
+    },
+    {
+      "id": "891a9e05-fb30-48b8-aa19-a5397d45d1b6",
+      "classification": "acceptance identity by explicit email allowlist"
+    },
+    {
+      "id": "64eeda4e-c8a5-40ab-8a2f-989689e9e513",
+      "classification": "acceptance identity by explicit email allowlist"
+    },
+    {
+      "id": "60e1592e-0abd-447a-86c5-2a9a08291535",
+      "classification": "acceptance identity by explicit email allowlist"
+    },
+    {
+      "id": "0050f4de-2123-4500-b827-62e3c7617ce8",
+      "classification": "acceptance identity by explicit email allowlist"
+    }
+  ],
+  "classes": [
+    "8ef5da7d-887b-4972-b708-fe698df7336e",
+    "97f5efef-e030-49a0-a5c3-29ecde6100d4"
+  ],
+  "assignments": [
+    "06f675d6-37ce-4185-ac7f-b37aa0778b63",
+    "18e27281-2011-4acf-a048-8df9276a72cf",
+    "18ee84df-5e3a-4501-a4f0-25959608def4",
+    "1b9ae5c9-fc6f-4db4-b85d-3d5914740888",
+    "1bc1f6eb-f7a0-474e-869b-9cebeb08ebe0",
+    "20a1b0d5-7c79-4323-9886-6b70bed8b441",
+    "21d03cb3-f83c-4449-a446-67321cae16d1",
+    "236978fa-db62-4718-a707-edc3d2293f7e",
+    "23a0299d-ef74-4050-a626-afb1f504d3cf",
+    "2ca7ef31-b95f-4200-8704-08f7fd1c43cf",
+    "2e7050a1-7f28-4862-a950-14c7104af357",
+    "34223e84-9401-41d1-93c3-3c1adc0ae127",
+    "3bac00b7-c829-441c-9bda-fdff238e1dfa",
+    "3e618a99-b660-4289-afb2-900eebc54d11",
+    "494f0c82-9071-4629-93a5-c188d3bafcc3",
+    "4b8f2c5b-adc3-4d4c-bab7-d15cbd407766",
+    "56626ee6-abdb-4392-b7ab-58a93ea40a96",
+    "5764cc48-856a-47cd-9498-52e9c22cdcef",
+    "64610afc-164c-48c3-a1c1-cf8ccc9ac464",
+    "6517f1bc-0f39-4896-878e-0eba3cda66ac",
+    "66f96d96-822e-43be-bc5c-836cbf9a66b6",
+    "6b3712e7-2c00-429a-b81f-d56b880bff37",
+    "702732c4-82ae-4c8a-955b-b4f7be4d11b2",
+    "7ffcb561-9998-4f85-9571-e2fa85d364f5",
+    "830e401a-c8ce-4b85-87b2-031fbd4c91bd",
+    "83be4189-8885-46a3-aa64-c68a555d90c5",
+    "85b4a53d-2d14-4fc5-a621-824d25872c02",
+    "8766a549-d871-41fd-9cef-562bab916173",
+    "89ef8d51-761a-4606-969d-c4d2be8f45bf",
+    "8df7efad-7ee8-499c-815a-d2c26df43886",
+    "97d28d29-1fdb-4337-8799-b5552e3976b4",
+    "9f6039e6-01c5-4d62-aa5a-80c8c0fd7f06",
+    "a0fc52a9-9734-4720-8c42-855f68b44fb9",
+    "a537229c-2466-4231-8b7e-d3b3f1f4425e",
+    "ad71316a-0f62-4dae-bc61-b5263f4d452a",
+    "b25202d5-8481-40df-917b-841d5424bd81",
+    "b2650386-01ff-45de-a6d4-c1d7e5c66943",
+    "b8c00ce5-1460-47b7-9fb8-41f7e50bc902",
+    "c66ff9e2-a946-4480-aa4e-485f9a43d96c",
+    "cb29bf41-81d6-48f2-978f-3b640280aeaa",
+    "cdbc2f1c-9e3e-4ad6-bdd9-ef80f547faa2",
+    "d61a5a0d-5049-4c1e-aaf6-624175014200",
+    "d907afb5-e404-4bc6-be8a-1df0b01f4b9a",
+    "dc9db108-c55c-436e-8072-067e4d175b61",
+    "e29eb222-2628-4ed1-94aa-01ead0d17a22",
+    "e2e12d5c-3518-42db-b031-af38d48bfa0b",
+    "e37fbfda-e0c2-48ce-b6dc-40ef3c8c3972",
+    "e6594011-3194-4bd0-8394-48612e8a3f2c",
+    "f5836c52-c211-4747-a49a-b871a7f590c5",
+    "fa54b300-075d-40fd-9e4d-77639ffd8f66"
+  ],
+  "attempts": [
+    "066df01d-b41b-4316-ac70-94fd9b281d5f",
+    "0d631b29-abc4-467e-8b25-0645458a2a51",
+    "0d87d5c8-7a08-4670-8655-36dcb36b0b23",
+    "175a68ef-e617-41b6-aa00-1442d3b6be74",
+    "1b1274ec-968d-4887-b99e-6909c6ac9f5c",
+    "1e84430b-7ca0-4736-9ed6-430e98da0eaa",
+    "243bc846-ee87-456f-8101-ac1aa15a2310",
+    "2d109614-e400-449f-bc23-ff4ad26902d8",
+    "2d25f68f-656b-4bd8-bef1-743606591245",
+    "331f102c-02b2-4dde-b354-d33f62e1c49a",
+    "37e24be6-8f45-4405-ac16-9b6b2a7b4062",
+    "3b3c0e98-8e23-418a-886f-eb272a7fe97e",
+    "3dc3d88c-4ce2-4fba-9dcd-c1a6fd3ea04f",
+    "4480cdd4-a0c5-4e28-ac57-9823b231ed4a",
+    "4a3b5528-dafa-4252-a8e8-f44f5be59f79",
+    "51f5785b-4aa7-46e3-a522-104efc490fe4",
+    "568a1a89-2cd6-4633-943a-c4d2ee2c73a1",
+    "5a2be37e-ce1c-4c83-b891-52ed26955b12",
+    "5a3e252f-2b1f-4292-9679-7411c4a73a0b",
+    "5d78a8cc-079e-4e59-8516-4507ed78901d",
+    "5f84bbae-c245-4f20-b918-387e5db95192",
+    "5f9ba572-80b7-4393-819d-365a8f9bec95",
+    "618574a6-2b05-4ce5-9b84-f44bb8ec0c09",
+    "65a993a2-6d0e-41b6-8fd2-eb9d0c7e8cf8",
+    "6a45f013-5e67-45ba-aa39-527321fa40f0",
+    "7dd24592-f334-49c0-8ccf-e07bf8333b66",
+    "824d35f1-0c9a-48f9-baf1-de18ef95f1ab",
+    "82aa719b-f6ba-4026-a349-b420e9062391",
+    "877b21e1-d452-41d0-ac32-763198694cb1",
+    "94cc8e21-f71e-4243-bbf4-973a8341d600",
+    "9efbb186-a3da-4b9c-931a-3efc79e6befe",
+    "a0699bf3-d12c-42a0-bc7b-529d4d7fa650",
+    "a50bc836-10a8-4977-958d-ef590dbc9102",
+    "a709cea8-6971-425d-bc54-8e19f5f4fc39",
+    "ae9faf6a-8302-40b5-8306-e4822730186f",
+    "b18d02a0-649e-496a-880a-518f60c9372c",
+    "b1bfba0c-b718-46e6-86bb-c6b7e9d1b573",
+    "bba46915-b5f8-44aa-b943-61d98213c74c",
+    "bdbeed0c-7615-4a4e-bc6f-0b519f813c9e",
+    "c260c22f-d273-476e-885f-4986fffd6c26",
+    "c92f6d3c-4e86-43e2-b54d-206833ec6ae9",
+    "d07cb7f6-cb0b-4c20-a5b7-200bab646b8e",
+    "d504ed0f-5f97-4486-9fc3-b26fb597e17b",
+    "d6b3d0da-88d0-4834-98b1-51d5ccc5d29e",
+    "d7262026-0956-47b1-ac7f-bc0e2721b9cd",
+    "e138e30d-b6da-4363-8262-d454ac15d88b",
+    "e1f965ea-8cc3-4d9f-9b3c-b1abe3204cc8",
+    "e495e756-6105-485e-9137-c105afa87f43",
+    "e79179c5-6ba2-48ad-bf6b-f8aa4688d823",
+    "eeb83f75-ef35-4ca2-8ba8-6471ef122bd0",
+    "f2efa670-6326-4e52-9224-9d8c7a80a44c",
+    "f833f091-ad41-4ec3-a3e0-8c4692a40226"
+  ],
+  "questions": [
+    {
+      "id": "09cd5a23-0869-46bb-b887-6685a0ba11bd",
+      "source": "DEV_ACCEPTANCE_FIXTURE"
+    },
+    {
+      "id": "09d956a4-d0e5-4fb2-bac3-8b91cac1db95",
+      "source": "DEV_ACCEPTANCE_FIXTURE"
+    },
+    {
+      "id": "16ea6edf-759d-4826-999e-f5edd730c900",
+      "source": "DEV_FACTORY_PILOT"
+    },
+    {
+      "id": "1b1807fb-3253-48ca-909e-c72f752dcda3",
+      "source": "DEV_ACCEPTANCE_FIXTURE"
+    },
+    {
+      "id": "2678cfaf-2d60-44a1-8837-708ad5ab6737",
+      "source": "DEV_FACTORY_PILOT"
+    },
+    {
+      "id": "2cadf39f-1066-4383-99c6-f9a9396bf29e",
+      "source": "DEV_FACTORY_PILOT"
+    },
+    {
+      "id": "360baa70-89c5-4b8b-b01d-64da0a3b4215",
+      "source": "DEV_ACCEPTANCE_FIXTURE"
+    },
+    {
+      "id": "40f8b938-25c6-4422-923c-0ef389da77ee",
+      "source": "DEV_ACCEPTANCE_FIXTURE"
+    },
+    {
+      "id": "435d0caa-3dea-4786-8684-5849a4a5f260",
+      "source": "DEV_ACCEPTANCE_FIXTURE"
+    },
+    {
+      "id": "4541bb1d-a1c9-4a4c-b3f2-910d8b23990d",
+      "source": "DEV_ACCEPTANCE_FIXTURE"
+    },
+    {
+      "id": "51f393fd-f285-4211-91ff-a9b6dbd78d4e",
+      "source": "DEV_ACCEPTANCE_FIXTURE"
+    },
+    {
+      "id": "58bb60d7-94e4-4326-9b2a-b09f4be57d44",
+      "source": "DEV_ACCEPTANCE_FIXTURE"
+    },
+    {
+      "id": "58e082b3-1f24-4fdb-910f-78232d04020a",
+      "source": "DEV_FACTORY_PILOT"
+    },
+    {
+      "id": "5be3de07-b45e-4fa1-ad3a-d4605b1f6f8a",
+      "source": "DEV_ACCEPTANCE_FIXTURE"
+    },
+    {
+      "id": "63680dd9-3a9a-46ca-b6f7-715b0010fe03",
+      "source": "DEV_ACCEPTANCE_FIXTURE"
+    },
+    {
+      "id": "647c2de5-82e5-43f2-a834-9346e89d37f9",
+      "source": "DEV_ACCEPTANCE_FIXTURE"
+    },
+    {
+      "id": "67c933fa-5545-4acb-811f-051232121a40",
+      "source": "DEV_ACCEPTANCE_FIXTURE"
+    },
+    {
+      "id": "6dc50b7b-f7de-483c-875e-69f348627e86",
+      "source": "DEV_ACCEPTANCE_FIXTURE"
+    },
+    {
+      "id": "772e8d27-f3cd-4bc2-8146-b6e231a03eb0",
+      "source": "DEV_ACCEPTANCE_FIXTURE"
+    },
+    {
+      "id": "7932762f-5d74-4229-a4e6-d71c4dfcc72a",
+      "source": "DEV_ACCEPTANCE_FIXTURE"
+    },
+    {
+      "id": "80e40b4e-9aee-4a3c-b6a9-d0be9165ad4f",
+      "source": "DEV_FACTORY_PILOT"
+    },
+    {
+      "id": "82da63b1-9d5f-497b-b93e-2909c06ceaeb",
+      "source": "DEV_ACCEPTANCE_FIXTURE"
+    },
+    {
+      "id": "932aaf2f-72ff-49e5-be4e-3370f6cba930",
+      "source": "DEV_ACCEPTANCE_FIXTURE"
+    },
+    {
+      "id": "93e7f1d3-15cd-495c-96d5-23e0706a76fd",
+      "source": "DEV_ACCEPTANCE_FIXTURE"
+    },
+    {
+      "id": "a094b736-195e-4c17-9cb2-93cb09588ddd",
+      "source": "DEV_ACCEPTANCE_FIXTURE"
+    },
+    {
+      "id": "a0e0126a-e0de-460c-b11f-72bc17f82cc6",
+      "source": "DEV_FACTORY_PILOT"
+    },
+    {
+      "id": "a59980cf-ac26-42bc-841f-79e7eab72fbc",
+      "source": "DEV_ACCEPTANCE_FIXTURE"
+    },
+    {
+      "id": "a861c1a1-7c74-46a9-8aa0-50e2a3fc24ee",
+      "source": "DEV_ACCEPTANCE_FIXTURE"
+    },
+    {
+      "id": "b2103754-7b9b-445c-b5d0-5a2ba32e8cb9",
+      "source": "DEV_ACCEPTANCE_FIXTURE"
+    },
+    {
+      "id": "b9c11e15-46d6-4c4a-b781-92a0373673f3",
+      "source": "DEV_FACTORY_PILOT"
+    },
+    {
+      "id": "bd6b97d2-90c3-41f8-bc0b-0b325039a056",
+      "source": "DEV_ACCEPTANCE_FIXTURE"
+    },
+    {
+      "id": "bf25a649-f986-4d42-a04b-b0f1ccf3af1b",
+      "source": "DEV_ACCEPTANCE_FIXTURE"
+    },
+    {
+      "id": "c9a3a9e9-6a04-471a-a0ca-995cf138ffc7",
+      "source": "DEV_ACCEPTANCE_FIXTURE"
+    },
+    {
+      "id": "d2606c86-7b66-4675-b454-08fbae7f8e0f",
+      "source": "DEV_ACCEPTANCE_FIXTURE"
+    },
+    {
+      "id": "d91ab21b-6113-4711-8780-ecdd10aa6c44",
+      "source": "DEV_ACCEPTANCE_FIXTURE"
+    },
+    {
+      "id": "e312802e-3625-467a-a00e-43abb7f2180d",
+      "source": "DEV_FACTORY_PILOT"
+    },
+    {
+      "id": "f4b7077a-4aef-449c-b6d1-51f2d863ef19",
+      "source": "DEV_ACCEPTANCE_FIXTURE"
+    },
+    {
+      "id": "f50298b6-b0ae-41a0-b82f-dada2ffa7851",
+      "source": "DEV_FACTORY_PILOT"
+    },
+    {
+      "id": "f5bfd1c7-a967-4c61-85d2-03532ec0210c",
+      "source": "DEV_ACCEPTANCE_FIXTURE"
+    }
+  ],
+  "physicallyIsolated": false,
+  "productionProjectClassification": "OPERATOR_VERIFICATION_REQUIRED",
+  "deletions": 0,
+  "credentialRotationVerified": false
+}

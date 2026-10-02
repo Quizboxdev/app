@@ -2,19 +2,20 @@ import { beforeAll, describe, expect, it } from "vitest";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { pilotBatch, PILOT_CODES } from "./pilot";
 import type { CurriculumNode } from "./contract";
-import { acceptancePassword } from "../../operations/safety";
+import { acceptanceAccount } from "../../operations/acceptance";
 
 describe.skipIf(process.env.QB_LIVE_ACCEPTANCE!=="1")("authenticated editorial and security acceptance", () => {
   let admin:SupabaseClient,student:SupabaseClient,teacher:SupabaseClient,other:SupabaseClient;
   let batch:any, question:any, original:any;
+  let mediaAsset:string|undefined;
   const detail = async () => { const result=await admin.rpc("qb_content_detail",{p_id:question.id}); expect(result.error).toBeNull(); return result.data; };
   const review = async (action:string, human=false, patch={}) => admin.rpc("qb_content_review",{p_id:question.id,p_action:action,p_version:question.version,p_expected_state:question.validation_status,p_patch:patch,p_note:"Controlled DEV_FACTORY_PILOT workflow acceptance only; not production academic approval.",p_human_reviewed:human});
   beforeAll(async () => {
     process.loadEnvFile(".env.local");
     const make=()=>createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!,process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,{auth:{persistSession:false,autoRefreshToken:false}});
     admin=make(); student=make(); teacher=make(); other=make();
-    for(const [client,email] of [[admin,"admin.test"],[student,"student.test"],[teacher,"teacher.test"],[other,"student2.test"]] as const) {
-      const login=await client.auth.signInWithPassword({email:email+"@quizbox.local",password:acceptancePassword()}); if(login.error) throw new Error("ACCEPTANCE_LOGIN_FAILED");
+    for(const [client,role] of [[admin,"admin"],[student,"student"],[teacher,"teacher"],[other,"student2"]] as const) {
+      const login=await client.auth.signInWithPassword(acceptanceAccount(role)); if(login.error) throw new Error("ACCEPTANCE_LOGIN_FAILED");
     }
     const result=await admin.from("curriculum_nodes").select("*").in("code",PILOT_CODES);
     expect(result.error).toBeNull();
@@ -134,6 +135,14 @@ describe.skipIf(process.env.QB_LIVE_ACCEPTANCE!=="1")("authenticated editorial a
     const result=await teacher.from("classes").insert({class_name:"[DEV_ACCEPTANCE_FIXTURE] forbidden tenant probe",grade:"SHS1",grade_label:"SHS1",teacher_id:tid.data,primary_teacher_id:tid.data,teacher_user_id:uid,tenant_id:tenant.data!.id,status:"active",join_code:"QBDENY-"+crypto.randomUUID().slice(0,8)});
     expect(result.error?.code).toBe("42501");
   });
+  it.skipIf(!process.env.QB_MEDIA_ACCEPTANCE_URL)("uploads a validated private diagram to a fixture question",async()=>{
+    expect(question.source_type).toBe("DEV_FACTORY_PILOT");
+    const image=await (await import("sharp")).default({create:{width:32,height:24,channels:3,background:"#22aa77"}}).png().toBuffer();
+    const form=new FormData();form.set("file",new Blob([new Uint8Array(image)],{type:"image/png"}),"fixture-diagram.png");form.set("alt","Controlled acceptance diagram");form.set("question_id",question.id);form.set("version",String(question.version));form.set("note","DEV_FACTORY_PILOT private image acceptance only");
+    const session=await admin.auth.getSession();
+    const response=await fetch(new URL("/api/content/media",process.env.QB_MEDIA_ACCEPTANCE_URL),{method:"POST",headers:{Authorization:"Bearer "+session.data.session!.access_token},body:form});
+    const result=await response.json();expect(result.error??response.status).toBe(200);mediaAsset=result.asset_id;expect(typeof mediaAsset).toBe("string");question=(await detail()).question;
+  });
   it("keeps published snapshots unchanged after a governed pilot edit", async () => {
     expect(question.source_type).toBe("DEV_FACTORY_PILOT");
     expect((await review("approve",true)).error).toBeNull(); question=(await detail()).question;
@@ -150,6 +159,14 @@ describe.skipIf(process.env.QB_LIVE_ACCEPTANCE!=="1")("authenticated editorial a
     const payload=await student.rpc("qb_get_attempt",{p_attempt_id:start.data.attempt_id}); expect(payload.error).toBeNull();
     expect(payload.data.questions[0].question_text).toBe(text);
     expect(payload.data.questions[0]).not.toHaveProperty("correct_answer");
+    if(mediaAsset){
+      const media=payload.data.questions[0].media.find((m:any)=>m.media_asset_id===mediaAsset);expect(!!media).toBe(true);
+      const allowed=await student.storage.from(media.storage_bucket).createSignedUrl(media.storage_path,60);expect(allowed.error).toBeNull();
+      const bytes=await fetch(allowed.data!.signedUrl);expect(bytes.status).toBe(200);expect(bytes.headers.get("content-type")).toContain("image/png");
+      expect((await other.storage.from(media.storage_bucket).createSignedUrl(media.storage_path,60)).error).not.toBeNull();
+      const raw=await fetch(new URL(`/storage/v1/object/public/${media.storage_bucket}/${media.storage_path}`,process.env.NEXT_PUBLIC_SUPABASE_URL));expect(raw.ok).toBe(false);
+      await (await import("node:fs/promises")).writeFile("reports/media-acceptance.json",JSON.stringify({attemptId:start.data.attempt_id,assetId:mediaAsset,authorizedUpload:true,privateAssociation:true,authorizedRetrieval:true,unauthorizedDenied:true,publicUrlDenied:true,playerDisplay:"BROWSER_VERIFICATION_REQUIRED"},null,2));
+    }
     const history=await admin.from("question_versions").select("snapshot").eq("question_id",question.id).eq("version_no",version).single();
     expect(history.error).toBeNull(); expect(history.data?.snapshot.question_text).toBe(text);
   },30000);
