@@ -1,10 +1,12 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { bootstrapUser, getHomeRouteForRole } from "@/lib/auth";
 import { userFacingError } from "@/lib/errors";
+import { RESET_SUCCESS_MESSAGE } from "@/lib/auth-recovery";
 
 export default function LoginPage() {
   const [mode, setMode] = useState<"login" | "register">("login");
@@ -15,6 +17,9 @@ export default function LoginPage() {
   const [status, setStatus] = useState("");
   const [busy, setBusy] = useState(false);
   const router = useRouter();
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get("password_reset") === "success") setStatus(RESET_SUCCESS_MESSAGE);
+  }, []);
 
   async function routeAfterAuth() {
     const ctx = await bootstrapUser();
@@ -112,7 +117,8 @@ export default function LoginPage() {
             />
           </div>
 
-          {status && <div role="status" className="qb-error">{status}</div>}
+          {mode === "login" && <Link href="/auth/forgot-password">Forgot password?</Link>}
+          {status && <div role="status" className={status === RESET_SUCCESS_MESSAGE ? "qb-muted" : "qb-error"}>{status}</div>}
 
           <button className="qb-btn" type="submit" disabled={busy}>
             {mode === "login" ? "Sign in" : "Create account"}
