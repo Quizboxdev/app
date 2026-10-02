@@ -1,0 +1,38 @@
+{
+  "spec": {
+    "indicatorId": "6736f1cc-b15e-4572-9c04-a66021287826",
+    "indicatorCode": "B7.1.3.2.2",
+    "indicatorTitle": "Solve problems involving addition or subtraction of fractions.",
+    "curriculumId": "4af793c2-dffe-4571-93ac-2f130bdacdcc",
+    "educationLevel": "JHS / Common Core",
+    "grade": "B7",
+    "subject": "Mathematics",
+    "difficulty": "easy",
+    "cognitiveLevel": "Apply",
+    "answerType": "SINGLE_CHOICE",
+    "count": 1,
+    "language": "English",
+    "marks": 1,
+    "expectedSeconds": 60,
+    "provenance": { "source": "DEV_FACTORY_PILOT", "provider": "local-sample", "sourceVersion": "cli-example-v1" }
+  },
+  "candidates": [{
+    "external_question_id": "DEV_FACTORY_PILOT_CLI_EXAMPLE",
+    "curriculum_node_id": "6736f1cc-b15e-4572-9c04-a66021287826",
+    "question_text": "[DEV FACTORY PILOT] What is one quarter plus one quarter?",
+    "answer_type": "SINGLE_CHOICE",
+    "option_a": "One half",
+    "option_b": "One eighth",
+    "option_c": "Three quarters",
+    "option_d": "One quarter",
+    "correct_answer": "A",
+    "answer_spec": {},
+    "explanation": "One quarter plus one quarter is two quarters, which simplifies to one half.",
+    "difficulty_label": "easy",
+    "cognitive_level": "Apply",
+    "marks": 1,
+    "estimated_time_seconds": 60,
+    "source_type": "DEV_FACTORY_PILOT",
+    "tags": ["dev-factory-pilot"]
+  }]
+}

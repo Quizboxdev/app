@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
+    "content:factory": "tsx scripts/content-factory.ts",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
@@ -15,10 +16,13 @@
     "seed:dev-acceptance": "tsx scripts/seed-dev-acceptance-questions.ts",
     "content:import:dry-run": "tsx scripts/import-content.ts"
   },
+  "overrides": { "postcss": "8.5.28" },
   "dependencies": {
+    "@next/env": "15.5.26",
     "@supabase/ssr": "^0.5.2",
     "@supabase/supabase-js": "^2.49.1",
     "katex": "^0.16.11",
+    "lucide-react": "1.49.0",
     "mammoth": "^1.13.0",
     "next": "^15.2.4",
     "pdf-parse": "^2.4.5",
