@@ -6,17 +6,19 @@ import { ChevronLeft, ChevronRight, RefreshCw, Save, Pencil, X, Check, Plus } fr
 import { actOnSmePayout, ConfigEntity, createSmePayout, getSmeContext, listSmeRecords, ReadEntity, RecordRow, releaseSmeEarning, saveSmeConfiguration, SmeContext } from "@/lib/api/sme";
 import { configurationPayload, SME_CONFIG_FIELDS } from "@/lib/sme/configuration";
 import { userFacingError } from "@/lib/errors";
+import CompetitionContentScope from "@/components/CompetitionContentScope";
 
 type Area = "markets" | "reviewers" | "compensation" | "performance" | "payouts";
 const areas: Record<Area, { title: string; entities: ReadEntity[] }> = {
-  markets: { title: "Markets", entities: ["countries", "markets", "currencies"] },
+  markets: { title: "Markets", entities: ["countries", "markets", "currencies", "curriculum_authorities", "market_curricula", "user_market_memberships", "source_documents"] },
   reviewers: { title: "SME Reviewers", entities: ["sme_profiles", "sme_domain_assignments", "user_capabilities"] },
   compensation: { title: "Compensation", entities: ["compensation_policies", "compensation_policy_versions"] },
   performance: { title: "SME Performance", entities: ["sme_performance", "sme_financial_performance"] },
   payouts: { title: "Payouts", entities: ["sme_earnings_current", "sme_payout_batch_summary", "sme_payout_item_details"] },
 };
 const titles: Record<string, string> = { countries: "Countries", markets: "Markets", currencies: "Currencies", sme_profiles: "Profiles", sme_domain_assignments: "Domains", user_capabilities: "Capabilities", compensation_policies: "Policies", compensation_policy_versions: "Historical Versions", sme_performance: "Review Work", sme_financial_performance: "Earnings by Currency", sme_earnings_current: "Earnings", sme_payout_batch_summary: "Batches", sme_payout_item_details: "Batch Items" };
-const hidden = new Set(["created_at", "updated_at", "configuration", "bio", "qualification_summary"]);
+Object.assign(titles,{curriculum_authorities:"Authorities",market_curricula:"Curricula by Market",user_market_memberships:"User / Sponsor Markets",source_documents:"Source Documents"});
+const hidden = new Set(["created_at", "updated_at", "configuration", "bio", "qualification_summary", "content_text"]);
 const text = (value: unknown) => value == null ? "-" : typeof value === "object" ? JSON.stringify(value) : String(value);
 
 export default function SmeAdmin({ area }: { area: Area }) {
@@ -71,7 +73,7 @@ export default function SmeAdmin({ area }: { area: Area }) {
     <nav className="qb-content-tabs" aria-label="SME administration">{Object.entries({ markets: "Markets", reviewers: "SME Reviewers", compensation: "Compensation", "sme-performance": "Performance", payouts: "Payouts" }).filter(([path]) => context.super_admin || ["sme-performance", "payouts"].includes(path)).map(([path, label]) => <Link key={path} href={`/admin/${path}`}>{label}</Link>)}</nav>
     <nav className="qb-content-tabs" aria-label="Administration views">{areas[area].entities.map(item => <button key={item} disabled={busy} aria-current={entity === item ? "page" : undefined} onClick={() => { setEntity(item); setRows([]); setPage(1); setCreating(false); setEditing(null); setSelected([]); }}>{titles[item]}</button>)}</nav>
     {error && <p role="alert" className="qb-error">{error}</p>}{notice && <p role="status">{notice}</p>}
-    {fields && context.super_admin && <button disabled={busy} onClick={() => { setCreating(true); setEditing(null); }}><Plus size={16}/> {entity === "compensation_policy_versions" ? "New Version" : "Create"}</button>}
+    {fields && context.super_admin && entity!=="source_documents" && <button disabled={busy} onClick={() => { setCreating(true); setEditing(null); }}><Plus size={16}/> {entity === "compensation_policy_versions" ? "New Version" : "Create"}</button>}
     {fields && (creating || editing) && <section className="qb-content-review"><div className="qb-page-head"><h2>{editing ? "Edit" : "Create"} {titles[entity]}</h2><button title="Close" aria-label="Close" onClick={() => { setCreating(false); setEditing(null); }}><X size={18}/></button></div>
       <form key={editing?.id ?? editing?.user_id ?? editing?.code ?? `${entity}-new`} className="qb-content-filters" onSubmit={save}>
         {fields.map(f => {
@@ -85,7 +87,7 @@ export default function SmeAdmin({ area }: { area: Area }) {
       </form>
     </section>}
     {entity === "sme_earnings_current" && <label>Earning status<select value={earningsStatus} disabled={busy} onChange={event => { setEarningsStatus(event.target.value); setPage(1); setSelected([]); }}>{["payable", "pending_qa", "held", "paid", "reversed"].map(status => <option key={status}>{status}</option>)}</select></label>}
-    <div className="qb-table-wrap" aria-busy={busy}><table className="qb-table"><thead><tr>{entity === "sme_earnings_current" && <th>Select</th>}{columns.map(column => <th key={column}>{column.replaceAll("_", " ")}</th>)}<th>Actions</th></tr></thead><tbody>{rows.map((row, i) => <tr key={row.id ?? row.user_id ?? `${row.reviewer_id}-${row.currency_code ?? i}`}>
+    <div className="qb-table-wrap" aria-busy={busy}><table className="qb-table"><thead><tr>{entity === "sme_earnings_current" && <th>Select</th>}{columns.map(column => <th key={column}>{column.replaceAll("_", " ")}</th>)}<th>Actions</th></tr></thead><tbody>{rows.map((row, i) => <tr key={entity==="user_market_memberships" ? `${row.user_id}-${row.market_id}` : row.id ?? row.curriculum_id ?? row.user_id ?? `${row.reviewer_id}-${row.currency_code ?? i}`}>
       {entity === "sme_earnings_current" && <td><input type="checkbox" aria-label={`Select earning ${row.id}`} checked={selected.includes(row.id)} disabled={busy || row.current_status !== "payable"} onChange={event => setSelected(event.target.checked ? [...selected, row.id] : selected.filter(id => id !== row.id))}/></td>}
       {columns.map(column => <td key={column} style={{ overflowWrap: "anywhere", maxWidth: 260 }}>{text(row[column])}</td>)}
       <td>{fields && entity !== "compensation_policy_versions" && <button disabled={busy} aria-label="Edit configuration" title="Edit configuration" onClick={() => { setEditing(row); setCreating(false); }}><Pencil size={16}/></button>}
@@ -95,5 +97,6 @@ export default function SmeAdmin({ area }: { area: Area }) {
       </td></tr>)}</tbody></table>{!rows.length && <p>{busy ? "Loading..." : "No records."}</p>}</div>
     <div className="qb-page-head"><span>{total} records</span><div><button title="Previous page" aria-label="Previous page" disabled={busy || page === 1} onClick={() => setPage(page - 1)}><ChevronLeft size={18}/></button><span> {page} </span><button title="Next page" aria-label="Next page" disabled={busy || page * 50 >= total} onClick={() => setPage(page + 1)}><ChevronRight size={18}/></button></div></div>
     {entity === "sme_earnings_current" && <><label>QA / hold note<textarea minLength={3} maxLength={1000} value={note} onChange={event => setNote(event.target.value)}/></label><h2>Create Payout Batch</h2><form className="qb-content-filters" onSubmit={payout}><label>Market UUID<input name="market_id"/></label><label>Currency code<input name="currency_code" required pattern="[A-Z]{3}"/></label><label>Period start<input name="start" type="datetime-local" required/></label><label>Period end<input name="end" type="datetime-local" required/></label><button type="submit" disabled={busy || !selected.length}><Plus size={16}/> Create Batch ({selected.length})</button></form></>}
+    {area==="markets" && <CompetitionContentScope/>}
   </div>;
 }

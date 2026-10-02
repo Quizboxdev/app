@@ -2,7 +2,7 @@ import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
 export type SmeContext = { super_admin: boolean; finance_admin: boolean; content_admin: boolean; reviewer: boolean };
 export type RecordRow = Record<string, any>;
-export type ConfigEntity = "currencies" | "countries" | "markets" | "sme_profiles" | "sme_domain_assignments" | "compensation_policies" | "compensation_policy_versions" | "user_capabilities";
+export type ConfigEntity = "currencies" | "countries" | "markets" | "sme_profiles" | "sme_domain_assignments" | "compensation_policies" | "compensation_policy_versions" | "user_capabilities" | "curriculum_authorities" | "market_curricula" | "user_market_memberships" | "source_documents";
 export type ReadEntity = ConfigEntity | "sme_review_assignments" | "sme_review_queue" | "sme_review_events" | "sme_performance" | "sme_financial_performance" | "sme_earnings_current" | "sme_payout_batches" | "sme_payout_items" | "sme_payout_batch_summary" | "sme_payout_item_details";
 
 async function call<T>(name: string, args: Record<string, unknown> = {}): Promise<T> {
@@ -15,12 +15,13 @@ export async function listSmeRecords(entity: ReadEntity, filters: Record<string,
   let query = getSupabaseBrowserClient().from(entity).select("*", { count: "exact" });
   for (const [key, value] of Object.entries(filters)) if (value) query = query.eq(key, value);
   const order = entity === "currencies" ? "code" : entity === "sme_performance" || entity === "sme_financial_performance" ? "reviewer_id"
+    : entity === "market_curricula" ? "curriculum_id" : entity === "user_market_memberships" ? "user_id"
     : entity === "sme_profiles" || entity === "user_capabilities" ? "user_id" : entity === "sme_payout_items" || entity === "sme_payout_item_details" ? "earning_id" : "id";
   const { data, error, count } = await query.order(order).range((page - 1) * 50, page * 50 - 1);
   if (error) throw error;
   return { rows: (data ?? []) as RecordRow[], total: count ?? 0 };
 }
-export const saveSmeConfiguration = (entity: ConfigEntity, data: Record<string, unknown>) => call<RecordRow>("qb_sme_configure", { p_entity: entity, p_data: data });
+export const saveSmeConfiguration = (entity: ConfigEntity, data: Record<string, unknown>) => call<RecordRow>(["curriculum_authorities", "market_curricula", "user_market_memberships", "source_documents"].includes(entity) ? "qb_market_configure" : "qb_sme_configure", { p_entity: entity, p_data: data });
 export const assignSmeReview = (args: { question: string; reviewer: string; domain: string; kind: string; sponsor?: string; prior?: string }) => call<RecordRow>("qb_sme_assign_review", {
   p_question: args.question, p_reviewer: args.reviewer, p_domain: args.domain, p_kind: args.kind, p_sponsor: args.sponsor || null, p_prior: args.prior || null,
 });

@@ -7,6 +7,10 @@ const node: CurriculumNode = { id:"indicator",curriculum_id:"curriculum",parent_
 const nodes = new Map([[node.id,node]]);
 const q: Candidate = { external_question_id:"sample-1",curriculum_node_id:node.id,question_text:"Which device stores files?",answer_type:"SINGLE_CHOICE",option_a:"Storage drive",option_b:"Monitor",option_c:"Keyboard",option_d:"Speaker",correct_answer:"A",explanation:"A storage drive retains files.",difficulty_label:"easy",cognitive_level:"Understand",marks:1,estimated_time_seconds:60,source_type:"HUMAN_AUTHOR" };
 const spec: GenerationSpec = { indicatorId:node.id,indicatorCode:node.code,indicatorTitle:node.title,curriculumId:node.curriculum_id,educationLevel:"SHS",grade:"SHS1",subject:"Computing",difficulty:"easy",cognitiveLevel:"Understand",answerType:"SINGLE_CHOICE",count:1,language:"English",marks:1,expectedSeconds:60,provenance:{source:"AI_GENERATED"} };
+const resolved = {
+  spec: { ...spec, content_context: { scope: "LOCAL_MARKET" as const, source_mode: "CURRICULUM_ALIGNED" as const, market_ids: ["market"], source_document_ids: ["source"], provenance: [{ id: "source", checksum: "hash", kind: "CURRICULUM", market_id: "market", curriculum_id: "curriculum", authority_id: "authority" }] } },
+  documents: [{ id: "source", title: "Approved source", checksum: "hash", kind: "CURRICULUM", text: "Storage devices retain files." }],
+};
 const errors = (input: Candidate) => validateCandidate(input,nodes).filter((i) => i.severity==="error").map((i) => i.code);
 describe("governed question factory", () => {
   it("requires human approval", () => { expect(canTransition("review","approved")).toBe(false); expect(canTransition("review","approved",true)).toBe(true); });
@@ -41,7 +45,21 @@ describe("governed question factory", () => {
   it("detects taxonomy cycles", () => expect(() => calculateCoverage([{...node,parent_id:node.id}],[])).toThrow("CURRICULUM_CYCLE"));
   it.each([[0,"Empty"],[1,"Critical"],[4,"Thin"],[10,"Adequate"],[20,"Strong"]])("classifies density %i", (count, health) => expect(coverageHealth(Number(count))).toBe(health));
   it("grounds prompts in actual indicator and unapproved workflow", () => { expect(buildGenerationPrompt(spec)).toContain(node.code); expect(buildGenerationPrompt(spec)).toContain("human editorial review"); });
-  it("supports local sample provider without claiming external AI", async () => { const output=await generateQuestions(spec,node,new SampleProvider([q])); expect(output[0].source_type).toBe("AI_GENERATED"); });
-  it("rejects wrong-sized provider output", async () => await expect(generateQuestions(spec,node,new SampleProvider([]))).rejects.toThrow("INVALID_PROVIDER_OUTPUT"));
-  it("rejects invented provider mapping", async () => await expect(generateQuestions(spec,node,new SampleProvider([{...q,curriculum_node_id:"invented"}]))).rejects.toThrow("PROVIDER_MAPPING_MISMATCH"));
+  it("supports local sample provider without claiming external AI", async () => { const output=await generateQuestions(spec,node,new SampleProvider([q]),resolved); expect(output[0].source_type).toBe("AI_GENERATED"); });
+  it("rejects wrong-sized provider output", async () => await expect(generateQuestions(spec,node,new SampleProvider([]),resolved)).rejects.toThrow("INVALID_PROVIDER_OUTPUT"));
+  it("rejects invented provider mapping", async () => await expect(generateQuestions(spec,node,new SampleProvider([{...q,curriculum_node_id:"invented"}]),resolved)).rejects.toThrow("PROVIDER_MAPPING_MISMATCH"));
+  it("does not call a provider without resolved approved sources", async () => {
+    let called = false;
+    const provider = { name: "test", model: "mock", generate: async () => { called = true; return [q]; } };
+    await expect(generateQuestions(spec,node,provider,{ ...resolved, documents: [] })).rejects.toThrow("AUTHORIZED_GENERATION_SOURCES_REQUIRED");
+    expect(called).toBe(false);
+  });
+  it("grounds prompts in resolved extracts without a Ghana-only shared-service default", () => {
+    const prompt = buildGenerationPrompt(resolved.spec,resolved.documents);
+    expect(prompt).toContain("Storage devices retain files.");
+    expect(prompt).not.toContain("Ghanaian schools");
+  });
+  it("rejects provider source/checksum mismatch", async () => {
+    await expect(generateQuestions(spec,node,new SampleProvider([q]),{ ...resolved, documents: [{ ...resolved.documents[0], checksum: "other" }] })).rejects.toThrow("AUTHORIZED_GENERATION_SOURCES_REQUIRED");
+  });
 });

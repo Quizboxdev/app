@@ -15,6 +15,15 @@ export interface GenerationSpec {
   difficulty: "easy" | "medium" | "hard"; cognitiveLevel: string; answerType: "SINGLE_CHOICE" | "TRUE_FALSE";
   count: number; language: string; marks: number; expectedSeconds: number; theme?: string;
   provenance: { source: string; provider?: string; model?: string; sourceVersion?: string };
+  sourceDocumentIds?: string[];
+  competitionId?: string;
+  content_context?: {
+    scope: "LOCAL_MARKET" | "MULTI_MARKET" | "GLOBAL";
+    source_mode: "CURRICULUM_ALIGNED" | "SPONSOR_SOURCE" | "HYBRID";
+    market_ids: string[];
+    source_document_ids: string[];
+    provenance: Array<{ id: string; checksum: string; kind: string; market_id: string | null; curriculum_id: string | null; authority_id: string | null }>;
+  };
 }
 export interface Candidate {
   external_question_id: string; curriculum_node_id: string; question_text: string;

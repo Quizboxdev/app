@@ -15,10 +15,12 @@ async function rpc(name: string, args: Record<string, unknown>) {
   if (error) throw new Error(error.message.split(":")[0].startsWith("QB_") ? error.message.split(":")[0] : "CONTENT_RPC_FAILED");
   return data;
 }
-async function paginated(table: string, columns: string) {
+async function paginated(table: string, columns: string, curriculumIds?: string[]) {
   const rows: any[] = [];
   for (let from = 0; ; from += 500) {
-    const { data, error } = await client.from(table).select(columns).order("id").range(from, from + 499);
+    let query = client.from(table).select(columns);
+    if (curriculumIds) query = query.in("curriculum_id", curriculumIds);
+    const { data, error } = await query.order("id").range(from, from + 499);
     if (error) throw new Error("CONTENT_READ_FAILED_" + table + "_" + error.code);
     rows.push(...(data ?? [])); if ((data?.length ?? 0) < 500) return rows;
   }
@@ -27,8 +29,10 @@ async function main() {
   if (apply && process.argv.includes("--dry-run")) throw new Error("CHOOSE_APPLY_OR_DRY_RUN");
   if (!["coverage", "validate", "duplicates", "generate", "import", "publish", "rejected"].includes(command)) throw new Error("Use coverage | validate file | duplicates file | generate file | import file [--apply] | publish file [--apply] | rejected batch-id");
   const serverReadOnly = process.argv.includes("--server-readonly");
+  const market = process.argv.find(arg => arg.startsWith("--market="))?.slice("--market=".length);
   if (serverReadOnly) {
     if (command !== "coverage" || apply) throw new Error("SERVER_READ_ONLY_COVERAGE_REQUIRED");
+    if (!market || !/^[0-9a-f-]{36}$/i.test(market)) throw new Error("EXPLICIT_SERVER_COVERAGE_MARKET_REQUIRED");
     if (!process.env.SUPABASE_SERVICE_ROLE_KEY) throw new Error("SERVER_READ_ONLY_KEY_REQUIRED");
     client = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false, autoRefreshToken: false } });
   }
@@ -37,12 +41,18 @@ async function main() {
     const { error } = await client.auth.signInWithPassword({ email: process.env.QB_CONTENT_OPERATOR_EMAIL, password: process.env.QB_CONTENT_OPERATOR_PASSWORD });
     if (error) throw new Error("CONTENT_OPERATOR_LOGIN_FAILED");
   }
-  const nodes = await paginated("curriculum_nodes", "id,curriculum_id,parent_id,node_type,code,title,grade_code,source_grade_code,canonical_grade_code,subject_code,education_level,is_active") as CurriculumNode[];
+  let curriculumIds: string[] | undefined;
+  if (serverReadOnly) {
+    const { data,error } = await client.from("market_curricula").select("curriculum_id").eq("market_id",market!).eq("active",true);
+    if (error || !data?.length) throw new Error("CONFIGURED_SERVER_COVERAGE_MARKET_REQUIRED");
+    curriculumIds = data.map(row => row.curriculum_id);
+  } else await rpc("qb_content_market_context",{});
+  const nodes = await paginated("curriculum_nodes", "id,curriculum_id,parent_id,node_type,code,title,grade_code,source_grade_code,canonical_grade_code,subject_code,education_level,is_active",curriculumIds) as CurriculumNode[];
   const map = new Map(nodes.map((n) => [n.id, n]));
   if (command === "coverage") {
     if (!serverReadOnly) await rpc("qb_content_coverage", {});
-    const questions = await paginated("questions", "curriculum_node_id,status,validation_status,source_type,difficulty_label,answer_type,duplicate_group_id");
-    const overrides = await paginated("content_coverage_targets", "*");
+    const questions = await paginated("questions", "curriculum_node_id,status,validation_status,source_type,difficulty_label,answer_type,duplicate_group_id",curriculumIds);
+    const overrides = (await paginated("content_coverage_targets", "*")).filter(row => !row.curriculum_id || nodes.some(node => node.curriculum_id === row.curriculum_id));
     const report = { generatedAt: new Date().toISOString(), access: serverReadOnly ? "server-read-only-operator" : "authenticated-editor", ...calculateCoverage(nodes, questions, 10, overrides) };
     await writeFile("reports/question-coverage.json", JSON.stringify(report, null, 2));
     await writeFile("reports/question-coverage.md", "# Question Coverage\n\n" + Object.entries(report.summary).map(([k,v]) => "- " + k + ": " + v).join("\n") + "\n\n## Grades and Subjects\n\n" + report.nodes.filter((n) => ["grade","subject"].includes(n.node_type)).map((n) => "- " + n.code + " " + n.title + ": " + n.approved + " approved / " + n.indicators + " indicators (" + n.health + ")").join("\n") + "\n\nAcceptance and factory pilot fixtures are excluded from production counts.\n");
@@ -68,7 +78,8 @@ async function main() {
   if (!Array.isArray(candidates) || candidates.length > 100) throw new Error("INVALID_CANDIDATE_BATCH");
   if (command === "generate") {
     const node = map.get(input.spec.indicatorId); if (!node) throw new Error("INVALID_INDICATOR");
-    candidates = await generateQuestions(input.spec, node, new SampleProvider(candidates));
+    const resolved = await rpc("qb_resolve_generation_sources",{p_spec:input.spec});
+    candidates = await generateQuestions(input.spec, node, new SampleProvider(candidates),resolved);
   }
   const validation = candidates.map((q, i) => ({ row: i + 1, issues: validateCandidate(q, map), duplicates: duplicateWarnings(q, candidates) }));
   if (command === "duplicates") { console.log(JSON.stringify(validation.map(({row,duplicates}) => ({row,duplicates})))); return; }

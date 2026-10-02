@@ -7,6 +7,7 @@ import { bootstrapUser, getHomeRouteForRole, signOut } from "@/lib/auth";
 import type { UserContext } from "@/lib/types";
 import { findMySeller } from "@/lib/api/marketplace";
 import { getSmeContext, type SmeContext } from "@/lib/api/sme";
+import MarketContextControl from "@/components/MarketContextControl";
 
 type NavItem = [string, string];
 
@@ -167,7 +168,7 @@ export default function AppShell({
           </button>
         </header>
 
-        <div className="qb-content">{children}</div>
+        <div className="qb-content"><div style={{ marginBottom: 16 }}><MarketContextControl/></div>{children}</div>
 
         <nav className="qb-mobile-nav">
           {(sme?.reviewer ? [...nav.slice(0, 3), ["/review", "SME Reviews"] as NavItem] : nav.slice(0, 4)).map(([href, label]) => (

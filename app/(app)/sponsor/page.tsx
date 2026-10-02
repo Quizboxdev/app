@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { bootstrapUser } from "@/lib/auth";
+import CompetitionContentScope from "@/components/CompetitionContentScope";
 import {
   getMySponsorProfile,
   getSponsorCompetitions,
@@ -35,6 +36,7 @@ export default function SponsorPage() {
         </div>
       </div>
 
+      <CompetitionContentScope/>
       <div className="qb-list">
         {rows.map((row) => (
           <div className="qb-row" key={row.id}>

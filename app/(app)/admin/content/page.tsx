@@ -9,6 +9,8 @@ import { userFacingError } from "@/lib/errors";
 import { CoverageTargetEditor, QuestionMediaUpload } from "@/components/ContentClosureTools";
 import { reviewPage, WAVE_ONE_REVIEW_INDICATORS } from "@/lib/content/factory/review";
 import SmeReviewWorkbench from "@/components/SmeReviewWorkbench";
+import { listCurricula } from "@/lib/api/curriculum";
+import { listAuthorizedSources, type SourceOption } from "@/lib/api/content-context";
 
 type View = "review" | "coverage" | "batches";
 const initialFilters = { search: "", curriculum: "", grade: "", subject: "", indicator: "", reviewStatus: "", validation: "", node: "", source: "production", status: "review", difficulty: "", cognitive: "", type: "", batch: "" };
@@ -24,6 +26,8 @@ export default function AdminContentPage() {
   const [busy, setBusy] = useState(false), [loading, setLoading] = useState(false);
   const [error, setError] = useState(""), [notice, setNotice] = useState("");
   const [generation, setGeneration] = useState<any>(null), [json, setJson] = useState("");
+  const [curricula, setCurricula] = useState<any[]>([]);
+  const [sources, setSources] = useState<SourceOption[]>([]), [selectedSources, setSelectedSources] = useState<string[]>([]);
   const heading = useRef<HTMLHeadingElement>(null);
   const loadVersion = useRef(0);
   const load = useCallback(async () => {
@@ -39,6 +43,13 @@ export default function AdminContentPage() {
     finally { if (request === loadVersion.current) setLoading(false); }
   }, [view, applied, page, branch]);
   useEffect(() => { void load(); }, [load]);
+  useEffect(() => { listCurricula().then(setCurricula).catch(cause => setError(userFacingError(cause))); }, []);
+  useEffect(() => {
+    let current = true;
+    setSources([]); setSelectedSources([]);
+    if (generation) listAuthorizedSources(generation.curriculum_id).then(rows => { if (current) setSources(rows); }).catch(cause => { if (current) setError(userFacingError(cause)); });
+    return () => { current = false; };
+  }, [generation]);
   const selectView = (next: View) => { loadVersion.current++; setRows([]); setTotal(0); setSummary({}); setView(next); setPage(1); setDetail(null); setGeneration(null); };
   const open = async (id: string, manageBusy = true) => {
     if (manageBusy) setBusy(true); setError("");
@@ -74,11 +85,12 @@ export default function AdminContentPage() {
     const form = new FormData(event.currentTarget);
     const spec: GenerationSpec = {
       indicatorId: generation.id, indicatorCode: generation.code, indicatorTitle: generation.title,
-      curriculumId: generation.curriculum_id, educationLevel: generation.education_level ?? "Ghana school curriculum",
+      curriculumId: generation.curriculum_id, educationLevel: generation.education_level ?? "",
       grade: generation.canonical_grade_code ?? generation.grade_code, subject: generation.subject_code,
       count: Number(form.get("count")), difficulty: String(form.get("difficulty")) as GenerationSpec["difficulty"],
       answerType: String(form.get("type")) as GenerationSpec["answerType"], cognitiveLevel: String(form.get("cognitive")),
       language: "English", marks: 1, expectedSeconds: 60, provenance: { source: "AI_GENERATED" },
+      sourceDocumentIds: selectedSources,
     };
     try { await requestGeneration(spec); selectView("batches"); setNotice("Generation request queued. Provider not configured."); }
     catch (e) { setError(userFacingError(e)); } finally { setBusy(false); }
@@ -95,7 +107,8 @@ export default function AdminContentPage() {
     {error && <p role="alert" className="qb-error">{error}</p>}{notice && <p role="status">{notice}</p>}
     {view === "review" && <label>Wave 1 indicator<select disabled={busy} value={WAVE_ONE_REVIEW_INDICATORS.some(i=>i.code===applied.indicator)?applied.indicator:""} onChange={e=>{const indicator=WAVE_ONE_REVIEW_INDICATORS.find(i=>i.code===e.target.value);const next={...initialFilters,subject:indicator?.subject??"",indicator:indicator?.code??"",grade:"SHS1"};setFilters(next);setApplied(next);setPage(1);setDetail(null);}}><option value="">All production subjects</option>{WAVE_ONE_REVIEW_INDICATORS.map(i=><option key={i.code} value={i.code}>{i.subject} / {i.code}</option>)}</select></label>}
     {view !== "batches" && <form className="qb-content-filters" onSubmit={(e) => { e.preventDefault(); setApplied(filters); setPage(1); setBranch([]); }}>
-      {["search", "grade", "subject", "curriculum", ...(view === "review" ? ["indicator", "node", "source", "cognitive", "batch"] : [])].map((name) => <label key={name}>{({ indicator: "Indicator code", node: "Curriculum node ID", curriculum: "Curriculum ID", batch: "Batch ID" } as Record<string, string>)[name] ?? name}<input disabled={busy} value={filters[name as keyof typeof filters]} onChange={(e) => setFilters({ ...filters, [name]: e.target.value })}/></label>)}
+      <label>Curriculum<select disabled={busy} value={filters.curriculum} onChange={event => setFilters({ ...filters,curriculum:event.target.value })}><option value="">Select curriculum</option>{curricula.map(row => <option key={row.id} value={row.id}>{row.name}</option>)}</select></label>
+      {["search", "grade", "subject", ...(view === "review" ? ["indicator", "node", "source", "cognitive", "batch"] : [])].map((name) => <label key={name}>{({ indicator: "Indicator code", node: "Curriculum node ID", batch: "Batch ID" } as Record<string, string>)[name] ?? name}<input disabled={busy} value={filters[name as keyof typeof filters]} onChange={(e) => setFilters({ ...filters, [name]: e.target.value })}/></label>)}
       {view === "review" && <><label>Review status<select disabled={busy} value={filters.reviewStatus} onChange={e=>setFilters({...filters,reviewStatus:e.target.value})}><option value="">All</option>{["active","inactive"].map(s=><option key={s}>{s}</option>)}</select></label><label>Validation flags<select disabled={busy} value={filters.validation} onChange={e=>setFilters({...filters,validation:e.target.value})}><option value="">All</option><option value="clear">No warnings</option><option value="flagged">Warnings / duplicates</option></select></label></>}
       {view === "review" && <><label>Editorial state<select value={filters.status} onChange={(e) => setFilters({ ...filters, status: e.target.value })}><option value="">All</option>{EDITORIAL_STATES.map((s) => <option key={s}>{s}</option>)}</select></label><label>Difficulty<select value={filters.difficulty} onChange={(e) => setFilters({ ...filters, difficulty: e.target.value })}><option value="">All</option>{["easy","medium","hard"].map((s) => <option key={s}>{s}</option>)}</select></label><label>Question type<select value={filters.type} onChange={(e) => setFilters({ ...filters, type: e.target.value })}><option value="">All</option>{["SINGLE_CHOICE","TRUE_FALSE","MULTIPLE_CHOICE","NUMERIC","FRACTION","SHORT_TEXT","EXPRESSION"].map((s) => <option key={s}>{s}</option>)}</select></label></>}
       <button type="submit" disabled={busy}>Apply Filters</button>
@@ -142,7 +155,7 @@ export default function AdminContentPage() {
       <QuestionMediaUpload question={q} onSaved={()=>open(q.id)}/>
     </section>}
     {view === "review" && <SmeReviewWorkbench questionId={q?.id}/>}
-    {generation && <section className="qb-content-review"><h2>Generate Questions</h2><p>{generation.code}: {generation.title}</p><form onSubmit={queueGeneration} className="qb-content-filters"><label>Count<input type="number" name="count" min={1} max={100} defaultValue={10} required/></label><label>Difficulty<select name="difficulty"><option>easy</option><option>medium</option><option>hard</option></select></label><label>Type<select name="type"><option>SINGLE_CHOICE</option><option>TRUE_FALSE</option></select></label><label>Cognitive level<input name="cognitive" defaultValue="Understand" required/></label><button type="submit" disabled={busy}>Queue Generation</button></form></section>}
+    {generation && <section className="qb-content-review"><h2>Generate Questions</h2><p>{generation.code}: {generation.title}</p><fieldset disabled={busy}><legend>Approved sources</legend>{sources.map(source => <label key={source.id}><input type="checkbox" checked={selectedSources.includes(source.id)} onChange={event => setSelectedSources(event.target.checked ? [...selectedSources,source.id] : selectedSources.filter(id => id!==source.id))}/>{source.title}</label>)}</fieldset><form onSubmit={queueGeneration} className="qb-content-filters"><label>Count<input type="number" name="count" min={1} max={100} defaultValue={10} required/></label><label>Difficulty<select name="difficulty"><option>easy</option><option>medium</option><option>hard</option></select></label><label>Type<select name="type"><option>SINGLE_CHOICE</option><option>TRUE_FALSE</option></select></label><label>Cognitive level<input name="cognitive" defaultValue="Understand" required/></label><button type="submit" disabled={busy || !selectedSources.length}>Queue Generation</button></form></section>}
     {view === "batches" && <section className="qb-content-review"><h2>Candidate Import</h2><form onSubmit={ingest}><label>Candidate batch JSON<textarea rows={8} value={json} onChange={(e) => setJson(e.target.value)} required maxLength={1000000}/></label><button type="submit" disabled={busy}>Import for Review</button></form></section>}
   </div>;
 }
