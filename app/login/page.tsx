@@ -9,6 +9,7 @@ import { userFacingError } from "@/lib/errors";
 export default function LoginPage() {
   const [mode, setMode] = useState<"login" | "register">("login");
   const [fullName, setFullName] = useState("");
+  const [grade, setGrade] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [status, setStatus] = useState("");
@@ -45,6 +46,7 @@ export default function LoginPage() {
         options: {
           data: {
             full_name: fullName,
+            grade,
           },
         },
       });
@@ -83,6 +85,7 @@ export default function LoginPage() {
               />
             </div>
           )}
+          {mode === "register" && <div className="qb-field"><label htmlFor="auth-grade">Grade</label><select id="auth-grade" value={grade} onChange={(e) => setGrade(e.target.value)} required><option value="">Select grade</option>{["B4","B5","B6","B7","B8","B9","SHS1","SHS2","SHS3"].map((value) => <option key={value}>{value}</option>)}</select></div>}
 
           <div className="qb-field">
             <label htmlFor="auth-email">Email</label>

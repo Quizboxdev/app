@@ -1,6 +1,7 @@
 import { beforeAll, describe, expect, it } from "vitest";
 import { readFile, writeFile } from "node:fs/promises";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { acceptancePassword } from "../operations/safety";
 
 describe.skipIf(process.env.QB_LIVE_ACCEPTANCE !== "1")("authenticated practice acceptance", () => {
   let a: SupabaseClient, b: SupabaseClient;
@@ -11,7 +12,7 @@ describe.skipIf(process.env.QB_LIVE_ACCEPTANCE !== "1")("authenticated practice 
     const make = () => createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, { auth: { persistSession: false, autoRefreshToken: false } });
     a = make(); b = make();
     for (const [client, email] of [[a, "student.test@quizbox.local"], [b, "student2.test@quizbox.local"]] as const) {
-      const result = await client.auth.signInWithPassword({ email, password: process.env.QB_ACCEPTANCE_PASSWORD ?? "QuizBox123!" }); if (result.error) throw result.error;
+      const result = await client.auth.signInWithPassword({ email, password: acceptancePassword() }); if (result.error) throw new Error("ACCEPTANCE_LOGIN_FAILED");
     }
     active = (await a.rpc("qb_get_attempt", { p_attempt_id: report.attemptId })).data;
     assessment = (await a.rpc("qb_get_attempt", { p_attempt_id: report.assessmentAttemptId })).data;
@@ -19,7 +20,7 @@ describe.skipIf(process.env.QB_LIVE_ACCEPTANCE !== "1")("authenticated practice 
     if (assignment.error) throw assignment.error;
     // Fresh isolated assignments keep live tests repeatable after old attempts expire.
     const teacher = make();
-    const login = await teacher.auth.signInWithPassword({ email: "teacher.test@quizbox.local", password: process.env.QB_ACCEPTANCE_PASSWORD ?? "QuizBox123!" });
+    const login = await teacher.auth.signInWithPassword({ email: "teacher.test@quizbox.local", password: acceptancePassword() });
     if (login.error) throw login.error;
     for (const [key, mode, targets] of [["published", "PRACTICE", [report.studentA]], ["normal", "ASSESSMENT", null]] as const) {
       const published = await teacher.rpc("qb_publish_assignment", {

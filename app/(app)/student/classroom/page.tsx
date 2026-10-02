@@ -40,7 +40,7 @@ export default function StudentClassroomPage() {
     }
   }
 
-  if (error) return <div className="qb-card qb-error">{error}</div>;
+  if (error && !data) return <div className="qb-card qb-error" role="alert">{error}</div>;
   if (!data) return <div>Loading classroom…</div>;
 
   return (
@@ -53,6 +53,7 @@ export default function StudentClassroomPage() {
       </div>
 
       <form className="qb-card qb-form" onSubmit={submitJoin}>
+        {error && <p className="qb-error" role="alert">{error}</p>}
         <h2>Join a class</h2>
         <div className="qb-actions">
           <input aria-label="Class join code" placeholder="QB7-X4T9" value={joinCode} onChange={(event) => setJoinCode(event.target.value.toUpperCase())} required />

@@ -29,12 +29,14 @@ async function main() {
   console.log(JSON.stringify({ mode: apply ? "apply" : "dry-run", curriculumNodes: nodes.length, questionsPrepared: prepared.length, rejected: audit.questions.length - prepared.length }, null, 2));
   if (graph.unresolved.length || graph.collisions.length || graph.invalidParentTypes.length || graph.cycles.length) throw new Error("Curriculum graph validation failed; inspect reports/unresolved-curriculum-parents.json");
   if (!apply) return;
+  if (!process.argv.includes("--confirm-import") || !["acceptance","production"].includes(process.env.QB_ENVIRONMENT ?? "")) throw new Error("Explicit --confirm-import and QB_ENVIRONMENT are required for bulk writes");
 
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!url || !key) throw new Error("Local Supabase admin environment is required for --apply");
   const supabase = createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });
-  const adminEmail = process.env.QUIZBOX_ADMIN_EMAIL ?? "admin.test@quizbox.local";
+  const adminEmail = process.env.QUIZBOX_ADMIN_EMAIL;
+  if (!adminEmail) throw new Error("QUIZBOX_ADMIN_EMAIL is required for bulk import");
   const { data: authData, error: authError } = await supabase.auth.admin.listUsers({ page: 1, perPage: 1000 });
   const importingUser = authData?.users.find((user) => user.email?.toLowerCase() === adminEmail.toLowerCase());
   if (authError || !importingUser) throw new Error("Configured content-admin Auth user was not found");
@@ -111,4 +113,3 @@ async function main() {
 }
 
 main().catch((error) => { console.error(error instanceof Error ? error.message : "Import failed"); process.exitCode = 1; });
-

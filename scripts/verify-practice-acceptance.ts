@@ -1,6 +1,7 @@
 import { readFile, writeFile } from "node:fs/promises";
 import { createClient } from "@supabase/supabase-js";
 import assert from "node:assert/strict";
+import { acceptancePassword, fixtureMutationAllowed } from "../lib/operations/safety";
 
 async function main() {
   for (const line of (await readFile(".env.local", "utf8")).split(/\r?\n/)) {
@@ -11,7 +12,8 @@ async function main() {
   const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
   const options = { auth: { persistSession: false, autoRefreshToken: false } };
   const admin = createClient(url, process.env.SUPABASE_SERVICE_ROLE_KEY!, options);
-  const password = process.env.QB_ACCEPTANCE_PASSWORD ?? "QuizBox123!";
+  const password = acceptancePassword();
+  if (!process.argv.includes("--verify-ui-publication")) fixtureMutationAllowed(process.env, process.argv, "DEV_ACCEPTANCE_FIXTURE");
   if (process.argv.includes("--verify-ui-publication")) {
     const report = JSON.parse(await readFile("reports/practice-acceptance.json", "utf8"));
     const published = await admin.from("assignments").select("id,assessment_id,class_id").eq("title", "DEV Acceptance UI Remediation").order("created_at", { ascending: false }).limit(1).single();

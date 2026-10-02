@@ -3,6 +3,7 @@ node_modules/
 .next/
 out/
 .vercel/
+.local-backups/
 
 # Local environment files and secrets
 .env

@@ -2,6 +2,7 @@ import { beforeAll, describe, expect, it } from "vitest";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { pilotBatch, PILOT_CODES } from "./pilot";
 import type { CurriculumNode } from "./contract";
+import { acceptancePassword } from "../../operations/safety";
 
 describe.skipIf(process.env.QB_LIVE_ACCEPTANCE!=="1")("authenticated editorial and security acceptance", () => {
   let admin:SupabaseClient,student:SupabaseClient,teacher:SupabaseClient,other:SupabaseClient;
@@ -13,7 +14,7 @@ describe.skipIf(process.env.QB_LIVE_ACCEPTANCE!=="1")("authenticated editorial a
     const make=()=>createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!,process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,{auth:{persistSession:false,autoRefreshToken:false}});
     admin=make(); student=make(); teacher=make(); other=make();
     for(const [client,email] of [[admin,"admin.test"],[student,"student.test"],[teacher,"teacher.test"],[other,"student2.test"]] as const) {
-      const login=await client.auth.signInWithPassword({email:email+"@quizbox.local",password:process.env.QB_ACCEPTANCE_PASSWORD ?? "QuizBox123!"}); if(login.error) throw new Error("ACCEPTANCE_LOGIN_FAILED");
+      const login=await client.auth.signInWithPassword({email:email+"@quizbox.local",password:acceptancePassword()}); if(login.error) throw new Error("ACCEPTANCE_LOGIN_FAILED");
     }
     const result=await admin.from("curriculum_nodes").select("*").in("code",PILOT_CODES);
     expect(result.error).toBeNull();

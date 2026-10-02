@@ -1,6 +1,7 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { createClient } from "@supabase/supabase-js";
+import { fixtureMutationAllowed } from "../lib/operations/safety";
 
 async function loadLocalEnvironment() {
   const text = await readFile(path.join(process.cwd(), ".env.local"), "utf8");
@@ -12,6 +13,7 @@ async function loadLocalEnvironment() {
 
 async function main() {
   await loadLocalEnvironment();
+  fixtureMutationAllowed(process.env, process.argv, "DEV_ACCEPTANCE_FIXTURE");
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL, key = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!url || !key) throw new Error("Local Supabase admin environment is required");
   const supabase = createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });

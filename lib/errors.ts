@@ -1,4 +1,6 @@
 const messages: Record<string, string> = {
+  QB_RATE_LIMITED: "Too many requests. Wait a minute and try again.",
+  QB_GRADE_REQUIRED: "Select your learner grade to finish registration.",
   "Invalid login credentials": "The email or password is incorrect.",
   "Email not confirmed": "Verify your email before signing in.",
   AUTH_REQUIRED: "Please sign in again.",

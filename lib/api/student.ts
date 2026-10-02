@@ -92,6 +92,7 @@ export async function getStudentClassroom(studentId: string) {
 export async function joinClass(joinCode: string) {
   const { data, error } = await getSupabaseBrowserClient().rpc("qb_join_class", { p_join_code: joinCode.trim().toUpperCase() });
   if (error) throw new Error(userFacingError(error));
+  if (data?.error) throw new Error(userFacingError({ message: data.error }));
   return data;
 }
 
