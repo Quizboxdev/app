@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { authorizeSponsor, chunkExtract, decideReview, earningHook, freezeCompetition, generateCandidates, participantEligible, publicationIssues, rankResults, sponsorAnalytics, transitionDocument, transitionJob, validateDraft, type Actor, type Candidate, type Draft, type Reviewer } from "./lifecycle";
+import { authorizeSponsor, chunkExtract, decideReview, earningHook, freezeCompetition, generateCandidates, participantEligible, publicationIssues, rankResults, requiredDifficultyCounts, sponsorAnalytics, transitionDocument, transitionJob, validateDraft, type Actor, type Candidate, type Draft, type Reviewer } from "./lifecycle";
 import type { SourceCorpus } from "../content/market-context";
 
 const actor: Actor = { userId: "owner", sponsorId: "sponsor", role: "sponsor_owner", marketIds: ["gh", "other"] };
@@ -56,6 +56,8 @@ describe("human review and immutable publication", () => {
   it.each(["REQUEST_REVISION", "REJECT"] as const)("requires notes for %s", decision => expect(() => decideReview(assigned(), reviewer, draft().context, { ...decisionInput, decision, notes: "" })).toThrow("REVIEW_DECISION_REQUIRED"));
   it("blocks unreviewed publication", () => expect(publicationIssues(draft(), sponsor, actor, sources, [{ candidate: candidate(), versionId: "v1", reviewComplete: false }])).toContain("UNAPPROVED_BANK_OR_PROVENANCE"));
   it("blocks suspended sponsor", () => expect(publicationIssues(draft(), { ...sponsor, status: "suspended" }, actor, sources, [])).toContain("SPONSOR_NOT_ACTIVE"));
+  it("allocates a reproducible whole-question difficulty mix", () => expect(requiredDifficultyCounts(3, { easy: 30, medium: 50, hard: 20 })).toEqual({ easy: 1, medium: 1, hard: 1 }));
+  it("blocks the wrong bank difficulty mix", () => { const d = draft(); const c = { ...candidate(), difficulty: "hard" as const, status: "APPROVED" as const, approvedVersionId: "v1" }; expect(publicationIssues(d, sponsor, actor, sources, [{ candidate: c, versionId: "v1", reviewComplete: true }])).toContain("BANK_DIFFICULTY_MIX_MISMATCH"); });
   it("freezes IDs, context and configuration detached from later edits", () => { const d = draft(); const c = { ...candidate(), status: "APPROVED" as const, approvedVersionId: "v1" }; const snapshot = freezeCompetition(d, sponsor, actor, sources, [{ candidate: c, versionId: "v1", reviewComplete: true }], 1, "2027-01-02T00:00:00Z"); d.title = "Changed"; c.stem = "Changed"; expect(JSON.parse(snapshot.json).draft.title).toBe("Reading challenge"); expect(snapshot.json).not.toContain("correctAnswer"); expect(Object.isFrozen(snapshot)).toBe(true); });
 });
 describe("participant delivery, leaderboard and sponsor analytics", () => {

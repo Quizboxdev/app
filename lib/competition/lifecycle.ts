@@ -93,7 +93,7 @@ export function chunkExtract(documentId: string, sections: Array<Omit<Chunk, "id
     return { ...section, documentId, order, id };
   });
 }
-export type GenerationInput = { competitionId: string; sponsorId: string; jobId: string; provider: string; model: string; count: number; context: ContentContext };
+export type GenerationInput = { competitionId: string; sponsorId: string; jobId: string; provider: string; model: string; count: number; context: ContentContext; settings?: Record<string, unknown> };
 export async function generateCandidates(input: GenerationInput, actor: Actor, sources: SourceCorpus[], chunks: Chunk[], provider: (input: GenerationInput, chunks: Chunk[]) => Promise<Candidate[]>) {
   authorizeSponsor(actor, input.sponsorId, true);
   const errors = validateContentContext(input.context, sources, actor.marketIds);
@@ -124,12 +124,25 @@ export function earningHook(decision: ReviewDecision): EarningHook | null {
   return decision.policyVersionId ? { assignmentId: decision.assignmentId, reviewerId: decision.reviewerId, policyVersionId: decision.policyVersionId, idempotencyKey: `sme-review:${decision.assignmentId}` } : null;
 }
 export type BankItem = { candidate: Candidate; versionId: string; reviewComplete: boolean };
+export function requiredDifficultyCounts(total: number, distribution: Rules["difficulty"]) {
+  const kinds = ["easy", "medium", "hard"] as const;
+  const counts = { easy: 0, medium: 0, hard: 0 };
+  for (const kind of kinds) counts[kind] = Math.floor(total * distribution[kind] / 100);
+  const remaining = total - Object.values(counts).reduce((sum, value) => sum + value, 0);
+  const fractions = [...kinds].sort((a, b) => (total * distribution[b] / 100 - counts[b]) - (total * distribution[a] / 100 - counts[a]));
+  for (let i = 0; i < remaining && i < fractions.length; i++) counts[fractions[i]]++;
+  return counts;
+}
 export function publicationIssues(draft: Draft, sponsor: Sponsor, actor: Actor, sources: SourceCorpus[], bank: BankItem[]): string[] {
   const issues = validateDraft(draft, actor, sources);
   if (sponsor.id !== draft.sponsorId || sponsor.status !== "active") issues.push("SPONSOR_NOT_ACTIVE");
   if (bank.length !== draft.rules.totalQuestions) issues.push("APPROVED_QUESTION_COUNT_MISMATCH");
   if (new Set(bank.map(i => i.candidate.id)).size !== bank.length) issues.push("DUPLICATE_BANK_QUESTION");
   if (bank.some(i => i.candidate.competitionId !== draft.id || i.candidate.status !== "APPROVED" || !i.reviewComplete || !i.versionId || i.candidate.approvedVersionId !== i.versionId || !draft.context.sourceIds.includes(i.candidate.sourceDocumentId))) issues.push("UNAPPROVED_BANK_OR_PROVENANCE");
+  if (!issues.includes("INVALID_DIFFICULTY_DISTRIBUTION") && !issues.includes("INVALID_ASSESSMENT_LIMITS")) {
+    const required = requiredDifficultyCounts(draft.rules.totalQuestions, draft.rules.difficulty);
+    if ((["easy", "medium", "hard"] as const).some(kind => bank.filter(item => item.candidate.difficulty === kind).length !== required[kind])) issues.push("BANK_DIFFICULTY_MIX_MISMATCH");
+  }
   return [...new Set(issues)];
 }
 export function freezeCompetition(draft: Draft, sponsor: Sponsor, actor: Actor, sources: SourceCorpus[], bank: BankItem[], version: number, publishedAt: string) {
