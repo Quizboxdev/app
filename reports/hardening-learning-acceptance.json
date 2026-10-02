@@ -1,0 +1,41 @@
+{
+  "generatedAt": "2026-10-02T00:35:46.897Z",
+  "attemptId": "d7262026-0956-47b1-ac7f-bc0e2721b9cd",
+  "masteryBefore": {
+    "id": "13e043b2-a0b1-43ad-8000-8f0bc736c1c4",
+    "mastery_score": 87.19,
+    "attempts_count": 26
+  },
+  "masteryAfter": {
+    "id": "13e043b2-a0b1-43ad-8000-8f0bc736c1c4",
+    "mastery_score": 87.59,
+    "attempts_count": 28
+  },
+  "xpBefore": [
+    {
+      "total_xp": 650,
+      "level": 3,
+      "current_level_xp": 250,
+      "next_level_xp": 500
+    }
+  ],
+  "xpAfter": [
+    {
+      "total_xp": 705,
+      "level": 3,
+      "current_level_xp": 305,
+      "next_level_xp": 500
+    }
+  ],
+  "xpRetry": [
+    {
+      "total_xp": 705,
+      "level": 3,
+      "current_level_xp": 305,
+      "next_level_xp": 500
+    }
+  ],
+  "eventCount": 2,
+  "duplicateXpTransactions": 0,
+  "percentage": 100
+}
