@@ -4,7 +4,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { SponsorRepository } from "./repository";
 import { extractSource, ingestSource, uploadSource, type SourceStorage } from "./ingestion";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { executeGenerationJob } from "./generation-job";
+import { configuredCompetitionProvider, executeGenerationJob } from "./generation-job";
 
 let db: PGlite;
 const id = (n: number) => `00000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
@@ -22,13 +22,18 @@ describe("authenticated sponsor adapters over isolated PostgreSQL persistence", 
       create function auth.uid() returns uuid language sql stable as $$select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid$$;
       grant usage on schema auth to authenticated; grant execute on function auth.uid() to authenticated;
       create table public.profiles(id uuid primary key,role text,status text);
-      create table public.countries(id uuid primary key);
-      create table public.markets(id uuid primary key,country_id uuid,active boolean);
       create table public.sponsor_profiles(id uuid primary key default gen_random_uuid(),user_id uuid references profiles(id),organization_name text,contact_name text,status text,created_at timestamptz default now(),updated_at timestamptz default now());
       create table public.competitions(id uuid primary key default gen_random_uuid(),sponsor_id uuid,title text,description text,created_by uuid,status text,updated_at timestamptz default now());
       create table public.content_contexts(id uuid primary key);
       create table public.source_documents(id uuid primary key,uploaded_by uuid,title text,checksum text,mime_type text,rights_confirmed boolean,sponsor_id uuid,market_id uuid,source_kind text,validation_status text,curriculum_id uuid,authority_id uuid,tenant_id uuid,storage_bucket text,storage_path text,metadata jsonb,content_text text,status text default 'UPLOADED',updated_at timestamptz default now());
-      create table public.curricula(id uuid primary key); create table public.questions(id uuid primary key); create table public.question_versions(id uuid primary key); create table public.assessments(id uuid primary key); create table public.attempts(id uuid primary key);
+      create table public.curricula(id uuid primary key,country text); create table public.tenants(id uuid primary key,country text);
+      create table public.curriculum_nodes(id uuid primary key,curriculum_id uuid,education_level text);
+      create table public.questions(id uuid primary key,version integer,subject_code text,curriculum_id uuid,curriculum_node_id uuid,
+        canonical_grade_code text,grade text,tenant_id uuid,source_type text,validation_status text,status text,reviewed_by uuid,reviewed_at timestamptz,editorial_metadata jsonb default '{}',
+        question_text text,explanation text,option_a text,option_b text,option_c text,option_d text,correct_answer text,source_document_ids uuid[]);
+      create table public.question_versions(id uuid primary key,question_id uuid,version_no integer,snapshot jsonb);
+      create function public.qb_content_validation_errors(jsonb) returns jsonb language sql as $$ select '[]'::jsonb $$;
+      create table public.assessments(id uuid primary key); create table public.attempts(id uuid primary key);
       create table storage.buckets(id text primary key,name text,public boolean,file_size_limit bigint,allowed_mime_types text[]);
       create table storage.objects(id uuid primary key default gen_random_uuid(),bucket_id text,name text);
       alter table storage.objects enable row level security;
@@ -42,8 +47,10 @@ describe("authenticated sponsor adapters over isolated PostgreSQL persistence", 
       begin if coalesce(cardinality(sources),0)=0 or exists(select 1 from unnest(sources) x where not exists(select 1 from public.source_documents s where s.id=x and s.validation_status='approved' and s.rights_confirmed)) then raise exception 'UNAPPROVED_SOURCE_CORPUS'; end if;
       return jsonb_build_object('scope',scope,'source_mode',mode,'market_ids',markets,'source_document_ids',sources); end $$;
       insert into profiles values('${id(1)}','SPONSOR','active'),('${id(2)}','SPONSOR','active'),('${id(3)}','STUDENT','active'),('${id(4)}','SPONSOR','active'),('${id(5)}','OWNER','active');
-      insert into countries values('${id(10)}'); insert into markets values('${id(10)}','${id(10)}',true);
     `);
+    await db.exec(readFileSync(new URL("../../supabase/migrations/20261002200000_market_sme_foundation.sql", import.meta.url), "utf8"));
+    await db.exec(`insert into public.countries(id,iso2_code,iso3_code,name,default_currency_code,timezone,locale) values('${id(10)}','ZZ','ZZZ','Isolated demo','GHS','Africa/Accra','en-GH');
+      insert into public.markets(id,country_id,name,default_currency_code,timezone,locale) values('${id(10)}','${id(10)}','Isolated demo','GHS','Africa/Accra','en-GH');`);
     await db.exec(readFileSync(new URL("../../supabase/migrations/20261002220000_sponsor_competition_lifecycle.sql", import.meta.url), "utf8"));
     await db.exec(readFileSync(new URL("../../supabase/migrations/20261002230000_sponsor_authenticated_workflows.sql", import.meta.url), "utf8"));
     const client = { async rpc(_name: string, args: Record<string, unknown>) { try { const result = await db.query<{ data: unknown }>("select public.qb_sponsor_workspace($1,$2::uuid,$3::jsonb) data", [args.p_action, args.p_sponsor, JSON.stringify(args.p_data)]); return { data: result.rows[0].data, error: null }; } catch (error) { return { data: null, error: { message: (error as Error).message } }; } } };
@@ -152,6 +159,130 @@ describe("authenticated sponsor adapters over isolated PostgreSQL persistence", 
     await db.exec("reset role"); await db.query("update public.source_documents set validation_status='rejected' where id=$1", [document]); await actor(1);
     let invoked = false; await expect(executeGenerationJob(repository, sponsor, competition, job.id, { name: "mock", model: "fixture", async generate() { invoked = true; return []; } })).rejects.toThrow("UNAPPROVED_SOURCE_CORPUS"); expect(invoked).toBe(false);
     const jobs = await repository.call<Array<{ id: string; status: string }>>("jobs", sponsor, { competition_id: competition }); expect(jobs.find(j => j.id === job.id)?.status).toBe("FAILED");
+  });
+  it("loads the additive review bridge over the real isolated SME ledger", async () => {
+    await db.exec("reset role");
+    await db.exec(readFileSync(new URL("../../supabase/migrations/20261002240000_sponsor_candidate_review_bridge.sql", import.meta.url), "utf8"));
+    await db.exec(readFileSync(new URL("../../supabase/rollback/sponsor_candidate_review_bridge.sql", import.meta.url), "utf8"));
+    await db.exec(readFileSync(new URL("../../supabase/migrations/20261002240000_sponsor_candidate_review_bridge.sql", import.meta.url), "utf8"));
+    await db.query("update public.source_documents set validation_status='approved' where id=$1", [document]);
+    await actor(1);
+    expect((await repository.call<Array<{ id: string }>>("candidates", sponsor, { competition_id: competition })).map(x => x.id)).toContain(id(30));
+  });
+  it("runs an explicitly configured provider through mocked HTTP without credits", async () => {
+    let calls = 0;
+    const provider = configuredCompetitionProvider({ QUIZBOX_GENERATION_PROVIDER: "mock", QUIZBOX_GENERATION_MODEL: "fixture", QUIZBOX_GENERATION_ENDPOINT: "http://localhost:9999/generate" }, async () => { calls++; return Response.json([]); });
+    const job = await repository.call<{ id: string }>("queue_generation", sponsor, { competition_id: competition, request_key: id(23), spec: spec() });
+    expect((await executeGenerationJob(repository, sponsor, competition, job.id, provider)).status).toBe("FAILED");
+    expect(calls).toBe(1);
+    expect(() => configuredCompetitionProvider({})).toThrow("GENERATION_PROVIDER_NOT_CONFIGURED");
+  });
+  it("retries a failed job explicitly without duplicating candidates", async () => {
+    const job = await repository.call<{ id: string }>("queue_generation", sponsor, { competition_id: competition, request_key: id(24), spec: spec() });
+    const provider = { name: "mock", model: "fixture", async generate() { throw new Error("PROVIDER_FIXTURE_FAILURE"); } };
+    for (let n = 0; n < 3; n++) {
+      await expect(executeGenerationJob(repository, sponsor, competition, job.id, provider)).rejects.toThrow("PROVIDER_FIXTURE_FAILURE");
+      if (n < 2) expect(await repository.call("retry_generation", sponsor, { competition_id: competition, job_id: job.id })).toEqual({ id: job.id, status: "QUEUED" });
+    }
+    await expect(repository.call("retry_generation", sponsor, { competition_id: competition, job_id: job.id })).rejects.toThrow("GENERATION_NOT_RETRYABLE");
+    const rows = await repository.call<Array<{ id: string; error_code: string; execution_count: number }>>("jobs", sponsor, { competition_id: competition });
+    expect(rows.find(x => x.id === job.id)).toMatchObject({ execution_count: 3, error_code: "PROVIDER_FIXTURE_FAILURE" });
+  });
+  it("denies foreign sponsor candidate and bank access", async () => {
+    await actor(2);
+    await expect(repository.call("candidates", sponsor, { competition_id: competition })).rejects.toThrow("SPONSOR_ACCESS_DENIED");
+    await expect(repository.call("bank", sponsor, { competition_id: competition })).rejects.toThrow("SPONSOR_ACCESS_DENIED");
+    await actor(1);
+  });
+  let assignment: string;
+  it("reports the real document-candidate materialization boundary without fabricated mapping", async () => {
+    await actor(5);
+    await expect(repository.call("assign_candidate", sponsor, { competition_id: competition, candidate_id: id(30), reviewer_id: id(3), domain_id: id(60) })).rejects.toThrow("CANDIDATE_QUESTION_MAPPING_REQUIRED");
+  });
+  it("links an identity-checked imported question to the existing SME workflow", async () => {
+    // Dependency fixture ONLY: this deliberately does not count as full persisted E2E.
+    // Combined market/editorial authorization for document-only questions is still a gate.
+    await db.exec("reset role");
+    await db.query("insert into public.curriculum_nodes(id,education_level) values($1,'SHS')", [id(61)]);
+    await db.query("insert into public.questions(id,version,subject_code,curriculum_node_id,source_type,validation_status,status,question_text,explanation,option_a,option_b,correct_answer,source_document_ids) values($1,1,'Computing',$2,'AI_GENERATED','review','inactive','Does a safety switch disconnect power?','The source states it disconnects power.','True','False','A',array[$3::uuid])", [id(62), id(61), document]);
+    await db.query("insert into public.question_versions values($1,$2,1,'{}')", [id(63), id(62)]);
+    await actor(5);
+    await db.query("select public.qb_sme_configure('sme_profiles',$1::jsonb)", [JSON.stringify({ user_id: id(3), reviewer_tier: "qualified", reviewer_status: "verified", active: true })]);
+    await db.query("select public.qb_sme_configure('sme_domain_assignments',$1::jsonb)", [JSON.stringify({ id: id(60), reviewer_id: id(3), subject_code: "Computing", education_level: "SHS", can_review: true, can_approve: true })]);
+    const work = await repository.call<{ id: string }>("assign_candidate", sponsor, { competition_id: competition, candidate_id: id(30), question_id: id(62), reviewer_id: id(3), domain_id: id(60) }); assignment = work.id;
+    expect((await repository.call<{ id: string }>("assign_candidate", sponsor, { competition_id: competition, candidate_id: id(30), reviewer_id: id(3) })).id).toBe(assignment);
+  });
+  it("denies unassigned direct reviewer access", async () => {
+    await actor(2); await expect(repository.call("review_detail", null, { candidate_id: id(30), assignment_id: assignment })).rejects.toThrow("QB_REVIEW_ACCESS_DENIED");
+    await actor(3); expect(await repository.call("review_queue")).toEqual(expect.arrayContaining([expect.objectContaining({ candidate_id: id(30), assignment_id: assignment })]));
+  });
+  it("persists start and approval with immutable history and unresolved compensation", async () => {
+    await repository.call("review_detail", null, { candidate_id: id(30), assignment_id: assignment });
+    const args = { candidate_id: id(30), assignment_id: assignment, decision: "approve", note: "Reviewed with the provided source", human_reviewed: true, version: 1 };
+    const approved = await repository.call<{ id: string }>("complete_review", null, args);
+    expect((await repository.call<{ id: string }>("complete_review", null, args)).id).toBe(approved.id);
+    await db.exec("reset role");
+    expect((await db.query<{ n: number }>("select count(*)::int n from quizbox_competition.review_events")).rows[0].n).toBe(1);
+    await expect(db.query("update quizbox_competition.candidate_history set new_state='REJECTED'")).rejects.toThrow("IMMUTABLE_COMPETITION_RECORD");
+    await actor(5);
+    expect(await repository.call("oversight")).toMatchObject({ unresolved_compensation: [expect.objectContaining({ candidate_id: id(30) })] });
+  });
+  it("adds approved versions to the bank and supports exclusion", async () => {
+    await actor(1); const old = await repository.draft(sponsor, competition); await repository.saveDraft(sponsor, { ...old.configuration, totalQuestions: 1, sourceIds: [document] }, old);
+    await repository.call("include_bank", sponsor, { competition_id: competition, candidate_id: id(30), position: 0 });
+    expect(await repository.call("bank", sponsor, { competition_id: competition })).toEqual([expect.objectContaining({ question_version_id: id(63), included: true })]);
+    await repository.call("include_bank", sponsor, { competition_id: competition, candidate_id: id(30), included: false });
+    expect(await repository.call("bank", sponsor, { competition_id: competition })).toEqual([expect.objectContaining({ included: false })]);
+  });
+  it("revoking the SME profile removes reviewer queue and direct access", async () => {
+    await actor(5); await db.query("select public.qb_sme_configure('sme_profiles',$1::jsonb)", [JSON.stringify({ user_id: id(3), reviewer_tier: "qualified", reviewer_status: "suspended", active: false })]);
+    await actor(3); expect(await repository.call("review_queue")).toEqual([]);
+    await expect(repository.call("review_detail", null, { candidate_id: id(30), assignment_id: assignment })).rejects.toThrow("QB_REVIEW_DOMAIN_DENIED"); await actor(1);
+  });
+  it("reclaims expired executions and rejects the previous execution token", async () => {
+    const job = await repository.call<{ id: string }>("queue_generation", sponsor, { competition_id: competition, request_key: id(25), spec: spec() });
+    const claim = await repository.call<{ token: string }>("claim_generation", sponsor, { competition_id: competition, job_id: job.id });
+    await expect(repository.call("retry_generation", sponsor, { competition_id: competition, job_id: job.id })).rejects.toThrow("GENERATION_NOT_RETRYABLE");
+    await db.exec("reset role"); await db.query("update quizbox_competition.generation_jobs set started_at=now()-interval '11 minutes' where id=$1", [job.id]); await actor(1);
+    await repository.call("retry_generation", sponsor, { competition_id: competition, job_id: job.id });
+    await repository.call("claim_generation", sponsor, { competition_id: competition, job_id: job.id });
+    await expect(repository.call("finish_generation", sponsor, { competition_id: competition, job_id: job.id, token: claim.token, candidates: [] })).rejects.toThrow("GENERATION_CLAIM_MISMATCH");
+  });
+  it("keeps policy-pinned competition earnings idempotent and immutable", async () => {
+    await actor(5);
+    await db.query("select public.qb_sme_configure('sme_profiles',$1::jsonb)", [JSON.stringify({ user_id: id(3), reviewer_tier: "qualified", reviewer_status: "verified", active: true })]);
+    const policy = (await db.query<{ data: { id: string } }>("select public.qb_sme_configure('compensation_policies',$1::jsonb) data", [JSON.stringify({ name: "Isolated sponsor policy", sponsor_id: sponsor, active: true })])).rows[0].data;
+    const rate = (await db.query<{ data: { id: string } }>("select public.qb_sme_configure('compensation_policy_versions',$1::jsonb) data", [JSON.stringify({ policy_id: policy.id, currency_code: "GHS", effective_from: "2020-01-01T00:00:00Z", base_review_fee: "2.5", approve_fee: "1.25", reject_fee: "0.5", revision_fee: "0.25", senior_review_fee: "2", funded_by: "demo sponsor" })])).rows[0].data;
+    await actor(1);
+    const job = await repository.call<{ id: string }>("queue_generation", sponsor, { competition_id: competition, request_key: id(26), spec: spec() });
+    await executeGenerationJob(repository, sponsor, competition, job.id, { name: "mock", model: "fixture", async generate(input, chunks) { return [{ id: id(31), competitionId: competition, jobId: input.jobId, sourceDocumentId: document, sourceChunkId: chunks[0].id, stem: "Should power be isolated before maintenance?", options: ["True", "False"], correctAnswer: 0, explanation: "The source requires power isolation before maintenance.", difficulty: "easy", cognitiveLevel: "recall", subject: "Computing", curriculumId: null, educationLevel: "SHS", model: "fixture", status: "GENERATED", approvedVersionId: null }]; } });
+    await db.exec("reset role");
+    await db.query("insert into public.questions(id,version,subject_code,curriculum_node_id,source_type,validation_status,status,question_text,explanation,option_a,option_b,correct_answer,source_document_ids) values($1,1,'Computing',$2,'AI_GENERATED','review','inactive','Should power be isolated before maintenance?','The source requires power isolation before maintenance.','True','False','A',array[$3::uuid])", [id(64), id(61), document]);
+    await db.query("insert into public.question_versions values($1,$2,1,'{}')", [id(65), id(64)]);
+    await actor(5);
+    const work = await repository.call<{ id: string; compensation_policy_version_id: string }>("assign_candidate", sponsor, { competition_id: competition, candidate_id: id(31), question_id: id(64), reviewer_id: id(3), domain_id: id(60) });
+    expect(work.compensation_policy_version_id).toBe(rate.id);
+    await actor(3); await repository.call("review_detail", null, { candidate_id: id(31), assignment_id: work.id });
+    const args = { candidate_id: id(31), assignment_id: work.id, decision: "approve", note: "Source and answer reviewed", human_reviewed: true, version: 1 };
+    await repository.call("complete_review", null, args); await repository.call("complete_review", null, args);
+    await db.exec("reset role");
+    const earnings = await db.query<{ compensation_policy_version_id: string; final_amount: string; currency_code: string }>("select compensation_policy_version_id,final_amount::text,currency_code from public.reviewer_earnings");
+    expect(earnings.rows).toEqual([{ compensation_policy_version_id: rate.id, final_amount: "3.750000", currency_code: "GHS" }]);
+    await expect(db.query("update public.reviewer_earnings set final_amount=0")).rejects.toThrow("QB_IMMUTABLE_HISTORY");
+    await actor(1);
+  });
+  it("rejects bank inclusion above the configured target", async () => {
+    await repository.call("include_bank", sponsor, { competition_id: competition, candidate_id: id(30), position: 0 });
+    await expect(repository.call("include_bank", sponsor, { competition_id: competition, candidate_id: id(31), position: 1 })).rejects.toThrow("BANK_TARGET_COUNT_EXCEEDED");
+  });
+  it("does not bank an old approved version after the linked question changes", async () => {
+    await db.exec("reset role"); await db.query("update public.questions set version=2 where id=$1", [id(62)]); await actor(1);
+    await expect(repository.call("include_bank", sponsor, { competition_id: competition, candidate_id: id(30), position: 0 })).rejects.toThrow("UNAPPROVED_BANK_OR_PROVENANCE");
+  });
+  it("refuses bridge rollback after persisted review and generation activity", async () => {
+    await db.exec("reset role");
+    await expect(db.exec(readFileSync(new URL("../../supabase/rollback/sponsor_candidate_review_bridge.sql", import.meta.url), "utf8"))).rejects.toThrow("ROLLBACK_REQUIRES_ARCHIVE_AND_ISOLATED_RESTORE");
+    await db.exec("rollback"); await actor(1);
   });
   it("refuses rollback with persisted workflow records", async () => {
     await db.exec("reset role");

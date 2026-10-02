@@ -5,7 +5,7 @@ export type Organization = { sponsor_id: string; organization_name: string; orga
 export type DraftRecord = { competition_id: string; sponsor_id: string; revision: number; configuration: Record<string, unknown>; content_context_id: string | null };
 export type DocumentRecord = { id: string; title: string; ingestion_status: string; approval_status: string; error_code: string | null };
 export type SourceDetail = { id: string; bucket: string; path: string; mime_type: string; checksum: string; chunks: unknown[] };
-export type WorkspaceAction = "list_organizations" | "create_organization" | "organization" | "edit_organization" | "member" | "sponsor_status" | "list_drafts" | "save_draft" | "draft" | "documents" | "register_source" | "source_detail" | "claim_extraction" | "finish_extraction" | "fail_extraction" | "fail_upload" | "retry_upload" | "jobs" | "queue_generation" | "claim_generation" | "generation_sources" | "finish_generation" | "fail_generation" | "cancel_generation";
+export type WorkspaceAction = "list_organizations" | "create_organization" | "organization" | "edit_organization" | "member" | "sponsor_status" | "list_drafts" | "save_draft" | "draft" | "documents" | "register_source" | "source_detail" | "claim_extraction" | "finish_extraction" | "fail_extraction" | "fail_upload" | "retry_upload" | "jobs" | "queue_generation" | "claim_generation" | "generation_sources" | "finish_generation" | "fail_generation" | "cancel_generation" | "retry_generation" | "execute_generation" | "candidates" | "assign_candidate" | "review_queue" | "review_detail" | "complete_review" | "bank" | "include_bank" | "oversight";
 
 export class SponsorRepository {
   constructor(private readonly client: Pick<SupabaseClient, "rpc">) {}

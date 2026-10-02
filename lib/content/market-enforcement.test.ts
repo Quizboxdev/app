@@ -130,6 +130,14 @@ describe("market governance PostgreSQL integration (isolated contract fixtures)"
   afterEach(async () => { await db.exec("rollback; reset role"); });
   afterAll(async () => { await db.close(); });
 
+  it("exposes the document-only candidate materialization blocker without inventing a curriculum node", async () => {
+    await actor(4);
+    const selected = await context("LOCAL_MARKET", "SPONSOR_SOURCE", [gh], [72]);
+    await value("select public.qb_activate_content_context($1)", [selected]);
+    await expect(value("insert into public.questions(id,version,subject_code,source_type,validation_status,status) values($1,1,'Computing','AI_GENERATED','review','inactive') returning id", [id(90)]))
+      .rejects.toThrow("QB_CURRICULUM_OUTSIDE_CONTENT_CONTEXT");
+  });
+
   it("backfills only proven Ghana records and preserves national/source grade identity", async () => {
     expect(await value("select default_market_id from profiles where id=$1", [id(2)])).toBe(gh);
     expect(await value("select default_market_id from profiles where id=$1", [id(5)])).toBeNull();
