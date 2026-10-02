@@ -2,7 +2,7 @@ param([Parameter(Mandatory=$true)][string]$Archive,[switch]$ConfirmIsolatedResto
 $ErrorActionPreference='Stop'
 if (-not $ConfirmIsolatedRestore -or $env:QB_ENVIRONMENT -ne 'restore') { throw 'ISOLATED_RESTORE_CONFIRMATION_REQUIRED' }
 $ref=$env:QB_RESTORE_PROJECT_REF
-if (-not $ref -or $ref -eq $env:QB_PRODUCTION_PROJECT_REF -or $ref -eq 'fmgccmqxfjppqydkhaiu') { throw 'RESTORE_TARGET_IS_NOT_ISOLATED' }
+if (-not $ref -or -not $env:QB_PRODUCTION_PROJECT_REF -or $ref -eq $env:QB_PRODUCTION_PROJECT_REF -or $ref -eq 'fmgccmqxfjppqydkhaiu') { throw 'RESTORE_TARGET_IS_NOT_ISOLATED' }
 if ($env:PGHOST -ne "db.$ref.supabase.co" -or $env:PGDATABASE -ne 'postgres') { throw 'RESTORE_CONNECTION_TARGET_MISMATCH' }
 if (-not (Test-Path -LiteralPath $Archive -PathType Leaf)) { throw 'RESTORE_ARCHIVE_MISSING' }
 if (-not (Get-Command pg_restore -ErrorAction SilentlyContinue)) { throw 'EXISTING_PG_RESTORE_REQUIRED' }
@@ -14,6 +14,9 @@ if ($expected -notmatch '^[a-fA-F0-9]{64}$' -or (Get-FileHash -LiteralPath $Arch
 # Use an operator-managed PGPASSFILE; never place credentials in command arguments.
 & pg_restore --list $Archive | Out-Null
 if ($LASTEXITCODE -ne 0) { throw 'RESTORE_ARCHIVE_INVALID' }
-& pg_restore --single-transaction --exit-on-error --no-owner --no-acl --host $env:PGHOST --username $env:PGUSER --dbname postgres $Archive
+$env:PGSSLMODE='require'
+& pg_restore --single-transaction --exit-on-error --no-owner --host $env:PGHOST --username $env:PGUSER --dbname postgres $Archive
 if ($LASTEXITCODE -ne 0) { throw 'ISOLATED_RESTORE_FAILED' }
+$receipt=@{status='EXECUTED';sourceProject='fmgccmqxfjppqydkhaiu';targetProject=$ref;archiveSha256=$expected.ToLowerInvariant();checkedAt=[DateTime]::UtcNow.ToString('o')}
+$receipt | ConvertTo-Json | Set-Content -LiteralPath (Join-Path (Split-Path -Parent $Archive) 'restore-execution.json') -Encoding ascii
 Write-Output 'RESTORE_EXECUTED: compare row counts/checksums and run authenticated regression before certification'

@@ -8,6 +8,7 @@ describe("acceptance credentials and release boundaries", () => {
  it("requires environment-supplied account identifiers and passwords", () => expect(acceptanceAccount("student", environment)).toEqual({ email: environment.QB_ACCEPTANCE_STUDENT_EMAIL, password: environment.QB_ACCEPTANCE_STUDENT_PASSWORD }));
  it("rejects missing configured email", () => expect(() => acceptanceAccount("student", { ...environment, QB_ACCEPTANCE_STUDENT_EMAIL: "" })).toThrow());
  it("rejects missing configured password", () => expect(() => acceptanceAccount("student", { ...environment, QB_ACCEPTANCE_STUDENT_PASSWORD: "" })).toThrow());
+ it("never falls back to legacy/shared credentials after rotation", () => expect(() => acceptanceAccount("student", { ...environment, QB_ACCEPTANCE_ROTATED: "1", QB_ACCEPTANCE_STUDENT_PASSWORD: undefined, QUIZBOX_STUDENT_PASSWORD: "old-unit-only", QB_ACCEPTANCE_PASSWORD: "old-unit-only" })).toThrow());
  it("does not accept production account identities", () => expect(() => acceptanceAccount("student", { ...environment, QB_ACCEPTANCE_STUDENT_EMAIL: "real-user@example.invalid" })).toThrow());
  it.each([{ NODE_ENV: "production" }, { VERCEL_ENV: "production" }, { QB_ENVIRONMENT: "production" }, { QB_PRODUCTION_PROJECT_REF: "unit" }])("refuses production context %j", flags => expect(() => acceptanceAccount("student", { ...environment, ...flags })).toThrow());
  it("supports per-role rotated secrets instead of a shared password", () => {

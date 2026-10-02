@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
+    "release:verify-security": "tsx scripts/verify-release-security.ts",
+    "acceptance:live": "tsx scripts/run-live-acceptance.ts",
+    "restore:verify": "tsx scripts/verify-restore.ts",
     "content:wave:import": "tsx scripts/import-wave-one.ts",
     "acceptance:run": "tsx scripts/run-acceptance.ts",
     "release:check": "tsx scripts/release-check.ts",

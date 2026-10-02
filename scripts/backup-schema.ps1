@@ -12,8 +12,14 @@ New-Item -ItemType Directory -Path $target -Force | Out-Null
 $archive=Join-Path $target 'quizbox.dump'
 if (Test-Path -LiteralPath $archive) { throw 'BACKUP_ARCHIVE_ALREADY_EXISTS' }
 $env:PGSSLMODE='require'
+$env:QB_ENVIRONMENT='backup'
+$tsx=Join-Path $PSScriptRoot '../node_modules/tsx/dist/cli.mjs'
+& node $tsx (Join-Path $PSScriptRoot 'verify-restore.ts') --capture --output (Join-Path $target 'source-before.json')
+if ($LASTEXITCODE -ne 0) { throw 'SOURCE_INTEGRITY_CAPTURE_FAILED' }
 # pg_dump uses a consistent read-only snapshot. The archive includes sensitive Auth data.
-& pg_dump --format=custom --no-owner --no-acl --schema=public --schema=quizbox_private --schema=auth --schema=storage --host $env:PGHOST --username $env:PGUSER --dbname postgres --file $archive
+& pg_dump --format=custom --no-owner --schema=public --schema=quizbox_private --schema=auth --schema=storage --host $env:PGHOST --username $env:PGUSER --dbname postgres --file $archive
 if ($LASTEXITCODE -ne 0) { throw 'CONSISTENT_ARCHIVE_EXPORT_FAILED' }
 (Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash | Set-Content -LiteralPath "$archive.sha256" -Encoding ascii
+& node $tsx (Join-Path $PSScriptRoot 'verify-restore.ts') --seal --archive $archive
+if ($LASTEXITCODE -ne 0) { throw 'SOURCE_CHANGED_DURING_BACKUP_RETRY_DURING_QUIET_WINDOW' }
 Write-Output 'CONSISTENT_ARCHIVE_EXPORTED: preserve privately; storage binaries need separate export; restore not verified'

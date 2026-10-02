@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-02T08:02:24.771Z",
+  "generatedAt": "2026-10-02T08:33:00.475Z",
   "decision": "NOT READY",
   "commands": {
     "typecheck": true,
@@ -17,7 +17,7 @@
       "id": "approved_production_content",
       "status": "FAIL",
       "severity": "P0",
-      "evidence": "0 approved in latest read-only content receipt; authenticated release audit unavailable"
+      "evidence": "0 approved in current server-read-only coverage; authenticated release audit unavailable"
     },
     {
       "category": "SECURITY",
@@ -59,28 +59,28 @@
       "id": "authenticated_regression",
       "status": "FAIL",
       "severity": "P0",
-      "evidence": "Current run requires QB_LIVE_ACCEPTANCE=1 and acceptance environment credentials"
+      "evidence": "AUTHENTICATION: AUTHENTICATED_PREFLIGHT_FAILED; 0 passed, 95 not executed"
     },
     {
       "category": "AUTH",
       "id": "leaked_password_protection",
-      "status": "MANUAL VERIFICATION REQUIRED",
+      "status": "FAIL",
       "severity": "P0",
-      "evidence": "Live security advisor reports protection disabled; enable and reverify in Supabase Auth"
+      "evidence": "MANAGEMENT_TOKEN_REQUIRED_FOR_POSITIVE_CONFIG_VERIFICATION"
     },
     {
       "category": "SECURITY",
       "id": "test_credential_rotation",
-      "status": "MANUAL VERIFICATION REQUIRED",
+      "status": "FAIL",
       "severity": "P0",
-      "evidence": "Previously committed/shared test passwords must be rotated or accounts isolated; no history rewrite performed"
+      "evidence": "SIX_ACCOUNT_ROTATION_RECEIPT_REQUIRED"
     },
     {
       "category": "OPERATIONS",
       "id": "backup_restore",
-      "status": "MANUAL VERIFICATION REQUIRED",
+      "status": "FAIL",
       "severity": "P0",
-      "evidence": "Infrastructure backup and isolated database restore drill need operator verification"
+      "evidence": "Isolated restore execution, schema/data checksums, FK integrity and storage verification required"
     },
     {
       "category": "AUTH",

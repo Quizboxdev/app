@@ -1,0 +1,20 @@
+{
+  "checkedAt": "2026-10-02T08:29:02.673Z",
+  "project": "fmgccmqxfjppqydkhaiu",
+  "source": "Live read-only database connector; not authenticated browser evidence",
+  "waveCandidates": 45,
+  "inReview": 45,
+  "approved": 0,
+  "activeApproved": 0,
+  "rejected": 0,
+  "waveRevision": 0,
+  "legacyRevision": 2,
+  "mappedIndicators": 9,
+  "candidatesPerIndicator": 5,
+  "structuralValidationFailures": 0,
+  "sourceGrade": "B10",
+  "canonicalGrade": "SHS1",
+  "legacyFlags": ["INVALID_INDICATOR", "INVALID_DIFFICULTY", "INVALID_DURATION", "MISSING_PROVENANCE_OR_COGNITIVE_LEVEL"],
+  "taxonomyWarning": "Some imported ancestry titles are incomplete; reviewer must consult exact PDF provenance. No titles or source codes rewritten.",
+  "autoApproved": 0
+}

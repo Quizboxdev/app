@@ -1,0 +1,12 @@
+{
+  "checkedAt": "2026-10-02T08:31:41.435Z",
+  "project": "fmgccmqxfjppqydkhaiu",
+  "status": "FAIL",
+  "category": "AUTHENTICATION",
+  "passed": 0,
+  "failed": 0,
+  "skipped": 95,
+  "executed": 0,
+  "accountRole": "admin",
+  "reason": "AUTHENTICATED_PREFLIGHT_FAILED"
+}

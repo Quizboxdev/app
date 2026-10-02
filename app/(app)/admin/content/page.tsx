@@ -7,9 +7,10 @@ import { getContentCoverage, getContentDetail, importCandidates, listContentBatc
 import { EDITORIAL_STATES, type GenerationSpec } from "@/lib/content/factory/contract";
 import { userFacingError } from "@/lib/errors";
 import { CoverageTargetEditor, QuestionMediaUpload } from "@/components/ContentClosureTools";
+import { reviewPage, WAVE_ONE_REVIEW_INDICATORS } from "@/lib/content/factory/review";
 
 type View = "review" | "coverage" | "batches";
-const initialFilters = { search: "", curriculum: "", grade: "", subject: "", node: "", source: "production", status: "review", difficulty: "", cognitive: "", type: "", batch: "" };
+const initialFilters = { search: "", curriculum: "", grade: "", subject: "", indicator: "", reviewStatus: "", validation: "", node: "", source: "production", status: "review", difficulty: "", cognitive: "", type: "", batch: "" };
 const RichPreview = dynamic(() => import("@/components/QuestionRenderer"));
 export default function AdminContentPage() {
   const [view, setView] = useState<View>("review");
@@ -38,19 +39,24 @@ export default function AdminContentPage() {
   }, [view, applied, page, branch]);
   useEffect(() => { void load(); }, [load]);
   const selectView = (next: View) => { loadVersion.current++; setRows([]); setTotal(0); setSummary({}); setView(next); setPage(1); setDetail(null); setGeneration(null); };
-  const open = async (id: string) => {
-    setBusy(true); setError("");
+  const open = async (id: string, manageBusy = true) => {
+    if (manageBusy) setBusy(true); setError("");
     try { setDetail(await getContentDetail(id)); setEditing(false); setNote(""); setAttested(false); setTimeout(() => heading.current?.focus(), 0); }
-    catch (e) { setError(userFacingError(e)); } finally { setBusy(false); }
+    catch (e) { setError(userFacingError(e)); } finally { if (manageBusy) setBusy(false); }
   };
   const act = async (action: string, patch: Record<string, unknown> = {}, next = false) => {
+    if (note.trim().length < 3 || note.trim().length > 1000) { setError("A review note of 3 to 1000 characters is required."); return; }
     setBusy(true); setError("");
     try {
       await reviewContent(detail.question, action, note, attested, patch);
       setNotice(action === "approve" ? "Approved. Publication remains a separate decision." : "Review saved.");
-      const refreshed = next ? await listContentQueue(applied,page) : null;
+      let refreshed = next ? await listContentQueue(applied,page) : null;
+      if (refreshed && reviewPage(page, refreshed.total) !== page) {
+        const remainingPage = reviewPage(page, refreshed.total);
+        setPage(remainingPage); refreshed = await listContentQueue(applied, remainingPage);
+      }
       const nextId = refreshed?.rows?.find((r:any) => r.id !== detail.question.id)?.id;
-      if (next && nextId) await open(nextId); else if(next) setDetail(null); else await open(detail.question.id);
+      if (next && nextId) await open(nextId, false); else if(next) setDetail(null); else await open(detail.question.id, false);
       await load();
     } catch (e) { setError(userFacingError(e)); } finally { setBusy(false); }
   };
@@ -86,10 +92,12 @@ export default function AdminContentPage() {
     <div className="qb-page-head"><h1>Content Operations</h1><button type="button" onClick={() => void load()} title="Refresh" aria-label="Refresh" disabled={loading}><RefreshCw size={18}/></button></div>
     <nav className="qb-content-tabs" aria-label="Content views">{(["review", "coverage", "batches"] as View[]).map((item) => <button key={item} type="button" disabled={busy} aria-current={view === item ? "page" : undefined} onClick={() => selectView(item)}>{ { review: "Editorial Review", coverage: "Curriculum Coverage", batches: "Batches" }[item]}</button>)}</nav>
     {error && <p role="alert" className="qb-error">{error}</p>}{notice && <p role="status">{notice}</p>}
+    {view === "review" && <label>Wave 1 indicator<select disabled={busy} value={WAVE_ONE_REVIEW_INDICATORS.some(i=>i.code===applied.indicator)?applied.indicator:""} onChange={e=>{const indicator=WAVE_ONE_REVIEW_INDICATORS.find(i=>i.code===e.target.value);const next={...initialFilters,subject:indicator?.subject??"",indicator:indicator?.code??"",grade:"SHS1"};setFilters(next);setApplied(next);setPage(1);setDetail(null);}}><option value="">All production subjects</option>{WAVE_ONE_REVIEW_INDICATORS.map(i=><option key={i.code} value={i.code}>{i.subject} / {i.code}</option>)}</select></label>}
     {view !== "batches" && <form className="qb-content-filters" onSubmit={(e) => { e.preventDefault(); setApplied(filters); setPage(1); setBranch([]); }}>
-      {["search", "grade", "subject", "curriculum", ...(view === "review" ? ["node", "source", "cognitive", "batch"] : [])].map((name) => <label key={name}>{({ node: "Curriculum node ID", curriculum: "Curriculum ID", batch: "Batch ID" } as Record<string, string>)[name] ?? name}<input value={filters[name as keyof typeof filters]} onChange={(e) => setFilters({ ...filters, [name]: e.target.value })}/></label>)}
+      {["search", "grade", "subject", "curriculum", ...(view === "review" ? ["indicator", "node", "source", "cognitive", "batch"] : [])].map((name) => <label key={name}>{({ indicator: "Indicator code", node: "Curriculum node ID", curriculum: "Curriculum ID", batch: "Batch ID" } as Record<string, string>)[name] ?? name}<input disabled={busy} value={filters[name as keyof typeof filters]} onChange={(e) => setFilters({ ...filters, [name]: e.target.value })}/></label>)}
+      {view === "review" && <><label>Review status<select disabled={busy} value={filters.reviewStatus} onChange={e=>setFilters({...filters,reviewStatus:e.target.value})}><option value="">All</option>{["active","inactive"].map(s=><option key={s}>{s}</option>)}</select></label><label>Validation flags<select disabled={busy} value={filters.validation} onChange={e=>setFilters({...filters,validation:e.target.value})}><option value="">All</option><option value="clear">No warnings</option><option value="flagged">Warnings / duplicates</option></select></label></>}
       {view === "review" && <><label>Editorial state<select value={filters.status} onChange={(e) => setFilters({ ...filters, status: e.target.value })}><option value="">All</option>{EDITORIAL_STATES.map((s) => <option key={s}>{s}</option>)}</select></label><label>Difficulty<select value={filters.difficulty} onChange={(e) => setFilters({ ...filters, difficulty: e.target.value })}><option value="">All</option>{["easy","medium","hard"].map((s) => <option key={s}>{s}</option>)}</select></label><label>Question type<select value={filters.type} onChange={(e) => setFilters({ ...filters, type: e.target.value })}><option value="">All</option>{["SINGLE_CHOICE","TRUE_FALSE","MULTIPLE_CHOICE","NUMERIC","FRACTION","SHORT_TEXT","EXPRESSION"].map((s) => <option key={s}>{s}</option>)}</select></label></>}
-      <button type="submit">Apply Filters</button>
+      <button type="submit" disabled={busy}>Apply Filters</button>
     </form>}
     {view === "coverage" && <>
       <CoverageTargetEditor onSaved={load}/>
@@ -107,13 +115,16 @@ export default function AdminContentPage() {
       <div className="qb-page-head"><h2 id="review-heading" ref={heading} tabIndex={-1}>Question Review</h2><button aria-label="Close review" title="Close review" onClick={() => setDetail(null)}><X size={18}/></button></div>
       <RichPreview question={{...q,question_id:q.id}}/><ol type="A">{[q.option_a,q.option_b,q.option_c,q.option_d].map((o,i) => <li key={i}>{o || "-"}</li>)}</ol>
       <p><strong>Proposed answer:</strong> {q.correct_answer}{/^[ABCD]$/.test(q.correct_answer ?? "") ? `: ${q["option_" + q.correct_answer.toLowerCase()]}` : ""}</p><p><strong>Explanation:</strong> {q.explanation}</p>
-      <p>{q.indicator_code} / {q.subject_code} / {q.source_grade_code ?? q.grade} / {q.canonical_grade_code ?? q.grade}</p>
+      <dl className="qb-content-metrics"><div><dt>Subject</dt><dd>{q.subject_code}</dd></div><div><dt>Source grade</dt><dd>{q.source_grade_code ?? q.grade}</dd></div><div><dt>Canonical grade</dt><dd>{q.canonical_grade_code ?? q.grade}</dd></div></dl>
+      <dl>{["strand","sub_strand","content_standard","learning_indicator"].map(type=>{const node=detail.ancestry?.find((n:any)=>n.node_type===type);return <div key={type}><dt>{({strand:"Strand",sub_strand:"Sub-strand",content_standard:"Content standard",learning_indicator:"Learning indicator"} as Record<string,string>)[type]}</dt><dd>{node ? `${node.code}: ${node.title}` : "Not mapped"}</dd></div>;})}</dl>
       <p><strong>Learning indicator:</strong> {detail.mapping?.title ?? "No curriculum mapping"}</p>
+      {detail.ancestry?.some((n:any)=>["strand","sub_strand","content_standard"].includes(n.node_type) && (!/[A-Za-z]{3}/.test(n.title??""))) && <p role="status">Imported hierarchy titles are incomplete. Review against the source PDF and page provenance; curriculum codes are preserved.</p>}
       {q.tags?.find((tag: string) => tag.startsWith("objective-summary:")) && <p><strong>Curriculum objective summary:</strong> {q.tags.find((tag: string) => tag.startsWith("objective-summary:")).slice("objective-summary:".length)}</p>}
       <p><strong>Provenance:</strong> {q.source_type} / {q.source_version ?? "Version not supplied"} / {q.editorial_metadata?.provider ?? "Provider not recorded"}</p>
       <ul style={{overflowWrap:"anywhere"}}>{(q.tags ?? []).filter((tag: string) => tag.startsWith("curriculum-source:") || tag.startsWith("curriculum-page:") || tag.startsWith("curriculum-sha256:")).map((tag: string) => <li key={tag}>{tag}</li>)}</ul>
       <p>{q.difficulty_label} / {q.cognitive_level} / {q.source_type} / version {q.version}</p>
       {q.duplicate_group_id && <p role="status">Duplicate group: {q.duplicate_group_id}</p>}
+      <p><strong>Validation status:</strong> {q.validation_status} / <strong>Review status:</strong> {q.status}</p>
       <ul>{(detail.validation_errors ?? []).map((code: string) => <li key={code}>{code}</li>)}</ul>
       <ul>{(q.editorial_metadata?.warnings ?? []).map((code: string) => <li key={code}>{code}</li>)}</ul>
       <label>Review note<textarea value={note} onChange={(e) => setNote(e.target.value)} required minLength={3} maxLength={1000}/></label>

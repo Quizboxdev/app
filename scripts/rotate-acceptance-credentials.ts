@@ -16,13 +16,13 @@ async function main(){
  await writeFile(".env.acceptance.rotated.local",Object.entries(values).map(([k,v])=>k+"="+v).join("\n")+"\n",{mode:0o600,flag:"wx"});
  const results:any[]=[];
  for(const s of sessions){
-  const revoked=await admin.auth.admin.signOut(s.session.access_token,"global");if(revoked.error)throw new Error("REFRESH_REVOCATION_FAILED");
   const changed=await admin.auth.admin.updateUserById(s.userId,{password:s.password});if(changed.error||changed.data.user?.id!==s.userId)throw new Error("TEST_ROTATION_FAILED");
+  const revoked=await admin.auth.admin.signOut(s.session.access_token,"global");if(revoked.error)throw new Error("REFRESH_REVOCATION_FAILED");
   const probe=createClient(url,anon,options),old=await probe.auth.signInWithPassword({email:s.email,password:s.oldPassword}),refresh=await probe.auth.refreshSession({refresh_token:s.session.refresh_token});
   if(!old.error||!refresh.error)throw new Error("OLD_CREDENTIALS_STILL_USABLE");
   const fresh=await probe.auth.signInWithPassword({email:s.email,password:s.password});if(fresh.error)throw new Error("REPLACEMENT_LOGIN_FAILED");await probe.auth.signOut();
   results.push({email:s.email,userId:s.userId,passwordRotated:true,oldPasswordRejected:true,oldRefreshRejected:true,replacementLoginVerified:true,oldAccessTokenExpiresAt:s.session.expires_at});
-  await writeFile("reports/acceptance-credential-rotation.json",JSON.stringify({checkedAt:new Date().toISOString(),accounts:results,physicallyIsolated:false,accessTokenCaveat:"Previously issued access JWTs may remain valid until expiry; refresh sessions are revoked",credentialFile:".env.acceptance.rotated.local",secretsPrinted:false},null,2));
+  await writeFile("reports/acceptance-credential-rotation.json",JSON.stringify({project:new URL(url).hostname.split('.')[0],checkedAt:new Date().toISOString(),accounts:results,physicallyIsolated:false,accessTokenCaveat:"Previously issued access JWTs may remain valid until expiry; refresh sessions are revoked",credentialFile:".env.acceptance.rotated.local",secretsPrinted:false},null,2));
  }
  console.log(JSON.stringify({accountsRotated:results.length,oldPasswordsRejected:results.length,refreshSessionsRevoked:results.length,physicalIsolationVerified:false,secretsPrinted:false}));
 }
