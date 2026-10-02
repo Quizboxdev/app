@@ -3,6 +3,12 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
+    "release:check": "tsx scripts/release-check.ts",
+    "security:readiness": "tsx scripts/security-readiness.ts",
+    "content:wave": "tsx scripts/content-wave-1.ts",
+    "content:targets": "tsx scripts/configure-content-targets.ts",
+    "backup:content": "tsx scripts/backup-content.ts",
+    "ops:recent": "tsx scripts/recent-operations.ts",
     "content:factory": "tsx scripts/content-factory.ts",
     "dev": "next dev",
     "build": "next build",
@@ -16,7 +22,9 @@
     "seed:dev-acceptance": "tsx scripts/seed-dev-acceptance-questions.ts",
     "content:import:dry-run": "tsx scripts/import-content.ts"
   },
-  "overrides": { "postcss": "8.5.28" },
+  "overrides": {
+    "postcss": "8.5.28"
+  },
   "dependencies": {
     "@next/env": "15.5.26",
     "@supabase/ssr": "^0.5.2",
@@ -28,7 +36,8 @@
     "pdf-parse": "^2.4.5",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "xlsx": "^0.18.5"
+    "sharp": "0.35.5",
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
   },
   "devDependencies": {
     "@types/katex": "^0.16.7",
