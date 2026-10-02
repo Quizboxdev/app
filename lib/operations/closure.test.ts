@@ -1,0 +1,42 @@
+import { describe,expect,it } from "vitest";
+import { readFile } from "node:fs/promises";
+import { acceptancePassword,fixtureMutationAllowed,sanitizedFailure } from "./safety";
+import { releaseGates,releaseBlocked } from "./release";
+import { resolveTarget } from "../content/factory/targets";
+import { calculateCoverage } from "../content/factory/coverage";
+import { validateImage,MEDIA_MAX_BYTES } from "../media/validation";
+import sharp from "sharp";
+import * as XLSX from "xlsx";
+const env={QB_ENVIRONMENT:"acceptance",QB_ACCEPTANCE_PROJECT_REF:"acceptance",NEXT_PUBLIC_SUPABASE_URL:"https://acceptance.supabase.co",QB_ACCEPTANCE_PASSWORD:"unit-only-not-a-live-credential"};
+describe("production closure safety",()=>{
+  it("uses saved thresholds for coverage health",()=>{const node:any={id:"n",curriculum_id:"c",parent_id:null,node_type:"learning_indicator",is_active:true,grade_code:"B7",subject_code:"Science"};const questions:any[]=Array.from({length:25},()=>({curriculum_node_id:"n",status:"active",validation_status:"approved",source_type:"EDITORIAL",difficulty_label:"easy",answer_type:"SINGLE_CHOICE"}));const result=calculateCoverage([node],questions,10,[{curriculum_id:"c",grade_code:"",subject_code:"",minimum:50,easy:15,medium:20,hard:15,type_mix:{SINGLE_CHOICE:50}}]);expect(result.nodes[0].health).toBe("Thin");expect(result.nodes[0].target_total).toBe(50);});
+  it("requires an explicit acceptance environment",()=>expect(()=>acceptancePassword({...env,QB_ENVIRONMENT:"production"})).toThrow("ACCEPTANCE_ENVIRONMENT_REQUIRED"));
+  it("rejects the production runtime",()=>expect(()=>acceptancePassword({...env,NODE_ENV:"production"})).toThrow());
+  it("rejects a missing password",()=>expect(()=>acceptancePassword({...env,QB_ACCEPTANCE_PASSWORD:""})).toThrow("QB_ACCEPTANCE_PASSWORD_REQUIRED"));
+  it("rejects a mismatched project",()=>expect(()=>acceptancePassword({...env,QB_ACCEPTANCE_PROJECT_REF:"other"})).toThrow());
+  it("rejects the production project",()=>expect(()=>acceptancePassword({...env,QB_PRODUCTION_PROJECT_REF:"acceptance"})).toThrow());
+  it("requires explicit fixture flags",()=>expect(()=>fixtureMutationAllowed(env,[],"DEV_ACCEPTANCE_FIXTURE")).toThrow());
+  it("rejects an unrecognized fixture namespace",()=>expect(()=>fixtureMutationAllowed(env,["--apply","--confirm-fixtures"],"ALL")).toThrow());
+  it("permits only confirmed acceptance fixture operations",()=>expect(()=>fixtureMutationAllowed(env,["--apply","--confirm-fixtures"],"DEV_ACCEPTANCE_FIXTURE")).not.toThrow());
+  it.each(["password=private","Bearer private","https://private.invalid/token","correct_answer=A"])("redacts failure payload %s",(code)=>expect(sanitizedFailure("IMPORT",code)).toEqual({operation:"IMPORT",code:"OPERATION_FAILED"}));
+  it("does not admit arbitrary telemetry operations",()=>expect(()=>sanitizedFailure("anything","x")).toThrow());
+  it("retains only canonical failure codes",()=>expect(sanitizedFailure("CLASS_JOIN","QB_RATE_LIMITED").code).toBe("QB_RATE_LIMITED"));
+  it("fails release when approved content is zero",()=>{const gates=releaseGates({approved:0,anonUnexpected:0,rlsDisabled:0,signup:true,dependencyHigh:0,applicationPassed:true,authenticatedPassed:true,credentialsPresent:true});expect(gates.find(g=>g.id==="approved_production_content")?.status).toBe("FAIL");expect(releaseBlocked(gates)).toBe(true);});
+  it("manual release gates never silently become PASS",()=>expect(releaseGates({approved:1,anonUnexpected:0,rlsDisabled:0,signup:true,dependencyHigh:0,applicationPassed:true,authenticatedPassed:true,credentialsPresent:true}).filter(g=>g.status==="MANUAL VERIFICATION REQUIRED")).toHaveLength(3));
+  it("requires authenticated acceptance instead of skipped tests",()=>expect(releaseGates({approved:1,anonUnexpected:0,rlsDisabled:0,signup:true,dependencyHigh:0,applicationPassed:true,authenticatedPassed:false,credentialsPresent:false}).find(g=>g.id==="authenticated_regression")?.status).toBe("FAIL"));
+  it("selects the most-specific saved coverage scope",()=>{const n:any={curriculum_id:"c",grade_code:"B7",subject_code:"Science"};const base={curriculum_id:"c",minimum:10,easy:3,medium:4,hard:3,type_mix:{SINGLE_CHOICE:10}};expect(resolveTarget(n,[{...base,grade_code:"",subject_code:""},{...base,grade_code:"B7",subject_code:"Science",minimum:12}]).minimum).toBe(12);});
+  it("does not apply another curriculum's override",()=>expect(resolveTarget({curriculum_id:"c"} as any,[{curriculum_id:"other",minimum:50} as any]).minimum).toBe(10));
+  it.each(["lib/learning/practice.live.test.ts","lib/content/factory/factory.live.test.ts","scripts/verify-practice-acceptance.ts"])("has no live-password fallback in %s",async(file)=>{const text=await readFile(file,"utf8");expect(text).not.toMatch(/QB_ACCEPTANCE_PASSWORD\s*\?\?/);expect(text).toContain("acceptancePassword");});
+});
+describe("spreadsheet import regression",()=>{
+  it("uses the patched vendor distribution",()=>expect(XLSX.version).toBe("0.20.3"));
+  it.each(["xlsx","biff8"] as const)("round-trips %s question rows",(bookType)=>{const workbook=XLSX.utils.book_new();XLSX.utils.book_append_sheet(workbook,XLSX.utils.json_to_sheet([{question_text:"One half plus one quarter?",option_a:"Three quarters",correct_answer:"A",indicator_code:"B7.1.3.2.2"}]),"QUESTION_BANK");const bytes=XLSX.write(workbook,{type:"buffer",bookType});const reopened=XLSX.read(bytes);expect(XLSX.utils.sheet_to_json(reopened.Sheets.QUESTION_BANK)).toEqual([{question_text:"One half plus one quarter?",option_a:"Three quarters",correct_answer:"A",indicator_code:"B7.1.3.2.2"}]);});
+  it("preserves quoted CSV cells and explicit answer keys",()=>{const wb=XLSX.read('question_text,correct_answer\n"Count 1, 2, 3",C',{type:"string"});expect(XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]])).toEqual([{question_text:"Count 1, 2, 3",correct_answer:"C"}]);});
+});
+describe("media validation",()=>{
+  it("decodes and normalizes a real PNG",async()=>{const bytes=await sharp({create:{width:32,height:24,channels:3,background:"#ffffff"}}).png().toBuffer();const image=await validateImage(bytes,"image/png");expect(image.width).toBe(32);expect(image.height).toBe(24);expect(image.mime).toBe("image/png");});
+  it("rejects SVG",async()=>expect(validateImage(Buffer.from('<svg/>'),"image/svg+xml")).rejects.toThrow());
+  it("rejects a spoofed PNG",async()=>expect(validateImage(Buffer.from("not a png"),"image/png")).rejects.toThrow());
+  it("rejects oversize files",async()=>expect(validateImage(Buffer.alloc(MEDIA_MAX_BYTES+1),"image/png")).rejects.toThrow());
+  it("rejects oversized dimensions",async()=>{const bytes=await sharp({create:{width:4097,height:1,channels:3,background:"#ffffff"}}).png().toBuffer();await expect(validateImage(bytes,"image/png")).rejects.toThrow();});
+});
