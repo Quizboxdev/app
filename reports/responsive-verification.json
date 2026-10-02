@@ -1,0 +1,14 @@
+{
+  "status": "PARTIAL",
+  "url": "http://localhost:3002",
+  "screenshot": "FAILED_TOOLING: CDP Page.captureScreenshot timed out",
+  "viewportWarning": "Requested widths were translated by the browser host; exact 360/390/768 CSS widths are not certified",
+  "measurements": [
+    {"page":"login","requestedWidth":360,"actualWidth":401,"scrollWidth":401},
+    {"page":"student dashboard","requestedWidth":390,"actualWidth":434,"scrollWidth":417},
+    {"page":"classroom and assignment list","requestedWidth":768,"actualWidth":854,"scrollWidth":837},
+    {"page":"results","requestedWidth":360,"actualWidth":401,"scrollWidth":384}
+  ],
+  "pending": ["exact breakpoint screenshots", "attempt player", "teacher dashboard", "assignment creator", "remediation", "admin review console"],
+  "viewportOverrideReset": true
+}

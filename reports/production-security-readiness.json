@@ -1,0 +1,2544 @@
+{
+  "generatedAt": "2026-10-02T01:14:22.091Z",
+  "findings": [
+    {
+      "id": "rpc_anonymous_execute",
+      "severity": "P0",
+      "status": "PASS",
+      "evidence": [],
+      "reference": "pg_proc ACL; qb_production_security_audit"
+    },
+    {
+      "id": "public_rls",
+      "severity": "P0",
+      "status": "PASS",
+      "reference": "pg_class.relrowsecurity",
+      "evidence": []
+    },
+    {
+      "id": "signup",
+      "severity": "P0",
+      "status": "PASS",
+      "reference": "auth.users trigger quizbox_signup_profile; fixed STUDENT role"
+    },
+    {
+      "id": "dependencies",
+      "severity": "P0",
+      "status": "PASS",
+      "reference": "package-lock.json; npm audit",
+      "evidence": {
+        "info": 0,
+        "low": 0,
+        "moderate": 0,
+        "high": 0,
+        "critical": 0,
+        "total": 0
+      }
+    },
+    {
+      "id": "production_content",
+      "severity": "P0",
+      "status": "FAIL",
+      "reference": "questions active/approved mapped, excluding both fixture namespaces",
+      "count": 0
+    },
+    {
+      "id": "test_credential_rotation",
+      "severity": "P0",
+      "status": "MANUAL VERIFICATION REQUIRED",
+      "reference": "Historical acceptance password fallback removed from lib/learning/practice.live.test.ts, factory.live.test.ts and scripts/verify-practice-acceptance.ts; history not rewritten"
+    },
+    {
+      "id": "leaked_password_protection",
+      "severity": "P0",
+      "status": "FAIL",
+      "reference": "Live Supabase advisor receipt 2026-10-02T01:02:54.265Z; Authentication > Attack Protection"
+    },
+    {
+      "id": "backup_restore",
+      "severity": "P0",
+      "status": "MANUAL VERIFICATION REQUIRED",
+      "reference": "docs/production-closure.md; no production restore performed"
+    },
+    {
+      "id": "legacy_authorization",
+      "severity": "P1",
+      "status": "PARTIAL",
+      "reference": "Every public SECURITY DEFINER inventoried; fixed nullable-role bypass, admin gates, tenant analytics and competition summary scope. Full seller/sponsor/competition mutation matrix not exercised"
+    },
+    {
+      "id": "durable_abuse",
+      "severity": "P1",
+      "status": "PASS",
+      "reference": "quizbox_private.operation_budgets; class_join errors return committed counters; per-actor minute/hour windows"
+    },
+    {
+      "id": "answer_keys",
+      "severity": "P0",
+      "status": "PASS",
+      "reference": "factory.live.test.ts and practice.live.test.ts; raw question detail functions revoked"
+    },
+    {
+      "id": "secret_handling",
+      "severity": "P0",
+      "status": "PASS",
+      "reference": ".gitignore; tracked local environment and actual service-key literal scan; separate staged-file verification required",
+      "evidence": {
+        "trackedSecretFiles": 0,
+        "embeddedServiceKeys": 0
+      }
+    },
+    {
+      "id": "media",
+      "severity": "P1",
+      "status": "PASS",
+      "reference": "private question-media bucket; attempt snapshot storage policy; app/api/content/media/route.ts"
+    }
+  ],
+  "live": {
+    "tables": [
+      {
+        "rls": true,
+        "name": "assignments"
+      },
+      {
+        "rls": true,
+        "name": "attempts"
+      },
+      {
+        "rls": true,
+        "name": "responses"
+      },
+      {
+        "rls": true,
+        "name": "assessment_results"
+      },
+      {
+        "rls": true,
+        "name": "content_import_batches"
+      },
+      {
+        "rls": true,
+        "name": "question_import_staging"
+      },
+      {
+        "rls": true,
+        "name": "assignment_question_versions"
+      },
+      {
+        "rls": true,
+        "name": "learning_events"
+      },
+      {
+        "rls": true,
+        "name": "curricula"
+      },
+      {
+        "rls": true,
+        "name": "badges"
+      },
+      {
+        "rls": true,
+        "name": "student_badges"
+      },
+      {
+        "rls": true,
+        "name": "notification_deliveries"
+      },
+      {
+        "rls": true,
+        "name": "system_events"
+      },
+      {
+        "rls": true,
+        "name": "teacher_profiles"
+      },
+      {
+        "rls": true,
+        "name": "student_profiles"
+      },
+      {
+        "rls": true,
+        "name": "question_sources"
+      },
+      {
+        "rls": true,
+        "name": "subject_catalog"
+      },
+      {
+        "rls": true,
+        "name": "gradebook"
+      },
+      {
+        "rls": true,
+        "name": "notifications"
+      },
+      {
+        "rls": true,
+        "name": "assignment_targets"
+      },
+      {
+        "rls": true,
+        "name": "profiles"
+      },
+      {
+        "rls": true,
+        "name": "class_memberships"
+      },
+      {
+        "rls": true,
+        "name": "assessments"
+      },
+      {
+        "rls": true,
+        "name": "classes"
+      },
+      {
+        "rls": true,
+        "name": "assessment_questions"
+      },
+      {
+        "rls": true,
+        "name": "audit_logs"
+      },
+      {
+        "rls": true,
+        "name": "question_banks"
+      },
+      {
+        "rls": true,
+        "name": "question_bank_items"
+      },
+      {
+        "rls": true,
+        "name": "questions"
+      },
+      {
+        "rls": true,
+        "name": "sponsor_profiles"
+      },
+      {
+        "rls": true,
+        "name": "institution_memberships"
+      },
+      {
+        "rls": true,
+        "name": "academic_levels"
+      },
+      {
+        "rls": true,
+        "name": "student_level_history"
+      },
+      {
+        "rls": true,
+        "name": "institutions"
+      },
+      {
+        "rls": true,
+        "name": "class_staff"
+      },
+      {
+        "rls": true,
+        "name": "student_access_policies"
+      },
+      {
+        "rls": true,
+        "name": "competitions"
+      },
+      {
+        "rls": true,
+        "name": "sponsorships"
+      },
+      {
+        "rls": true,
+        "name": "sponsorship_targets"
+      },
+      {
+        "rls": true,
+        "name": "content_coverage_targets"
+      },
+      {
+        "rls": true,
+        "name": "competition_participants"
+      },
+      {
+        "rls": true,
+        "name": "competition_leaderboard"
+      },
+      {
+        "rls": true,
+        "name": "entitlements"
+      },
+      {
+        "rls": true,
+        "name": "plans"
+      },
+      {
+        "rls": true,
+        "name": "subscriptions"
+      },
+      {
+        "rls": true,
+        "name": "transactions"
+      },
+      {
+        "rls": true,
+        "name": "escrow_accounts"
+      },
+      {
+        "rls": true,
+        "name": "escrow_ledger"
+      },
+      {
+        "rls": true,
+        "name": "points_ledger"
+      },
+      {
+        "rls": true,
+        "name": "media_assets"
+      },
+      {
+        "rls": true,
+        "name": "question_options"
+      },
+      {
+        "rls": true,
+        "name": "question_media"
+      },
+      {
+        "rls": true,
+        "name": "tenants"
+      },
+      {
+        "rls": true,
+        "name": "tenant_memberships"
+      },
+      {
+        "rls": true,
+        "name": "tenant_settings"
+      },
+      {
+        "rls": true,
+        "name": "tenant_branding"
+      },
+      {
+        "rls": true,
+        "name": "mastery_records"
+      },
+      {
+        "rls": true,
+        "name": "xp_transactions"
+      },
+      {
+        "rls": true,
+        "name": "curriculum_nodes"
+      },
+      {
+        "rls": true,
+        "name": "question_versions"
+      },
+      {
+        "rls": true,
+        "name": "question_bank_versions"
+      },
+      {
+        "rls": true,
+        "name": "content_licenses"
+      },
+      {
+        "rls": true,
+        "name": "content_reviews"
+      },
+      {
+        "rls": true,
+        "name": "content_extraction_jobs"
+      },
+      {
+        "rls": true,
+        "name": "question_generation_jobs"
+      },
+      {
+        "rls": true,
+        "name": "validation_runs"
+      },
+      {
+        "rls": true,
+        "name": "marketplace_sellers"
+      },
+      {
+        "rls": true,
+        "name": "marketplace_product_items"
+      },
+      {
+        "rls": true,
+        "name": "marketplace_listings"
+      },
+      {
+        "rls": true,
+        "name": "marketplace_moderation"
+      },
+      {
+        "rls": true,
+        "name": "orders"
+      },
+      {
+        "rls": true,
+        "name": "commission_rules"
+      },
+      {
+        "rls": true,
+        "name": "seller_earnings"
+      },
+      {
+        "rls": true,
+        "name": "payout_accounts"
+      },
+      {
+        "rls": true,
+        "name": "payouts"
+      },
+      {
+        "rls": true,
+        "name": "product_reviews"
+      },
+      {
+        "rls": true,
+        "name": "content_reports"
+      },
+      {
+        "rls": true,
+        "name": "competition_institutions"
+      },
+      {
+        "rls": true,
+        "name": "competition_teams"
+      },
+      {
+        "rls": true,
+        "name": "competition_stages"
+      },
+      {
+        "rls": true,
+        "name": "competition_rounds"
+      },
+      {
+        "rls": true,
+        "name": "competition_matches"
+      },
+      {
+        "rls": true,
+        "name": "competition_match_participants"
+      },
+      {
+        "rls": true,
+        "name": "competition_results"
+      },
+      {
+        "rls": true,
+        "name": "competition_officials"
+      },
+      {
+        "rls": true,
+        "name": "competition_appeals"
+      },
+      {
+        "rls": true,
+        "name": "competition_sponsors"
+      },
+      {
+        "rls": true,
+        "name": "daily_metrics"
+      },
+      {
+        "rls": true,
+        "name": "permissions"
+      },
+      {
+        "rls": true,
+        "name": "role_permissions"
+      },
+      {
+        "rls": true,
+        "name": "admin_actions"
+      },
+      {
+        "rls": true,
+        "name": "support_tickets"
+      },
+      {
+        "rls": true,
+        "name": "tenant_domains"
+      },
+      {
+        "rls": true,
+        "name": "tenant_features"
+      },
+      {
+        "rls": true,
+        "name": "tenant_institutions"
+      },
+      {
+        "rls": true,
+        "name": "source_documents"
+      },
+      {
+        "rls": true,
+        "name": "marketplace_products"
+      },
+      {
+        "rls": true,
+        "name": "order_items"
+      },
+      {
+        "rls": true,
+        "name": "competition_team_members"
+      },
+      {
+        "rls": true,
+        "name": "analytics_events"
+      },
+      {
+        "rls": true,
+        "name": "feature_flags"
+      }
+    ],
+    "functions": [
+      {
+        "anon": false,
+        "name": "qb_can_manage_institution",
+        "signature": "public.qb_can_manage_institution(uuid)",
+        "actor_guard": true,
+        "search_path": [
+          "search_path=public"
+        ],
+        "authenticated": true,
+        "definition_hash": "380ad6b00313b545c92fe80578b23d5e"
+      },
+      {
+        "anon": false,
+        "name": "qb_content_review",
+        "signature": "public.qb_content_review(uuid,text,integer,text,jsonb,text,boolean)",
+        "actor_guard": true,
+        "search_path": [
+          "search_path=\"\""
+        ],
+        "authenticated": true,
+        "definition_hash": "3ade08d70735608b50276cbd18c31363"
+      },
+      {
+        "anon": false,
+        "name": "qb_can_manage_tenant",
+        "signature": "public.qb_can_manage_tenant(uuid)",
+        "actor_guard": true,
+        "search_path": [
+          "search_path=public"
+        ],
+        "authenticated": true,
+        "definition_hash": "474f6acdd56e438c267e80d20ea76edd"
+      },
+      {
+        "anon": false,
+        "name": "qb_tenant_role",
+        "signature": "public.qb_tenant_role(uuid)",
+        "actor_guard": true,
+        "search_path": [
+          "search_path=\"\""
+        ],
+        "authenticated": true,
+        "definition_hash": "e3067eb4f275265f5e7967a33e21710a"
+      },
+      {
+        "anon": false,
+        "name": "qb_current_role",
+        "signature": "public.qb_current_role()",
+        "actor_guard": true,
+        "search_path": [
+          "search_path=\"\""
+        ],
+        "authenticated": true,
+        "definition_hash": "8cb18444551dbf73162d614605b76656"
+      },
+      {
+        "anon": false,
+        "name": "qb_current_teacher_id",
+        "signature": "public.qb_current_teacher_id()",
+        "actor_guard": true,
+        "search_path": [
+          "search_path=public"
+        ],
+        "authenticated": true,
+        "definition_hash": "5aeca7fc0fa1d310ae5ace4aa88ad667"
+      },
+      {
+        "anon": false,
+        "name": "qb_current_student_id",
+        "signature": "public.qb_current_student_id()",
+        "actor_guard": true,
+        "search_path": [
+          "search_path=public"
+        ],
+        "authenticated": true,
+        "definition_hash": "eba7dae1a4a7cb1bc3a1b9e977d6c69e"
+      },
+      {
+        "anon": false,
+        "name": "qb_provision_my_profile",
+        "signature": "public.qb_provision_my_profile(text)",
+        "actor_guard": true,
+        "search_path": [
+          "search_path=\"\""
+        ],
+        "authenticated": true,
+        "definition_hash": "b6097a55bd7e2b9a12c9195b174239d6"
+      },
+      {
+        "anon": false,
+        "name": "qb_get_question_options",
+        "signature": "public.qb_get_question_options(uuid)",
+        "actor_guard": false,
+        "search_path": [
+          "search_path=public"
+        ],
+        "authenticated": false,
+        "definition_hash": "abea8cdf6fe191a66a02d42626a2a37a"
+      },
+      {
+        "anon": false,
+        "name": "qb_is_platform_admin",
+        "signature": "public.qb_is_platform_admin()",
+        "actor_guard": true,
+        "search_path": [
+          "search_path=public"
+        ],
+        "authenticated": true,
+        "definition_hash": "e5370e8f425fef5d70d2ff9a7fc5b5e2"
+      },
+      {
+        "anon": false,
+        "name": "qb_public_tenant_id",
+        "signature": "public.qb_public_tenant_id()",
+        "actor_guard": false,
+        "search_path": [
+          "search_path=public"
+        ],
+        "authenticated": true,
+        "definition_hash": "c299cbe62335dfee75db671eacf02cd7"
+      },
+      {
+        "anon": false,
+        "name": "qb_is_tenant_member",
+        "signature": "public.qb_is_tenant_member(uuid)",
+        "actor_guard": true,
+        "search_path": [
+          "search_path=public"
+        ],
+        "authenticated": true,
+        "definition_hash": "6a3a72cf9930109679d985cb2578a432"
+      },
+      {
+        "anon": false,
+        "name": "qb_seller_dashboard",
+        "signature": "public.qb_seller_dashboard(uuid)",
+        "actor_guard": true,
+        "search_path": [
+          "search_path=public"
+        ],
+        "authenticated": true,
+        "definition_hash": "e1402a74c64d7e3b81a1475ebccae916"
+      },
+      {
+        "anon": false,
+        "name": "qb_tenant_dashboard",
+        "signature": "public.qb_tenant_dashboard(uuid)",
+        "actor_guard": true,
+        "search_path": [
+          "search_path=public"
+        ],
+        "authenticated": true,
+        "definition_hash": "2c4a0ba111dc592190b2fd8a2ddf49ac"
+      },
+      {
+        "anon": false,
+        "name": "qb_get_attempt",
+        "signature": "public.qb_get_attempt(uuid)",
+        "actor_guard": true,
+        "search_path": [
+          "search_path=public"
+        ],
+        "authenticated": true,
+        "definition_hash": "c95bac12f30fbd2dfd9efe499909c6db"
+      },
+      {
+        "anon": false,
+        "name": "qb_submit_attempt",
+        "signature": "public.qb_submit_attempt(uuid,text)",
+        "actor_guard": true,
+        "search_path": [
+          "search_path=public"
+        ],
+        "authenticated": true,
+        "definition_hash": "c4ceda2b08a1b776d90ec9d8149c3e3c"
+      },
+      {
+        "anon": false,
+        "name": "qb_my_results",
+        "signature": "public.qb_my_results(integer)",
+        "actor_guard": true,
+        "search_path": [
+          "search_path=public"
+        ],
+        "authenticated": true,
+        "definition_hash": "79fab9a51986f00ff91f95d2bb6dd71a"
+      },
+      {
+        "anon": false,
+        "name": "qb_attempt_mode",
+        "signature": "public.qb_attempt_mode(uuid)",
+        "actor_guard": true,
+        "search_path": [
+          "search_path=\"\""
+        ],
+        "authenticated": true,
+        "definition_hash": "0e308de73780ecd76161cc14980d8c34"
+      },
+      {
+        "anon": false,
+        "name": "qb_settle_paid_order",
+        "signature": "public.qb_settle_paid_order(uuid)",
+        "actor_guard": true,
+        "search_path": [
+          "search_path=public"
+        ],
+        "authenticated": true,
+        "definition_hash": "166eb39d659409bc1df87ea1966176b1"
+      },
+      {
+        "anon": false,
+        "name": "qb_request_payout",
+        "signature": "public.qb_request_payout(uuid,numeric,uuid)",
+        "actor_guard": true,
+        "search_path": [
+          "search_path=public"
+        ],
+        "authenticated": true,
+        "definition_hash": "35eb1fe27a057b00db99d992562b4832"
+      },
+      {
+        "anon": false,
+        "name": "qb_register_competition_school",
+        "signature": "public.qb_register_competition_school(uuid,uuid)",
+        "actor_guard": true,
+        "search_path": [
+          "search_path=public"
+        ],
+        "authenticated": true,
+        "definition_hash": "14f428f4fce45b4dda2027681ef57afc"
+      },
+      {
+        "anon": false,
+        "name": "qb_add_team_member",
+        "signature": "public.qb_add_team_member(uuid,uuid,text)",
+        "actor_guard": true,
+        "search_path": [
+          "search_path=public"
+        ],
+        "authenticated": true,
+        "definition_hash": "38a3fffc87a95ecc5b98a314e1b53ad3"
+      },
+      {
+        "anon": false,
+        "name": "qb_verify_team_member",
+        "signature": "public.qb_verify_team_member(uuid)",
+        "actor_guard": true,
+        "search_path": [
+          "search_path=public"
+        ],
+        "authenticated": true,
+        "definition_hash": "585d6a46a78a1c02d84224b76b3b585a"
+      },
+      {
+        "anon": false,
+        "name": "qb_finalize_competition_leaderboard",
+        "signature": "public.qb_finalize_competition_leaderboard(uuid)",
+        "actor_guard": true,
+        "search_path": [
+          "search_path=public"
+        ],
+        "authenticated": true,
+        "definition_hash": "0caefc76f2592aef902d9d49f54956c0"
+      },
+      {
+        "anon": false,
+        "name": "qb_attach_competition_sponsor",
+        "signature": "public.qb_attach_competition_sponsor(uuid,uuid,text,numeric,text)",
+        "actor_guard": true,
+        "search_path": [
+          "search_path=public"
+        ],
+        "authenticated": true,
+        "definition_hash": "1fa75f96f91262e8e5290ee39fbc9209"
+      },
+      {
+        "anon": false,
+        "name": "qb_backend_acceptance",
+        "signature": "public.qb_backend_acceptance()",
+        "actor_guard": false,
+        "search_path": [
+          "search_path=public"
+        ],
+        "authenticated": false,
+        "definition_hash": "2526c5c9bd5355917e380c269c977c4c"
+      },
+      {
+        "anon": false,
+        "name": "qb_complete_attempt",
+        "signature": "public.qb_complete_attempt(uuid,text)",
+        "actor_guard": true,
+        "search_path": [
+          "search_path=public, auth"
+        ],
+        "authenticated": true,
+        "definition_hash": "478803936b8e23b5172a487dd8259fb2"
+      },
+      {
+        "anon": false,
+        "name": "qb_publish_assignment",
+        "signature": "public.qb_publish_assignment(uuid,text,text,uuid[],integer,text,text,uuid[],text,integer,integer,timestamp with time zone,timestamp with time zone)",
+        "actor_guard": false,
+        "search_path": [
+          "search_path=public, auth"
+        ],
+        "authenticated": true,
+        "definition_hash": "9b917c45f2136a4187d5cad227a0ad27"
+      },
+      {
+        "anon": false,
+        "name": "qb_publish_assignment",
+        "signature": "public.qb_publish_assignment(uuid,text,text,uuid[],integer,text,text,uuid[],text,integer,integer,timestamp with time zone,timestamp with time zone,uuid[],uuid,uuid)",
+        "actor_guard": true,
+        "search_path": [
+          "search_path=public, auth"
+        ],
+        "authenticated": true,
+        "definition_hash": "6617bcee188d6d4ddad79b909e6a6b62"
+      },
+      {
+        "anon": false,
+        "name": "qb_content_coverage",
+        "signature": "public.qb_content_coverage(jsonb,integer,integer,integer)",
+        "actor_guard": true,
+        "search_path": [
+          "search_path=\"\""
+        ],
+        "authenticated": true,
+        "definition_hash": "f95251d4e1fe9ea76a8fbb2ba85e1668"
+      },
+      {
+        "anon": false,
+        "name": "qb_question_version_capture",
+        "signature": "public.qb_question_version_capture()",
+        "actor_guard": true,
+        "search_path": [
+          "search_path=\"\""
+        ],
+        "authenticated": false,
+        "definition_hash": "e8b4c69dfe5f8237cddb5d3e64bde4f3"
+      },
+      {
+        "anon": false,
+        "name": "qb_is_acceptance_actor",
+        "signature": "public.qb_is_acceptance_actor()",
+        "actor_guard": true,
+        "search_path": [
+          "search_path=\"\""
+        ],
+        "authenticated": true,
+        "definition_hash": "cfeb804b48f37be97c53dcb6ad11eeba"
+      },
+      {
+        "anon": false,
+        "name": "qb_question_is_available",
+        "signature": "public.qb_question_is_available(public.questions)",
+        "actor_guard": true,
+        "search_path": [
+          "search_path=\"\""
+        ],
+        "authenticated": true,
+        "definition_hash": "229cbd173179829dbaa65aa597fc58d9"
+      },
+      {
+        "anon": false,
+        "name": "qb_question_editorial_guard",
+        "signature": "public.qb_question_editorial_guard()",
+        "actor_guard": true,
+        "search_path": [
+          "search_path=\"\""
+        ],
+        "authenticated": false,
+        "definition_hash": "de98e6b11956ab336a9aa0e0517418ce"
+      },
+      {
+        "anon": false,
+        "name": "qb_content_queue",
+        "signature": "public.qb_content_queue(jsonb,integer,integer)",
+        "actor_guard": true,
+        "search_path": [
+          "search_path=\"\""
+        ],
+        "authenticated": true,
+        "definition_hash": "4d4c918b12b90e92cf20860f6e34a4cc"
+      },
+      {
+        "anon": false,
+        "name": "qb_has_permission",
+        "signature": "public.qb_has_permission(text)",
+        "actor_guard": true,
+        "search_path": [
+          "search_path=public"
+        ],
+        "authenticated": true,
+        "definition_hash": "fd3dabd97a4ecb6e942af95253ab5ca0"
+      },
+      {
+        "anon": false,
+        "name": "rls_auto_enable",
+        "signature": "public.rls_auto_enable()",
+        "actor_guard": false,
+        "search_path": [
+          "search_path=pg_catalog"
+        ],
+        "authenticated": false,
+        "definition_hash": "6998ea6b4c2480f5d2e34b5dcf3f8d36"
+      },
+      {
+        "anon": false,
+        "name": "qb_get_question_media",
+        "signature": "public.qb_get_question_media(uuid)",
+        "actor_guard": false,
+        "search_path": [
+          "search_path=public"
+        ],
+        "authenticated": false,
+        "definition_hash": "44074a98b776e62886cc31a97041d1ad"
+      },
+      {
+        "anon": false,
+        "name": "qb_snapshot_assessment_question",
+        "signature": "public.qb_snapshot_assessment_question()",
+        "actor_guard": false,
+        "search_path": [
+          "search_path=public"
+        ],
+        "authenticated": false,
+        "definition_hash": "e1ffec86c7cb5c44a257808451d270bc"
+      },
+      {
+        "anon": false,
+        "name": "qb_refresh_daily_metrics",
+        "signature": "public.qb_refresh_daily_metrics(date)",
+        "actor_guard": true,
+        "search_path": [
+          "search_path=public"
+        ],
+        "authenticated": true,
+        "definition_hash": "5e86bb0a63febe175491eff286a07fb5"
+      },
+      {
+        "anon": false,
+        "name": "qb_get_attempt_review",
+        "signature": "public.qb_get_attempt_review(uuid)",
+        "actor_guard": true,
+        "search_path": [
+          "search_path=public"
+        ],
+        "authenticated": true,
+        "definition_hash": "ad2ce24582bbb36c8d69959f3fdf3160"
+      },
+      {
+        "anon": false,
+        "name": "qb_create_marketplace_order",
+        "signature": "public.qb_create_marketplace_order(uuid,integer)",
+        "actor_guard": true,
+        "search_path": [
+          "search_path=public"
+        ],
+        "authenticated": true,
+        "definition_hash": "0e49b73bbf8c61643d2a3d2dc2962cbb"
+      },
+      {
+        "anon": false,
+        "name": "qb_seller_balance",
+        "signature": "public.qb_seller_balance(uuid)",
+        "actor_guard": true,
+        "search_path": [
+          "search_path=public"
+        ],
+        "authenticated": true,
+        "definition_hash": "2c356981fd2a841c50d45527c70c0811"
+      },
+      {
+        "anon": false,
+        "name": "qb_create_competition_team",
+        "signature": "public.qb_create_competition_team(uuid,uuid,text)",
+        "actor_guard": true,
+        "search_path": [
+          "search_path=public"
+        ],
+        "authenticated": true,
+        "definition_hash": "eb3a92f38428e3cfb47b00ae59da0b7f"
+      },
+      {
+        "anon": false,
+        "name": "qb_competition_leaderboard",
+        "signature": "public.qb_competition_leaderboard(uuid)",
+        "actor_guard": true,
+        "search_path": [
+          "search_path=public"
+        ],
+        "authenticated": true,
+        "definition_hash": "6f82a4f065cd03027d922dd16f96c278"
+      },
+      {
+        "anon": false,
+        "name": "qb_record_competition_result",
+        "signature": "public.qb_record_competition_result(uuid,text,uuid,numeric,numeric,bigint,uuid,uuid,uuid,text)",
+        "actor_guard": true,
+        "search_path": [
+          "search_path=public"
+        ],
+        "authenticated": true,
+        "definition_hash": "450b650b480c9bd97fba61cfb9df33df"
+      },
+      {
+        "anon": false,
+        "name": "qb_is_class_member",
+        "signature": "public.qb_is_class_member(uuid)",
+        "actor_guard": true,
+        "search_path": [
+          "search_path=public"
+        ],
+        "authenticated": true,
+        "definition_hash": "0182a0c0e4d92f2af71a50d3f0c3b163"
+      },
+      {
+        "anon": false,
+        "name": "qb_competition_funding_summary",
+        "signature": "public.qb_competition_funding_summary(uuid)",
+        "actor_guard": true,
+        "search_path": [
+          "search_path=public"
+        ],
+        "authenticated": true,
+        "definition_hash": "8559a0675fa803558331393d5eb5e7f6"
+      },
+      {
+        "anon": false,
+        "name": "qb_can_manage_class",
+        "signature": "public.qb_can_manage_class(uuid)",
+        "actor_guard": true,
+        "search_path": [
+          "search_path=public"
+        ],
+        "authenticated": true,
+        "definition_hash": "4a266fd4d95f0fa0369b53bd929dc615"
+      },
+      {
+        "anon": true,
+        "name": "qb_marketplace_catalog",
+        "signature": "public.qb_marketplace_catalog()",
+        "actor_guard": false,
+        "search_path": [
+          "search_path=public"
+        ],
+        "authenticated": true,
+        "definition_hash": "bf71ddd167589fe2387630c08318fbaa"
+      },
+      {
+        "anon": false,
+        "name": "qb_content_detail",
+        "signature": "public.qb_content_detail(uuid)",
+        "actor_guard": true,
+        "search_path": [
+          "search_path=\"\""
+        ],
+        "authenticated": true,
+        "definition_hash": "7c06cb0fb12d2c6eead94909e01c32bf"
+      },
+      {
+        "anon": false,
+        "name": "qb_can_access_learning_assessment",
+        "signature": "public.qb_can_access_learning_assessment(uuid)",
+        "actor_guard": true,
+        "search_path": [
+          "search_path=\"\""
+        ],
+        "authenticated": true,
+        "definition_hash": "02e0a5c5c3d717ce0761b004dd983819"
+      },
+      {
+        "anon": false,
+        "name": "qb_content_validation_errors",
+        "signature": "public.qb_content_validation_errors(jsonb)",
+        "actor_guard": false,
+        "search_path": [
+          "search_path=\"\""
+        ],
+        "authenticated": true,
+        "definition_hash": "660fa0e0481c2449bc721b59043b93b0"
+      },
+      {
+        "anon": false,
+        "name": "qb_get_result",
+        "signature": "public.qb_get_result(uuid)",
+        "actor_guard": true,
+        "search_path": [
+          "search_path=public"
+        ],
+        "authenticated": true,
+        "definition_hash": "b0990123af2ca17564e62c090b7a61c2"
+      },
+      {
+        "anon": false,
+        "name": "qb_get_questions",
+        "signature": "public.qb_get_questions(text,text,integer)",
+        "actor_guard": true,
+        "search_path": [
+          "search_path=public"
+        ],
+        "authenticated": true,
+        "definition_hash": "3ef4293cab634b38906816ade1f0104f"
+      },
+      {
+        "anon": false,
+        "name": "qb_list_available_assessments",
+        "signature": "public.qb_list_available_assessments()",
+        "actor_guard": true,
+        "search_path": [
+          "search_path=\"\""
+        ],
+        "authenticated": true,
+        "definition_hash": "4784964e2dd30f200917d28b118156f2"
+      },
+      {
+        "anon": false,
+        "name": "qb_question_availability",
+        "signature": "public.qb_question_availability(uuid[],text,text)",
+        "actor_guard": true,
+        "search_path": [
+          "search_path=public, pg_temp"
+        ],
+        "authenticated": true,
+        "definition_hash": "ca50aafecde59ca66a04254db073e521"
+      },
+      {
+        "anon": false,
+        "name": "qb_content_batches",
+        "signature": "public.qb_content_batches(integer,integer)",
+        "actor_guard": true,
+        "search_path": [
+          "search_path=\"\""
+        ],
+        "authenticated": true,
+        "definition_hash": "a4ecf61111c23864a1482431cb0c218f"
+      },
+      {
+        "anon": false,
+        "name": "qb_operation_failure",
+        "signature": "public.qb_operation_failure(text,text)",
+        "actor_guard": true,
+        "search_path": [
+          "search_path=\"\""
+        ],
+        "authenticated": true,
+        "definition_hash": "cd8636e4576bf176d61cf9809e1cc6f8"
+      },
+      {
+        "anon": false,
+        "name": "qb_recent_operations",
+        "signature": "public.qb_recent_operations(integer,boolean)",
+        "actor_guard": true,
+        "search_path": [
+          "search_path=\"\""
+        ],
+        "authenticated": true,
+        "definition_hash": "33b60bda5e8845b3e07ad6c2c71e8164"
+      },
+      {
+        "anon": false,
+        "name": "qb_content_ingest",
+        "signature": "public.qb_content_ingest(jsonb,jsonb,text,text,text)",
+        "actor_guard": true,
+        "search_path": [
+          "search_path=\"\""
+        ],
+        "authenticated": true,
+        "definition_hash": "afc100db74f15de7fb159b8cf77fcea7"
+      },
+      {
+        "anon": false,
+        "name": "qb_save_coverage_target",
+        "signature": "public.qb_save_coverage_target(uuid,text,text,integer,integer,integer,integer,jsonb)",
+        "actor_guard": true,
+        "search_path": [
+          "search_path=\"\""
+        ],
+        "authenticated": true,
+        "definition_hash": "3ae2287da2086a690352a6706d8935f2"
+      },
+      {
+        "anon": false,
+        "name": "qb_my_results_page",
+        "signature": "public.qb_my_results_page(integer,integer)",
+        "actor_guard": true,
+        "search_path": [
+          "search_path=\"\""
+        ],
+        "authenticated": true,
+        "definition_hash": "05fb5a1c0bbbf1f6b85794c2c7b8b2a4"
+      },
+      {
+        "anon": false,
+        "name": "qb_production_security_audit",
+        "signature": "public.qb_production_security_audit()",
+        "actor_guard": true,
+        "search_path": [
+          "search_path=\"\""
+        ],
+        "authenticated": true,
+        "definition_hash": "7a0f9f2e42bed45adfa6821c1e41b0bb"
+      },
+      {
+        "anon": false,
+        "name": "qb_admin_competition_metrics",
+        "signature": "public.qb_admin_competition_metrics()",
+        "actor_guard": true,
+        "search_path": [
+          "search_path=public"
+        ],
+        "authenticated": true,
+        "definition_hash": "10e1616e593866a2a4a258f45d52efe5"
+      },
+      {
+        "anon": false,
+        "name": "qb_start_attempt",
+        "signature": "public.qb_start_attempt(uuid,uuid,uuid,text)",
+        "actor_guard": true,
+        "search_path": [
+          "search_path=public"
+        ],
+        "authenticated": true,
+        "definition_hash": "e14b63124634c5bf64769b173b5a913f"
+      },
+      {
+        "anon": false,
+        "name": "qb_save_response",
+        "signature": "public.qb_save_response(uuid,uuid,text,jsonb,integer)",
+        "actor_guard": true,
+        "search_path": [
+          "search_path=public"
+        ],
+        "authenticated": true,
+        "definition_hash": "055f59facda8b549f8b2c8fa385b9f6e"
+      },
+      {
+        "anon": false,
+        "name": "qb_save_practice_response",
+        "signature": "public.qb_save_practice_response(uuid,uuid,text,jsonb,integer)",
+        "actor_guard": true,
+        "search_path": [
+          "search_path=\"\""
+        ],
+        "authenticated": true,
+        "definition_hash": "fa13956db990fb1b871bf34b87330bad"
+      },
+      {
+        "anon": false,
+        "name": "qb_content_request_generation",
+        "signature": "public.qb_content_request_generation(jsonb)",
+        "actor_guard": true,
+        "search_path": [
+          "search_path=\"\""
+        ],
+        "authenticated": true,
+        "definition_hash": "3816b890f272b2ebf4fa3ec9c660d36e"
+      },
+      {
+        "anon": false,
+        "name": "qb_admin_content_health",
+        "signature": "public.qb_admin_content_health()",
+        "actor_guard": true,
+        "search_path": [
+          "search_path=public"
+        ],
+        "authenticated": true,
+        "definition_hash": "5d038f35edf3846e34c36a0d7423758e"
+      },
+      {
+        "anon": false,
+        "name": "qb_admin_event_summary",
+        "signature": "public.qb_admin_event_summary(integer)",
+        "actor_guard": true,
+        "search_path": [
+          "search_path=public"
+        ],
+        "authenticated": true,
+        "definition_hash": "0e79380d15e1290c4414e9abcfd52062"
+      },
+      {
+        "anon": false,
+        "name": "qb_admin_marketplace_metrics",
+        "signature": "public.qb_admin_marketplace_metrics()",
+        "actor_guard": true,
+        "search_path": [
+          "search_path=public"
+        ],
+        "authenticated": true,
+        "definition_hash": "1491d160350ea303dd45ddf022a49f7a"
+      },
+      {
+        "anon": false,
+        "name": "qb_admin_operations_health",
+        "signature": "public.qb_admin_operations_health()",
+        "actor_guard": true,
+        "search_path": [
+          "search_path=public"
+        ],
+        "authenticated": true,
+        "definition_hash": "e20751b81305ca21ed4f8ee348f34e11"
+      },
+      {
+        "anon": false,
+        "name": "qb_admin_platform_overview",
+        "signature": "public.qb_admin_platform_overview()",
+        "actor_guard": true,
+        "search_path": [
+          "search_path=public"
+        ],
+        "authenticated": true,
+        "definition_hash": "9e497a9923ce49ffc77315ef5548984e"
+      },
+      {
+        "anon": false,
+        "name": "qb_admin_question_distribution",
+        "signature": "public.qb_admin_question_distribution()",
+        "actor_guard": true,
+        "search_path": [
+          "search_path=public"
+        ],
+        "authenticated": true,
+        "definition_hash": "7e5f006f1966db03b8b84861de08fe16"
+      },
+      {
+        "anon": false,
+        "name": "qb_get_daily_metrics",
+        "signature": "public.qb_get_daily_metrics(uuid,date,date)",
+        "actor_guard": true,
+        "search_path": [
+          "search_path=public"
+        ],
+        "authenticated": true,
+        "definition_hash": "bcbfd055bee3f6be7c7db0a3cbcc09ff"
+      },
+      {
+        "anon": false,
+        "name": "qb_tenant_learning_metrics",
+        "signature": "public.qb_tenant_learning_metrics(uuid,integer)",
+        "actor_guard": true,
+        "search_path": [
+          "search_path=public"
+        ],
+        "authenticated": true,
+        "definition_hash": "f911475bcd1547dd29edb2e5764ea1de"
+      },
+      {
+        "anon": false,
+        "name": "qb_controls_seller",
+        "signature": "public.qb_controls_seller(uuid)",
+        "actor_guard": true,
+        "search_path": [
+          "search_path=public"
+        ],
+        "authenticated": true,
+        "definition_hash": "48fa5654c36d2dc982b0bbf474ee5604"
+      },
+      {
+        "anon": false,
+        "name": "qb_join_class",
+        "signature": "public.qb_join_class(text)",
+        "actor_guard": true,
+        "search_path": [
+          "search_path=\"\""
+        ],
+        "authenticated": true,
+        "definition_hash": "3933eaa564269028afc8aff99b8bb9d4"
+      },
+      {
+        "anon": false,
+        "name": "qb_can_read_question_media",
+        "signature": "public.qb_can_read_question_media(text)",
+        "actor_guard": true,
+        "search_path": [
+          "search_path=\"\""
+        ],
+        "authenticated": true,
+        "definition_hash": "7dbfaa25ad0177ab328b64d55b21e5ff"
+      },
+      {
+        "anon": false,
+        "name": "qb_attach_question_media",
+        "signature": "public.qb_attach_question_media(uuid,uuid,integer,text)",
+        "actor_guard": true,
+        "search_path": [
+          "search_path=\"\""
+        ],
+        "authenticated": true,
+        "definition_hash": "aa64132d130881c072a3d22bc0d04426"
+      },
+      {
+        "anon": false,
+        "name": "qb_class_roster_page",
+        "signature": "public.qb_class_roster_page(uuid,integer,integer)",
+        "actor_guard": true,
+        "search_path": [
+          "search_path=\"\""
+        ],
+        "authenticated": true,
+        "definition_hash": "16fb62606c34ba682e6973da37cb4ea2"
+      },
+      {
+        "anon": false,
+        "name": "qb_my_attempts_page",
+        "signature": "public.qb_my_attempts_page(integer,integer)",
+        "actor_guard": true,
+        "search_path": [
+          "search_path=\"\""
+        ],
+        "authenticated": true,
+        "definition_hash": "18e57b5475e3557a45b6874fd8b42e9e"
+      }
+    ],
+    "reviewQueue": 11,
+    "private_media": true,
+    "signup_trigger": true,
+    "fixtureQuestions": 39,
+    "productionApproved": 0
+  },
+  "dependencies": {
+    "info": 0,
+    "low": 0,
+    "moderate": 0,
+    "high": 0,
+    "critical": 0,
+    "total": 0
+  },
+  "advisors": {
+    "checkedAt": "2026-10-02T01:02:54.265Z",
+    "advisories": [
+      {
+        "name": "rls_enabled_no_policy",
+        "level": "INFO",
+        "count": 32,
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0008_rls_enabled_no_policy"
+      },
+      {
+        "name": "anon_security_definer_function_executable",
+        "level": "WARN",
+        "count": 1,
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0028_anon_security_definer_function_executable"
+      },
+      {
+        "name": "authenticated_security_definer_function_executable",
+        "level": "WARN",
+        "count": 76,
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0029_authenticated_security_definer_function_executable"
+      },
+      {
+        "name": "auth_leaked_password_protection",
+        "level": "WARN",
+        "count": 1,
+        "remediation": "https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection"
+      }
+    ]
+  },
+  "privilegeInventory": [
+    {
+      "anon": false,
+      "name": "qb_can_manage_institution",
+      "signature": "public.qb_can_manage_institution(uuid)",
+      "actor_guard": true,
+      "search_path": [
+        "search_path=public"
+      ],
+      "authenticated": true,
+      "definition_hash": "380ad6b00313b545c92fe80578b23d5e",
+      "legitimateExecute": "authenticated with actor/RLS/role checks; service_role",
+      "reviewStatus": "Catalog and code review; not blanket dynamic certification"
+    },
+    {
+      "anon": false,
+      "name": "qb_content_review",
+      "signature": "public.qb_content_review(uuid,text,integer,text,jsonb,text,boolean)",
+      "actor_guard": true,
+      "search_path": [
+        "search_path=\"\""
+      ],
+      "authenticated": true,
+      "definition_hash": "3ade08d70735608b50276cbd18c31363",
+      "legitimateExecute": "authenticated with actor/RLS/role checks; service_role",
+      "reviewStatus": "Catalog and code review; not blanket dynamic certification"
+    },
+    {
+      "anon": false,
+      "name": "qb_can_manage_tenant",
+      "signature": "public.qb_can_manage_tenant(uuid)",
+      "actor_guard": true,
+      "search_path": [
+        "search_path=public"
+      ],
+      "authenticated": true,
+      "definition_hash": "474f6acdd56e438c267e80d20ea76edd",
+      "legitimateExecute": "authenticated with actor/RLS/role checks; service_role",
+      "reviewStatus": "Catalog and code review; not blanket dynamic certification"
+    },
+    {
+      "anon": false,
+      "name": "qb_tenant_role",
+      "signature": "public.qb_tenant_role(uuid)",
+      "actor_guard": true,
+      "search_path": [
+        "search_path=\"\""
+      ],
+      "authenticated": true,
+      "definition_hash": "e3067eb4f275265f5e7967a33e21710a",
+      "legitimateExecute": "authenticated with actor/RLS/role checks; service_role",
+      "reviewStatus": "Catalog and code review; not blanket dynamic certification"
+    },
+    {
+      "anon": false,
+      "name": "qb_current_role",
+      "signature": "public.qb_current_role()",
+      "actor_guard": true,
+      "search_path": [
+        "search_path=\"\""
+      ],
+      "authenticated": true,
+      "definition_hash": "8cb18444551dbf73162d614605b76656",
+      "legitimateExecute": "authenticated with actor/RLS/role checks; service_role",
+      "reviewStatus": "Catalog and code review; not blanket dynamic certification"
+    },
+    {
+      "anon": false,
+      "name": "qb_current_teacher_id",
+      "signature": "public.qb_current_teacher_id()",
+      "actor_guard": true,
+      "search_path": [
+        "search_path=public"
+      ],
+      "authenticated": true,
+      "definition_hash": "5aeca7fc0fa1d310ae5ace4aa88ad667",
+      "legitimateExecute": "authenticated with actor/RLS/role checks; service_role",
+      "reviewStatus": "Catalog and code review; not blanket dynamic certification"
+    },
+    {
+      "anon": false,
+      "name": "qb_current_student_id",
+      "signature": "public.qb_current_student_id()",
+      "actor_guard": true,
+      "search_path": [
+        "search_path=public"
+      ],
+      "authenticated": true,
+      "definition_hash": "eba7dae1a4a7cb1bc3a1b9e977d6c69e",
+      "legitimateExecute": "authenticated with actor/RLS/role checks; service_role",
+      "reviewStatus": "Catalog and code review; not blanket dynamic certification"
+    },
+    {
+      "anon": false,
+      "name": "qb_provision_my_profile",
+      "signature": "public.qb_provision_my_profile(text)",
+      "actor_guard": true,
+      "search_path": [
+        "search_path=\"\""
+      ],
+      "authenticated": true,
+      "definition_hash": "b6097a55bd7e2b9a12c9195b174239d6",
+      "legitimateExecute": "authenticated with actor/RLS/role checks; service_role",
+      "reviewStatus": "Catalog and code review; not blanket dynamic certification"
+    },
+    {
+      "anon": false,
+      "name": "qb_get_question_options",
+      "signature": "public.qb_get_question_options(uuid)",
+      "actor_guard": false,
+      "search_path": [
+        "search_path=public"
+      ],
+      "authenticated": false,
+      "definition_hash": "abea8cdf6fe191a66a02d42626a2a37a",
+      "legitimateExecute": "internal/trigger/service_role only",
+      "reviewStatus": "Catalog and code review; not blanket dynamic certification"
+    },
+    {
+      "anon": false,
+      "name": "qb_is_platform_admin",
+      "signature": "public.qb_is_platform_admin()",
+      "actor_guard": true,
+      "search_path": [
+        "search_path=public"
+      ],
+      "authenticated": true,
+      "definition_hash": "e5370e8f425fef5d70d2ff9a7fc5b5e2",
+      "legitimateExecute": "authenticated with actor/RLS/role checks; service_role",
+      "reviewStatus": "Catalog and code review; not blanket dynamic certification"
+    },
+    {
+      "anon": false,
+      "name": "qb_public_tenant_id",
+      "signature": "public.qb_public_tenant_id()",
+      "actor_guard": false,
+      "search_path": [
+        "search_path=public"
+      ],
+      "authenticated": true,
+      "definition_hash": "c299cbe62335dfee75db671eacf02cd7",
+      "legitimateExecute": "authenticated with actor/RLS/role checks; service_role",
+      "reviewStatus": "Catalog and code review; not blanket dynamic certification"
+    },
+    {
+      "anon": false,
+      "name": "qb_is_tenant_member",
+      "signature": "public.qb_is_tenant_member(uuid)",
+      "actor_guard": true,
+      "search_path": [
+        "search_path=public"
+      ],
+      "authenticated": true,
+      "definition_hash": "6a3a72cf9930109679d985cb2578a432",
+      "legitimateExecute": "authenticated with actor/RLS/role checks; service_role",
+      "reviewStatus": "Catalog and code review; not blanket dynamic certification"
+    },
+    {
+      "anon": false,
+      "name": "qb_seller_dashboard",
+      "signature": "public.qb_seller_dashboard(uuid)",
+      "actor_guard": true,
+      "search_path": [
+        "search_path=public"
+      ],
+      "authenticated": true,
+      "definition_hash": "e1402a74c64d7e3b81a1475ebccae916",
+      "legitimateExecute": "authenticated with actor/RLS/role checks; service_role",
+      "reviewStatus": "Catalog and code review; not blanket dynamic certification"
+    },
+    {
+      "anon": false,
+      "name": "qb_tenant_dashboard",
+      "signature": "public.qb_tenant_dashboard(uuid)",
+      "actor_guard": true,
+      "search_path": [
+        "search_path=public"
+      ],
+      "authenticated": true,
+      "definition_hash": "2c4a0ba111dc592190b2fd8a2ddf49ac",
+      "legitimateExecute": "authenticated with actor/RLS/role checks; service_role",
+      "reviewStatus": "Catalog and code review; not blanket dynamic certification"
+    },
+    {
+      "anon": false,
+      "name": "qb_get_attempt",
+      "signature": "public.qb_get_attempt(uuid)",
+      "actor_guard": true,
+      "search_path": [
+        "search_path=public"
+      ],
+      "authenticated": true,
+      "definition_hash": "c95bac12f30fbd2dfd9efe499909c6db",
+      "legitimateExecute": "authenticated with actor/RLS/role checks; service_role",
+      "reviewStatus": "Catalog and code review; not blanket dynamic certification"
+    },
+    {
+      "anon": false,
+      "name": "qb_submit_attempt",
+      "signature": "public.qb_submit_attempt(uuid,text)",
+      "actor_guard": true,
+      "search_path": [
+        "search_path=public"
+      ],
+      "authenticated": true,
+      "definition_hash": "c4ceda2b08a1b776d90ec9d8149c3e3c",
+      "legitimateExecute": "authenticated with actor/RLS/role checks; service_role",
+      "reviewStatus": "Catalog and code review; not blanket dynamic certification"
+    },
+    {
+      "anon": false,
+      "name": "qb_my_results",
+      "signature": "public.qb_my_results(integer)",
+      "actor_guard": true,
+      "search_path": [
+        "search_path=public"
+      ],
+      "authenticated": true,
+      "definition_hash": "79fab9a51986f00ff91f95d2bb6dd71a",
+      "legitimateExecute": "authenticated with actor/RLS/role checks; service_role",
+      "reviewStatus": "Catalog and code review; not blanket dynamic certification"
+    },
+    {
+      "anon": false,
+      "name": "qb_attempt_mode",
+      "signature": "public.qb_attempt_mode(uuid)",
+      "actor_guard": true,
+      "search_path": [
+        "search_path=\"\""
+      ],
+      "authenticated": true,
+      "definition_hash": "0e308de73780ecd76161cc14980d8c34",
+      "legitimateExecute": "authenticated with actor/RLS/role checks; service_role",
+      "reviewStatus": "Catalog and code review; not blanket dynamic certification"
+    },
+    {
+      "anon": false,
+      "name": "qb_settle_paid_order",
+      "signature": "public.qb_settle_paid_order(uuid)",
+      "actor_guard": true,
+      "search_path": [
+        "search_path=public"
+      ],
+      "authenticated": true,
+      "definition_hash": "166eb39d659409bc1df87ea1966176b1",
+      "legitimateExecute": "authenticated with actor/RLS/role checks; service_role",
+      "reviewStatus": "Catalog and code review; not blanket dynamic certification"
+    },
+    {
+      "anon": false,
+      "name": "qb_request_payout",
+      "signature": "public.qb_request_payout(uuid,numeric,uuid)",
+      "actor_guard": true,
+      "search_path": [
+        "search_path=public"
+      ],
+      "authenticated": true,
+      "definition_hash": "35eb1fe27a057b00db99d992562b4832",
+      "legitimateExecute": "authenticated with actor/RLS/role checks; service_role",
+      "reviewStatus": "Catalog and code review; not blanket dynamic certification"
+    },
+    {
+      "anon": false,
+      "name": "qb_register_competition_school",
+      "signature": "public.qb_register_competition_school(uuid,uuid)",
+      "actor_guard": true,
+      "search_path": [
+        "search_path=public"
+      ],
+      "authenticated": true,
+      "definition_hash": "14f428f4fce45b4dda2027681ef57afc",
+      "legitimateExecute": "authenticated with actor/RLS/role checks; service_role",
+      "reviewStatus": "Catalog and code review; not blanket dynamic certification"
+    },
+    {
+      "anon": false,
+      "name": "qb_add_team_member",
+      "signature": "public.qb_add_team_member(uuid,uuid,text)",
+      "actor_guard": true,
+      "search_path": [
+        "search_path=public"
+      ],
+      "authenticated": true,
+      "definition_hash": "38a3fffc87a95ecc5b98a314e1b53ad3",
+      "legitimateExecute": "authenticated with actor/RLS/role checks; service_role",
+      "reviewStatus": "Catalog and code review; not blanket dynamic certification"
+    },
+    {
+      "anon": false,
+      "name": "qb_verify_team_member",
+      "signature": "public.qb_verify_team_member(uuid)",
+      "actor_guard": true,
+      "search_path": [
+        "search_path=public"
+      ],
+      "authenticated": true,
+      "definition_hash": "585d6a46a78a1c02d84224b76b3b585a",
+      "legitimateExecute": "authenticated with actor/RLS/role checks; service_role",
+      "reviewStatus": "Catalog and code review; not blanket dynamic certification"
+    },
+    {
+      "anon": false,
+      "name": "qb_finalize_competition_leaderboard",
+      "signature": "public.qb_finalize_competition_leaderboard(uuid)",
+      "actor_guard": true,
+      "search_path": [
+        "search_path=public"
+      ],
+      "authenticated": true,
+      "definition_hash": "0caefc76f2592aef902d9d49f54956c0",
+      "legitimateExecute": "authenticated with actor/RLS/role checks; service_role",
+      "reviewStatus": "Catalog and code review; not blanket dynamic certification"
+    },
+    {
+      "anon": false,
+      "name": "qb_attach_competition_sponsor",
+      "signature": "public.qb_attach_competition_sponsor(uuid,uuid,text,numeric,text)",
+      "actor_guard": true,
+      "search_path": [
+        "search_path=public"
+      ],
+      "authenticated": true,
+      "definition_hash": "1fa75f96f91262e8e5290ee39fbc9209",
+      "legitimateExecute": "authenticated with actor/RLS/role checks; service_role",
+      "reviewStatus": "Catalog and code review; not blanket dynamic certification"
+    },
+    {
+      "anon": false,
+      "name": "qb_backend_acceptance",
+      "signature": "public.qb_backend_acceptance()",
+      "actor_guard": false,
+      "search_path": [
+        "search_path=public"
+      ],
+      "authenticated": false,
+      "definition_hash": "2526c5c9bd5355917e380c269c977c4c",
+      "legitimateExecute": "internal/trigger/service_role only",
+      "reviewStatus": "Catalog and code review; not blanket dynamic certification"
+    },
+    {
+      "anon": false,
+      "name": "qb_complete_attempt",
+      "signature": "public.qb_complete_attempt(uuid,text)",
+      "actor_guard": true,
+      "search_path": [
+        "search_path=public, auth"
+      ],
+      "authenticated": true,
+      "definition_hash": "478803936b8e23b5172a487dd8259fb2",
+      "legitimateExecute": "authenticated with actor/RLS/role checks; service_role",
+      "reviewStatus": "Catalog and code review; not blanket dynamic certification"
+    },
+    {
+      "anon": false,
+      "name": "qb_publish_assignment",
+      "signature": "public.qb_publish_assignment(uuid,text,text,uuid[],integer,text,text,uuid[],text,integer,integer,timestamp with time zone,timestamp with time zone)",
+      "actor_guard": false,
+      "search_path": [
+        "search_path=public, auth"
+      ],
+      "authenticated": true,
+      "definition_hash": "9b917c45f2136a4187d5cad227a0ad27",
+      "legitimateExecute": "authenticated with actor/RLS/role checks; service_role",
+      "reviewStatus": "Catalog and code review; not blanket dynamic certification"
+    },
+    {
+      "anon": false,
+      "name": "qb_publish_assignment",
+      "signature": "public.qb_publish_assignment(uuid,text,text,uuid[],integer,text,text,uuid[],text,integer,integer,timestamp with time zone,timestamp with time zone,uuid[],uuid,uuid)",
+      "actor_guard": true,
+      "search_path": [
+        "search_path=public, auth"
+      ],
+      "authenticated": true,
+      "definition_hash": "6617bcee188d6d4ddad79b909e6a6b62",
+      "legitimateExecute": "authenticated with actor/RLS/role checks; service_role",
+      "reviewStatus": "Catalog and code review; not blanket dynamic certification"
+    },
+    {
+      "anon": false,
+      "name": "qb_content_coverage",
+      "signature": "public.qb_content_coverage(jsonb,integer,integer,integer)",
+      "actor_guard": true,
+      "search_path": [
+        "search_path=\"\""
+      ],
+      "authenticated": true,
+      "definition_hash": "f95251d4e1fe9ea76a8fbb2ba85e1668",
+      "legitimateExecute": "authenticated with actor/RLS/role checks; service_role",
+      "reviewStatus": "Catalog and code review; not blanket dynamic certification"
+    },
+    {
+      "anon": false,
+      "name": "qb_question_version_capture",
+      "signature": "public.qb_question_version_capture()",
+      "actor_guard": true,
+      "search_path": [
+        "search_path=\"\""
+      ],
+      "authenticated": false,
+      "definition_hash": "e8b4c69dfe5f8237cddb5d3e64bde4f3",
+      "legitimateExecute": "internal/trigger/service_role only",
+      "reviewStatus": "Catalog and code review; not blanket dynamic certification"
+    },
+    {
+      "anon": false,
+      "name": "qb_is_acceptance_actor",
+      "signature": "public.qb_is_acceptance_actor()",
+      "actor_guard": true,
+      "search_path": [
+        "search_path=\"\""
+      ],
+      "authenticated": true,
+      "definition_hash": "cfeb804b48f37be97c53dcb6ad11eeba",
+      "legitimateExecute": "authenticated with actor/RLS/role checks; service_role",
+      "reviewStatus": "Catalog and code review; not blanket dynamic certification"
+    },
+    {
+      "anon": false,
+      "name": "qb_question_is_available",
+      "signature": "public.qb_question_is_available(public.questions)",
+      "actor_guard": true,
+      "search_path": [
+        "search_path=\"\""
+      ],
+      "authenticated": true,
+      "definition_hash": "229cbd173179829dbaa65aa597fc58d9",
+      "legitimateExecute": "authenticated with actor/RLS/role checks; service_role",
+      "reviewStatus": "Catalog and code review; not blanket dynamic certification"
+    },
+    {
+      "anon": false,
+      "name": "qb_question_editorial_guard",
+      "signature": "public.qb_question_editorial_guard()",
+      "actor_guard": true,
+      "search_path": [
+        "search_path=\"\""
+      ],
+      "authenticated": false,
+      "definition_hash": "de98e6b11956ab336a9aa0e0517418ce",
+      "legitimateExecute": "internal/trigger/service_role only",
+      "reviewStatus": "Catalog and code review; not blanket dynamic certification"
+    },
+    {
+      "anon": false,
+      "name": "qb_content_queue",
+      "signature": "public.qb_content_queue(jsonb,integer,integer)",
+      "actor_guard": true,
+      "search_path": [
+        "search_path=\"\""
+      ],
+      "authenticated": true,
+      "definition_hash": "4d4c918b12b90e92cf20860f6e34a4cc",
+      "legitimateExecute": "authenticated with actor/RLS/role checks; service_role",
+      "reviewStatus": "Catalog and code review; not blanket dynamic certification"
+    },
+    {
+      "anon": false,
+      "name": "qb_has_permission",
+      "signature": "public.qb_has_permission(text)",
+      "actor_guard": true,
+      "search_path": [
+        "search_path=public"
+      ],
+      "authenticated": true,
+      "definition_hash": "fd3dabd97a4ecb6e942af95253ab5ca0",
+      "legitimateExecute": "authenticated with actor/RLS/role checks; service_role",
+      "reviewStatus": "Catalog and code review; not blanket dynamic certification"
+    },
+    {
+      "anon": false,
+      "name": "rls_auto_enable",
+      "signature": "public.rls_auto_enable()",
+      "actor_guard": false,
+      "search_path": [
+        "search_path=pg_catalog"
+      ],
+      "authenticated": false,
+      "definition_hash": "6998ea6b4c2480f5d2e34b5dcf3f8d36",
+      "legitimateExecute": "internal/trigger/service_role only",
+      "reviewStatus": "Catalog and code review; not blanket dynamic certification"
+    },
+    {
+      "anon": false,
+      "name": "qb_get_question_media",
+      "signature": "public.qb_get_question_media(uuid)",
+      "actor_guard": false,
+      "search_path": [
+        "search_path=public"
+      ],
+      "authenticated": false,
+      "definition_hash": "44074a98b776e62886cc31a97041d1ad",
+      "legitimateExecute": "internal/trigger/service_role only",
+      "reviewStatus": "Catalog and code review; not blanket dynamic certification"
+    },
+    {
+      "anon": false,
+      "name": "qb_snapshot_assessment_question",
+      "signature": "public.qb_snapshot_assessment_question()",
+      "actor_guard": false,
+      "search_path": [
+        "search_path=public"
+      ],
+      "authenticated": false,
+      "definition_hash": "e1ffec86c7cb5c44a257808451d270bc",
+      "legitimateExecute": "internal/trigger/service_role only",
+      "reviewStatus": "Catalog and code review; not blanket dynamic certification"
+    },
+    {
+      "anon": false,
+      "name": "qb_refresh_daily_metrics",
+      "signature": "public.qb_refresh_daily_metrics(date)",
+      "actor_guard": true,
+      "search_path": [
+        "search_path=public"
+      ],
+      "authenticated": true,
+      "definition_hash": "5e86bb0a63febe175491eff286a07fb5",
+      "legitimateExecute": "authenticated with actor/RLS/role checks; service_role",
+      "reviewStatus": "Catalog and code review; not blanket dynamic certification"
+    },
+    {
+      "anon": false,
+      "name": "qb_get_attempt_review",
+      "signature": "public.qb_get_attempt_review(uuid)",
+      "actor_guard": true,
+      "search_path": [
+        "search_path=public"
+      ],
+      "authenticated": true,
+      "definition_hash": "ad2ce24582bbb36c8d69959f3fdf3160",
+      "legitimateExecute": "authenticated with actor/RLS/role checks; service_role",
+      "reviewStatus": "Catalog and code review; not blanket dynamic certification"
+    },
+    {
+      "anon": false,
+      "name": "qb_create_marketplace_order",
+      "signature": "public.qb_create_marketplace_order(uuid,integer)",
+      "actor_guard": true,
+      "search_path": [
+        "search_path=public"
+      ],
+      "authenticated": true,
+      "definition_hash": "0e49b73bbf8c61643d2a3d2dc2962cbb",
+      "legitimateExecute": "authenticated with actor/RLS/role checks; service_role",
+      "reviewStatus": "Catalog and code review; not blanket dynamic certification"
+    },
+    {
+      "anon": false,
+      "name": "qb_seller_balance",
+      "signature": "public.qb_seller_balance(uuid)",
+      "actor_guard": true,
+      "search_path": [
+        "search_path=public"
+      ],
+      "authenticated": true,
+      "definition_hash": "2c356981fd2a841c50d45527c70c0811",
+      "legitimateExecute": "authenticated with actor/RLS/role checks; service_role",
+      "reviewStatus": "Catalog and code review; not blanket dynamic certification"
+    },
+    {
+      "anon": false,
+      "name": "qb_create_competition_team",
+      "signature": "public.qb_create_competition_team(uuid,uuid,text)",
+      "actor_guard": true,
+      "search_path": [
+        "search_path=public"
+      ],
+      "authenticated": true,
+      "definition_hash": "eb3a92f38428e3cfb47b00ae59da0b7f",
+      "legitimateExecute": "authenticated with actor/RLS/role checks; service_role",
+      "reviewStatus": "Catalog and code review; not blanket dynamic certification"
+    },
+    {
+      "anon": false,
+      "name": "qb_competition_leaderboard",
+      "signature": "public.qb_competition_leaderboard(uuid)",
+      "actor_guard": true,
+      "search_path": [
+        "search_path=public"
+      ],
+      "authenticated": true,
+      "definition_hash": "6f82a4f065cd03027d922dd16f96c278",
+      "legitimateExecute": "authenticated with actor/RLS/role checks; service_role",
+      "reviewStatus": "Catalog and code review; not blanket dynamic certification"
+    },
+    {
+      "anon": false,
+      "name": "qb_record_competition_result",
+      "signature": "public.qb_record_competition_result(uuid,text,uuid,numeric,numeric,bigint,uuid,uuid,uuid,text)",
+      "actor_guard": true,
+      "search_path": [
+        "search_path=public"
+      ],
+      "authenticated": true,
+      "definition_hash": "450b650b480c9bd97fba61cfb9df33df",
+      "legitimateExecute": "authenticated with actor/RLS/role checks; service_role",
+      "reviewStatus": "Catalog and code review; not blanket dynamic certification"
+    },
+    {
+      "anon": false,
+      "name": "qb_is_class_member",
+      "signature": "public.qb_is_class_member(uuid)",
+      "actor_guard": true,
+      "search_path": [
+        "search_path=public"
+      ],
+      "authenticated": true,
+      "definition_hash": "0182a0c0e4d92f2af71a50d3f0c3b163",
+      "legitimateExecute": "authenticated with actor/RLS/role checks; service_role",
+      "reviewStatus": "Catalog and code review; not blanket dynamic certification"
+    },
+    {
+      "anon": false,
+      "name": "qb_competition_funding_summary",
+      "signature": "public.qb_competition_funding_summary(uuid)",
+      "actor_guard": true,
+      "search_path": [
+        "search_path=public"
+      ],
+      "authenticated": true,
+      "definition_hash": "8559a0675fa803558331393d5eb5e7f6",
+      "legitimateExecute": "authenticated with actor/RLS/role checks; service_role",
+      "reviewStatus": "Catalog and code review; not blanket dynamic certification"
+    },
+    {
+      "anon": false,
+      "name": "qb_can_manage_class",
+      "signature": "public.qb_can_manage_class(uuid)",
+      "actor_guard": true,
+      "search_path": [
+        "search_path=public"
+      ],
+      "authenticated": true,
+      "definition_hash": "4a266fd4d95f0fa0369b53bd929dc615",
+      "legitimateExecute": "authenticated with actor/RLS/role checks; service_role",
+      "reviewStatus": "Catalog and code review; not blanket dynamic certification"
+    },
+    {
+      "anon": true,
+      "name": "qb_marketplace_catalog",
+      "signature": "public.qb_marketplace_catalog()",
+      "actor_guard": false,
+      "search_path": [
+        "search_path=public"
+      ],
+      "authenticated": true,
+      "definition_hash": "bf71ddd167589fe2387630c08318fbaa",
+      "legitimateExecute": "anon published catalogue; authenticated",
+      "reviewStatus": "Catalog and code review; not blanket dynamic certification"
+    },
+    {
+      "anon": false,
+      "name": "qb_content_detail",
+      "signature": "public.qb_content_detail(uuid)",
+      "actor_guard": true,
+      "search_path": [
+        "search_path=\"\""
+      ],
+      "authenticated": true,
+      "definition_hash": "7c06cb0fb12d2c6eead94909e01c32bf",
+      "legitimateExecute": "authenticated with actor/RLS/role checks; service_role",
+      "reviewStatus": "Catalog and code review; not blanket dynamic certification"
+    },
+    {
+      "anon": false,
+      "name": "qb_can_access_learning_assessment",
+      "signature": "public.qb_can_access_learning_assessment(uuid)",
+      "actor_guard": true,
+      "search_path": [
+        "search_path=\"\""
+      ],
+      "authenticated": true,
+      "definition_hash": "02e0a5c5c3d717ce0761b004dd983819",
+      "legitimateExecute": "authenticated with actor/RLS/role checks; service_role",
+      "reviewStatus": "Catalog and code review; not blanket dynamic certification"
+    },
+    {
+      "anon": false,
+      "name": "qb_content_validation_errors",
+      "signature": "public.qb_content_validation_errors(jsonb)",
+      "actor_guard": false,
+      "search_path": [
+        "search_path=\"\""
+      ],
+      "authenticated": true,
+      "definition_hash": "660fa0e0481c2449bc721b59043b93b0",
+      "legitimateExecute": "authenticated with actor/RLS/role checks; service_role",
+      "reviewStatus": "Catalog and code review; not blanket dynamic certification"
+    },
+    {
+      "anon": false,
+      "name": "qb_get_result",
+      "signature": "public.qb_get_result(uuid)",
+      "actor_guard": true,
+      "search_path": [
+        "search_path=public"
+      ],
+      "authenticated": true,
+      "definition_hash": "b0990123af2ca17564e62c090b7a61c2",
+      "legitimateExecute": "authenticated with actor/RLS/role checks; service_role",
+      "reviewStatus": "Catalog and code review; not blanket dynamic certification"
+    },
+    {
+      "anon": false,
+      "name": "qb_get_questions",
+      "signature": "public.qb_get_questions(text,text,integer)",
+      "actor_guard": true,
+      "search_path": [
+        "search_path=public"
+      ],
+      "authenticated": true,
+      "definition_hash": "3ef4293cab634b38906816ade1f0104f",
+      "legitimateExecute": "authenticated with actor/RLS/role checks; service_role",
+      "reviewStatus": "Catalog and code review; not blanket dynamic certification"
+    },
+    {
+      "anon": false,
+      "name": "qb_list_available_assessments",
+      "signature": "public.qb_list_available_assessments()",
+      "actor_guard": true,
+      "search_path": [
+        "search_path=\"\""
+      ],
+      "authenticated": true,
+      "definition_hash": "4784964e2dd30f200917d28b118156f2",
+      "legitimateExecute": "authenticated with actor/RLS/role checks; service_role",
+      "reviewStatus": "Catalog and code review; not blanket dynamic certification"
+    },
+    {
+      "anon": false,
+      "name": "qb_question_availability",
+      "signature": "public.qb_question_availability(uuid[],text,text)",
+      "actor_guard": true,
+      "search_path": [
+        "search_path=public, pg_temp"
+      ],
+      "authenticated": true,
+      "definition_hash": "ca50aafecde59ca66a04254db073e521",
+      "legitimateExecute": "authenticated with actor/RLS/role checks; service_role",
+      "reviewStatus": "Catalog and code review; not blanket dynamic certification"
+    },
+    {
+      "anon": false,
+      "name": "qb_content_batches",
+      "signature": "public.qb_content_batches(integer,integer)",
+      "actor_guard": true,
+      "search_path": [
+        "search_path=\"\""
+      ],
+      "authenticated": true,
+      "definition_hash": "a4ecf61111c23864a1482431cb0c218f",
+      "legitimateExecute": "authenticated with actor/RLS/role checks; service_role",
+      "reviewStatus": "Catalog and code review; not blanket dynamic certification"
+    },
+    {
+      "anon": false,
+      "name": "qb_operation_failure",
+      "signature": "public.qb_operation_failure(text,text)",
+      "actor_guard": true,
+      "search_path": [
+        "search_path=\"\""
+      ],
+      "authenticated": true,
+      "definition_hash": "cd8636e4576bf176d61cf9809e1cc6f8",
+      "legitimateExecute": "authenticated with actor/RLS/role checks; service_role",
+      "reviewStatus": "Catalog and code review; not blanket dynamic certification"
+    },
+    {
+      "anon": false,
+      "name": "qb_recent_operations",
+      "signature": "public.qb_recent_operations(integer,boolean)",
+      "actor_guard": true,
+      "search_path": [
+        "search_path=\"\""
+      ],
+      "authenticated": true,
+      "definition_hash": "33b60bda5e8845b3e07ad6c2c71e8164",
+      "legitimateExecute": "authenticated with actor/RLS/role checks; service_role",
+      "reviewStatus": "Catalog and code review; not blanket dynamic certification"
+    },
+    {
+      "anon": false,
+      "name": "qb_content_ingest",
+      "signature": "public.qb_content_ingest(jsonb,jsonb,text,text,text)",
+      "actor_guard": true,
+      "search_path": [
+        "search_path=\"\""
+      ],
+      "authenticated": true,
+      "definition_hash": "afc100db74f15de7fb159b8cf77fcea7",
+      "legitimateExecute": "authenticated with actor/RLS/role checks; service_role",
+      "reviewStatus": "Catalog and code review; not blanket dynamic certification"
+    },
+    {
+      "anon": false,
+      "name": "qb_save_coverage_target",
+      "signature": "public.qb_save_coverage_target(uuid,text,text,integer,integer,integer,integer,jsonb)",
+      "actor_guard": true,
+      "search_path": [
+        "search_path=\"\""
+      ],
+      "authenticated": true,
+      "definition_hash": "3ae2287da2086a690352a6706d8935f2",
+      "legitimateExecute": "authenticated with actor/RLS/role checks; service_role",
+      "reviewStatus": "Catalog and code review; not blanket dynamic certification"
+    },
+    {
+      "anon": false,
+      "name": "qb_my_results_page",
+      "signature": "public.qb_my_results_page(integer,integer)",
+      "actor_guard": true,
+      "search_path": [
+        "search_path=\"\""
+      ],
+      "authenticated": true,
+      "definition_hash": "05fb5a1c0bbbf1f6b85794c2c7b8b2a4",
+      "legitimateExecute": "authenticated with actor/RLS/role checks; service_role",
+      "reviewStatus": "Catalog and code review; not blanket dynamic certification"
+    },
+    {
+      "anon": false,
+      "name": "qb_production_security_audit",
+      "signature": "public.qb_production_security_audit()",
+      "actor_guard": true,
+      "search_path": [
+        "search_path=\"\""
+      ],
+      "authenticated": true,
+      "definition_hash": "7a0f9f2e42bed45adfa6821c1e41b0bb",
+      "legitimateExecute": "authenticated with actor/RLS/role checks; service_role",
+      "reviewStatus": "Catalog and code review; not blanket dynamic certification"
+    },
+    {
+      "anon": false,
+      "name": "qb_admin_competition_metrics",
+      "signature": "public.qb_admin_competition_metrics()",
+      "actor_guard": true,
+      "search_path": [
+        "search_path=public"
+      ],
+      "authenticated": true,
+      "definition_hash": "10e1616e593866a2a4a258f45d52efe5",
+      "legitimateExecute": "authenticated with actor/RLS/role checks; service_role",
+      "reviewStatus": "Catalog and code review; not blanket dynamic certification"
+    },
+    {
+      "anon": false,
+      "name": "qb_start_attempt",
+      "signature": "public.qb_start_attempt(uuid,uuid,uuid,text)",
+      "actor_guard": true,
+      "search_path": [
+        "search_path=public"
+      ],
+      "authenticated": true,
+      "definition_hash": "e14b63124634c5bf64769b173b5a913f",
+      "legitimateExecute": "authenticated with actor/RLS/role checks; service_role",
+      "reviewStatus": "Catalog and code review; not blanket dynamic certification"
+    },
+    {
+      "anon": false,
+      "name": "qb_save_response",
+      "signature": "public.qb_save_response(uuid,uuid,text,jsonb,integer)",
+      "actor_guard": true,
+      "search_path": [
+        "search_path=public"
+      ],
+      "authenticated": true,
+      "definition_hash": "055f59facda8b549f8b2c8fa385b9f6e",
+      "legitimateExecute": "authenticated with actor/RLS/role checks; service_role",
+      "reviewStatus": "Catalog and code review; not blanket dynamic certification"
+    },
+    {
+      "anon": false,
+      "name": "qb_save_practice_response",
+      "signature": "public.qb_save_practice_response(uuid,uuid,text,jsonb,integer)",
+      "actor_guard": true,
+      "search_path": [
+        "search_path=\"\""
+      ],
+      "authenticated": true,
+      "definition_hash": "fa13956db990fb1b871bf34b87330bad",
+      "legitimateExecute": "authenticated with actor/RLS/role checks; service_role",
+      "reviewStatus": "Catalog and code review; not blanket dynamic certification"
+    },
+    {
+      "anon": false,
+      "name": "qb_content_request_generation",
+      "signature": "public.qb_content_request_generation(jsonb)",
+      "actor_guard": true,
+      "search_path": [
+        "search_path=\"\""
+      ],
+      "authenticated": true,
+      "definition_hash": "3816b890f272b2ebf4fa3ec9c660d36e",
+      "legitimateExecute": "authenticated with actor/RLS/role checks; service_role",
+      "reviewStatus": "Catalog and code review; not blanket dynamic certification"
+    },
+    {
+      "anon": false,
+      "name": "qb_admin_content_health",
+      "signature": "public.qb_admin_content_health()",
+      "actor_guard": true,
+      "search_path": [
+        "search_path=public"
+      ],
+      "authenticated": true,
+      "definition_hash": "5d038f35edf3846e34c36a0d7423758e",
+      "legitimateExecute": "authenticated with actor/RLS/role checks; service_role",
+      "reviewStatus": "Catalog and code review; not blanket dynamic certification"
+    },
+    {
+      "anon": false,
+      "name": "qb_admin_event_summary",
+      "signature": "public.qb_admin_event_summary(integer)",
+      "actor_guard": true,
+      "search_path": [
+        "search_path=public"
+      ],
+      "authenticated": true,
+      "definition_hash": "0e79380d15e1290c4414e9abcfd52062",
+      "legitimateExecute": "authenticated with actor/RLS/role checks; service_role",
+      "reviewStatus": "Catalog and code review; not blanket dynamic certification"
+    },
+    {
+      "anon": false,
+      "name": "qb_admin_marketplace_metrics",
+      "signature": "public.qb_admin_marketplace_metrics()",
+      "actor_guard": true,
+      "search_path": [
+        "search_path=public"
+      ],
+      "authenticated": true,
+      "definition_hash": "1491d160350ea303dd45ddf022a49f7a",
+      "legitimateExecute": "authenticated with actor/RLS/role checks; service_role",
+      "reviewStatus": "Catalog and code review; not blanket dynamic certification"
+    },
+    {
+      "anon": false,
+      "name": "qb_admin_operations_health",
+      "signature": "public.qb_admin_operations_health()",
+      "actor_guard": true,
+      "search_path": [
+        "search_path=public"
+      ],
+      "authenticated": true,
+      "definition_hash": "e20751b81305ca21ed4f8ee348f34e11",
+      "legitimateExecute": "authenticated with actor/RLS/role checks; service_role",
+      "reviewStatus": "Catalog and code review; not blanket dynamic certification"
+    },
+    {
+      "anon": false,
+      "name": "qb_admin_platform_overview",
+      "signature": "public.qb_admin_platform_overview()",
+      "actor_guard": true,
+      "search_path": [
+        "search_path=public"
+      ],
+      "authenticated": true,
+      "definition_hash": "9e497a9923ce49ffc77315ef5548984e",
+      "legitimateExecute": "authenticated with actor/RLS/role checks; service_role",
+      "reviewStatus": "Catalog and code review; not blanket dynamic certification"
+    },
+    {
+      "anon": false,
+      "name": "qb_admin_question_distribution",
+      "signature": "public.qb_admin_question_distribution()",
+      "actor_guard": true,
+      "search_path": [
+        "search_path=public"
+      ],
+      "authenticated": true,
+      "definition_hash": "7e5f006f1966db03b8b84861de08fe16",
+      "legitimateExecute": "authenticated with actor/RLS/role checks; service_role",
+      "reviewStatus": "Catalog and code review; not blanket dynamic certification"
+    },
+    {
+      "anon": false,
+      "name": "qb_get_daily_metrics",
+      "signature": "public.qb_get_daily_metrics(uuid,date,date)",
+      "actor_guard": true,
+      "search_path": [
+        "search_path=public"
+      ],
+      "authenticated": true,
+      "definition_hash": "bcbfd055bee3f6be7c7db0a3cbcc09ff",
+      "legitimateExecute": "authenticated with actor/RLS/role checks; service_role",
+      "reviewStatus": "Catalog and code review; not blanket dynamic certification"
+    },
+    {
+      "anon": false,
+      "name": "qb_tenant_learning_metrics",
+      "signature": "public.qb_tenant_learning_metrics(uuid,integer)",
+      "actor_guard": true,
+      "search_path": [
+        "search_path=public"
+      ],
+      "authenticated": true,
+      "definition_hash": "f911475bcd1547dd29edb2e5764ea1de",
+      "legitimateExecute": "authenticated with actor/RLS/role checks; service_role",
+      "reviewStatus": "Catalog and code review; not blanket dynamic certification"
+    },
+    {
+      "anon": false,
+      "name": "qb_controls_seller",
+      "signature": "public.qb_controls_seller(uuid)",
+      "actor_guard": true,
+      "search_path": [
+        "search_path=public"
+      ],
+      "authenticated": true,
+      "definition_hash": "48fa5654c36d2dc982b0bbf474ee5604",
+      "legitimateExecute": "authenticated with actor/RLS/role checks; service_role",
+      "reviewStatus": "Catalog and code review; not blanket dynamic certification"
+    },
+    {
+      "anon": false,
+      "name": "qb_join_class",
+      "signature": "public.qb_join_class(text)",
+      "actor_guard": true,
+      "search_path": [
+        "search_path=\"\""
+      ],
+      "authenticated": true,
+      "definition_hash": "3933eaa564269028afc8aff99b8bb9d4",
+      "legitimateExecute": "authenticated with actor/RLS/role checks; service_role",
+      "reviewStatus": "Catalog and code review; not blanket dynamic certification"
+    },
+    {
+      "anon": false,
+      "name": "qb_can_read_question_media",
+      "signature": "public.qb_can_read_question_media(text)",
+      "actor_guard": true,
+      "search_path": [
+        "search_path=\"\""
+      ],
+      "authenticated": true,
+      "definition_hash": "7dbfaa25ad0177ab328b64d55b21e5ff",
+      "legitimateExecute": "authenticated with actor/RLS/role checks; service_role",
+      "reviewStatus": "Catalog and code review; not blanket dynamic certification"
+    },
+    {
+      "anon": false,
+      "name": "qb_attach_question_media",
+      "signature": "public.qb_attach_question_media(uuid,uuid,integer,text)",
+      "actor_guard": true,
+      "search_path": [
+        "search_path=\"\""
+      ],
+      "authenticated": true,
+      "definition_hash": "aa64132d130881c072a3d22bc0d04426",
+      "legitimateExecute": "authenticated with actor/RLS/role checks; service_role",
+      "reviewStatus": "Catalog and code review; not blanket dynamic certification"
+    },
+    {
+      "anon": false,
+      "name": "qb_class_roster_page",
+      "signature": "public.qb_class_roster_page(uuid,integer,integer)",
+      "actor_guard": true,
+      "search_path": [
+        "search_path=\"\""
+      ],
+      "authenticated": true,
+      "definition_hash": "16fb62606c34ba682e6973da37cb4ea2",
+      "legitimateExecute": "authenticated with actor/RLS/role checks; service_role",
+      "reviewStatus": "Catalog and code review; not blanket dynamic certification"
+    },
+    {
+      "anon": false,
+      "name": "qb_my_attempts_page",
+      "signature": "public.qb_my_attempts_page(integer,integer)",
+      "actor_guard": true,
+      "search_path": [
+        "search_path=\"\""
+      ],
+      "authenticated": true,
+      "definition_hash": "18e57b5475e3557a45b6874fd8b42e9e",
+      "legitimateExecute": "authenticated with actor/RLS/role checks; service_role",
+      "reviewStatus": "Catalog and code review; not blanket dynamic certification"
+    }
+  ]
+}

@@ -1,0 +1,93 @@
+{
+  "generatedAt": "2026-10-02T01:14:22.095Z",
+  "decision": "NOT READY",
+  "commands": {
+    "typecheck": true,
+    "lint": true,
+    "test": true,
+    "build": true,
+    "content:audit": true,
+    "content:validate": true,
+    "content:verify": true,
+    "content:factory -- coverage": true
+  },
+  "gates": [
+    {
+      "category": "CONTENT",
+      "id": "approved_production_content",
+      "status": "FAIL",
+      "severity": "P0",
+      "evidence": "0 active approved mapped production questions"
+    },
+    {
+      "category": "SECURITY",
+      "id": "rpc_privileges",
+      "status": "PASS",
+      "severity": "P0",
+      "evidence": "0 unexpected anonymous definer grants"
+    },
+    {
+      "category": "DATABASE",
+      "id": "rls",
+      "status": "PASS",
+      "severity": "P0",
+      "evidence": "0 public tables without RLS"
+    },
+    {
+      "category": "AUTH",
+      "id": "signup_provisioning",
+      "status": "PASS",
+      "severity": "P0",
+      "evidence": "quizbox_signup_profile trigger"
+    },
+    {
+      "category": "SECURITY",
+      "id": "dependencies",
+      "status": "PASS",
+      "severity": "P0",
+      "evidence": "0 high/critical dependency findings"
+    },
+    {
+      "category": "APPLICATION",
+      "id": "quality_gates",
+      "status": "PASS",
+      "severity": "P0",
+      "evidence": "Current run: typecheck, lint, tests, build and content verification"
+    },
+    {
+      "category": "APPLICATION",
+      "id": "authenticated_regression",
+      "status": "PASS",
+      "severity": "P0",
+      "evidence": "Current run requires QB_LIVE_ACCEPTANCE=1 and acceptance environment credentials"
+    },
+    {
+      "category": "AUTH",
+      "id": "leaked_password_protection",
+      "status": "MANUAL VERIFICATION REQUIRED",
+      "severity": "P0",
+      "evidence": "Live security advisor reports protection disabled; enable and reverify in Supabase Auth"
+    },
+    {
+      "category": "SECURITY",
+      "id": "test_credential_rotation",
+      "status": "MANUAL VERIFICATION REQUIRED",
+      "severity": "P0",
+      "evidence": "Previously committed/shared test passwords must be rotated or accounts isolated; no history rewrite performed"
+    },
+    {
+      "category": "OPERATIONS",
+      "id": "backup_restore",
+      "status": "MANUAL VERIFICATION REQUIRED",
+      "severity": "P0",
+      "evidence": "Infrastructure backup and isolated database restore drill need operator verification"
+    },
+    {
+      "category": "SECURITY",
+      "id": "production_content",
+      "severity": "P0",
+      "status": "FAIL",
+      "evidence": "questions active/approved mapped, excluding both fixture namespaces"
+    }
+  ]
+}
