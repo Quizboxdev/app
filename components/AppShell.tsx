@@ -6,6 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import { bootstrapUser, getHomeRouteForRole, signOut } from "@/lib/auth";
 import type { UserContext } from "@/lib/types";
 import { findMySeller } from "@/lib/api/marketplace";
+import { getSmeContext, type SmeContext } from "@/lib/api/sme";
 
 type NavItem = [string, string];
 
@@ -17,6 +18,7 @@ export default function AppShell({
   const [ctx, setCtx] = useState<UserContext | null>(null);
   const [isSeller, setIsSeller] = useState(false);
   const [sellerChecked, setSellerChecked] = useState(false);
+  const [sme, setSme] = useState<SmeContext | null>(null);
   const pathname = usePathname();
   const router = useRouter();
 
@@ -24,6 +26,8 @@ export default function AppShell({
     bootstrapUser()
       .then(async (context) => {
         setCtx(context);
+        // An unapplied foundation migration must not disrupt existing role access.
+        try { setSme(await getSmeContext()); } catch { setSme(null); }
 
         try {
           const teacherId = (context.teacherProfile as any)?.id ?? null;
@@ -56,6 +60,9 @@ export default function AppShell({
     if (isSeller && ["TEACHER", "ADMIN", "OWNER"].includes(role)) {
       allowedPrefixes.push("/seller");
     }
+    if (sme?.reviewer || sme?.content_admin || sme?.super_admin) allowedPrefixes.push("/review");
+    if (sme?.super_admin) allowedPrefixes.push("/admin/markets", "/admin/reviewers", "/admin/compensation");
+    if (sme?.super_admin || sme?.finance_admin) allowedPrefixes.push("/admin/sme-performance", "/admin/payouts");
 
     const isAllowed = allowedPrefixes.some(
       (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)
@@ -64,14 +71,18 @@ export default function AppShell({
     if (!isAllowed) {
       router.replace(getHomeRouteForRole(role));
     }
-  }, [ctx, isSeller, pathname, router, sellerChecked]);
+  }, [ctx, isSeller, pathname, router, sellerChecked, sme]);
 
   const nav = useMemo<NavItem[]>(() => {
     if (!ctx) return [];
 
     const role = String(ctx.role).toUpperCase();
+    const extra: NavItem[] = [];
+    if (sme?.reviewer || sme?.content_admin || sme?.super_admin) extra.push(["/review", "SME Reviews"]);
+    if (sme?.super_admin) extra.push(["/admin/markets", "Markets"], ["/admin/reviewers", "SME Reviewers"], ["/admin/compensation", "Compensation"]);
+    if (sme?.super_admin || sme?.finance_admin) extra.push(["/admin/sme-performance", "SME Performance"], ["/admin/payouts", "Payouts"]);
     const withSeller = (items: NavItem[]): NavItem[] =>
-      isSeller ? [...items, ["/seller", "Seller"] as NavItem] : items;
+      [...items, ...(isSeller && ["TEACHER", "ADMIN", "OWNER"].includes(role) ? [["/seller", "Seller"] as NavItem] : []), ...extra];
 
     if (["ADMIN", "OWNER"].includes(role)) {
       return withSeller([
@@ -86,11 +97,11 @@ export default function AppShell({
     }
 
     if (role === "SPONSOR") {
-      return [
+      return withSeller([
         ["/sponsor", "Sponsor"],
         ["/competition", "Competitions"],
         ["/marketplace", "Marketplace"],
-      ];
+      ]);
     }
 
     if (role === "TEACHER") {
@@ -105,15 +116,15 @@ export default function AppShell({
       ]);
     }
 
-    return [
+    return withSeller([
       ["/student", "Home"],
       ["/student/assessments", "Assessments"],
       ["/student/classroom", "Classroom"],
       ["/student/results", "Progress"],
       ["/competition", "Competitions"],
       ["/marketplace", "Marketplace"],
-    ];
-  }, [ctx, isSeller]);
+    ]);
+  }, [ctx, isSeller, sme]);
 
   if (!ctx) {
     return <div className="qb-content">Loading QuizBox…</div>;
@@ -126,7 +137,7 @@ export default function AppShell({
 
   return (
     <div className="qb-shell">
-      <aside className="qb-sidebar">
+      <aside className="qb-sidebar" style={{ overflowY: "auto" }}>
         <div className="qb-brand">QuizBox</div>
 
         <div className="qb-nav">
@@ -159,7 +170,7 @@ export default function AppShell({
         <div className="qb-content">{children}</div>
 
         <nav className="qb-mobile-nav">
-          {nav.slice(0, 4).map(([href, label]) => (
+          {(sme?.reviewer ? [...nav.slice(0, 3), ["/review", "SME Reviews"] as NavItem] : nav.slice(0, 4)).map(([href, label]) => (
             <Link key={href} href={href}>
               {label}
             </Link>

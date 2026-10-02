@@ -8,6 +8,7 @@ import { EDITORIAL_STATES, type GenerationSpec } from "@/lib/content/factory/con
 import { userFacingError } from "@/lib/errors";
 import { CoverageTargetEditor, QuestionMediaUpload } from "@/components/ContentClosureTools";
 import { reviewPage, WAVE_ONE_REVIEW_INDICATORS } from "@/lib/content/factory/review";
+import SmeReviewWorkbench from "@/components/SmeReviewWorkbench";
 
 type View = "review" | "coverage" | "batches";
 const initialFilters = { search: "", curriculum: "", grade: "", subject: "", indicator: "", reviewStatus: "", validation: "", node: "", source: "production", status: "review", difficulty: "", cognitive: "", type: "", batch: "" };
@@ -140,6 +141,7 @@ export default function AdminContentPage() {
       <h3>Version History</h3><ul>{(detail.versions ?? []).map((v:any) => <li key={v.version}>Version {v.version} / {v.at} / {v.reason} / {v.editor ?? "Import"}</li>)}</ul>
       <QuestionMediaUpload question={q} onSaved={()=>open(q.id)}/>
     </section>}
+    {view === "review" && <SmeReviewWorkbench questionId={q?.id}/>}
     {generation && <section className="qb-content-review"><h2>Generate Questions</h2><p>{generation.code}: {generation.title}</p><form onSubmit={queueGeneration} className="qb-content-filters"><label>Count<input type="number" name="count" min={1} max={100} defaultValue={10} required/></label><label>Difficulty<select name="difficulty"><option>easy</option><option>medium</option><option>hard</option></select></label><label>Type<select name="type"><option>SINGLE_CHOICE</option><option>TRUE_FALSE</option></select></label><label>Cognitive level<input name="cognitive" defaultValue="Understand" required/></label><button type="submit" disabled={busy}>Queue Generation</button></form></section>}
     {view === "batches" && <section className="qb-content-review"><h2>Candidate Import</h2><form onSubmit={ingest}><label>Candidate batch JSON<textarea rows={8} value={json} onChange={(e) => setJson(e.target.value)} required maxLength={1000000}/></label><button type="submit" disabled={busy}>Import for Review</button></form></section>}
   </div>;
