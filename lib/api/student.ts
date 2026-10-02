@@ -1,4 +1,5 @@
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
+import { userFacingError } from "@/lib/errors";
 
 export async function getStudentDashboard(studentId: string) {
   const supabase = getSupabaseBrowserClient();
@@ -29,11 +30,11 @@ export async function getStudentDashboard(studentId: string) {
     supabase.rpc("qb_student_xp"),
   ]);
 
-  if (resultsRes.error) throw resultsRes.error;
-  if (membershipsRes.error) throw membershipsRes.error;
-  if (assignmentsRes.error) throw assignmentsRes.error;
-  if (notificationsRes.error) throw notificationsRes.error;
-  if (xpRes.error) throw xpRes.error;
+  if (resultsRes.error) throw new Error(userFacingError(resultsRes.error));
+  if (membershipsRes.error) throw new Error(userFacingError(membershipsRes.error));
+  if (assignmentsRes.error) throw new Error(userFacingError(assignmentsRes.error));
+  if (notificationsRes.error) throw new Error(userFacingError(notificationsRes.error));
+  if (xpRes.error) throw new Error(userFacingError(xpRes.error));
 
   const results = (resultsRes.data ?? []) as any[];
   const average =
@@ -67,7 +68,7 @@ export async function getStudentClassroom(studentId: string) {
     .eq("student_id", studentId)
     .order("joined_at", { ascending: false });
 
-  if (membershipError) throw membershipError;
+  if (membershipError) throw new Error(userFacingError(membershipError));
 
   const classIds = (memberships ?? [])
     .map((m: any) => m.class_id)
@@ -81,7 +82,7 @@ export async function getStudentClassroom(studentId: string) {
       .in("class_id", classIds)
       .order("created_at", { ascending: false });
 
-    if (error) throw error;
+    if (error) throw new Error(userFacingError(error));
     assignments = data ?? [];
   }
 
@@ -90,12 +91,12 @@ export async function getStudentClassroom(studentId: string) {
 
 export async function joinClass(joinCode: string) {
   const { data, error } = await getSupabaseBrowserClient().rpc("qb_join_class", { p_join_code: joinCode.trim().toUpperCase() });
-  if (error) throw error;
+  if (error) throw new Error(userFacingError(error));
   return data;
 }
 
 export async function getStudentXp() {
   const { data, error } = await getSupabaseBrowserClient().rpc("qb_student_xp");
-  if (error) throw error;
+  if (error) throw new Error(userFacingError(error));
   return Array.isArray(data) ? data[0] ?? null : data;
 }

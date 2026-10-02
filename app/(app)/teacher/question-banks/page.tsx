@@ -9,7 +9,7 @@ export default function TeacherQuestionBanksPage() {
   const [page, setPage] = useState(1);
   const [error, setError] = useState("");
   async function load(nextPage = page) { try { setError(""); setResult(await listQuestions({ ...filters, page: nextPage, pageSize: 25 })); } catch (reason: any) { setError(reason.message); } }
-  useEffect(() => { load(1); }, []);
+  useEffect(() => { listQuestions({ page: 1, pageSize: 25 }).then(setResult).catch((reason) => setError(reason.message)); }, []);
   function submit(event: FormEvent) { event.preventDefault(); setPage(1); load(1); }
   const pages = Math.max(1, Math.ceil(result.count / result.pageSize));
 

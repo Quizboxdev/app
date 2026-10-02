@@ -4,6 +4,7 @@ import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { bootstrapUser, getHomeRouteForRole } from "@/lib/auth";
+import { userFacingError } from "@/lib/errors";
 
 export default function LoginPage() {
   const [mode, setMode] = useState<"login" | "register">("login");
@@ -11,6 +12,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [status, setStatus] = useState("");
+  const [busy, setBusy] = useState(false);
   const router = useRouter();
 
   async function routeAfterAuth() {
@@ -20,6 +22,8 @@ export default function LoginPage() {
 
   async function submit(e: FormEvent) {
     e.preventDefault();
+    if (busy) return;
+    setBusy(true);
     setStatus("");
 
     try {
@@ -56,8 +60,8 @@ export default function LoginPage() {
 
       await routeAfterAuth();
     } catch (error: any) {
-      setStatus(error?.message ?? "Authentication failed.");
-    }
+      setStatus(userFacingError(error));
+    } finally { setBusy(false); }
   }
 
   return (
@@ -69,8 +73,10 @@ export default function LoginPage() {
         <form className="qb-form" onSubmit={submit}>
           {mode === "register" && (
             <div className="qb-field">
-              <label>Full name</label>
+              <label htmlFor="auth-name">Full name</label>
               <input
+                id="auth-name"
+                autoComplete="name"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
                 required
@@ -79,8 +85,10 @@ export default function LoginPage() {
           )}
 
           <div className="qb-field">
-            <label>Email</label>
+            <label htmlFor="auth-email">Email</label>
             <input
+              id="auth-email"
+              autoComplete="email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -89,8 +97,10 @@ export default function LoginPage() {
           </div>
 
           <div className="qb-field">
-            <label>Password</label>
+            <label htmlFor="auth-password">Password</label>
             <input
+              id="auth-password"
+              autoComplete={mode === "login" ? "current-password" : "new-password"}
               type="password"
               minLength={8}
               value={password}
@@ -99,9 +109,9 @@ export default function LoginPage() {
             />
           </div>
 
-          {status && <div className="qb-error">{status}</div>}
+          {status && <div role="status" className="qb-error">{status}</div>}
 
-          <button className="qb-btn" type="submit">
+          <button className="qb-btn" type="submit" disabled={busy}>
             {mode === "login" ? "Sign in" : "Create account"}
           </button>
 

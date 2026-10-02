@@ -1,5 +1,5 @@
 import { beforeAll, describe, expect, it } from "vitest";
-import { readFile } from "node:fs/promises";
+import { readFile, writeFile } from "node:fs/promises";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
 describe.skipIf(process.env.QB_LIVE_ACCEPTANCE !== "1")("authenticated practice acceptance", () => {
@@ -17,7 +17,22 @@ describe.skipIf(process.env.QB_LIVE_ACCEPTANCE !== "1")("authenticated practice 
     assessment = (await a.rpc("qb_get_attempt", { p_attempt_id: report.assessmentAttemptId })).data;
     const assignment = await a.from("assignments").select("class_id").eq("id", report.published.assignment_id).single();
     if (assignment.error) throw assignment.error;
-    if (assessment.attempt_status !== "in_progress") {
+    // Fresh isolated assignments keep live tests repeatable after old attempts expire.
+    const teacher = make();
+    const login = await teacher.auth.signInWithPassword({ email: "teacher.test@quizbox.local", password: process.env.QB_ACCEPTANCE_PASSWORD ?? "QuizBox123!" });
+    if (login.error) throw login.error;
+    for (const [key, mode, targets] of [["published", "PRACTICE", [report.studentA]], ["normal", "ASSESSMENT", null]] as const) {
+      const published = await teacher.rpc("qb_publish_assignment", {
+        p_class_id: assignment.data.class_id, p_title: "Acceptance regression " + mode + " " + new Date().toISOString(),
+        p_description: "DEV_ACCEPTANCE_FIXTURE regression only", p_curriculum_node_ids: [report.nodeId],
+        p_question_count: 2, p_difficulty: null, p_selection_mode: "MANUAL", p_question_ids: active.questions.map((question: any) => question.question_id),
+        p_mode: mode, p_attempts_allowed: 2, p_time_limit_minutes: 30, p_start_at: new Date().toISOString(), p_due_at: null,
+        p_target_student_ids: targets, p_remediation_source_assignment_id: null, p_remediation_node_id: null,
+      });
+      if (published.error) throw published.error;
+      report[key] = published.data;
+    }
+    {
       const assessmentStart = await a.rpc("qb_start_attempt", { p_assessment_id: report.normal.assessment_id, p_assignment_id: report.normal.assignment_id, p_class_id: assignment.data.class_id, p_client_session_id: crypto.randomUUID() });
       if (assessmentStart.error) throw assessmentStart.error;
       const assessmentPayload = await a.rpc("qb_get_attempt", { p_attempt_id: assessmentStart.data.attempt_id });
@@ -69,4 +84,34 @@ describe.skipIf(process.env.QB_LIVE_ACCEPTANCE !== "1")("authenticated practice 
     expect(awards.error).toBeNull(); expect(awards.data).toContainEqual({ reason: "ASSIGNMENT_COMPLETION", points: 20 });
     expect(awards.data?.some((row) => row.points === 0)).toBe(false);
   });
+  it("rejects mismatched assignment context before resuming", async () => {
+    const r=await a.rpc("qb_start_attempt",{p_assessment_id:report.published.assessment_id,p_assignment_id:report.normal.assignment_id,p_class_id:crypto.randomUUID(),p_client_session_id:crypto.randomUUID()});
+    expect(r.error?.message).toBe("QB_ASSIGNMENT_CONTEXT_MISMATCH");
+  });
+  it("completes a fresh practice cycle with persisted responses, mastery and idempotent XP", async () => {
+    const before=await a.from("mastery_records").select("id,mastery_score,attempts_count").eq("curriculum_node_id",report.nodeId).single();
+    const xpBefore=(await a.rpc("qb_student_xp")).data;
+    for(const question of feedbackAttempt.questions) {
+      const first=await a.rpc("qb_save_practice_response",{p_attempt_id:feedbackAttempt.attempt_id,p_question_id:question.question_id,p_selected_answer:"B"});
+      expect(first.error).toBeNull();
+      const saved=await a.rpc("qb_save_response",{p_attempt_id:feedbackAttempt.attempt_id,p_question_id:question.question_id,p_selected_answer:first.data.correct_answer,p_selected_value:null,p_response_seconds:5});
+      expect(saved.error).toBeNull();
+      const refreshed=await a.rpc("qb_get_attempt",{p_attempt_id:feedbackAttempt.attempt_id});
+      expect(refreshed.data.saved_responses.some((r:any)=>r.question_id===question.question_id && r.selected_answer===first.data.correct_answer)).toBe(true);
+    }
+    expect((await a.rpc("qb_complete_attempt",{p_attempt_id:feedbackAttempt.attempt_id,p_submission_reason:"acceptance"})).error).toBeNull();
+    const result=await a.rpc("qb_get_result",{p_attempt_id:feedbackAttempt.attempt_id});
+    expect(result.error).toBeNull(); expect(Number(result.data.percentage)).toBe(100);
+    expect((await a.rpc("qb_get_attempt_review",{p_attempt_id:feedbackAttempt.attempt_id})).error).toBeNull();
+    const events=await a.from("learning_events").select("id").eq("attempt_id",feedbackAttempt.attempt_id);
+    expect(events.error).toBeNull(); expect(events.data).toHaveLength(2);
+    const after=await a.from("mastery_records").select("id,mastery_score,attempts_count").eq("curriculum_node_id",report.nodeId).single();
+    expect(after.data?.id).toBe(before.data?.id); expect(after.data?.attempts_count).toBe(Number(before.data?.attempts_count)+events.data!.length);
+    const xpAfter=(await a.rpc("qb_student_xp")).data;
+    expect((await a.rpc("qb_complete_attempt",{p_attempt_id:feedbackAttempt.attempt_id,p_submission_reason:"retry"})).error).toBeNull();
+    const xpRetry=(await a.rpc("qb_student_xp")).data; expect(xpRetry).toEqual(xpAfter);
+    const awards=await a.from("xp_transactions").select("reason,points").eq("attempt_id",feedbackAttempt.attempt_id);
+    expect(awards.error).toBeNull(); expect(new Set(awards.data?.map((r)=>r.reason)).size).toBe(awards.data?.length);
+    await writeFile("reports/hardening-learning-acceptance.json",JSON.stringify({generatedAt:new Date().toISOString(),attemptId:feedbackAttempt.attempt_id,masteryBefore:before.data,masteryAfter:after.data,xpBefore,xpAfter,xpRetry,eventCount:events.data?.length,duplicateXpTransactions:0,percentage:Number(result.data.percentage)},null,2));
+  },30000);
 });

@@ -1,9 +1,10 @@
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import type { AttemptPayload } from "@/lib/types";
 import type { PracticeFeedback } from "@/lib/learning/feedback";
+import { userFacingError } from "@/lib/errors";
 
 function unwrapRpc<T>(data: T | null, error: any): T {
-  if (error) throw error;
+  if (error) throw new Error(userFacingError(error));
   if (data == null) throw new Error("EMPTY_RPC_RESPONSE");
   return data;
 }
@@ -14,7 +15,7 @@ export async function listAvailableAssessments() {
     "qb_list_available_assessments"
   );
 
-  if (error) throw error;
+  if (error) throw new Error(userFacingError(error));
   return data ?? [];
 }
 

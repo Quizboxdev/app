@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useCallback, useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import {
   getLeaderboard,
@@ -19,14 +19,14 @@ export default function CompetitionDetailPage() {
   const [teamName, setTeamName] = useState("");
   const [error, setError] = useState("");
 
-  async function refresh() {
+  const refresh = useCallback(async () => {
     const [t, l] = await Promise.all([
       listCompetitionTeams(params.id),
       getLeaderboard(params.id),
     ]);
     setTeams(t);
     setLeaderboard(l);
-  }
+  }, [params.id]);
 
   useEffect(() => {
     async function load() {
@@ -45,7 +45,7 @@ export default function CompetitionDetailPage() {
     }
 
     load();
-  }, [params.id]);
+  }, [refresh]);
 
   async function submitTeam(e: FormEvent) {
     e.preventDefault();

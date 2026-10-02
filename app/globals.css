@@ -210,3 +210,22 @@ a { color: inherit; text-decoration: none; }
   }
   .qb-mobile-nav a { padding: 12px 4px; text-align: center; font-size: 12px; color: var(--qb-muted); }
 }
+.qb-content-ops { min-width: 0; }
+.qb-content-tabs { display: flex; flex-wrap: wrap; gap: 8px; border-bottom: 1px solid var(--qb-border); padding-bottom: 12px; margin-bottom: 16px; }
+.qb-content-tabs [aria-current="page"] { border-color: var(--qb-primary); font-weight: 700; }
+.qb-content-filters { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; padding: 16px 0; border-bottom: 1px solid var(--qb-border); align-items: end; }
+.qb-content-ops label { display: grid; gap: 6px; font-size: 14px; }
+.qb-content-ops input, .qb-content-ops select, .qb-content-ops textarea { width: 100%; min-width: 0; padding: 9px; border: 1px solid var(--qb-border); border-radius: 6px; font: inherit; }
+.qb-content-ops small { display: block; color: var(--qb-muted); overflow-wrap: anywhere; }
+.qb-content-ops td { max-width: 360px; overflow-wrap: anywhere; }
+.qb-content-metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; padding: 16px 0; border-bottom: 1px solid var(--qb-border); }
+.qb-content-metrics dt { font-size: 13px; color: var(--qb-muted); }
+.qb-content-metrics dd { margin: 4px 0; font-size: 24px; font-weight: 700; }
+.qb-content-review { border-top: 1px solid var(--qb-border); padding: 20px 0; margin-top: 20px; overflow-wrap: anywhere; }
+.qb-content-ops .qb-content-attestation { display: flex; align-items: flex-start; margin: 16px 0; }
+.qb-content-attestation input { width: 18px; height: 18px; flex-shrink: 0; }
+.qb-content-actions { display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0; }
+.qb-content-ops button { border: 1px solid var(--qb-border); background: white; color: var(--qb-text); border-radius: 6px; padding: 9px 12px; cursor: pointer; }
+.qb-content-ops button:disabled { opacity: .5; cursor: default; }
+.qb-content-ops :focus-visible { outline: 3px solid #167b59; outline-offset: 3px; }
+@media (max-width: 600px) { .qb-content-filters { grid-template-columns: repeat(2, minmax(0, 1fr)); } .qb-content-ops h1 { font-size: 24px; } }
