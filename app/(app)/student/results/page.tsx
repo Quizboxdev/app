@@ -2,17 +2,22 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { getMyResults } from "@/lib/api/assessment";
+import { getMyResultsPage } from "@/lib/api/assessment";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 export default function ResultsPage() {
   const [rows, setRows] = useState<any[]>([]);
   const [error, setError] = useState("");
+  const [page, setPage] = useState(1), [total, setTotal] = useState(0), [loading,setLoading]=useState(false);
 
   useEffect(() => {
-    getMyResults(100)
-      .then(setRows)
-      .catch((e) => setError(e.message));
-  }, []);
+    let active=true;setLoading(true);
+    getMyResultsPage(page)
+      .then((result) => {if(active){setRows(result.rows);setTotal(result.total);setError("");}})
+      .catch((e) => {if(active)setError(e.message);})
+      .finally(()=>{if(active)setLoading(false);});
+    return () => {active=false;};
+  }, [page]);
 
   return (
     <>
@@ -22,6 +27,8 @@ export default function ResultsPage() {
           <p>Your submitted assessment history.</p>
         </div>
       </div>
+      <div className="qb-page-head"><span>Page {page} of {Math.max(1,Math.ceil(total/25))}</span><div className="qb-actions"><button title="Previous page" aria-label="Previous page" disabled={loading || page===1} onClick={()=>setPage(page-1)}><ChevronLeft size={18}/></button><button title="Next page" aria-label="Next page" disabled={loading || page*25>=total} onClick={()=>setPage(page+1)}><ChevronRight size={18}/></button></div></div>
+      {!rows.length && !loading && <p>No submitted results yet.</p>}
 
       {error && <div className="qb-card qb-error">{error}</div>}
 

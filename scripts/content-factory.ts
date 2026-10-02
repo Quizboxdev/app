@@ -36,7 +36,8 @@ async function main() {
   if (command === "coverage") {
     await rpc("qb_content_coverage", {});
     const questions = await paginated("questions", "curriculum_node_id,status,validation_status,source_type,difficulty_label,answer_type,duplicate_group_id");
-    const report = { generatedAt: new Date().toISOString(), ...calculateCoverage(nodes, questions) };
+    const overrides = await paginated("content_coverage_targets", "*");
+    const report = { generatedAt: new Date().toISOString(), ...calculateCoverage(nodes, questions, 10, overrides) };
     await writeFile("reports/question-coverage.json", JSON.stringify(report, null, 2));
     await writeFile("reports/question-coverage.md", "# Question Coverage\n\n" + Object.entries(report.summary).map(([k,v]) => "- " + k + ": " + v).join("\n") + "\n\n## Grades and Subjects\n\n" + report.nodes.filter((n) => ["grade","subject"].includes(n.node_type)).map((n) => "- " + n.code + " " + n.title + ": " + n.approved + " approved / " + n.indicators + " indicators (" + n.health + ")").join("\n") + "\n\nAcceptance and factory pilot fixtures are excluded from production counts.\n");
     console.log(JSON.stringify(report.summary)); return;

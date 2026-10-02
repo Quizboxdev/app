@@ -70,9 +70,10 @@ export function validateCandidate(q: Candidate, nodes: Map<string, CurriculumNod
   if (!Number.isInteger(q.estimated_time_seconds) || q.estimated_time_seconds < 5 || q.estimated_time_seconds > 3600) fail("INVALID_DURATION");
   if (!q.source_type?.trim() || !q.cognitive_level?.trim()) fail("MISSING_PROVENANCE_OR_COGNITIVE_LEVEL");
   for (const block of q.question_content?.blocks ?? []) {
-    const allowed = block.type === "text" ? ["type","text"] : ["type","latex","display"];
+    const allowed = block.type === "text" ? ["type","text"] : block.type === "image" ? ["type","asset_id","alt"] : ["type","latex","display"];
     if (Object.keys(block).some((key) => !allowed.includes(key))) fail("UNSAFE_CONTENT");
-    if (!["text", "math"].includes(String(block.type))) fail("UNSUPPORTED_MEDIA");
+    if (!["text", "math", "image"].includes(String(block.type))) fail("UNSUPPORTED_MEDIA");
+    if (block.type === "image" && (!/^[0-9a-f-]{36}$/i.test(String(block.asset_id)) || typeof block.alt !== "string" || !block.alt.trim() || /<[^>]*>|correct answer|answer key|the answer is/i.test(block.alt))) fail("UNSUPPORTED_MEDIA");
     if (block.type === "text" && (typeof block.text !== "string" || /<[^>]*>/.test(block.text))) fail("UNSAFE_CONTENT");
     if (block.type === "text" && /\b(correct answer|answer key|the answer is)\b/i.test(String(block.text))) fail("ANSWER_LEAKAGE");
     if (block.type === "math" && (typeof block.latex !== "string" || /\\(?:href|html|includegraphics)/i.test(block.latex))) fail("UNSAFE_CONTENT");

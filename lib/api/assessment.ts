@@ -2,6 +2,7 @@ import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import type { AttemptPayload } from "@/lib/types";
 import type { PracticeFeedback } from "@/lib/learning/feedback";
 import { userFacingError } from "@/lib/errors";
+import { recordFailure } from "@/lib/api/operations";
 
 function unwrapRpc<T>(data: T | null, error: any): T {
   if (error) throw new Error(userFacingError(error));
@@ -90,6 +91,7 @@ export async function submitAttempt(
     p_submission_reason: reason,
   });
 
+  if(error) await recordFailure("ATTEMPT_COMPLETION",error).catch(()=>undefined);
   return unwrapRpc<any>(data, error);
 }
 
@@ -134,4 +136,14 @@ export async function getMyResults(limit = 50) {
     p_limit: limit,
   });
   return unwrapRpc<any[]>(data, error);
+}
+
+export async function getMyResultsPage(page = 1) {
+  const { data, error } = await getSupabaseBrowserClient().rpc("qb_my_results_page", { p_page: page, p_limit: 25 });
+  return unwrapRpc<{ rows: any[]; total: number }>(data, error);
+}
+
+export async function getMyAttemptsPage(page = 1) {
+  const { data, error } = await getSupabaseBrowserClient().rpc("qb_my_attempts_page", { p_page: page, p_limit: 25 });
+  return unwrapRpc<{ rows: any[]; total: number }>(data, error);
 }

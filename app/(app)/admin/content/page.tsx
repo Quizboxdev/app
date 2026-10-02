@@ -6,6 +6,7 @@ import dynamic from "next/dynamic";
 import { getContentCoverage, getContentDetail, importCandidates, listContentBatches, listContentQueue, requestGeneration, reviewContent } from "@/lib/api/content-factory";
 import { EDITORIAL_STATES, type GenerationSpec } from "@/lib/content/factory/contract";
 import { userFacingError } from "@/lib/errors";
+import { CoverageTargetEditor, QuestionMediaUpload } from "@/components/ContentClosureTools";
 
 type View = "review" | "coverage" | "batches";
 const initialFilters = { search: "", curriculum: "", grade: "", subject: "", node: "", source: "", status: "review", difficulty: "", cognitive: "", type: "", batch: "" };
@@ -47,8 +48,9 @@ export default function AdminContentPage() {
     try {
       await reviewContent(detail.question, action, note, attested, patch);
       setNotice(action === "approve" ? "Approved. Publication remains a separate decision." : "Review saved.");
-      const nextId = rows.find((r) => r.id !== detail.question.id)?.id;
-      if (next && nextId) await open(nextId); else await open(detail.question.id);
+      const refreshed = next ? await listContentQueue(applied,page) : null;
+      const nextId = refreshed?.rows?.find((r:any) => r.id !== detail.question.id)?.id;
+      if (next && nextId) await open(nextId); else if(next) setDetail(null); else await open(detail.question.id);
       await load();
     } catch (e) { setError(userFacingError(e)); } finally { setBusy(false); }
   };
@@ -90,6 +92,7 @@ export default function AdminContentPage() {
       <button type="submit">Apply Filters</button>
     </form>}
     {view === "coverage" && <>
+      <CoverageTargetEditor onSaved={load}/>
       <dl className="qb-content-metrics">{Object.entries(summary).map(([name, value]) => <div key={name}><dt>{({rejected:"Rejected",belowTarget:"Below Target",reviewQueue:"Pending Review",zeroApproved:"Zero Approved",meetingTarget:"Meeting Target",totalIndicators:"Indicators",fixtureQuestions:"Fixtures",productionApproved:"Production Approved",duplicateCandidates:"Duplicate Candidates"} as Record<string,string>)[name] ?? name}</dt><dd>{value}</dd></div>)}</dl>
       {branch.length > 0 && <div className="qb-page-head"><button type="button" aria-label="Parent curriculum level" title="Parent curriculum level" onClick={() => { setBranch(branch.slice(0,-1)); setPage(1); }}><ArrowLeft size={18}/></button><span>{branch.map((b) => b.title).join(" / ")}</span></div>}
     </>}
@@ -105,6 +108,7 @@ export default function AdminContentPage() {
       <RichPreview question={{...q,question_id:q.id}}/><ol type="A">{[q.option_a,q.option_b,q.option_c,q.option_d].map((o,i) => <li key={i}>{o || "-"}</li>)}</ol>
       <p><strong>Proposed answer:</strong> {q.correct_answer}</p><p><strong>Explanation:</strong> {q.explanation}</p>
       <p>{q.indicator_code} / {q.subject_code} / {q.source_grade_code ?? q.grade} / {q.canonical_grade_code ?? q.grade}</p>
+      <p><strong>Learning indicator:</strong> {detail.mapping?.title ?? "No curriculum mapping"}</p>
       <p>{q.difficulty_label} / {q.cognitive_level} / {q.source_type} / version {q.version}</p>
       {q.duplicate_group_id && <p role="status">Duplicate group: {q.duplicate_group_id}</p>}
       <ul>{(detail.validation_errors ?? []).map((code: string) => <li key={code}>{code}</li>)}</ul>
@@ -113,13 +117,14 @@ export default function AdminContentPage() {
       <label className="qb-content-attestation"><input type="checkbox" checked={attested} onChange={(e) => setAttested(e.target.checked)}/>I have reviewed facts, answer, distractors, explanation, curriculum alignment and duplicate warnings.</label>
       <div className="qb-content-actions">
         <button disabled={busy || !attested || q.validation_status!=="review" || (detail.validation_errors ?? []).length>0} onClick={() => void act("approve")}>Approve</button>
-        <button disabled={busy || !attested || q.validation_status!=="review" || (detail.validation_errors ?? []).length>0} onClick={() => void act("approve",{},true)}>Approve Next</button>
-        <button disabled={busy} onClick={() => void act("reject")}>Reject</button><button disabled={busy} onClick={() => void act("revision")}>Send for Revision</button>
+        <button disabled={busy || !attested || q.validation_status!=="review" || (detail.validation_errors ?? []).length>0} onClick={() => void act("approve",{},true)}>Approve &amp; Next</button>
+        <button disabled={busy} onClick={() => void act("reject")}>Reject</button><button disabled={busy} onClick={() => void act("reject",{},true)}>Reject &amp; Next</button><button disabled={busy} onClick={() => void act("revision")}>Send for Revision</button><button disabled={busy} onClick={() => void act("revision",{},true)}>Needs Revision &amp; Next</button>
         <button disabled={busy || q.validation_status!=="approved"} onClick={() => void act("publish")}>Publish Approved</button>
         <button disabled={busy} onClick={() => void act("archive")}>Archive</button><button disabled={busy} onClick={() => setEditing(!editing)}>Edit</button>
       </div>
       {editing && <form onSubmit={edit} className="qb-content-filters">{["question_text","option_a","option_b","option_c","option_d","correct_answer","explanation"].map((name) => <label key={name}>{name.replace(/_/g," ")}<textarea name={name} defaultValue={q[name]} required/></label>)}<label>Rich content JSON<textarea name="question_content" defaultValue={q.question_content ? JSON.stringify(q.question_content,null,2) : ""} rows={6}/></label><button disabled={busy || note.trim().length<3} type="submit">Save Revision</button></form>}
       <h3>Version History</h3><ul>{(detail.versions ?? []).map((v:any) => <li key={v.version}>Version {v.version} / {v.at} / {v.reason} / {v.editor ?? "Import"}</li>)}</ul>
+      <QuestionMediaUpload question={q} onSaved={()=>open(q.id)}/>
     </section>}
     {generation && <section className="qb-content-review"><h2>Generate Questions</h2><p>{generation.code}: {generation.title}</p><form onSubmit={queueGeneration} className="qb-content-filters"><label>Count<input type="number" name="count" min={1} max={100} defaultValue={10} required/></label><label>Difficulty<select name="difficulty"><option>easy</option><option>medium</option><option>hard</option></select></label><label>Type<select name="type"><option>SINGLE_CHOICE</option><option>TRUE_FALSE</option></select></label><label>Cognitive level<input name="cognitive" defaultValue="Understand" required/></label><button type="submit" disabled={busy}>Queue Generation</button></form></section>}
     {view === "batches" && <section className="qb-content-review"><h2>Candidate Import</h2><form onSubmit={ingest}><label>Candidate batch JSON<textarea rows={8} value={json} onChange={(e) => setJson(e.target.value)} required maxLength={1000000}/></label><button type="submit" disabled={busy}>Import for Review</button></form></section>}
