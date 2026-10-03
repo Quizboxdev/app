@@ -142,15 +142,15 @@ export default function AppShell({
   const name =
     String((ctx.profile as any).full_name ?? "") ||
     String((ctx.profile as any).email ?? "QuizBox User");
-
+  const isStudent = role === "STUDENT" || pathname.startsWith("/student");
   return (
-    <div className="qb-shell">
-      <aside className="qb-sidebar" style={{ overflowY: "auto" }}>
+    <div className={`qb-shell ${isStudent ? 'qb-shell-student' : ''}`}>
+      <aside className="qb-sidebar">
         <div className="qb-brand">QuizBox</div>
 
         <div className="qb-nav">
           {nav.map(([href, label]) => (
-            <Link key={href} href={href}>
+            <Link key={href} href={href} aria-current={pathname === href || pathname.startsWith(href + '/') ? "page" : undefined}>
               {label}
             </Link>
           ))}
@@ -159,30 +159,32 @@ export default function AppShell({
 
       <main className="qb-main">
         <header className="qb-topbar">
-          <div>
-            <strong>{name}</strong>
-            <div className="qb-muted qb-small">{role}</div>
-          </div>
-
           <GlobalSearch/>
           <NotificationBell/>
-          <Link className="qb-btn ghost" href="/account">Account</Link>
-          <button
-            className="qb-btn ghost"
-            onClick={async () => {
-              await signOut();
-              router.replace("/login");
-            }}
-          >
-            Sign out
-          </button>
+          
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', paddingLeft: '1.25rem', borderLeft: '1px solid var(--qb-border)' }}>
+            <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column' }}>
+              <strong style={{ fontSize: '0.875rem', lineHeight: 1.2 }}>{name}</strong>
+              <span className="qb-muted qb-small">{role}</span>
+            </div>
+            <Link className="qb-btn secondary" style={{ padding: '0.4375rem 0.75rem', fontSize: '0.8125rem' }} href="/account">Account</Link>
+            <button
+              className="qb-btn ghost" style={{ padding: '0.4375rem 0.75rem', fontSize: '0.8125rem' }}
+              onClick={async () => {
+                await signOut();
+                router.replace("/login");
+              }}
+            >
+              Sign out
+            </button>
+          </div>
         </header>
 
-        <div className="qb-content"><div style={{ marginBottom: 16 }}><MarketContextControl/></div>{children}</div>
+        <div className="qb-content"><div style={{ marginBottom: '1.5rem' }}><MarketContextControl/></div>{children}</div>
 
         <nav className="qb-mobile-nav">
           {(sme?.reviewer ? [...nav.slice(0, 3), ["/review", "SME Reviews"] as NavItem] : nav.slice(0, 4)).map(([href, label]) => (
-            <Link key={href} href={href}>
+            <Link key={href} href={href} aria-current={pathname === href || pathname.startsWith(href + '/') ? "page" : undefined}>
               {label}
             </Link>
           ))}

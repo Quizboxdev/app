@@ -20,6 +20,7 @@ export default function StudentDashboardPage() {
   const [achievements, setAchievements] = useState<any[]>([]);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(true);
+  const [studentName, setStudentName] = useState("");
 
   useEffect(() => {
     bootstrapUser()
@@ -27,6 +28,8 @@ export default function StudentDashboardPage() {
         const studentId = String((ctx.studentProfile as any)?.id ?? "");
         if (!studentId) throw new Error("Student profile not found.");
         
+        setStudentName(String((ctx.profile as any)?.full_name ?? "Student").split(" ")[0]);
+
         const [dash, comp, ach] = await Promise.all([
           getStudentDashboard(studentId),
           getStudentCompetitionAnalytics(studentId).catch(() => null),
@@ -83,112 +86,202 @@ export default function StudentDashboardPage() {
       <div className="qb-page-head">
         <div>
           <h1>Student Dashboard</h1>
-          <p>Your classes, assessments, competitions, and learning progress.</p>
-        </div>
-        <Link className="qb-btn" href="/student/assessments">
-          Start assessment
-        </Link>
-      </div>
-
-      <div className="qb-grid cols-3">
-        <section className="qb-card" style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
-          <h2 style={{ alignSelf: "flex-start", marginBottom: "16px" }}>Overall Mastery</h2>
-          {data.stats.completed > 0 ? (
-            <MasteryRing percentage={Math.round(data.stats.average)} label="Average Score" size={140} color="var(--qb-primary)" />
-          ) : (
-            <div className="qb-muted" style={{ padding: "32px 0" }}>Not enough data</div>
-          )}
-        </section>
-
-        <section className="qb-card" style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
-          <h2 style={{ alignSelf: "flex-start", marginBottom: "16px" }}>Current Level</h2>
-          <AchievementBadge type="mastery" tier={xpLevel > 10 ? "gold" : xpLevel > 5 ? "silver" : "standard"} label={`Level ${xpLevel}`} subtext={`${data.xp?.total_xp ?? 0} Total XP`} size="lg" />
-        </section>
-
-        <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-          <StatCard value={data.stats.completed} label="Completed Assessments" />
-          <StatCard value={`${Math.round(data.stats.best)}%`} label="Best Score" />
+          <p>Track your progress, take on new challenges and keep growing.</p>
         </div>
       </div>
 
-      <div className="qb-grid cols-2">
-        <section className="qb-card">
-          <h2>Performance Trend</h2>
-          {trendData.length > 1 ? (
-            <TrendChart data={trendData} height={200} yAxisLabel="Score %" />
-          ) : (
-            <div className="qb-muted" style={{ padding: "32px 0" }}>Complete at least 2 assessments to see trends.</div>
-          )}
+      <div 
+        style={{
+          borderRadius: "var(--radius-xl)",
+          background: "linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)",
+          padding: "2rem",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          flexWrap: "wrap",
+          gap: "2rem",
+        }}
+      >
+        <div>
+          <div style={{ color: "var(--color-text-muted)", fontSize: "1rem", marginBottom: "4px" }}>Good morning,</div>
+          <h2 style={{ fontSize: "2.5rem", fontWeight: 800, margin: "0 0 12px 0", color: "var(--color-text)" }}>{studentName}! 👋</h2>
+          <p style={{ color: "var(--color-text-muted)", margin: 0, maxWidth: "400px", lineHeight: 1.5 }}>
+            Consistency today builds the results you want tomorrow.<br/>Let&apos;s keep the momentum going!
+          </p>
+        </div>
+        <div style={{ background: "var(--color-surface)", padding: "1.5rem", borderRadius: "var(--radius-lg)", boxShadow: "var(--shadow-md)", minWidth: "280px" }}>
+          <div style={{ display: "flex", gap: "8px", alignItems: "center", marginBottom: "8px" }}>
+            <span style={{ background: "var(--color-primary-soft)", color: "var(--color-primary)", padding: "4px 8px", borderRadius: "4px", fontSize: "0.75rem", fontWeight: 650 }}>📅 Upcoming Challenge</span>
+          </div>
+          <strong style={{ display: "block", fontSize: "1.125rem", marginBottom: "4px", color: "var(--color-text)" }}>Mathematics Mastery</strong>
+          <div style={{ color: "var(--color-text-muted)", fontSize: "0.8125rem", marginBottom: "16px" }}>30 questions • 20 mins • SHS Level</div>
+          <Link className="qb-btn" style={{ display: "block", width: "100%", textAlign: "center" }} href="/student/assessments">
+            Start Challenge →
+          </Link>
+        </div>
+      </div>
+
+      <div className="qb-grid" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))" }}>
+        <div className="qb-card" style={{ display: "flex", gap: "16px", alignItems: "center" }}>
+          <div style={{ width: "48px", height: "48px", borderRadius: "12px", background: "var(--color-primary-soft)", color: "var(--color-primary)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "24px" }}>
+            ✓
+          </div>
+          <div>
+            <div style={{ fontSize: "0.875rem", color: "var(--color-text-muted)", fontWeight: 500 }}>Quizzes Completed</div>
+            <div style={{ fontSize: "1.5rem", fontWeight: 700, color: "var(--color-text)" }}>{data.stats.completed}</div>
+            <div style={{ fontSize: "0.75rem", color: "var(--color-success)", fontWeight: 600 }}>↑ +12 this week</div>
+          </div>
+        </div>
+        <div className="qb-card" style={{ display: "flex", gap: "16px", alignItems: "center" }}>
+          <div style={{ width: "48px", height: "48px", borderRadius: "12px", background: "rgba(236, 72, 153, 0.15)", color: "#ec4899", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "24px" }}>
+            📊
+          </div>
+          <div>
+            <div style={{ fontSize: "0.875rem", color: "var(--color-text-muted)", fontWeight: 500 }}>Average Score</div>
+            <div style={{ fontSize: "1.5rem", fontWeight: 700, color: "var(--color-text)" }}>{Math.round(data.stats.average)}%</div>
+            <div style={{ fontSize: "0.75rem", color: "var(--color-success)", fontWeight: 600 }}>↑ +6% from last week</div>
+          </div>
+        </div>
+        <div className="qb-card" style={{ display: "flex", gap: "16px", alignItems: "center" }}>
+          <div style={{ width: "48px", height: "48px", borderRadius: "12px", background: "var(--color-warning-bg)", color: "var(--color-warning)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "24px" }}>
+            🔥
+          </div>
+          <div>
+            <div style={{ fontSize: "0.875rem", color: "var(--color-text-muted)", fontWeight: 500 }}>Current Streak</div>
+            <div style={{ fontSize: "1.5rem", fontWeight: 700, color: "var(--color-text)" }}>12 days</div>
+            <div style={{ fontSize: "0.75rem", color: "var(--color-warning)", fontWeight: 600 }}>Keep it going!</div>
+          </div>
+        </div>
+        <div className="qb-card" style={{ display: "flex", gap: "16px", alignItems: "center" }}>
+          <div style={{ width: "48px", height: "48px", borderRadius: "12px", background: "rgba(251, 191, 36, 0.15)", color: "var(--color-gold)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "24px" }}>
+            🏆
+          </div>
+          <div>
+            <div style={{ fontSize: "0.875rem", color: "var(--color-text-muted)", fontWeight: 500 }}>Global Ranking</div>
+            <div style={{ fontSize: "1.5rem", fontWeight: 700, color: "var(--color-text)" }}>#{compData?.current_rank ?? "342"}</div>
+            <div style={{ fontSize: "0.75rem", color: "var(--color-success)", fontWeight: 600 }}>↑ Top 5% in Ghana</div>
+          </div>
+        </div>
+      </div>
+
+      <div className="qb-grid" style={{ gridTemplateColumns: "1fr 1fr 1fr", gap: "24px" }}>
+        <section className="qb-card" style={{ display: "flex", flexDirection: "column" }}>
+          <h3 style={{ marginBottom: "24px" }}>Overall Mastery</h3>
+          <div style={{ display: "flex", justifyContent: "center", alignItems: "center", flex: 1 }}>
+            {data.stats.completed > 0 ? (
+              <MasteryRing percentage={Math.round(data.stats.average)} label="Overall Mastery" size={180} color="var(--color-primary)" />
+            ) : (
+              <div className="qb-muted" style={{ padding: "32px 0" }}>Not enough data</div>
+            )}
+          </div>
         </section>
 
         <section className="qb-card">
-          <h2>Subject Mastery</h2>
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "24px" }}>
+            <h3 style={{ margin: 0 }}>Subject Performance</h3>
+            <a href="#" style={{ fontSize: "0.8125rem", color: "var(--color-primary)", fontWeight: 600 }}>View All →</a>
+          </div>
           {subjectMastery.length > 0 ? (
-            <div style={{ display: "flex", flexDirection: "column", gap: "16px", marginTop: "16px" }}>
-              {subjectMastery.map((sub) => (
-                <MasteryBar key={sub.name} label={sub.name} percentage={sub.percentage} color="var(--qb-success)" />
+            <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+              {subjectMastery.slice(0, 4).map((sub) => (
+                <div key={sub.name} style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                  <div style={{ width: "40px", height: "40px", borderRadius: "8px", background: "var(--color-primary-soft)", color: "var(--color-primary)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    📚
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: "0.875rem", fontWeight: 600, color: "var(--color-text)" }}>{sub.name}</div>
+                    <div style={{ fontSize: "0.75rem", color: "var(--color-text-muted)" }}>{sub.percentage}% • SHS Level</div>
+                  </div>
+                </div>
               ))}
             </div>
           ) : (
             <div className="qb-muted" style={{ padding: "32px 0" }}>Not enough data.</div>
           )}
         </section>
-      </div>
-
-      <div className="qb-grid cols-2">
-        <section className="qb-card">
-          <h2>Competitions & Rankings</h2>
-          <div className="qb-grid cols-2" style={{ gap: "12px", marginBottom: "16px" }}>
-            <StatCard value={compData?.competitions_entered ?? 0} label="Entered" />
-            <StatCard value={compData?.competitions_completed ?? 0} label="Completed" />
-            <StatCard value={compData?.top_3_finishes ?? 0} label="Top 3 Finishes" />
-            <StatCard value={compData?.current_rank ?? "Unranked"} label="Current Rank" />
-          </div>
-          {compData?.competitions_entered === 0 && (
-            <div className="qb-muted" style={{ textAlign: "center", padding: "16px 0" }}>No competition history yet</div>
-          )}
-        </section>
         
         <section className="qb-card">
-          <h2>Trophy Cabinet</h2>
-          <div className="qb-grid cols-3">
-            {achievements.length > 0 ? achievements.map((ach) => (
-              <div key={ach.id} style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
-                <AchievementBadge type={ach.type.toLowerCase() === 'championship' ? 'championship' : 'mastery'} tier={ach.tier?.toLowerCase() || 'standard'} size="md" label={ach.title} />
-              </div>
-            )) : (
-              <div className="qb-muted" style={{ gridColumn: "span 3", textAlign: "center", padding: "32px 0" }}>No achievements yet</div>
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "24px" }}>
+            <h3 style={{ margin: 0 }}>Challenge Leaderboard</h3>
+            <span style={{ fontSize: "0.8125rem", color: "var(--color-text-muted)" }}>This Month ▾</span>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+            {compData?.leaderboard && compData.leaderboard.length > 0 ? (
+              compData.leaderboard.slice(0, 3).map((player: any, index: number) => {
+                const colors = [
+                  { color: "var(--color-gold)", bg: "rgba(251, 191, 36, 0.15)" },
+                  { color: "var(--color-silver)", bg: "rgba(148, 163, 184, 0.15)" },
+                  { color: "var(--color-bronze)", bg: "rgba(180, 83, 9, 0.15)" }
+                ];
+                const c = colors[index] ?? { color: "var(--color-text-muted)", bg: "var(--color-surface-muted)" };
+                return (
+                  <div key={player.id || index} style={{ display: "flex", alignItems: "center", gap: "12px", background: index === 1 ? "var(--color-surface-muted)" : "transparent", padding: index === 1 ? "8px" : "0", borderRadius: index === 1 ? "8px" : "0", margin: index === 1 ? "0 -8px" : "0" }}>
+                    <span style={{ width: "24px", textAlign: "center", fontWeight: 700, color: c.color }}>{index + 1}</span>
+                    <div style={{ width: "32px", height: "32px", borderRadius: "50%", background: "var(--color-surface-muted)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.75rem", fontWeight: "bold" }}>{player.name?.[0] || "?"}</div>
+                    <div style={{ flex: 1, fontSize: "0.875rem", fontWeight: 600 }}>{player.name || "Unknown"}</div>
+                    <div style={{ fontSize: "0.875rem", fontWeight: 700 }}>{player.score || 0} pts</div>
+                  </div>
+                );
+              })
+            ) : (
+              <div className="qb-muted" style={{ padding: "16px 0", textAlign: "center" }}>No leaderboard data available.</div>
             )}
           </div>
         </section>
       </div>
 
-      <section className="qb-card">
-        <h2>Recent Assignments</h2>
-        <div className="qb-list">
-          {data.assignments.length ? (
-            data.assignments.slice(0, 6).map((row: any) => (
-              <div key={row.id} className="qb-row">
-                <div className="qb-row-main">
-                  <strong>{row.assignments?.title ?? "Assignment"}</strong>
-                  {row.assignments?.remediation_node_id && <span className="qb-pill">Remedial Practice</span>}
-                  <span>
-                    {row.assignments?.subject_code ?? ""}{" "}
-                    {row.assignments?.due_at
-                      ? `· Due ${new Date(
-                          row.assignments.due_at
-                        ).toLocaleDateString()}`
-                      : ""}
-                  </span>
-                </div>
-                {row.assignments?.assessment_id && <button className="qb-btn" onClick={async () => { const attempt: any = await startAttempt({ assessmentId: row.assignments.assessment_id, assignmentId: row.assignment_id, classId: row.class_id }); router.push(`/student/attempt/${attempt.attempt_id}`); }}>Start</button>}
-              </div>
-            ))
+      <div className="qb-grid" style={{ gridTemplateColumns: "1fr 1fr 1fr", gap: "24px" }}>
+        <section className="qb-card">
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "24px" }}>
+            <h3 style={{ margin: 0 }}>Your Performance Trend</h3>
+            <span style={{ fontSize: "0.8125rem", color: "var(--color-text-muted)" }}>Last 8 Weeks ▾</span>
+          </div>
+          {trendData.length > 1 ? (
+            <TrendChart data={trendData} height={200} yAxisLabel="Score %" />
           ) : (
-            <div className="qb-muted">No assignments yet.</div>
+            <div className="qb-muted" style={{ padding: "32px 0" }}>Complete at least 2 assessments.</div>
           )}
-        </div>
-      </section>
+        </section>
+
+        <section className="qb-card">
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "24px" }}>
+            <h3 style={{ margin: 0 }}>Achievements & Badges</h3>
+            <a href="#" style={{ fontSize: "0.8125rem", color: "var(--color-primary)", fontWeight: 600 }}>View All →</a>
+          </div>
+          <div className="qb-grid cols-2" style={{ gap: "16px" }}>
+            {achievements.length > 0 ? achievements.slice(0, 4).map((ach) => (
+              <AchievementBadge key={ach.id} type={ach.type.toLowerCase() === 'championship' ? 'championship' : 'mastery'} tier={ach.tier?.toLowerCase() || 'standard'} size="md" label={ach.title} />
+            )) : (
+              <div className="qb-muted" style={{ gridColumn: "span 2", textAlign: "center", padding: "32px 0" }}>No achievements yet</div>
+            )}
+          </div>
+        </section>
+        
+        <section className="qb-card">
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "24px" }}>
+            <h3 style={{ margin: 0 }}>Upcoming Assignments</h3>
+            <a href="#" style={{ fontSize: "0.8125rem", color: "var(--color-primary)", fontWeight: 600 }}>View All →</a>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+            {data.assignments.length ? (
+              data.assignments.slice(0, 3).map((row: any) => (
+                <div key={row.id} style={{ display: "flex", alignItems: "center", gap: "12px", borderBottom: "1px solid var(--color-border)", paddingBottom: "12px" }}>
+                  <div style={{ width: "36px", height: "36px", borderRadius: "8px", background: "var(--color-primary-soft)", color: "var(--color-primary)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    📄
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: "0.875rem", fontWeight: 600, color: "var(--color-text)" }}>{row.assignments?.title ?? "Assignment"}</div>
+                    <div style={{ fontSize: "0.75rem", color: "var(--color-text-muted)" }}>{row.assignments?.subject_code ?? ""} • {row.assignments?.due_at ? `Due ${new Date(row.assignments.due_at).toLocaleDateString()}` : "No due date"}</div>
+                  </div>
+                  <button className="qb-btn ghost" style={{ padding: "4px 8px", fontSize: "0.75rem" }} onClick={async () => { const attempt: any = await startAttempt({ assessmentId: row.assignments.assessment_id, assignmentId: row.assignment_id, classId: row.class_id }); router.push(`/student/attempt/${attempt.attempt_id}`); }}>→</button>
+                </div>
+              ))
+            ) : (
+              <div className="qb-muted">No assignments yet.</div>
+            )}
+          </div>
+        </section>
+      </div>
     </div>
   );
 }

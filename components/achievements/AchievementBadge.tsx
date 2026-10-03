@@ -15,10 +15,10 @@ interface AchievementBadgeProps {
 }
 
 const TIER_COLORS: Record<BadgeTier, { bg: string; color: string; border: string }> = {
-  gold: { bg: "#FFF9C4", color: "#F57F17", border: "#FBC02D" },
-  silver: { bg: "#F5F5F5", color: "#616161", border: "#E0E0E0" },
-  bronze: { bg: "#EFEBE9", color: "#5D4037", border: "#D7CCC8" },
-  standard: { bg: "var(--qb-surface-muted)", color: "var(--qb-primary)", border: "var(--qb-border)" },
+  gold: { bg: "rgba(251, 191, 36, 0.15)", color: "var(--color-gold)", border: "var(--color-gold)" },
+  silver: { bg: "rgba(148, 163, 184, 0.15)", color: "var(--color-silver)", border: "var(--color-silver)" },
+  bronze: { bg: "rgba(180, 83, 9, 0.15)", color: "var(--color-bronze)", border: "var(--color-bronze)" },
+  standard: { bg: "var(--qb-surface-muted)", color: "var(--qb-primary)", border: "var(--qb-primary)" },
 };
 
 const TYPE_ICONS: Record<BadgeType, ReactNode> = {
@@ -50,26 +50,26 @@ export default function AchievementBadge({
         style={{
           width: dimensions.iconBox,
           height: dimensions.iconBox,
-          borderRadius: "50%",
-          backgroundColor: styles.bg,
-          border: `2px solid ${styles.border}`,
-          color: styles.color,
+          clipPath: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)",
+          backgroundColor: tier === "standard" ? "var(--color-primary)" : styles.color,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
           padding: size === "lg" ? "16px" : "8px",
-          boxShadow: tier !== "standard" ? "0 4px 12px rgba(0,0,0,0.08)" : "none",
+          color: "#fff",
         }}
         aria-label={`${tier} ${type} badge`}
       >
-        {TYPE_ICONS[type]}
+        <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          {TYPE_ICONS[type]}
+        </div>
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
-        <strong style={{ fontSize: dimensions.fontSize, color: "var(--qb-text-primary)", lineHeight: 1.2 }}>
+        <strong style={{ fontSize: dimensions.fontSize, color: "var(--color-text)", lineHeight: 1.2 }}>
           {label}
         </strong>
         {subtext && (
-          <span style={{ fontSize: "0.75rem", color: "var(--qb-text-secondary)", lineHeight: 1.2 }}>
+          <span style={{ fontSize: "0.75rem", color: "var(--color-text-muted)", lineHeight: 1.2 }}>
             {subtext}
           </span>
         )}
