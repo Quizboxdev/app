@@ -1,4 +1,4 @@
-
+﻿
 "use client";
 
 import { useEffect, useState } from "react";
@@ -11,7 +11,22 @@ import { startAttempt } from "@/lib/api/assessment";
 import MasteryRing from "@/components/charts/MasteryRing";
 import TrendChart from "@/components/charts/TrendChart";
 import MasteryBar from "@/components/charts/MasteryBar";
+import { Calendar, CheckCircle, BarChart2, Flame, Trophy, BookOpen, FileText, ChevronDown, ArrowRight } from 'lucide-react';
 import AchievementBadge from "@/components/achievements/AchievementBadge";
+
+function sanitizeLabel(label: string): string {
+  if (!label) return "";
+  const clean = label.replace(/DEV_FACTORY_PILOT|snapshot|dev_|test_|fixture_/gi, '').trim();
+  if (clean.length === 0) return "General Assessment";
+  // Convert basic subject codes to human-readable
+  const subjectMap: Record<string, string> = {
+    'MATH': 'Mathematics',
+    'SCI': 'Science',
+    'ENG': 'English',
+    'COMP': 'Computing',
+  };
+  return subjectMap[clean.toUpperCase()] || clean;
+}
 
 export default function StudentDashboardPage() {
   const router = useRouter();
@@ -63,7 +78,7 @@ export default function StudentDashboardPage() {
   // Group subject mastery
   const subjects: Record<string, { total: number; count: number }> = {};
   (data.results ?? []).forEach((row: any) => {
-    const code = row.subject_code ?? "General";
+    const code = sanitizeLabel(row.subject_code ?? "General");
     if (!subjects[code]) subjects[code] = { total: 0, count: 0 };
     subjects[code].total += Number(row.percentage ?? 0);
     subjects[code].count += 1;
@@ -104,27 +119,27 @@ export default function StudentDashboardPage() {
       >
         <div>
           <div style={{ color: "var(--color-text-muted)", fontSize: "1rem", marginBottom: "4px" }}>Good morning,</div>
-          <h2 style={{ fontSize: "2.5rem", fontWeight: 800, margin: "0 0 12px 0", color: "var(--color-text)" }}>{studentName}! 👋</h2>
+          <h2 style={{ fontSize: "2.5rem", fontWeight: 800, margin: "0 0 12px 0", color: "var(--color-text)" }}>{studentName}! </h2>
           <p style={{ color: "var(--color-text-muted)", margin: 0, maxWidth: "400px", lineHeight: 1.5 }}>
             Consistency today builds the results you want tomorrow.<br/>Let&apos;s keep the momentum going!
           </p>
         </div>
         <div style={{ background: "var(--color-surface)", padding: "1.5rem", borderRadius: "var(--radius-lg)", boxShadow: "var(--shadow-md)", minWidth: "280px" }}>
           <div style={{ display: "flex", gap: "8px", alignItems: "center", marginBottom: "8px" }}>
-            <span style={{ background: "var(--color-primary-soft)", color: "var(--color-primary)", padding: "4px 8px", borderRadius: "4px", fontSize: "0.75rem", fontWeight: 650 }}>📅 Upcoming Challenge</span>
+            <span style={{ background: "var(--color-primary-soft)", color: "var(--color-primary)", padding: "4px 8px", borderRadius: "4px", fontSize: "0.75rem", fontWeight: 650 }}><Calendar size={16} /> Upcoming Challenge</span>
           </div>
           <strong style={{ display: "block", fontSize: "1.125rem", marginBottom: "4px", color: "var(--color-text)" }}>Mathematics Mastery</strong>
-          <div style={{ color: "var(--color-text-muted)", fontSize: "0.8125rem", marginBottom: "16px" }}>30 questions • 20 mins • SHS Level</div>
+          <div style={{ color: "var(--color-text-muted)", fontSize: "0.8125rem", marginBottom: "16px" }}>30 questions &bull; 20 mins &bull; SHS Level</div>
           <Link className="qb-btn" style={{ display: "block", width: "100%", textAlign: "center" }} href="/student/assessments">
-            Start Challenge →
+            Start Challenge <ArrowRight size={16} />
           </Link>
         </div>
       </div>
 
-      <div className="qb-grid" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))" }}>
-        <div className="qb-card" style={{ display: "flex", gap: "16px", alignItems: "center" }}>
+      <div className="qb-grid">
+        <div className="qb-card col-3" style={{ display: "flex", gap: "16px", alignItems: "center" }}>
           <div style={{ width: "48px", height: "48px", borderRadius: "12px", background: "var(--color-primary-soft)", color: "var(--color-primary)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "24px" }}>
-            ✓
+            <CheckCircle size={24} />
           </div>
           <div>
             <div style={{ fontSize: "0.875rem", color: "var(--color-text-muted)", fontWeight: 500 }}>Quizzes Completed</div>
@@ -132,9 +147,9 @@ export default function StudentDashboardPage() {
             <div style={{ fontSize: "0.75rem", color: "var(--color-success)", fontWeight: 600 }}>↑ +12 this week</div>
           </div>
         </div>
-        <div className="qb-card" style={{ display: "flex", gap: "16px", alignItems: "center" }}>
+        <div className="qb-card col-3" style={{ display: "flex", gap: "16px", alignItems: "center" }}>
           <div style={{ width: "48px", height: "48px", borderRadius: "12px", background: "rgba(236, 72, 153, 0.15)", color: "#ec4899", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "24px" }}>
-            📊
+            <BarChart2 size={24} />
           </div>
           <div>
             <div style={{ fontSize: "0.875rem", color: "var(--color-text-muted)", fontWeight: 500 }}>Average Score</div>
@@ -142,9 +157,9 @@ export default function StudentDashboardPage() {
             <div style={{ fontSize: "0.75rem", color: "var(--color-success)", fontWeight: 600 }}>↑ +6% from last week</div>
           </div>
         </div>
-        <div className="qb-card" style={{ display: "flex", gap: "16px", alignItems: "center" }}>
+        <div className="qb-card col-3" style={{ display: "flex", gap: "16px", alignItems: "center" }}>
           <div style={{ width: "48px", height: "48px", borderRadius: "12px", background: "var(--color-warning-bg)", color: "var(--color-warning)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "24px" }}>
-            🔥
+            <Flame size={24} />
           </div>
           <div>
             <div style={{ fontSize: "0.875rem", color: "var(--color-text-muted)", fontWeight: 500 }}>Current Streak</div>
@@ -152,9 +167,9 @@ export default function StudentDashboardPage() {
             <div style={{ fontSize: "0.75rem", color: "var(--color-warning)", fontWeight: 600 }}>Keep it going!</div>
           </div>
         </div>
-        <div className="qb-card" style={{ display: "flex", gap: "16px", alignItems: "center" }}>
+        <div className="qb-card col-3" style={{ display: "flex", gap: "16px", alignItems: "center" }}>
           <div style={{ width: "48px", height: "48px", borderRadius: "12px", background: "rgba(251, 191, 36, 0.15)", color: "var(--color-gold)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "24px" }}>
-            🏆
+            <Trophy size={24} />
           </div>
           <div>
             <div style={{ fontSize: "0.875rem", color: "var(--color-text-muted)", fontWeight: 500 }}>Global Ranking</div>
@@ -164,8 +179,8 @@ export default function StudentDashboardPage() {
         </div>
       </div>
 
-      <div className="qb-grid" style={{ gridTemplateColumns: "1fr 1fr 1fr", gap: "24px" }}>
-        <section className="qb-card" style={{ display: "flex", flexDirection: "column" }}>
+      <div className="qb-grid">
+        <section className="qb-card col-4" style={{ display: "flex", flexDirection: "column" }}>
           <h3 style={{ marginBottom: "24px" }}>Overall Mastery</h3>
           <div style={{ display: "flex", justifyContent: "center", alignItems: "center", flex: 1 }}>
             {data.stats.completed > 0 ? (
@@ -176,21 +191,21 @@ export default function StudentDashboardPage() {
           </div>
         </section>
 
-        <section className="qb-card">
+        <section className="qb-card col-4">
           <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "24px" }}>
             <h3 style={{ margin: 0 }}>Subject Performance</h3>
-            <a href="#" style={{ fontSize: "0.8125rem", color: "var(--color-primary)", fontWeight: 600 }}>View All →</a>
+            <a href="#" style={{ fontSize: "0.8125rem", color: "var(--color-primary)", fontWeight: 600 }}>View All <ArrowRight size={14} /></a>
           </div>
           {subjectMastery.length > 0 ? (
             <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
               {subjectMastery.slice(0, 4).map((sub) => (
                 <div key={sub.name} style={{ display: "flex", alignItems: "center", gap: "12px" }}>
                   <div style={{ width: "40px", height: "40px", borderRadius: "8px", background: "var(--color-primary-soft)", color: "var(--color-primary)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    📚
+                    <BookOpen size={20} />
                   </div>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: "0.875rem", fontWeight: 600, color: "var(--color-text)" }}>{sub.name}</div>
-                    <div style={{ fontSize: "0.75rem", color: "var(--color-text-muted)" }}>{sub.percentage}% • SHS Level</div>
+                    <div style={{ fontSize: "0.75rem", color: "var(--color-text-muted)" }}>{sub.percentage}% &bull; SHS Level</div>
                   </div>
                 </div>
               ))}
@@ -200,10 +215,10 @@ export default function StudentDashboardPage() {
           )}
         </section>
         
-        <section className="qb-card">
+        <section className="qb-card col-4">
           <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "24px" }}>
             <h3 style={{ margin: 0 }}>Challenge Leaderboard</h3>
-            <span style={{ fontSize: "0.8125rem", color: "var(--color-text-muted)" }}>This Month ▾</span>
+            <span style={{ fontSize: "0.8125rem", color: "var(--color-text-muted)" }}>This Month <ChevronDown size={14} /></span>
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
             {compData?.leaderboard && compData.leaderboard.length > 0 ? (
@@ -218,7 +233,7 @@ export default function StudentDashboardPage() {
                   <div key={player.id || index} style={{ display: "flex", alignItems: "center", gap: "12px", background: index === 1 ? "var(--color-surface-muted)" : "transparent", padding: index === 1 ? "8px" : "0", borderRadius: index === 1 ? "8px" : "0", margin: index === 1 ? "0 -8px" : "0" }}>
                     <span style={{ width: "24px", textAlign: "center", fontWeight: 700, color: c.color }}>{index + 1}</span>
                     <div style={{ width: "32px", height: "32px", borderRadius: "50%", background: "var(--color-surface-muted)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.75rem", fontWeight: "bold" }}>{player.name?.[0] || "?"}</div>
-                    <div style={{ flex: 1, fontSize: "0.875rem", fontWeight: 600 }}>{player.name || "Unknown"}</div>
+                    <div style={{ flex: 1, fontSize: "0.875rem", fontWeight: 600 }}>{sanitizeLabel(player.name || "Unknown")}</div>
                     <div style={{ fontSize: "0.875rem", fontWeight: 700 }}>{player.score || 0} pts</div>
                   </div>
                 );
@@ -230,11 +245,11 @@ export default function StudentDashboardPage() {
         </section>
       </div>
 
-      <div className="qb-grid" style={{ gridTemplateColumns: "1fr 1fr 1fr", gap: "24px" }}>
-        <section className="qb-card">
+      <div className="qb-grid">
+        <section className="qb-card col-4">
           <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "24px" }}>
             <h3 style={{ margin: 0 }}>Your Performance Trend</h3>
-            <span style={{ fontSize: "0.8125rem", color: "var(--color-text-muted)" }}>Last 8 Weeks ▾</span>
+            <span style={{ fontSize: "0.8125rem", color: "var(--color-text-muted)" }}>Last 8 Weeks <ChevronDown size={14} /></span>
           </div>
           {trendData.length > 1 ? (
             <TrendChart data={trendData} height={200} yAxisLabel="Score %" />
@@ -243,37 +258,37 @@ export default function StudentDashboardPage() {
           )}
         </section>
 
-        <section className="qb-card">
+        <section className="qb-card col-4">
           <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "24px" }}>
             <h3 style={{ margin: 0 }}>Achievements & Badges</h3>
-            <a href="#" style={{ fontSize: "0.8125rem", color: "var(--color-primary)", fontWeight: 600 }}>View All →</a>
+            <a href="#" style={{ fontSize: "0.8125rem", color: "var(--color-primary)", fontWeight: 600 }}>View All <ArrowRight size={14} /></a>
           </div>
           <div className="qb-grid cols-2" style={{ gap: "16px" }}>
             {achievements.length > 0 ? achievements.slice(0, 4).map((ach) => (
-              <AchievementBadge key={ach.id} type={ach.type.toLowerCase() === 'championship' ? 'championship' : 'mastery'} tier={ach.tier?.toLowerCase() || 'standard'} size="md" label={ach.title} />
+              <AchievementBadge key={ach.id} type={ach.type.toLowerCase() === 'championship' ? 'championship' : 'mastery'} tier={ach.tier?.toLowerCase() || 'standard'} size="md" label={sanitizeLabel(ach.title)} />
             )) : (
               <div className="qb-muted" style={{ gridColumn: "span 2", textAlign: "center", padding: "32px 0" }}>No achievements yet</div>
             )}
           </div>
         </section>
         
-        <section className="qb-card">
+        <section className="qb-card col-4">
           <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "24px" }}>
             <h3 style={{ margin: 0 }}>Upcoming Assignments</h3>
-            <a href="#" style={{ fontSize: "0.8125rem", color: "var(--color-primary)", fontWeight: 600 }}>View All →</a>
+            <a href="#" style={{ fontSize: "0.8125rem", color: "var(--color-primary)", fontWeight: 600 }}>View All <ArrowRight size={14} /></a>
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
             {data.assignments.length ? (
               data.assignments.slice(0, 3).map((row: any) => (
                 <div key={row.id} style={{ display: "flex", alignItems: "center", gap: "12px", borderBottom: "1px solid var(--color-border)", paddingBottom: "12px" }}>
                   <div style={{ width: "36px", height: "36px", borderRadius: "8px", background: "var(--color-primary-soft)", color: "var(--color-primary)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    📄
+                    <FileText size={20} />
                   </div>
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: "0.875rem", fontWeight: 600, color: "var(--color-text)" }}>{row.assignments?.title ?? "Assignment"}</div>
-                    <div style={{ fontSize: "0.75rem", color: "var(--color-text-muted)" }}>{row.assignments?.subject_code ?? ""} • {row.assignments?.due_at ? `Due ${new Date(row.assignments.due_at).toLocaleDateString()}` : "No due date"}</div>
+                    <div style={{ fontSize: "0.875rem", fontWeight: 600, color: "var(--color-text)" }}>{sanitizeLabel(row.assignments?.title ?? "Assignment")}</div>
+                    <div style={{ fontSize: "0.75rem", color: "var(--color-text-muted)" }}>{sanitizeLabel(row.assignments?.subject_code ?? "")} &bull; {row.assignments?.due_at ? `Due ${new Date(row.assignments.due_at).toLocaleDateString()}` : "No due date"}</div>
                   </div>
-                  <button className="qb-btn ghost" style={{ padding: "4px 8px", fontSize: "0.75rem" }} onClick={async () => { const attempt: any = await startAttempt({ assessmentId: row.assignments.assessment_id, assignmentId: row.assignment_id, classId: row.class_id }); router.push(`/student/attempt/${attempt.attempt_id}`); }}>→</button>
+                  <button className="qb-btn ghost" style={{ padding: "4px 8px", fontSize: "0.75rem" }} onClick={async () => { const attempt: any = await startAttempt({ assessmentId: row.assignments.assessment_id, assignmentId: row.assignment_id, classId: row.class_id }); router.push(`/student/attempt/${attempt.attempt_id}`); }}><ArrowRight size={16} /></button>
                 </div>
               ))
             ) : (
@@ -285,3 +300,4 @@ export default function StudentDashboardPage() {
     </div>
   );
 }
+

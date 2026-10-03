@@ -146,7 +146,10 @@ export default function AppShell({
   return (
     <div className={`qb-shell ${isStudent ? 'qb-shell-student' : ''}`}>
       <aside className="qb-sidebar">
-        <div className="qb-brand">QuizBox</div>
+        <div className="qb-brand">
+          <img src="/logo.jpg" alt="QuizBox" style={{ width: "32px", height: "32px", borderRadius: "8px", objectFit: "cover" }} />
+          QuizBox
+        </div>
 
         <div className="qb-nav">
           {nav.map(([href, label]) => (
