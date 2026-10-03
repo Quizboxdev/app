@@ -1,6 +1,7 @@
+import { canonicalFilterGrade } from "@/lib/content/grades";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { userFacingError } from "@/lib/errors";
-import { summarizeClassLearners, summarizeIndicators } from "@/lib/learning/analytics";
+import { indicatorsFromSummary, summarizeClassLearners, type IndicatorSummaryRow } from "@/lib/learning/analytics";
 
 export async function getTeacherDashboard(teacherId: string, userId: string) {
   const supabase = getSupabaseBrowserClient();
@@ -45,36 +46,27 @@ export async function getTeacherAnalytics(teacherId: string) {
   if (classError) throw new Error(userFacingError(classError));
   const classIds = (classes ?? []).map((row) => row.id);
   if (!classIds.length) return { classes: [], indicators: [], needsAttention: [] };
-  const [grades, events, mastery, rosters] = await Promise.all([
+  const [grades, summary, rosters] = await Promise.all([
     supabase.from("gradebook").select("class_id,student_user_id,percentage,status,graded_at").in("class_id", classIds).eq("status", "final"),
-    supabase.from("learning_events").select("class_id,student_user_id,is_correct,curriculum_node_id,curriculum_nodes(code,title)").in("class_id", classIds),
-    supabase.from("mastery_records").select("student_user_id,curriculum_node_id,mastery_score,proficiency_state,last_practiced_at,attempts_count").in("curriculum_node_id", [...new Set((await supabase.from("learning_events").select("curriculum_node_id").in("class_id", classIds)).data?.map((row) => row.curriculum_node_id).filter(Boolean) ?? [])]),
+    // Indicator aggregation runs in the database under the teacher's RLS (same rows as before, no event download).
+    supabase.rpc("qb_teacher_indicator_summary", { p_class_ids: classIds }),
     supabase.from("class_memberships").select("class_id,student_user_id").in("class_id", classIds).eq("status", "active"),
   ]);
-  for (const result of [grades, events, mastery, rosters]) if (result.error) throw new Error(userFacingError(result.error));
+  for (const result of [grades, summary, rosters]) if (result.error) throw new Error(userFacingError(result.error));
   const classAnalytics = (classes ?? []).map((row) => ({ ...row, ...summarizeClassLearners((grades.data ?? []).filter((grade) => grade.class_id === row.id), (rosters.data ?? []).filter((member) => member.class_id === row.id).map((member) => member.student_user_id)) }));
-  const masteryByNode = new Map<string, any[]>();
-  (mastery.data ?? []).forEach((row) => masteryByNode.set(row.curriculum_node_id, [...(masteryByNode.get(row.curriculum_node_id) ?? []), row]));
-  const indicatorRows = (events.data ?? []).map((event: any) => { const node = Array.isArray(event.curriculum_nodes) ? event.curriculum_nodes[0] : event.curriculum_nodes; const nodeMastery = masteryByNode.get(event.curriculum_node_id) ?? []; return { code: node?.code, title: node?.title, student_user_id: event.student_user_id, is_correct: event.is_correct, mastery_score: nodeMastery.find((row) => row.student_user_id === event.student_user_id)?.mastery_score, proficiency_state: nodeMastery.find((row) => row.student_user_id === event.student_user_id)?.proficiency_state, class_id: event.class_id, curriculum_node_id: event.curriculum_node_id }; });
-  const indicators = summarizeIndicators(indicatorRows);
-  return { classes: classAnalytics, indicators, needsAttention: indicators.filter((row) => row.averageMastery < 68 || row.averageAccuracy < 68).map((row) => ({ ...row, className: "Teacher class", classId: indicatorRows.find((event) => event.code === row.code)?.class_id, curriculumNodeId: indicatorRows.find((event) => event.code === row.code)?.curriculum_node_id })) };
+  const summaryRows: IndicatorSummaryRow[] = summary.data ?? [];
+  const indicators = indicatorsFromSummary(summaryRows);
+  return { classes: classAnalytics, indicators, needsAttention: indicators.filter((row) => row.averageMastery < 68 || row.averageAccuracy < 68).map((row) => ({ ...row, className: "Teacher class", classId: summaryRows.find((s) => s.code === row.code)?.class_id, curriculumNodeId: summaryRows.find((s) => s.code === row.code)?.curriculum_node_id })) };
+}
+
+export async function listIndicatorLearnersPage(classId: string, curriculumNodeId: string, page = 1) {
+  const { data,error }=await getSupabaseBrowserClient().rpc("qb_indicator_learners_page",{p_class_id:classId,p_node_id:curriculumNodeId,p_page:page,p_limit:25});
+  if(error)throw new Error(userFacingError(error));
+  return data as {rows:any[];total:number};
 }
 
 export async function listIndicatorLearners(classId: string, curriculumNodeId: string) {
-  const supabase = getSupabaseBrowserClient();
-  const [roster, events, mastery] = await Promise.all([
-    supabase.from("class_memberships").select("student_user_id,student_name,student_email").eq("class_id", classId).eq("status", "active"),
-    supabase.from("learning_events").select("student_user_id,is_correct,occurred_at").eq("class_id", classId).eq("curriculum_node_id", curriculumNodeId).order("occurred_at", { ascending: false }),
-    supabase.from("mastery_records").select("student_user_id,mastery_score,proficiency_state,attempts_count,recent_accuracy,last_practiced_at").eq("curriculum_node_id", curriculumNodeId),
-  ]);
-  for (const result of [roster, events, mastery]) if (result.error) throw new Error(userFacingError(result.error));
-  const evidence = new Map<string, any[]>();
-  (events.data ?? []).forEach((row) => evidence.set(row.student_user_id, [...(evidence.get(row.student_user_id) ?? []), row]));
-  const masteryByStudent = new Map((mastery.data ?? []).map((row) => [row.student_user_id, row]));
-  return (roster.data ?? []).filter((student) => evidence.has(student.student_user_id)).map((student) => {
-    const rows = evidence.get(student.student_user_id) ?? [], latest = rows[0], record = masteryByStudent.get(student.student_user_id);
-    return { ...student, latestScore: latest?.is_correct ? 100 : 0, masteryScore: record?.mastery_score ?? 0, proficiencyState: record?.proficiency_state ?? "Learning", attemptsCount: record?.attempts_count ?? rows.length, recentAccuracy: record?.recent_accuracy ?? (rows.filter((row) => row.is_correct).length / rows.length * 100), lastPracticedAt: record?.last_practiced_at ?? latest?.occurred_at };
-  });
+  return (await listIndicatorLearnersPage(classId,curriculumNodeId)).rows;
 }
 
 export async function listTeacherClasses(teacherId: string) {
@@ -112,7 +104,7 @@ export async function listQuestions(filters: { search?: string; grade?: string; 
   const pageSize = Math.min(100, Math.max(10, filters.pageSize ?? 25));
   let query = getSupabaseBrowserClient().from("questions").select("id,question_code,question_text,grade,subject_code,strand_name,substrand_name,content_standard_code,indicator_code,difficulty_label,answer_type,status,source_type,created_at", { count: "exact" });
   if (filters.search) query = query.ilike("question_text", `%${filters.search.replace(/[%_]/g, "")}%`);
-  if (filters.grade) query = query.eq("canonical_grade_code", filters.grade === "B10" ? "SHS1" : filters.grade);
+  if (filters.grade) query = query.eq("canonical_grade_code", canonicalFilterGrade(filters.grade));
   if (filters.subject) query = query.eq("subject_code", filters.subject);
   if (filters.status) query = query.eq("validation_status", filters.status.toLowerCase());
   if (filters.difficulty) query = query.or(`difficulty_code.eq.${filters.difficulty},difficulty_label.eq.${filters.difficulty}`);

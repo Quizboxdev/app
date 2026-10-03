@@ -229,3 +229,29 @@ a { color: inherit; text-decoration: none; }
 .qb-content-ops button:disabled { opacity: .5; cursor: default; }
 .qb-content-ops :focus-visible { outline: 3px solid #167b59; outline-offset: 3px; }
 @media (max-width: 600px) { .qb-content-filters { grid-template-columns: repeat(2, minmax(0, 1fr)); } .qb-content-ops h1 { font-size: 24px; } }
+
+/* Platform operations: home grid, activity center, search, accessibility helpers. */
+.qb-home-grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); }
+.qb-stat-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 8px; margin: 0; }
+.qb-stat-list dt { font-size: 12px; color: #5b6472; }
+.qb-stat-list dd { margin: 0; font-size: 20px; font-weight: 700; overflow-wrap: anywhere; }
+.qb-plain-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; }
+.qb-plain-list li { overflow-wrap: anywhere; }
+.qb-bell { position: relative; }
+.qb-badge { position: absolute; top: -4px; right: -6px; background: #b42318; color: #fff; border-radius: 999px; font-size: 11px; padding: 1px 6px; }
+.qb-unread { border-left: 3px solid #167b59; }
+.qb-search { position: relative; display: flex; align-items: center; gap: 6px; flex: 1; max-width: 360px; min-width: 0; }
+.qb-search input { width: 100%; min-width: 0; padding: 6px 8px; border: 1px solid #c8ced8; border-radius: 6px; }
+.qb-search-results { position: absolute; top: 100%; left: 0; right: 0; z-index: 20; background: #fff; border: 1px solid #c8ced8; border-radius: 6px; max-height: 60vh; overflow: auto; padding: 4px; box-shadow: 0 6px 20px rgba(0,0,0,.12); }
+.qb-search-results a { display: block; padding: 6px 8px; border-radius: 4px; overflow-wrap: anywhere; }
+.qb-search-results a:hover, .qb-search-results a:focus { background: #eef5f2; }
+.qb-sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 3px solid #167b59; outline-offset: 2px; }
+.qb-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+@media (max-width: 640px) { .qb-topbar { flex-wrap: wrap; gap: 8px; } .qb-search { order: 3; max-width: none; flex-basis: 100%; } }
+/* Small-screen containment: controls and long values never widen the page. */
+.qb-main, .qb-content, .qb-content > *, details { min-width: 0; max-width: 100%; }
+select, input, textarea { max-width: 100%; }
+.qb-page-head { flex-wrap: wrap; gap: 8px; }
+.qb-content-filters > div, .qb-content-filters dd, .qb-content-filters dt { min-width: 0; overflow-wrap: anywhere; }
+.qb-table-wrap { max-width: 100%; }

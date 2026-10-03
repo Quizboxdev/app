@@ -44,3 +44,20 @@ describe("learning analytics", () => {
   });
 });
 
+
+describe("teacher indicator summary mapping", () => {
+  it("matches summarizeIndicators for the same event rows", async () => {
+    const { summarizeIndicators, indicatorsFromSummary } = await import("./analytics");
+    const rows = [
+      { code: "B7.1", title: "Fractions", student_user_id: "a", is_correct: true, mastery_score: 80, proficiency_state: "Proficient" },
+      { code: "B7.1", title: "Fractions", student_user_id: "a", is_correct: false, mastery_score: 80, proficiency_state: "Proficient" },
+      { code: "B7.1", title: "Fractions", student_user_id: "b", is_correct: true, mastery_score: 50, proficiency_state: undefined },
+      { code: "B7.2", title: "Ratio", student_user_id: "b", is_correct: false, mastery_score: undefined, proficiency_state: undefined },
+    ];
+    const server = [
+      { code: "B7.1", title: "Fractions", class_id: "c", curriculum_node_id: "n1", learner_count: 2, attempt_count: 3, average_mastery: "70.00", average_accuracy: "66.67", proficiency_state: "Proficient" },
+      { code: "B7.2", title: "Ratio", class_id: "c", curriculum_node_id: "n2", learner_count: 1, attempt_count: 1, average_mastery: "0", average_accuracy: "0", proficiency_state: null },
+    ];
+    expect(indicatorsFromSummary(server)).toEqual(summarizeIndicators(rows));
+  });
+});

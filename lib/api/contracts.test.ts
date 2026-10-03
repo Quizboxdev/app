@@ -31,5 +31,5 @@ describe("accepted learning-loop API contracts", () => {
   it("uses a distinct practice feedback path", async () => { await savePracticeResponse({ attemptId: "a", questionId: "q", selectedAnswer: "A" }); expect(mock.rpc).toHaveBeenCalledWith("qb_save_practice_response", expect.objectContaining({ p_attempt_id: "a", p_question_id: "q" })); });
   it("scopes teacher class lookup to either ownership column", async () => { await listTeacherClasses("t"); expect(mock.query.or).toHaveBeenCalledWith("primary_teacher_id.eq.t,teacher_id.eq.t"); });
   it("does not fetch gradebook without authorized classes", async () => { await listGradebook("t"); expect(mock.from).not.toHaveBeenCalledWith("gradebook"); });
-  it("scopes learner drill-down to class and objective", async () => { await listIndicatorLearners("c", "n"); expect(mock.query.eq).toHaveBeenCalledWith("class_id", "c"); expect(mock.query.eq).toHaveBeenCalledWith("curriculum_node_id", "n"); });
+  it("scopes learner drill-down to class and objective", async () => { await listIndicatorLearners("c", "n"); expect(mock.rpc).toHaveBeenCalledWith("qb_indicator_learners_page", { p_class_id: "c", p_node_id: "n", p_page: 1, p_limit: 25 }); });
 });

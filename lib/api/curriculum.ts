@@ -1,3 +1,4 @@
+import { canonicalFilterGrade } from "@/lib/content/grades";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { userFacingError } from "@/lib/errors";
 
@@ -11,7 +12,7 @@ export async function listCurriculumNodes(filters: { curriculumId: string; paren
   let query = getSupabaseBrowserClient().from("curriculum_nodes").select("id,parent_id,node_type,code,title,source_terminology,education_level,grade_code,subject_code,sort_order").eq("curriculum_id", filters.curriculumId).eq("is_active", true);
   query = filters.parentId === null ? query.is("parent_id", null) : filters.parentId ? query.eq("parent_id", filters.parentId) : query;
   if (filters.nodeType) query = query.eq("node_type", filters.nodeType);
-  if (filters.gradeCode) query = query.eq("grade_code", filters.gradeCode === "B10" ? "SHS1" : filters.gradeCode);
+  if (filters.gradeCode) query = query.eq("grade_code", canonicalFilterGrade(filters.gradeCode));
   if (filters.subjectCode) query = query.eq("subject_code", filters.subjectCode);
   const { data, error } = await query.order("sort_order").order("title");
   if (error) throw new Error(userFacingError(error));

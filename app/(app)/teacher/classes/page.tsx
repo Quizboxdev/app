@@ -25,7 +25,7 @@ export default function TeacherClassesPage() {
     try {
       if (!ctx || !selection.curriculumId || !selection.subjectNodeId || !selection.gradeCode) throw new Error("Complete the curriculum selection.");
       await createClass({
-        class_name: name, grade: selection.gradeCode, grade_label: selection.gradeCode,
+        class_name: name, grade_code: selection.gradeCode, grade_label: selection.gradeCode,
         academic_year: year, term, teacher_id: ctx.teacherProfile.id, teacher_user_id: ctx.userId,
         primary_teacher_id: ctx.teacherProfile.id, status: "active", join_code: newJoinCode(selection.gradeCode),
         curriculum_id: selection.curriculumId, education_level: selection.educationLevel,

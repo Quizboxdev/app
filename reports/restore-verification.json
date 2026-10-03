@@ -1,7 +1,85 @@
 {
-  "checkedAt": "2026-10-02T08:28:22.773Z",
+  "checkedAt": "2026-10-03T13:01:19.664Z",
   "sourceProject": "fmgccmqxfjppqydkhaiu",
-  "targetProject": null,
-  "status": "FAIL",
-  "reason": "RESTORE_TARGET_IS_NOT_ISOLATED"
+  "targetProject": "fwuucvpmwetkwnczmgbp",
+  "archiveSha256": "3d2857507a74750e1e5afbf427debec430abc58780d3fb5e59d580c34f1cdfa5",
+  "schemaScope": "quizbox-owned",
+  "schemaMatched": true,
+  "dataMatched": true,
+  "foreignKeysVerified": true,
+  "criticalTablesVerified": true,
+  "mismatches": {
+    "schema": [],
+    "data": [],
+    "fkMissing": [],
+    "fkViolations": []
+  },
+  "sequencesVerified": true,
+  "sequencesBehind": [],
+  "storageBinariesVerified": true,
+  "storageVerification": "3 exported objects match manifest SHA-256 and restored storage.objects metadata",
+  "schemaCounts": {
+    "auth": 27,
+    "public": 101,
+    "storage": 8,
+    "quizbox_private": 1
+  },
+  "representativeRows": {
+    "auth.users": 8,
+    "public.assessment_results": 18,
+    "public.assessments": 54,
+    "public.assignments": 53,
+    "public.attempts": 55,
+    "public.curriculum_nodes": 2722,
+    "public.profiles": 7,
+    "public.questions": 86,
+    "public.responses": 42,
+    "storage.buckets": 2,
+    "storage.objects": 3
+  },
+  "criticalForeignKeys": [
+    {
+      "name": "public.mastery_records.mastery_records_curriculum_node_id_fkey",
+      "validated": true,
+      "violations": 0
+    },
+    {
+      "name": "public.mastery_records.mastery_records_student_user_id_fkey",
+      "validated": true,
+      "violations": 0
+    },
+    {
+      "name": "public.profiles.profiles_id_fkey",
+      "validated": true,
+      "violations": 0
+    },
+    {
+      "name": "public.question_versions.question_versions_question_id_fkey",
+      "validated": true,
+      "violations": 0
+    },
+    {
+      "name": "public.questions.questions_curriculum_node_id_fkey",
+      "validated": true,
+      "violations": 0
+    },
+    {
+      "name": "public.responses.responses_attempt_id_fkey",
+      "validated": true,
+      "violations": 0
+    },
+    {
+      "name": "public.xp_transactions.xp_transactions_attempt_id_fkey",
+      "validated": true,
+      "violations": 0
+    },
+    {
+      "name": "public.xp_transactions.xp_transactions_student_user_id_fkey",
+      "validated": true,
+      "violations": 0
+    }
+  ],
+  "foreignKeyCount": 233,
+  "tablesVerified": 137,
+  "status": "PASS"
 }

@@ -34,7 +34,13 @@ export async function bootstrapUser(): Promise<UserContext> {
     .maybeSingle();
 
   if (profileError) throw profileError;
-  if (!profile) throw new Error("PROFILE_NOT_FOUND");
+  // Country-first onboarding: no profile yet, or a profile that has not confirmed country/role.
+  if (!profile || !(profile as any).onboarding_completed_at) throw new Error("ONBOARDING_REQUIRED");
+  // Suspended accounts are refused server-side; end the session instead of rendering a broken workspace.
+  if (["inactive", "suspended"].includes(String((profile as any).status ?? "active").toLowerCase())) {
+    await supabase.auth.signOut();
+    throw new Error("ACCOUNT_SUSPENDED");
+  }
 
   const role = String((profile as any).role ?? "STUDENT").toUpperCase();
 

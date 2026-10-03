@@ -3,12 +3,13 @@ import { ingestSource, SOURCE_MAX_BYTES, uploadSource, type SourceStorage } from
 import { boundedRequest, sponsorError, sponsorRequestClient } from "@/lib/competition/request-client";
 export const runtime = "nodejs";
 export async function POST(request: Request) {
+  let client: Awaited<ReturnType<typeof sponsorRequestClient>> | null = null;
   try {
-    const client = await sponsorRequestClient(request);
-    const repository = new SponsorRepository(client);
+    const authed = await sponsorRequestClient(request); client = authed;
+    const repository = new SponsorRepository(authed);
     const storage: SourceStorage = {
-      async upload(bucket, path, bytes, mime) { const result = await client.storage.from(bucket).upload(path, bytes, { contentType: mime, upsert: false }); if (result.error) throw new Error("SOURCE_UPLOAD_FAILED"); },
-      async download(bucket, path) { const result = await client.storage.from(bucket).download(path); if (result.error || !result.data) throw new Error("SOURCE_DOWNLOAD_FAILED"); if (result.data.size > SOURCE_MAX_BYTES) throw new Error("SOURCE_TOO_LARGE"); return Buffer.from(await result.data.arrayBuffer()); },
+      async upload(bucket, path, bytes, mime) { const result = await authed.storage.from(bucket).upload(path, bytes, { contentType: mime, upsert: false }); if (result.error) throw new Error("SOURCE_UPLOAD_FAILED"); },
+      async download(bucket, path) { const result = await authed.storage.from(bucket).download(path); if (result.error || !result.data) throw new Error("SOURCE_DOWNLOAD_FAILED"); if (result.data.size > SOURCE_MAX_BYTES) throw new Error("SOURCE_TOO_LARGE"); return Buffer.from(await result.data.arrayBuffer()); },
     };
     if (request.headers.get("content-type")?.includes("application/json")) {
       const args = JSON.parse((await boundedRequest(request, 4096)).toString("utf8"));
@@ -21,5 +22,11 @@ export async function POST(request: Request) {
     const file = form.get("file"); if (!(file instanceof File)) throw new Error("SOURCE_FILE_REQUIRED");
     const source = await uploadSource(repository, storage, { sponsor: String(form.get("sponsor") ?? ""), competition: String(form.get("competition") ?? ""), document: String(form.get("document") ?? "") || undefined, title: String(form.get("title") ?? file.name), market: String(form.get("market") ?? "") || null, rightsConfirmed: form.get("rightsConfirmed") === "true", mime: file.type, bytes: Buffer.from(await file.arrayBuffer()) });
     return Response.json(source);
-  } catch (error) { return sponsorError(error); }
+  } catch (error) { await logFailure(client, "EXTRACTION", error); return sponsorError(error); }
 }
+// Best-effort operational logging; never changes the response the caller receives.
+async function logFailure(client: { rpc: (name: string, args: Record<string, unknown>) => PromiseLike<unknown> } | null, operation: string, error: unknown) {
+  if (!client) return; const code = error instanceof Error && /^[A-Z][A-Z0-9_]{2,60}$/.test(error.message) ? error.message : "OPERATION_FAILED";
+  try { await client.rpc("qb_operation_failure", { p_operation: operation, p_code: code }); } catch { /* ignore */ }
+}
+

@@ -1,5 +1,6 @@
 "use client";
 
+import { StudentInsights } from "@/components/Insights";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { getMyResultsPage } from "@/lib/api/assessment";
@@ -27,6 +28,7 @@ export default function ResultsPage() {
           <p>Your submitted assessment history.</p>
         </div>
       </div>
+      <StudentInsights/>
       <div className="qb-page-head"><span>Page {page} of {Math.max(1,Math.ceil(total/25))}</span><div className="qb-actions"><button title="Previous page" aria-label="Previous page" disabled={loading || page===1} onClick={()=>setPage(page-1)}><ChevronLeft size={18}/></button><button title="Next page" aria-label="Next page" disabled={loading || page*25>=total} onClick={()=>setPage(page+1)}><ChevronRight size={18}/></button></div></div>
       {!rows.length && !loading && <p>No submitted results yet.</p>}
 

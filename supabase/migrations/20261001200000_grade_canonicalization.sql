@@ -28,7 +28,10 @@ set identity_key = concat_ws('|',
 
 update public.questions
 set
-  source_grade_code = coalesce(source_grade_code, grade),
-  canonical_grade_code = case when coalesce(source_grade_code, grade) = 'B10' then 'SHS1' else coalesce(canonical_grade_code, grade) end;
+  source_grade_code = coalesce(source_grade_code, grade::text),
+  canonical_grade_code = case when coalesce(source_grade_code, grade::text) = 'B10' then 'SHS1' else coalesce(canonical_grade_code, grade::text) end;
 
 commit;
+
+
+

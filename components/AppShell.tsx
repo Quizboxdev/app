@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import NotificationBell from "@/components/NotificationBell";
+import GlobalSearch from "@/components/GlobalSearch";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { bootstrapUser, getHomeRouteForRole, signOut } from "@/lib/auth";
@@ -43,7 +45,7 @@ export default function AppShell({
           setSellerChecked(true);
         }
       })
-      .catch(() => router.replace("/login"));
+      .catch((error) => router.replace(error instanceof Error && error.message === "ONBOARDING_REQUIRED" ? "/onboarding" : error instanceof Error && error.message === "ACCOUNT_SUSPENDED" ? "/login?suspended=1" : "/login"));
   }, [router]);
 
   useEffect(() => {
@@ -61,6 +63,7 @@ export default function AppShell({
     if (isSeller && ["TEACHER", "ADMIN", "OWNER"].includes(role)) {
       allowedPrefixes.push("/seller");
     }
+    allowedPrefixes.push("/account", "/notifications", "/school");
     if (sme?.reviewer || sme?.content_admin || sme?.super_admin) allowedPrefixes.push("/review");
     if (sme?.super_admin) allowedPrefixes.push("/admin/markets", "/admin/reviewers", "/admin/compensation");
     if (sme?.super_admin || sme?.finance_admin) allowedPrefixes.push("/admin/sme-performance", "/admin/payouts");
@@ -82,6 +85,7 @@ export default function AppShell({
     if (sme?.reviewer || sme?.content_admin || sme?.super_admin) extra.push(["/review", "SME Reviews"]);
     if (sme?.super_admin) extra.push(["/admin/markets", "Markets"], ["/admin/reviewers", "SME Reviewers"], ["/admin/compensation", "Compensation"]);
     if (sme?.super_admin || sme?.finance_admin) extra.push(["/admin/sme-performance", "SME Performance"], ["/admin/payouts", "Payouts"]);
+    if (["ADMIN", "OWNER"].includes(role) && (sme?.super_admin || sme?.content_admin)) extra.push(["/admin/content-factory", "Content Factory"], ["/admin/sme-workforce", "SME Workforce"]);
     const withSeller = (items: NavItem[]): NavItem[] =>
       [...items, ...(isSeller && ["TEACHER", "ADMIN", "OWNER"].includes(role) ? [["/seller", "Seller"] as NavItem] : []), ...extra];
 
@@ -93,6 +97,9 @@ export default function AppShell({
         ["/admin/competitions", "Competitions"],
         ["/admin/support", "Support"],
         ["/admin/tenants", "Tenants"],
+        ["/admin/market-setup", "Market Setup"],
+        ["/admin/quality", "Content Quality"],
+        ["/admin/operations", "Operations"],
         ["/marketplace", "Catalogue"],
       ]);
     }
@@ -157,6 +164,9 @@ export default function AppShell({
             <div className="qb-muted qb-small">{role}</div>
           </div>
 
+          <GlobalSearch/>
+          <NotificationBell/>
+          <Link className="qb-btn ghost" href="/account">Account</Link>
           <button
             className="qb-btn ghost"
             onClick={async () => {

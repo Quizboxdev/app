@@ -1,5 +1,6 @@
 "use client";
 
+import HomeSections from "@/components/HomeSections";
 import { useEffect, useState } from "react";
 import StatCard from "@/components/StatCard";
 import {
@@ -39,6 +40,7 @@ export default function AdminHomePage() {
           <p>QuizBox operating overview.</p>
         </div>
       </div>
+      <HomeSections/>
 
       <div className="qb-grid cols-4">
         <StatCard value={overview.users?.total ?? 0} label="Users" />

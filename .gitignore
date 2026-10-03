@@ -15,3 +15,5 @@ out/
 *.tsbuildinfo
 .DS_Store
 Thumbs.db
+
+supabase/.temp/

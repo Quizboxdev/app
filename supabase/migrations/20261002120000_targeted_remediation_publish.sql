@@ -61,7 +61,7 @@ begin
   insert into public.assignment_question_versions(assignment_id,question_id,question_version,display_order,marks)
   select v_assignment.id,q.id,q.version,row_number() over(order by q.id),q.marks from qb_selected_questions q;
   insert into public.assignment_targets(assignment_id,class_id,student_id,membership_id,status)
-  select v_assignment.id,v_class.id,cm.student_id,cm.id,'ACTIVE'
+  select v_assignment.id,v_class.id,cm.student_id,cm.id,'active'::public.qb_status
   from public.class_memberships cm
   where cm.class_id = v_class.id and cm.status = 'active'
     and (p_target_student_ids is null or cm.student_user_id = any(p_target_student_ids))
@@ -71,3 +71,5 @@ end $$;
 
 grant execute on function public.qb_publish_assignment(uuid,text,text,uuid[],integer,text,text,uuid[],text,integer,integer,timestamptz,timestamptz,uuid[],uuid,uuid) to authenticated;
 commit;
+
+

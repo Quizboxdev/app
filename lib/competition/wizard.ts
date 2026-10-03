@@ -9,10 +9,13 @@ export type WizardConfig = {
   scoring: string; negativeMarking: number; passMark: string; tieBreak: string;
   answerVisibility: string; explanationVisibility: string; leaderboard: string; topN: string;
   seniorReviewRequired: boolean; step: number;
+  publishAt: string; leaderboardShowInstitution: boolean;
   provider: string; model: string; instructions: string;
 };
+// Settings the current assessment engine cannot honour; shown disabled in the wizard.
+export const UNSUPPORTED_SETTINGS = ["randomizeQuestions", "randomizeAnswers"] as const;
 export function newWizardConfig(): WizardConfig {
-  return { title: "", description: "", startsAt: "", endsAt: "", registrationOpensAt: "", registrationClosesAt: "", audience: "student", access: "public", grades: "", institutions: "", minAge: "", maxAge: "", scope: "LOCAL_MARKET", marketIds: [], sourceMode: "SPONSOR_SOURCE", sourceIds: [], totalQuestions: 10, questionsPerAttempt: 10, durationSeconds: 600, attemptLimit: 1, easy: 30, medium: 50, hard: 20, randomizeQuestions: true, randomizeAnswers: true, scoring: "points", negativeMarking: 0, passMark: "", tieBreak: "completion_time", answerVisibility: "after_close", explanationVisibility: "after_close", leaderboard: "after_close", topN: "", seniorReviewRequired: true, step: 0, provider: "", model: "", instructions: "" };
+  return { publishAt: "", leaderboardShowInstitution: false, title: "", description: "", startsAt: "", endsAt: "", registrationOpensAt: "", registrationClosesAt: "", audience: "student", access: "public", grades: "", institutions: "", minAge: "", maxAge: "", scope: "LOCAL_MARKET", marketIds: [], sourceMode: "SPONSOR_SOURCE", sourceIds: [], totalQuestions: 10, questionsPerAttempt: 10, durationSeconds: 600, attemptLimit: 1, easy: 30, medium: 50, hard: 20, randomizeQuestions: false, randomizeAnswers: false, scoring: "points", negativeMarking: 0, passMark: "", tieBreak: "completion_time", answerVisibility: "after_close", explanationVisibility: "after_close", leaderboard: "after_close", topN: "", seniorReviewRequired: true, step: 0, provider: "", model: "", instructions: "" };
 }
 export function wizardIssues(config: WizardConfig, step: number): string[] {
   const errors: string[] = [];
@@ -20,6 +23,7 @@ export function wizardIssues(config: WizardConfig, step: number): string[] {
     if (!config.title.trim()) errors.push("Competition title is required.");
     const dates = [config.registrationOpensAt, config.registrationClosesAt, config.startsAt, config.endsAt].map(Date.parse);
     if (dates.some(n => !Number.isFinite(n)) || dates[0] > dates[1] || dates[1] > dates[2] || dates[2] >= dates[3]) errors.push("Set valid registration and competition dates in order.");
+    if (config.publishAt && (!Number.isFinite(Date.parse(config.publishAt)) || Date.parse(config.publishAt) > dates[0])) errors.push("The visible-from time must be on or before registration opens.");
   }
   if (step === 1 && [config.minAge, config.maxAge].some(v => v !== "" && (!Number.isInteger(Number(v)) || Number(v) < 0))) errors.push("Age limits must be non-negative whole numbers.");
   if (step === 1 && config.minAge !== "" && config.maxAge !== "" && Number(config.minAge) > Number(config.maxAge)) errors.push("Minimum age cannot exceed maximum age.");
@@ -36,5 +40,7 @@ export function wizardIssues(config: WizardConfig, step: number): string[] {
 export function resumeWizardConfig(saved: Record<string, unknown>): WizardConfig {
   const config = { ...newWizardConfig(), ...saved } as WizardConfig;
   config.step = Number.isInteger(config.step) ? Math.max(0, Math.min(8, config.step)) : 0;
+  // The assessment engine does not support randomization yet; older drafts are normalized so they stay publishable.
+  config.randomizeQuestions = false; config.randomizeAnswers = false;
   return config;
 }

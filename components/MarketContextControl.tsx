@@ -22,6 +22,8 @@ export default function MarketContextControl() {
     try { await selectContentMarket(market); window.location.reload(); }
     catch (cause) { setError(userFacingError(cause)); setBusy(false); }
   };
+  // Only users authorized for more than one market get a switcher; everyone else sees their market.
+  if (markets.length <= 1 && context?.scope !== "MULTI_MARKET" && context?.scope !== "GLOBAL") return <div style={{ display: "flex", alignItems: "center", gap: 6 }}><Globe size={16}/><span aria-label="Content market">{markets[0]?.name ?? ""}</span>{error && <span className="qb-error qb-small" role="alert">{error}</span>}</div>;
   return <div style={{ maxWidth: 260 }}>
     <label style={{ display: "flex", alignItems: "center", gap: 6 }}><Globe size={16}/>Market
       <select aria-label="Content market" value={context?.scope === "LOCAL_MARKET" ? context.market_ids[0] ?? "" : ""} disabled={busy || !markets.length} onChange={event => void select(event.target.value)} style={{ maxWidth: 180 }}>

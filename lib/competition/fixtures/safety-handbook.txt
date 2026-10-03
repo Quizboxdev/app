@@ -1,0 +1,2 @@
+ISOLATED DEVELOPER ACCEPTANCE SOURCE ONLY
+Isolate power before maintenance. A safety switch disconnects power.

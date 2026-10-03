@@ -1,4 +1,4 @@
-﻿begin;
+begin;
 
 create extension if not exists pgcrypto;
 

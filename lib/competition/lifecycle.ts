@@ -37,7 +37,7 @@ export type Candidate = {
   id: string; competitionId: string; jobId: string; sourceDocumentId: string; sourceChunkId: string;
   stem: string; options: string[]; correctAnswer: number; explanation: string;
   difficulty: "easy" | "medium" | "hard"; cognitiveLevel: string; subject: string;
-  curriculumId: string | null; educationLevel: string; model: string;
+  curriculumId: string | null; curriculumNodeId?: string | null; educationLevel: string | null; model: string;
   status: "GENERATED" | "ASSIGNED_FOR_REVIEW" | "UNDER_REVIEW" | "REVISION_REQUIRED" | "APPROVED" | "REJECTED" | "PUBLISHED";
   approvedVersionId: string | null;
 };
@@ -103,12 +103,12 @@ export async function generateCandidates(input: GenerationInput, actor: Actor, s
   if (!Array.isArray(rows) || rows.length > input.count || new Set(rows.map(r => r.id)).size !== rows.length) fail("INVALID_GENERATION_OUTPUT");
   for (const row of rows) {
     const chunk = chunks.find(c => c.id === row.sourceChunkId && c.documentId === row.sourceDocumentId);
-    if (!row.id || !chunk || row.competitionId !== input.competitionId || row.jobId !== input.jobId || row.model !== input.model || !row.stem.trim() || !row.explanation.trim() || row.options.length < 2 || new Set(row.options.map(o => o.trim().toLowerCase())).size !== row.options.length || row.options.some(o => !o.trim()) || !Number.isInteger(row.correctAnswer) || row.correctAnswer < 0 || row.correctAnswer >= row.options.length || !["easy", "medium", "hard"].includes(row.difficulty) || !row.subject || !row.cognitiveLevel || !row.educationLevel) fail("INVALID_CANDIDATE_OR_PROVENANCE");
+    if (!row.id || !chunk || row.competitionId !== input.competitionId || row.jobId !== input.jobId || row.model !== input.model || !row.stem.trim() || !row.explanation.trim() || row.options.length < 2 || new Set(row.options.map(o => o.trim().toLowerCase())).size !== row.options.length || row.options.some(o => !o.trim()) || !Number.isInteger(row.correctAnswer) || row.correctAnswer < 0 || row.correctAnswer >= row.options.length || !["easy", "medium", "hard"].includes(row.difficulty) || !row.subject || !row.cognitiveLevel || input.context.sourceMode === "curriculum_aligned" && !row.educationLevel) fail("INVALID_CANDIDATE_OR_PROVENANCE");
   }
   return { state: rows.length === input.count ? "COMPLETED" as const : rows.length ? "PARTIAL" as const : "FAILED" as const, candidates: rows.map(row => ({ ...structuredClone(row), status: "GENERATED" as const, approvedVersionId: null })) };
 }
 export function authorizeReview(reviewer: Reviewer, candidate: Candidate, context: ContentContext) {
-  if (!reviewer.active || !reviewer.capability || !reviewer.subjects.includes(candidate.subject) || !reviewer.educationLevels.includes(candidate.educationLevel) || (candidate.curriculumId && !reviewer.curriculumIds.includes(candidate.curriculumId)) || context.marketIds.some(id => !reviewer.marketIds.includes(id))) fail("SME_DOMAIN_ACCESS_DENIED");
+  if (!reviewer.active || !reviewer.capability || !reviewer.subjects.includes(candidate.subject) || (candidate.educationLevel && !reviewer.educationLevels.includes(candidate.educationLevel)) || (candidate.curriculumId && !reviewer.curriculumIds.includes(candidate.curriculumId)) || context.marketIds.some(id => !reviewer.marketIds.includes(id))) fail("SME_DOMAIN_ACCESS_DENIED");
 }
 export function decideReview(candidate: Candidate, reviewer: Reviewer, context: ContentContext, input: { assignmentId: string; decision: ReviewDecision["decision"]; notes: string; startedAt: string; completedAt: string; humanReviewed: boolean; policyVersionId: string | null }): ReviewDecision {
   authorizeReview(reviewer, candidate, context);

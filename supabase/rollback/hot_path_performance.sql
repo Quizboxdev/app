@@ -1,0 +1,35 @@
+-- Reverse 20261002280000. Policy rewrites are semantically identical and the dropped index duplicated
+-- the responses unique constraint index, so neither needs restoring.
+begin;
+drop function if exists public.qb_teacher_indicator_summary(uuid[]);
+drop index if exists public.assignments_assessment_id_idx;
+drop index if exists public.assignment_targets_class_id_idx;
+drop index if exists public.attempts_student_id_idx;
+drop index if exists public.attempts_assignment_id_idx;
+drop index if exists public.assessment_results_student_user_id_idx;
+drop index if exists public.assessment_results_assignment_id_idx;
+drop index if exists public.assessments_competition_snapshot_id_idx;
+drop index if exists public.gradebook_student_user_id_idx;
+drop index if exists public.gradebook_assignment_id_idx;
+drop index if exists public.learning_events_attempt_id_idx;
+drop index if exists public.learning_events_curriculum_node_id_idx;
+drop index if exists public.mastery_records_curriculum_node_id_idx;
+drop index if exists public.questions_curriculum_node_id_idx;
+drop index if exists public.responses_question_id_idx;
+drop index if exists public.legacy_content_attributions_curriculum_id_idx;
+drop index if exists public.sme_review_assignments_domain_assignment_id_idx;
+drop index if exists public.sme_review_events_candidate_id_idx;
+drop index if exists quizbox_competition.candidates_question_id_idx;
+drop index if exists quizbox_competition.candidates_job_competition_idx;
+drop index if exists quizbox_competition.candidates_document_competition_idx;
+drop index if exists quizbox_competition.candidates_primary_assignment_id_idx;
+drop index if exists quizbox_competition.documents_competition_id_idx;
+drop index if exists quizbox_competition.official_results_competition_id_idx;
+drop index if exists quizbox_competition.official_results_participant_id_idx;
+drop index if exists quizbox_competition.leaderboard_result_id_idx;
+drop index if exists quizbox_competition.registrations_participant_id_idx;
+drop index if exists quizbox_competition.review_events_candidate_id_idx;
+drop index if exists quizbox_competition.snapshots_assessment_id_idx;
+drop index if exists quizbox_competition.participations_participant_id_idx;
+drop index if exists quizbox_competition.bank_items_candidate_competition_idx;
+commit;

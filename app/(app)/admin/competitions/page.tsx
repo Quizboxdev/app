@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import StatCard from "@/components/StatCard";
 import { getCompetitionMetrics } from "@/lib/api/admin";
 
@@ -23,6 +24,10 @@ export default function AdminCompetitionsPage() {
         <div>
           <h1>Competition Operations</h1>
           <p>Interschool participation, teams, results and sponsorship.</p>
+        </div>
+        <div className="qb-content-filters">
+          <Link href="/admin/competitions/assignments">Review assignment</Link>
+          <Link href="/admin/competitions/oversight">Sponsor oversight</Link>
         </div>
       </div>
 

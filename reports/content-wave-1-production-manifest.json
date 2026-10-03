@@ -1,0 +1,1297 @@
+{
+  "createdAt": "2026-10-02T06:42:56.344Z",
+  "providerStatus": "NOT_CONFIGURED",
+  "productionGenerated": 0,
+  "productionImported": 0,
+  "humanApprovalRequired": true,
+  "queueLocation": "This durable local manifest; not submitted to live generation RPC",
+  "indicators": [
+    {
+      "curriculum_node_id": "9c030e3c-eb47-4a47-8d8d-476c51351f8d",
+      "curriculum_id": "4af793c2-dffe-4571-93ac-2f130bdacdcc",
+      "indicator_code": "B10.2.4.1.1",
+      "indicator_title": "Perform data filtering, sorting, validation",
+      "subject": "Computing",
+      "grade": "SHS1",
+      "approved_count": 0,
+      "target_count": 10,
+      "required_new_candidates": 10,
+      "difficulty_targets": {
+        "easy": 3,
+        "medium": 4,
+        "hard": 3
+      },
+      "type_mix": {
+        "TRUE_FALSE": 2,
+        "SINGLE_CHOICE": 8
+      },
+      "priority_reason": "Coverage gap; supported subject/grade; source objective retained; human alignment review required",
+      "cognitive_targets": {
+        "Understand": 3,
+        "Apply": 4,
+        "Analyze": 3
+      },
+      "jobs": [
+        {
+          "id": "WAVE1:9c030e3c-eb47-4a47-8d8d-476c51351f8d:0",
+          "status": "QUEUED_LOCAL_AWAITING_PROVIDER",
+          "spec": {
+            "indicatorId": "9c030e3c-eb47-4a47-8d8d-476c51351f8d",
+            "indicatorCode": "B10.2.4.1.1",
+            "indicatorTitle": "Perform data filtering, sorting, validation",
+            "curriculumId": "4af793c2-dffe-4571-93ac-2f130bdacdcc",
+            "educationLevel": "SHS",
+            "grade": "SHS1",
+            "subject": "Computing",
+            "difficulty": "easy",
+            "cognitiveLevel": "Understand",
+            "answerType": "TRUE_FALSE",
+            "count": 1,
+            "language": "English",
+            "marks": 1,
+            "expectedSeconds": 60,
+            "provenance": {
+              "source": "EDITORIAL_WAVE_1"
+            }
+          }
+        },
+        {
+          "id": "WAVE1:9c030e3c-eb47-4a47-8d8d-476c51351f8d:1",
+          "status": "QUEUED_LOCAL_AWAITING_PROVIDER",
+          "spec": {
+            "indicatorId": "9c030e3c-eb47-4a47-8d8d-476c51351f8d",
+            "indicatorCode": "B10.2.4.1.1",
+            "indicatorTitle": "Perform data filtering, sorting, validation",
+            "curriculumId": "4af793c2-dffe-4571-93ac-2f130bdacdcc",
+            "educationLevel": "SHS",
+            "grade": "SHS1",
+            "subject": "Computing",
+            "difficulty": "easy",
+            "cognitiveLevel": "Understand",
+            "answerType": "SINGLE_CHOICE",
+            "count": 2,
+            "language": "English",
+            "marks": 1,
+            "expectedSeconds": 60,
+            "provenance": {
+              "source": "EDITORIAL_WAVE_1"
+            }
+          }
+        },
+        {
+          "id": "WAVE1:9c030e3c-eb47-4a47-8d8d-476c51351f8d:2",
+          "status": "QUEUED_LOCAL_AWAITING_PROVIDER",
+          "spec": {
+            "indicatorId": "9c030e3c-eb47-4a47-8d8d-476c51351f8d",
+            "indicatorCode": "B10.2.4.1.1",
+            "indicatorTitle": "Perform data filtering, sorting, validation",
+            "curriculumId": "4af793c2-dffe-4571-93ac-2f130bdacdcc",
+            "educationLevel": "SHS",
+            "grade": "SHS1",
+            "subject": "Computing",
+            "difficulty": "medium",
+            "cognitiveLevel": "Apply",
+            "answerType": "TRUE_FALSE",
+            "count": 1,
+            "language": "English",
+            "marks": 1,
+            "expectedSeconds": 60,
+            "provenance": {
+              "source": "EDITORIAL_WAVE_1"
+            }
+          }
+        },
+        {
+          "id": "WAVE1:9c030e3c-eb47-4a47-8d8d-476c51351f8d:3",
+          "status": "QUEUED_LOCAL_AWAITING_PROVIDER",
+          "spec": {
+            "indicatorId": "9c030e3c-eb47-4a47-8d8d-476c51351f8d",
+            "indicatorCode": "B10.2.4.1.1",
+            "indicatorTitle": "Perform data filtering, sorting, validation",
+            "curriculumId": "4af793c2-dffe-4571-93ac-2f130bdacdcc",
+            "educationLevel": "SHS",
+            "grade": "SHS1",
+            "subject": "Computing",
+            "difficulty": "medium",
+            "cognitiveLevel": "Apply",
+            "answerType": "SINGLE_CHOICE",
+            "count": 3,
+            "language": "English",
+            "marks": 1,
+            "expectedSeconds": 60,
+            "provenance": {
+              "source": "EDITORIAL_WAVE_1"
+            }
+          }
+        },
+        {
+          "id": "WAVE1:9c030e3c-eb47-4a47-8d8d-476c51351f8d:4",
+          "status": "QUEUED_LOCAL_AWAITING_PROVIDER",
+          "spec": {
+            "indicatorId": "9c030e3c-eb47-4a47-8d8d-476c51351f8d",
+            "indicatorCode": "B10.2.4.1.1",
+            "indicatorTitle": "Perform data filtering, sorting, validation",
+            "curriculumId": "4af793c2-dffe-4571-93ac-2f130bdacdcc",
+            "educationLevel": "SHS",
+            "grade": "SHS1",
+            "subject": "Computing",
+            "difficulty": "hard",
+            "cognitiveLevel": "Analyze",
+            "answerType": "SINGLE_CHOICE",
+            "count": 3,
+            "language": "English",
+            "marks": 1,
+            "expectedSeconds": 60,
+            "provenance": {
+              "source": "EDITORIAL_WAVE_1"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "curriculum_node_id": "6e60d706-4c8c-43d6-b8f0-ffbba502ade7",
+      "curriculum_id": "4af793c2-dffe-4571-93ac-2f130bdacdcc",
+      "indicator_code": "B10.2.4.1.3",
+      "indicator_title": ". Demonstrate the use of data tables, pivot",
+      "subject": "Computing",
+      "grade": "SHS1",
+      "approved_count": 0,
+      "target_count": 10,
+      "required_new_candidates": 10,
+      "difficulty_targets": {
+        "easy": 3,
+        "medium": 4,
+        "hard": 3
+      },
+      "type_mix": {
+        "TRUE_FALSE": 2,
+        "SINGLE_CHOICE": 8
+      },
+      "priority_reason": "Coverage gap; supported subject/grade; source objective retained; human alignment review required",
+      "cognitive_targets": {
+        "Understand": 3,
+        "Apply": 4,
+        "Analyze": 3
+      },
+      "jobs": [
+        {
+          "id": "WAVE1:6e60d706-4c8c-43d6-b8f0-ffbba502ade7:0",
+          "status": "QUEUED_LOCAL_AWAITING_PROVIDER",
+          "spec": {
+            "indicatorId": "6e60d706-4c8c-43d6-b8f0-ffbba502ade7",
+            "indicatorCode": "B10.2.4.1.3",
+            "indicatorTitle": ". Demonstrate the use of data tables, pivot",
+            "curriculumId": "4af793c2-dffe-4571-93ac-2f130bdacdcc",
+            "educationLevel": "SHS",
+            "grade": "SHS1",
+            "subject": "Computing",
+            "difficulty": "easy",
+            "cognitiveLevel": "Understand",
+            "answerType": "TRUE_FALSE",
+            "count": 1,
+            "language": "English",
+            "marks": 1,
+            "expectedSeconds": 60,
+            "provenance": {
+              "source": "EDITORIAL_WAVE_1"
+            }
+          }
+        },
+        {
+          "id": "WAVE1:6e60d706-4c8c-43d6-b8f0-ffbba502ade7:1",
+          "status": "QUEUED_LOCAL_AWAITING_PROVIDER",
+          "spec": {
+            "indicatorId": "6e60d706-4c8c-43d6-b8f0-ffbba502ade7",
+            "indicatorCode": "B10.2.4.1.3",
+            "indicatorTitle": ". Demonstrate the use of data tables, pivot",
+            "curriculumId": "4af793c2-dffe-4571-93ac-2f130bdacdcc",
+            "educationLevel": "SHS",
+            "grade": "SHS1",
+            "subject": "Computing",
+            "difficulty": "easy",
+            "cognitiveLevel": "Understand",
+            "answerType": "SINGLE_CHOICE",
+            "count": 2,
+            "language": "English",
+            "marks": 1,
+            "expectedSeconds": 60,
+            "provenance": {
+              "source": "EDITORIAL_WAVE_1"
+            }
+          }
+        },
+        {
+          "id": "WAVE1:6e60d706-4c8c-43d6-b8f0-ffbba502ade7:2",
+          "status": "QUEUED_LOCAL_AWAITING_PROVIDER",
+          "spec": {
+            "indicatorId": "6e60d706-4c8c-43d6-b8f0-ffbba502ade7",
+            "indicatorCode": "B10.2.4.1.3",
+            "indicatorTitle": ". Demonstrate the use of data tables, pivot",
+            "curriculumId": "4af793c2-dffe-4571-93ac-2f130bdacdcc",
+            "educationLevel": "SHS",
+            "grade": "SHS1",
+            "subject": "Computing",
+            "difficulty": "medium",
+            "cognitiveLevel": "Apply",
+            "answerType": "TRUE_FALSE",
+            "count": 1,
+            "language": "English",
+            "marks": 1,
+            "expectedSeconds": 60,
+            "provenance": {
+              "source": "EDITORIAL_WAVE_1"
+            }
+          }
+        },
+        {
+          "id": "WAVE1:6e60d706-4c8c-43d6-b8f0-ffbba502ade7:3",
+          "status": "QUEUED_LOCAL_AWAITING_PROVIDER",
+          "spec": {
+            "indicatorId": "6e60d706-4c8c-43d6-b8f0-ffbba502ade7",
+            "indicatorCode": "B10.2.4.1.3",
+            "indicatorTitle": ". Demonstrate the use of data tables, pivot",
+            "curriculumId": "4af793c2-dffe-4571-93ac-2f130bdacdcc",
+            "educationLevel": "SHS",
+            "grade": "SHS1",
+            "subject": "Computing",
+            "difficulty": "medium",
+            "cognitiveLevel": "Apply",
+            "answerType": "SINGLE_CHOICE",
+            "count": 3,
+            "language": "English",
+            "marks": 1,
+            "expectedSeconds": 60,
+            "provenance": {
+              "source": "EDITORIAL_WAVE_1"
+            }
+          }
+        },
+        {
+          "id": "WAVE1:6e60d706-4c8c-43d6-b8f0-ffbba502ade7:4",
+          "status": "QUEUED_LOCAL_AWAITING_PROVIDER",
+          "spec": {
+            "indicatorId": "6e60d706-4c8c-43d6-b8f0-ffbba502ade7",
+            "indicatorCode": "B10.2.4.1.3",
+            "indicatorTitle": ". Demonstrate the use of data tables, pivot",
+            "curriculumId": "4af793c2-dffe-4571-93ac-2f130bdacdcc",
+            "educationLevel": "SHS",
+            "grade": "SHS1",
+            "subject": "Computing",
+            "difficulty": "hard",
+            "cognitiveLevel": "Analyze",
+            "answerType": "SINGLE_CHOICE",
+            "count": 3,
+            "language": "English",
+            "marks": 1,
+            "expectedSeconds": 60,
+            "provenance": {
+              "source": "EDITORIAL_WAVE_1"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "curriculum_node_id": "94688337-d6f8-41c4-8ce0-a80f6d257138",
+      "curriculum_id": "4af793c2-dffe-4571-93ac-2f130bdacdcc",
+      "indicator_code": "B10.3.3.1.2",
+      "indicator_title": ". Demonstrate how to protect data using",
+      "subject": "Computing",
+      "grade": "SHS1",
+      "approved_count": 0,
+      "target_count": 10,
+      "required_new_candidates": 10,
+      "difficulty_targets": {
+        "easy": 3,
+        "medium": 4,
+        "hard": 3
+      },
+      "type_mix": {
+        "TRUE_FALSE": 2,
+        "SINGLE_CHOICE": 8
+      },
+      "priority_reason": "Coverage gap; supported subject/grade; source objective retained; human alignment review required",
+      "cognitive_targets": {
+        "Understand": 3,
+        "Apply": 4,
+        "Analyze": 3
+      },
+      "jobs": [
+        {
+          "id": "WAVE1:94688337-d6f8-41c4-8ce0-a80f6d257138:0",
+          "status": "QUEUED_LOCAL_AWAITING_PROVIDER",
+          "spec": {
+            "indicatorId": "94688337-d6f8-41c4-8ce0-a80f6d257138",
+            "indicatorCode": "B10.3.3.1.2",
+            "indicatorTitle": ". Demonstrate how to protect data using",
+            "curriculumId": "4af793c2-dffe-4571-93ac-2f130bdacdcc",
+            "educationLevel": "SHS",
+            "grade": "SHS1",
+            "subject": "Computing",
+            "difficulty": "easy",
+            "cognitiveLevel": "Understand",
+            "answerType": "TRUE_FALSE",
+            "count": 1,
+            "language": "English",
+            "marks": 1,
+            "expectedSeconds": 60,
+            "provenance": {
+              "source": "EDITORIAL_WAVE_1"
+            }
+          }
+        },
+        {
+          "id": "WAVE1:94688337-d6f8-41c4-8ce0-a80f6d257138:1",
+          "status": "QUEUED_LOCAL_AWAITING_PROVIDER",
+          "spec": {
+            "indicatorId": "94688337-d6f8-41c4-8ce0-a80f6d257138",
+            "indicatorCode": "B10.3.3.1.2",
+            "indicatorTitle": ". Demonstrate how to protect data using",
+            "curriculumId": "4af793c2-dffe-4571-93ac-2f130bdacdcc",
+            "educationLevel": "SHS",
+            "grade": "SHS1",
+            "subject": "Computing",
+            "difficulty": "easy",
+            "cognitiveLevel": "Understand",
+            "answerType": "SINGLE_CHOICE",
+            "count": 2,
+            "language": "English",
+            "marks": 1,
+            "expectedSeconds": 60,
+            "provenance": {
+              "source": "EDITORIAL_WAVE_1"
+            }
+          }
+        },
+        {
+          "id": "WAVE1:94688337-d6f8-41c4-8ce0-a80f6d257138:2",
+          "status": "QUEUED_LOCAL_AWAITING_PROVIDER",
+          "spec": {
+            "indicatorId": "94688337-d6f8-41c4-8ce0-a80f6d257138",
+            "indicatorCode": "B10.3.3.1.2",
+            "indicatorTitle": ". Demonstrate how to protect data using",
+            "curriculumId": "4af793c2-dffe-4571-93ac-2f130bdacdcc",
+            "educationLevel": "SHS",
+            "grade": "SHS1",
+            "subject": "Computing",
+            "difficulty": "medium",
+            "cognitiveLevel": "Apply",
+            "answerType": "TRUE_FALSE",
+            "count": 1,
+            "language": "English",
+            "marks": 1,
+            "expectedSeconds": 60,
+            "provenance": {
+              "source": "EDITORIAL_WAVE_1"
+            }
+          }
+        },
+        {
+          "id": "WAVE1:94688337-d6f8-41c4-8ce0-a80f6d257138:3",
+          "status": "QUEUED_LOCAL_AWAITING_PROVIDER",
+          "spec": {
+            "indicatorId": "94688337-d6f8-41c4-8ce0-a80f6d257138",
+            "indicatorCode": "B10.3.3.1.2",
+            "indicatorTitle": ". Demonstrate how to protect data using",
+            "curriculumId": "4af793c2-dffe-4571-93ac-2f130bdacdcc",
+            "educationLevel": "SHS",
+            "grade": "SHS1",
+            "subject": "Computing",
+            "difficulty": "medium",
+            "cognitiveLevel": "Apply",
+            "answerType": "SINGLE_CHOICE",
+            "count": 3,
+            "language": "English",
+            "marks": 1,
+            "expectedSeconds": 60,
+            "provenance": {
+              "source": "EDITORIAL_WAVE_1"
+            }
+          }
+        },
+        {
+          "id": "WAVE1:94688337-d6f8-41c4-8ce0-a80f6d257138:4",
+          "status": "QUEUED_LOCAL_AWAITING_PROVIDER",
+          "spec": {
+            "indicatorId": "94688337-d6f8-41c4-8ce0-a80f6d257138",
+            "indicatorCode": "B10.3.3.1.2",
+            "indicatorTitle": ". Demonstrate how to protect data using",
+            "curriculumId": "4af793c2-dffe-4571-93ac-2f130bdacdcc",
+            "educationLevel": "SHS",
+            "grade": "SHS1",
+            "subject": "Computing",
+            "difficulty": "hard",
+            "cognitiveLevel": "Analyze",
+            "answerType": "SINGLE_CHOICE",
+            "count": 3,
+            "language": "English",
+            "marks": 1,
+            "expectedSeconds": 60,
+            "provenance": {
+              "source": "EDITORIAL_WAVE_1"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "curriculum_node_id": "65dac471-12b4-417c-b233-1adafc44d876",
+      "curriculum_id": "4af793c2-dffe-4571-93ac-2f130bdacdcc",
+      "indicator_code": "B10.1.3.1.1",
+      "indicator_title": "Add and/or subtract, multiply and/or divide given fractions, including",
+      "subject": "Mathematics",
+      "grade": "SHS1",
+      "approved_count": 0,
+      "target_count": 10,
+      "required_new_candidates": 10,
+      "difficulty_targets": {
+        "easy": 3,
+        "medium": 4,
+        "hard": 3
+      },
+      "type_mix": {
+        "TRUE_FALSE": 2,
+        "SINGLE_CHOICE": 8
+      },
+      "priority_reason": "Coverage gap; supported subject/grade; source objective retained; human alignment review required",
+      "cognitive_targets": {
+        "Understand": 3,
+        "Apply": 4,
+        "Analyze": 3
+      },
+      "jobs": [
+        {
+          "id": "WAVE1:65dac471-12b4-417c-b233-1adafc44d876:0",
+          "status": "QUEUED_LOCAL_AWAITING_PROVIDER",
+          "spec": {
+            "indicatorId": "65dac471-12b4-417c-b233-1adafc44d876",
+            "indicatorCode": "B10.1.3.1.1",
+            "indicatorTitle": "Add and/or subtract, multiply and/or divide given fractions, including",
+            "curriculumId": "4af793c2-dffe-4571-93ac-2f130bdacdcc",
+            "educationLevel": "SHS",
+            "grade": "SHS1",
+            "subject": "Mathematics",
+            "difficulty": "easy",
+            "cognitiveLevel": "Understand",
+            "answerType": "TRUE_FALSE",
+            "count": 1,
+            "language": "English",
+            "marks": 1,
+            "expectedSeconds": 60,
+            "provenance": {
+              "source": "EDITORIAL_WAVE_1"
+            }
+          }
+        },
+        {
+          "id": "WAVE1:65dac471-12b4-417c-b233-1adafc44d876:1",
+          "status": "QUEUED_LOCAL_AWAITING_PROVIDER",
+          "spec": {
+            "indicatorId": "65dac471-12b4-417c-b233-1adafc44d876",
+            "indicatorCode": "B10.1.3.1.1",
+            "indicatorTitle": "Add and/or subtract, multiply and/or divide given fractions, including",
+            "curriculumId": "4af793c2-dffe-4571-93ac-2f130bdacdcc",
+            "educationLevel": "SHS",
+            "grade": "SHS1",
+            "subject": "Mathematics",
+            "difficulty": "easy",
+            "cognitiveLevel": "Understand",
+            "answerType": "SINGLE_CHOICE",
+            "count": 2,
+            "language": "English",
+            "marks": 1,
+            "expectedSeconds": 60,
+            "provenance": {
+              "source": "EDITORIAL_WAVE_1"
+            }
+          }
+        },
+        {
+          "id": "WAVE1:65dac471-12b4-417c-b233-1adafc44d876:2",
+          "status": "QUEUED_LOCAL_AWAITING_PROVIDER",
+          "spec": {
+            "indicatorId": "65dac471-12b4-417c-b233-1adafc44d876",
+            "indicatorCode": "B10.1.3.1.1",
+            "indicatorTitle": "Add and/or subtract, multiply and/or divide given fractions, including",
+            "curriculumId": "4af793c2-dffe-4571-93ac-2f130bdacdcc",
+            "educationLevel": "SHS",
+            "grade": "SHS1",
+            "subject": "Mathematics",
+            "difficulty": "medium",
+            "cognitiveLevel": "Apply",
+            "answerType": "TRUE_FALSE",
+            "count": 1,
+            "language": "English",
+            "marks": 1,
+            "expectedSeconds": 60,
+            "provenance": {
+              "source": "EDITORIAL_WAVE_1"
+            }
+          }
+        },
+        {
+          "id": "WAVE1:65dac471-12b4-417c-b233-1adafc44d876:3",
+          "status": "QUEUED_LOCAL_AWAITING_PROVIDER",
+          "spec": {
+            "indicatorId": "65dac471-12b4-417c-b233-1adafc44d876",
+            "indicatorCode": "B10.1.3.1.1",
+            "indicatorTitle": "Add and/or subtract, multiply and/or divide given fractions, including",
+            "curriculumId": "4af793c2-dffe-4571-93ac-2f130bdacdcc",
+            "educationLevel": "SHS",
+            "grade": "SHS1",
+            "subject": "Mathematics",
+            "difficulty": "medium",
+            "cognitiveLevel": "Apply",
+            "answerType": "SINGLE_CHOICE",
+            "count": 3,
+            "language": "English",
+            "marks": 1,
+            "expectedSeconds": 60,
+            "provenance": {
+              "source": "EDITORIAL_WAVE_1"
+            }
+          }
+        },
+        {
+          "id": "WAVE1:65dac471-12b4-417c-b233-1adafc44d876:4",
+          "status": "QUEUED_LOCAL_AWAITING_PROVIDER",
+          "spec": {
+            "indicatorId": "65dac471-12b4-417c-b233-1adafc44d876",
+            "indicatorCode": "B10.1.3.1.1",
+            "indicatorTitle": "Add and/or subtract, multiply and/or divide given fractions, including",
+            "curriculumId": "4af793c2-dffe-4571-93ac-2f130bdacdcc",
+            "educationLevel": "SHS",
+            "grade": "SHS1",
+            "subject": "Mathematics",
+            "difficulty": "hard",
+            "cognitiveLevel": "Analyze",
+            "answerType": "SINGLE_CHOICE",
+            "count": 3,
+            "language": "English",
+            "marks": 1,
+            "expectedSeconds": 60,
+            "provenance": {
+              "source": "EDITORIAL_WAVE_1"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "curriculum_node_id": "dd80a828-3a67-4c01-b88d-bc34a3450a5d",
+      "curriculum_id": "4af793c2-dffe-4571-93ac-2f130bdacdcc",
+      "indicator_code": "B10.1.3.1.2",
+      "indicator_title": "Add and/or subtract, multiply and/or divide given fractions, including",
+      "subject": "Mathematics",
+      "grade": "SHS1",
+      "approved_count": 0,
+      "target_count": 10,
+      "required_new_candidates": 10,
+      "difficulty_targets": {
+        "easy": 3,
+        "medium": 4,
+        "hard": 3
+      },
+      "type_mix": {
+        "TRUE_FALSE": 2,
+        "SINGLE_CHOICE": 8
+      },
+      "priority_reason": "Coverage gap; supported subject/grade; source objective retained; human alignment review required",
+      "cognitive_targets": {
+        "Understand": 3,
+        "Apply": 4,
+        "Analyze": 3
+      },
+      "jobs": [
+        {
+          "id": "WAVE1:dd80a828-3a67-4c01-b88d-bc34a3450a5d:0",
+          "status": "QUEUED_LOCAL_AWAITING_PROVIDER",
+          "spec": {
+            "indicatorId": "dd80a828-3a67-4c01-b88d-bc34a3450a5d",
+            "indicatorCode": "B10.1.3.1.2",
+            "indicatorTitle": "Add and/or subtract, multiply and/or divide given fractions, including",
+            "curriculumId": "4af793c2-dffe-4571-93ac-2f130bdacdcc",
+            "educationLevel": "SHS",
+            "grade": "SHS1",
+            "subject": "Mathematics",
+            "difficulty": "easy",
+            "cognitiveLevel": "Understand",
+            "answerType": "TRUE_FALSE",
+            "count": 1,
+            "language": "English",
+            "marks": 1,
+            "expectedSeconds": 60,
+            "provenance": {
+              "source": "EDITORIAL_WAVE_1"
+            }
+          }
+        },
+        {
+          "id": "WAVE1:dd80a828-3a67-4c01-b88d-bc34a3450a5d:1",
+          "status": "QUEUED_LOCAL_AWAITING_PROVIDER",
+          "spec": {
+            "indicatorId": "dd80a828-3a67-4c01-b88d-bc34a3450a5d",
+            "indicatorCode": "B10.1.3.1.2",
+            "indicatorTitle": "Add and/or subtract, multiply and/or divide given fractions, including",
+            "curriculumId": "4af793c2-dffe-4571-93ac-2f130bdacdcc",
+            "educationLevel": "SHS",
+            "grade": "SHS1",
+            "subject": "Mathematics",
+            "difficulty": "easy",
+            "cognitiveLevel": "Understand",
+            "answerType": "SINGLE_CHOICE",
+            "count": 2,
+            "language": "English",
+            "marks": 1,
+            "expectedSeconds": 60,
+            "provenance": {
+              "source": "EDITORIAL_WAVE_1"
+            }
+          }
+        },
+        {
+          "id": "WAVE1:dd80a828-3a67-4c01-b88d-bc34a3450a5d:2",
+          "status": "QUEUED_LOCAL_AWAITING_PROVIDER",
+          "spec": {
+            "indicatorId": "dd80a828-3a67-4c01-b88d-bc34a3450a5d",
+            "indicatorCode": "B10.1.3.1.2",
+            "indicatorTitle": "Add and/or subtract, multiply and/or divide given fractions, including",
+            "curriculumId": "4af793c2-dffe-4571-93ac-2f130bdacdcc",
+            "educationLevel": "SHS",
+            "grade": "SHS1",
+            "subject": "Mathematics",
+            "difficulty": "medium",
+            "cognitiveLevel": "Apply",
+            "answerType": "TRUE_FALSE",
+            "count": 1,
+            "language": "English",
+            "marks": 1,
+            "expectedSeconds": 60,
+            "provenance": {
+              "source": "EDITORIAL_WAVE_1"
+            }
+          }
+        },
+        {
+          "id": "WAVE1:dd80a828-3a67-4c01-b88d-bc34a3450a5d:3",
+          "status": "QUEUED_LOCAL_AWAITING_PROVIDER",
+          "spec": {
+            "indicatorId": "dd80a828-3a67-4c01-b88d-bc34a3450a5d",
+            "indicatorCode": "B10.1.3.1.2",
+            "indicatorTitle": "Add and/or subtract, multiply and/or divide given fractions, including",
+            "curriculumId": "4af793c2-dffe-4571-93ac-2f130bdacdcc",
+            "educationLevel": "SHS",
+            "grade": "SHS1",
+            "subject": "Mathematics",
+            "difficulty": "medium",
+            "cognitiveLevel": "Apply",
+            "answerType": "SINGLE_CHOICE",
+            "count": 3,
+            "language": "English",
+            "marks": 1,
+            "expectedSeconds": 60,
+            "provenance": {
+              "source": "EDITORIAL_WAVE_1"
+            }
+          }
+        },
+        {
+          "id": "WAVE1:dd80a828-3a67-4c01-b88d-bc34a3450a5d:4",
+          "status": "QUEUED_LOCAL_AWAITING_PROVIDER",
+          "spec": {
+            "indicatorId": "dd80a828-3a67-4c01-b88d-bc34a3450a5d",
+            "indicatorCode": "B10.1.3.1.2",
+            "indicatorTitle": "Add and/or subtract, multiply and/or divide given fractions, including",
+            "curriculumId": "4af793c2-dffe-4571-93ac-2f130bdacdcc",
+            "educationLevel": "SHS",
+            "grade": "SHS1",
+            "subject": "Mathematics",
+            "difficulty": "hard",
+            "cognitiveLevel": "Analyze",
+            "answerType": "SINGLE_CHOICE",
+            "count": 3,
+            "language": "English",
+            "marks": 1,
+            "expectedSeconds": 60,
+            "provenance": {
+              "source": "EDITORIAL_WAVE_1"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "curriculum_node_id": "a4dccfcd-1f4f-4417-873c-884a9d68384e",
+      "curriculum_id": "4af793c2-dffe-4571-93ac-2f130bdacdcc",
+      "indicator_code": "B10.1.3.1.3",
+      "indicator_title": ". Review word problems involving basic operations on fractions",
+      "subject": "Mathematics",
+      "grade": "SHS1",
+      "approved_count": 0,
+      "target_count": 10,
+      "required_new_candidates": 10,
+      "difficulty_targets": {
+        "easy": 3,
+        "medium": 4,
+        "hard": 3
+      },
+      "type_mix": {
+        "TRUE_FALSE": 2,
+        "SINGLE_CHOICE": 8
+      },
+      "priority_reason": "Coverage gap; supported subject/grade; source objective retained; human alignment review required",
+      "cognitive_targets": {
+        "Understand": 3,
+        "Apply": 4,
+        "Analyze": 3
+      },
+      "jobs": [
+        {
+          "id": "WAVE1:a4dccfcd-1f4f-4417-873c-884a9d68384e:0",
+          "status": "QUEUED_LOCAL_AWAITING_PROVIDER",
+          "spec": {
+            "indicatorId": "a4dccfcd-1f4f-4417-873c-884a9d68384e",
+            "indicatorCode": "B10.1.3.1.3",
+            "indicatorTitle": ". Review word problems involving basic operations on fractions",
+            "curriculumId": "4af793c2-dffe-4571-93ac-2f130bdacdcc",
+            "educationLevel": "SHS",
+            "grade": "SHS1",
+            "subject": "Mathematics",
+            "difficulty": "easy",
+            "cognitiveLevel": "Understand",
+            "answerType": "TRUE_FALSE",
+            "count": 1,
+            "language": "English",
+            "marks": 1,
+            "expectedSeconds": 60,
+            "provenance": {
+              "source": "EDITORIAL_WAVE_1"
+            }
+          }
+        },
+        {
+          "id": "WAVE1:a4dccfcd-1f4f-4417-873c-884a9d68384e:1",
+          "status": "QUEUED_LOCAL_AWAITING_PROVIDER",
+          "spec": {
+            "indicatorId": "a4dccfcd-1f4f-4417-873c-884a9d68384e",
+            "indicatorCode": "B10.1.3.1.3",
+            "indicatorTitle": ". Review word problems involving basic operations on fractions",
+            "curriculumId": "4af793c2-dffe-4571-93ac-2f130bdacdcc",
+            "educationLevel": "SHS",
+            "grade": "SHS1",
+            "subject": "Mathematics",
+            "difficulty": "easy",
+            "cognitiveLevel": "Understand",
+            "answerType": "SINGLE_CHOICE",
+            "count": 2,
+            "language": "English",
+            "marks": 1,
+            "expectedSeconds": 60,
+            "provenance": {
+              "source": "EDITORIAL_WAVE_1"
+            }
+          }
+        },
+        {
+          "id": "WAVE1:a4dccfcd-1f4f-4417-873c-884a9d68384e:2",
+          "status": "QUEUED_LOCAL_AWAITING_PROVIDER",
+          "spec": {
+            "indicatorId": "a4dccfcd-1f4f-4417-873c-884a9d68384e",
+            "indicatorCode": "B10.1.3.1.3",
+            "indicatorTitle": ". Review word problems involving basic operations on fractions",
+            "curriculumId": "4af793c2-dffe-4571-93ac-2f130bdacdcc",
+            "educationLevel": "SHS",
+            "grade": "SHS1",
+            "subject": "Mathematics",
+            "difficulty": "medium",
+            "cognitiveLevel": "Apply",
+            "answerType": "TRUE_FALSE",
+            "count": 1,
+            "language": "English",
+            "marks": 1,
+            "expectedSeconds": 60,
+            "provenance": {
+              "source": "EDITORIAL_WAVE_1"
+            }
+          }
+        },
+        {
+          "id": "WAVE1:a4dccfcd-1f4f-4417-873c-884a9d68384e:3",
+          "status": "QUEUED_LOCAL_AWAITING_PROVIDER",
+          "spec": {
+            "indicatorId": "a4dccfcd-1f4f-4417-873c-884a9d68384e",
+            "indicatorCode": "B10.1.3.1.3",
+            "indicatorTitle": ". Review word problems involving basic operations on fractions",
+            "curriculumId": "4af793c2-dffe-4571-93ac-2f130bdacdcc",
+            "educationLevel": "SHS",
+            "grade": "SHS1",
+            "subject": "Mathematics",
+            "difficulty": "medium",
+            "cognitiveLevel": "Apply",
+            "answerType": "SINGLE_CHOICE",
+            "count": 3,
+            "language": "English",
+            "marks": 1,
+            "expectedSeconds": 60,
+            "provenance": {
+              "source": "EDITORIAL_WAVE_1"
+            }
+          }
+        },
+        {
+          "id": "WAVE1:a4dccfcd-1f4f-4417-873c-884a9d68384e:4",
+          "status": "QUEUED_LOCAL_AWAITING_PROVIDER",
+          "spec": {
+            "indicatorId": "a4dccfcd-1f4f-4417-873c-884a9d68384e",
+            "indicatorCode": "B10.1.3.1.3",
+            "indicatorTitle": ". Review word problems involving basic operations on fractions",
+            "curriculumId": "4af793c2-dffe-4571-93ac-2f130bdacdcc",
+            "educationLevel": "SHS",
+            "grade": "SHS1",
+            "subject": "Mathematics",
+            "difficulty": "hard",
+            "cognitiveLevel": "Analyze",
+            "answerType": "SINGLE_CHOICE",
+            "count": 3,
+            "language": "English",
+            "marks": 1,
+            "expectedSeconds": 60,
+            "provenance": {
+              "source": "EDITORIAL_WAVE_1"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "curriculum_node_id": "cc3f9b1f-3821-4e3c-9a19-a640f29ff11c",
+      "curriculum_id": "4af793c2-dffe-4571-93ac-2f130bdacdcc",
+      "indicator_code": "B10.1.2.1.1",
+      "indicator_title": "Discuss the concepts of specialised cells and how they",
+      "subject": "Science",
+      "grade": "SHS1",
+      "approved_count": 0,
+      "target_count": 10,
+      "required_new_candidates": 10,
+      "difficulty_targets": {
+        "easy": 3,
+        "medium": 4,
+        "hard": 3
+      },
+      "type_mix": {
+        "TRUE_FALSE": 2,
+        "SINGLE_CHOICE": 8
+      },
+      "priority_reason": "Coverage gap; supported subject/grade; source objective retained; human alignment review required",
+      "cognitive_targets": {
+        "Understand": 3,
+        "Apply": 4,
+        "Analyze": 3
+      },
+      "jobs": [
+        {
+          "id": "WAVE1:cc3f9b1f-3821-4e3c-9a19-a640f29ff11c:0",
+          "status": "QUEUED_LOCAL_AWAITING_PROVIDER",
+          "spec": {
+            "indicatorId": "cc3f9b1f-3821-4e3c-9a19-a640f29ff11c",
+            "indicatorCode": "B10.1.2.1.1",
+            "indicatorTitle": "Discuss the concepts of specialised cells and how they",
+            "curriculumId": "4af793c2-dffe-4571-93ac-2f130bdacdcc",
+            "educationLevel": "SHS",
+            "grade": "SHS1",
+            "subject": "Science",
+            "difficulty": "easy",
+            "cognitiveLevel": "Understand",
+            "answerType": "TRUE_FALSE",
+            "count": 1,
+            "language": "English",
+            "marks": 1,
+            "expectedSeconds": 60,
+            "provenance": {
+              "source": "EDITORIAL_WAVE_1"
+            }
+          }
+        },
+        {
+          "id": "WAVE1:cc3f9b1f-3821-4e3c-9a19-a640f29ff11c:1",
+          "status": "QUEUED_LOCAL_AWAITING_PROVIDER",
+          "spec": {
+            "indicatorId": "cc3f9b1f-3821-4e3c-9a19-a640f29ff11c",
+            "indicatorCode": "B10.1.2.1.1",
+            "indicatorTitle": "Discuss the concepts of specialised cells and how they",
+            "curriculumId": "4af793c2-dffe-4571-93ac-2f130bdacdcc",
+            "educationLevel": "SHS",
+            "grade": "SHS1",
+            "subject": "Science",
+            "difficulty": "easy",
+            "cognitiveLevel": "Understand",
+            "answerType": "SINGLE_CHOICE",
+            "count": 2,
+            "language": "English",
+            "marks": 1,
+            "expectedSeconds": 60,
+            "provenance": {
+              "source": "EDITORIAL_WAVE_1"
+            }
+          }
+        },
+        {
+          "id": "WAVE1:cc3f9b1f-3821-4e3c-9a19-a640f29ff11c:2",
+          "status": "QUEUED_LOCAL_AWAITING_PROVIDER",
+          "spec": {
+            "indicatorId": "cc3f9b1f-3821-4e3c-9a19-a640f29ff11c",
+            "indicatorCode": "B10.1.2.1.1",
+            "indicatorTitle": "Discuss the concepts of specialised cells and how they",
+            "curriculumId": "4af793c2-dffe-4571-93ac-2f130bdacdcc",
+            "educationLevel": "SHS",
+            "grade": "SHS1",
+            "subject": "Science",
+            "difficulty": "medium",
+            "cognitiveLevel": "Apply",
+            "answerType": "TRUE_FALSE",
+            "count": 1,
+            "language": "English",
+            "marks": 1,
+            "expectedSeconds": 60,
+            "provenance": {
+              "source": "EDITORIAL_WAVE_1"
+            }
+          }
+        },
+        {
+          "id": "WAVE1:cc3f9b1f-3821-4e3c-9a19-a640f29ff11c:3",
+          "status": "QUEUED_LOCAL_AWAITING_PROVIDER",
+          "spec": {
+            "indicatorId": "cc3f9b1f-3821-4e3c-9a19-a640f29ff11c",
+            "indicatorCode": "B10.1.2.1.1",
+            "indicatorTitle": "Discuss the concepts of specialised cells and how they",
+            "curriculumId": "4af793c2-dffe-4571-93ac-2f130bdacdcc",
+            "educationLevel": "SHS",
+            "grade": "SHS1",
+            "subject": "Science",
+            "difficulty": "medium",
+            "cognitiveLevel": "Apply",
+            "answerType": "SINGLE_CHOICE",
+            "count": 3,
+            "language": "English",
+            "marks": 1,
+            "expectedSeconds": 60,
+            "provenance": {
+              "source": "EDITORIAL_WAVE_1"
+            }
+          }
+        },
+        {
+          "id": "WAVE1:cc3f9b1f-3821-4e3c-9a19-a640f29ff11c:4",
+          "status": "QUEUED_LOCAL_AWAITING_PROVIDER",
+          "spec": {
+            "indicatorId": "cc3f9b1f-3821-4e3c-9a19-a640f29ff11c",
+            "indicatorCode": "B10.1.2.1.1",
+            "indicatorTitle": "Discuss the concepts of specialised cells and how they",
+            "curriculumId": "4af793c2-dffe-4571-93ac-2f130bdacdcc",
+            "educationLevel": "SHS",
+            "grade": "SHS1",
+            "subject": "Science",
+            "difficulty": "hard",
+            "cognitiveLevel": "Analyze",
+            "answerType": "SINGLE_CHOICE",
+            "count": 3,
+            "language": "English",
+            "marks": 1,
+            "expectedSeconds": 60,
+            "provenance": {
+              "source": "EDITORIAL_WAVE_1"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "curriculum_node_id": "e74982f6-8657-4e64-b49a-a66c16bb4803",
+      "curriculum_id": "4af793c2-dffe-4571-93ac-2f130bdacdcc",
+      "indicator_code": "B10.1.2.1.2",
+      "indicator_title": "Examine the functions of specialised cells in Digital Literacy (DL),",
+      "subject": "Science",
+      "grade": "SHS1",
+      "approved_count": 0,
+      "target_count": 10,
+      "required_new_candidates": 10,
+      "difficulty_targets": {
+        "easy": 3,
+        "medium": 4,
+        "hard": 3
+      },
+      "type_mix": {
+        "TRUE_FALSE": 2,
+        "SINGLE_CHOICE": 8
+      },
+      "priority_reason": "Coverage gap; supported subject/grade; source objective retained; human alignment review required",
+      "cognitive_targets": {
+        "Understand": 3,
+        "Apply": 4,
+        "Analyze": 3
+      },
+      "jobs": [
+        {
+          "id": "WAVE1:e74982f6-8657-4e64-b49a-a66c16bb4803:0",
+          "status": "QUEUED_LOCAL_AWAITING_PROVIDER",
+          "spec": {
+            "indicatorId": "e74982f6-8657-4e64-b49a-a66c16bb4803",
+            "indicatorCode": "B10.1.2.1.2",
+            "indicatorTitle": "Examine the functions of specialised cells in Digital Literacy (DL),",
+            "curriculumId": "4af793c2-dffe-4571-93ac-2f130bdacdcc",
+            "educationLevel": "SHS",
+            "grade": "SHS1",
+            "subject": "Science",
+            "difficulty": "easy",
+            "cognitiveLevel": "Understand",
+            "answerType": "TRUE_FALSE",
+            "count": 1,
+            "language": "English",
+            "marks": 1,
+            "expectedSeconds": 60,
+            "provenance": {
+              "source": "EDITORIAL_WAVE_1"
+            }
+          }
+        },
+        {
+          "id": "WAVE1:e74982f6-8657-4e64-b49a-a66c16bb4803:1",
+          "status": "QUEUED_LOCAL_AWAITING_PROVIDER",
+          "spec": {
+            "indicatorId": "e74982f6-8657-4e64-b49a-a66c16bb4803",
+            "indicatorCode": "B10.1.2.1.2",
+            "indicatorTitle": "Examine the functions of specialised cells in Digital Literacy (DL),",
+            "curriculumId": "4af793c2-dffe-4571-93ac-2f130bdacdcc",
+            "educationLevel": "SHS",
+            "grade": "SHS1",
+            "subject": "Science",
+            "difficulty": "easy",
+            "cognitiveLevel": "Understand",
+            "answerType": "SINGLE_CHOICE",
+            "count": 2,
+            "language": "English",
+            "marks": 1,
+            "expectedSeconds": 60,
+            "provenance": {
+              "source": "EDITORIAL_WAVE_1"
+            }
+          }
+        },
+        {
+          "id": "WAVE1:e74982f6-8657-4e64-b49a-a66c16bb4803:2",
+          "status": "QUEUED_LOCAL_AWAITING_PROVIDER",
+          "spec": {
+            "indicatorId": "e74982f6-8657-4e64-b49a-a66c16bb4803",
+            "indicatorCode": "B10.1.2.1.2",
+            "indicatorTitle": "Examine the functions of specialised cells in Digital Literacy (DL),",
+            "curriculumId": "4af793c2-dffe-4571-93ac-2f130bdacdcc",
+            "educationLevel": "SHS",
+            "grade": "SHS1",
+            "subject": "Science",
+            "difficulty": "medium",
+            "cognitiveLevel": "Apply",
+            "answerType": "TRUE_FALSE",
+            "count": 1,
+            "language": "English",
+            "marks": 1,
+            "expectedSeconds": 60,
+            "provenance": {
+              "source": "EDITORIAL_WAVE_1"
+            }
+          }
+        },
+        {
+          "id": "WAVE1:e74982f6-8657-4e64-b49a-a66c16bb4803:3",
+          "status": "QUEUED_LOCAL_AWAITING_PROVIDER",
+          "spec": {
+            "indicatorId": "e74982f6-8657-4e64-b49a-a66c16bb4803",
+            "indicatorCode": "B10.1.2.1.2",
+            "indicatorTitle": "Examine the functions of specialised cells in Digital Literacy (DL),",
+            "curriculumId": "4af793c2-dffe-4571-93ac-2f130bdacdcc",
+            "educationLevel": "SHS",
+            "grade": "SHS1",
+            "subject": "Science",
+            "difficulty": "medium",
+            "cognitiveLevel": "Apply",
+            "answerType": "SINGLE_CHOICE",
+            "count": 3,
+            "language": "English",
+            "marks": 1,
+            "expectedSeconds": 60,
+            "provenance": {
+              "source": "EDITORIAL_WAVE_1"
+            }
+          }
+        },
+        {
+          "id": "WAVE1:e74982f6-8657-4e64-b49a-a66c16bb4803:4",
+          "status": "QUEUED_LOCAL_AWAITING_PROVIDER",
+          "spec": {
+            "indicatorId": "e74982f6-8657-4e64-b49a-a66c16bb4803",
+            "indicatorCode": "B10.1.2.1.2",
+            "indicatorTitle": "Examine the functions of specialised cells in Digital Literacy (DL),",
+            "curriculumId": "4af793c2-dffe-4571-93ac-2f130bdacdcc",
+            "educationLevel": "SHS",
+            "grade": "SHS1",
+            "subject": "Science",
+            "difficulty": "hard",
+            "cognitiveLevel": "Analyze",
+            "answerType": "SINGLE_CHOICE",
+            "count": 3,
+            "language": "English",
+            "marks": 1,
+            "expectedSeconds": 60,
+            "provenance": {
+              "source": "EDITORIAL_WAVE_1"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "curriculum_node_id": "a689b846-a3ed-47d3-98b7-df3cd06fc08c",
+      "curriculum_id": "4af793c2-dffe-4571-93ac-2f130bdacdcc",
+      "indicator_code": "B10.1.2.1.3",
+      "indicator_title": "Examine the functions of specialised animal cells such",
+      "subject": "Science",
+      "grade": "SHS1",
+      "approved_count": 0,
+      "target_count": 10,
+      "required_new_candidates": 10,
+      "difficulty_targets": {
+        "easy": 3,
+        "medium": 4,
+        "hard": 3
+      },
+      "type_mix": {
+        "TRUE_FALSE": 2,
+        "SINGLE_CHOICE": 8
+      },
+      "priority_reason": "Coverage gap; supported subject/grade; source objective retained; human alignment review required",
+      "cognitive_targets": {
+        "Understand": 3,
+        "Apply": 4,
+        "Analyze": 3
+      },
+      "jobs": [
+        {
+          "id": "WAVE1:a689b846-a3ed-47d3-98b7-df3cd06fc08c:0",
+          "status": "QUEUED_LOCAL_AWAITING_PROVIDER",
+          "spec": {
+            "indicatorId": "a689b846-a3ed-47d3-98b7-df3cd06fc08c",
+            "indicatorCode": "B10.1.2.1.3",
+            "indicatorTitle": "Examine the functions of specialised animal cells such",
+            "curriculumId": "4af793c2-dffe-4571-93ac-2f130bdacdcc",
+            "educationLevel": "SHS",
+            "grade": "SHS1",
+            "subject": "Science",
+            "difficulty": "easy",
+            "cognitiveLevel": "Understand",
+            "answerType": "TRUE_FALSE",
+            "count": 1,
+            "language": "English",
+            "marks": 1,
+            "expectedSeconds": 60,
+            "provenance": {
+              "source": "EDITORIAL_WAVE_1"
+            }
+          }
+        },
+        {
+          "id": "WAVE1:a689b846-a3ed-47d3-98b7-df3cd06fc08c:1",
+          "status": "QUEUED_LOCAL_AWAITING_PROVIDER",
+          "spec": {
+            "indicatorId": "a689b846-a3ed-47d3-98b7-df3cd06fc08c",
+            "indicatorCode": "B10.1.2.1.3",
+            "indicatorTitle": "Examine the functions of specialised animal cells such",
+            "curriculumId": "4af793c2-dffe-4571-93ac-2f130bdacdcc",
+            "educationLevel": "SHS",
+            "grade": "SHS1",
+            "subject": "Science",
+            "difficulty": "easy",
+            "cognitiveLevel": "Understand",
+            "answerType": "SINGLE_CHOICE",
+            "count": 2,
+            "language": "English",
+            "marks": 1,
+            "expectedSeconds": 60,
+            "provenance": {
+              "source": "EDITORIAL_WAVE_1"
+            }
+          }
+        },
+        {
+          "id": "WAVE1:a689b846-a3ed-47d3-98b7-df3cd06fc08c:2",
+          "status": "QUEUED_LOCAL_AWAITING_PROVIDER",
+          "spec": {
+            "indicatorId": "a689b846-a3ed-47d3-98b7-df3cd06fc08c",
+            "indicatorCode": "B10.1.2.1.3",
+            "indicatorTitle": "Examine the functions of specialised animal cells such",
+            "curriculumId": "4af793c2-dffe-4571-93ac-2f130bdacdcc",
+            "educationLevel": "SHS",
+            "grade": "SHS1",
+            "subject": "Science",
+            "difficulty": "medium",
+            "cognitiveLevel": "Apply",
+            "answerType": "TRUE_FALSE",
+            "count": 1,
+            "language": "English",
+            "marks": 1,
+            "expectedSeconds": 60,
+            "provenance": {
+              "source": "EDITORIAL_WAVE_1"
+            }
+          }
+        },
+        {
+          "id": "WAVE1:a689b846-a3ed-47d3-98b7-df3cd06fc08c:3",
+          "status": "QUEUED_LOCAL_AWAITING_PROVIDER",
+          "spec": {
+            "indicatorId": "a689b846-a3ed-47d3-98b7-df3cd06fc08c",
+            "indicatorCode": "B10.1.2.1.3",
+            "indicatorTitle": "Examine the functions of specialised animal cells such",
+            "curriculumId": "4af793c2-dffe-4571-93ac-2f130bdacdcc",
+            "educationLevel": "SHS",
+            "grade": "SHS1",
+            "subject": "Science",
+            "difficulty": "medium",
+            "cognitiveLevel": "Apply",
+            "answerType": "SINGLE_CHOICE",
+            "count": 3,
+            "language": "English",
+            "marks": 1,
+            "expectedSeconds": 60,
+            "provenance": {
+              "source": "EDITORIAL_WAVE_1"
+            }
+          }
+        },
+        {
+          "id": "WAVE1:a689b846-a3ed-47d3-98b7-df3cd06fc08c:4",
+          "status": "QUEUED_LOCAL_AWAITING_PROVIDER",
+          "spec": {
+            "indicatorId": "a689b846-a3ed-47d3-98b7-df3cd06fc08c",
+            "indicatorCode": "B10.1.2.1.3",
+            "indicatorTitle": "Examine the functions of specialised animal cells such",
+            "curriculumId": "4af793c2-dffe-4571-93ac-2f130bdacdcc",
+            "educationLevel": "SHS",
+            "grade": "SHS1",
+            "subject": "Science",
+            "difficulty": "hard",
+            "cognitiveLevel": "Analyze",
+            "answerType": "SINGLE_CHOICE",
+            "count": 3,
+            "language": "English",
+            "marks": 1,
+            "expectedSeconds": 60,
+            "provenance": {
+              "source": "EDITORIAL_WAVE_1"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

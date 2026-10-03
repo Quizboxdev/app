@@ -12,8 +12,9 @@ export function fixtureMutationAllowed(env: Record<string,string|undefined>, arg
 }
 
 export function sanitizedFailure(operation: string, code: unknown) {
-  const allowed = ["ATTEMPT_COMPLETION", "ATTEMPT_START", "CLASS_JOIN", "GENERATION", "IMPORT", "REVIEW"];
+  const allowed = ["ATTEMPT_COMPLETION", "ATTEMPT_START", "CLASS_JOIN", "GENERATION", "IMPORT", "REVIEW", "EXTRACTION", "SME_REVIEW", "PUBLICATION", "RESULT_PERSISTENCE", "ONBOARDING"];
   if (!allowed.includes(operation)) throw new Error("INVALID_OPERATION");
   const value = String(code);
-  return { operation, code: ["QB_RATE_LIMITED", "QB_PERMISSION_DENIED", "AUTH_REQUIRED", "ATTEMPT_EXPIRED", "INVALID_CLASS_CODE"].includes(value) ? value : "OPERATION_FAILED" };
+  // Only canonical upper-case codes survive; free text (which could carry secrets or answers) is dropped.
+  return { operation, code: /^[A-Z][A-Z0-9_]{2,60}$/.test(value) ? value : "OPERATION_FAILED" };
 }

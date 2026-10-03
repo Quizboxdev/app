@@ -31,5 +31,8 @@ export async function POST(request: Request) {
       return Response.json({ error: "QB_MEDIA_ATTACH_FAILED", asset_id: id }, { status: 409 });
     }
     return Response.json({ asset_id: id, question_id: questionId, review_required: true });
-  } catch { return Response.json({ error: "QB_INVALID_MEDIA" }, { status: 400 }); }
+  } catch (failure) {
+    const code=failure instanceof Error && ["QB_INVALID_MEDIA","QB_MEDIA_UPLOAD_FAILED","QB_MEDIA_METADATA_FAILED"].includes(failure.message)?failure.message:"QB_INVALID_MEDIA";
+    return Response.json({ error: code }, { status: 400 });
+  }
 }

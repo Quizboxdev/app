@@ -1,0 +1,78 @@
+{
+  "at": "2026-10-03T13:44:09.317Z",
+  "production_ref": "fmgccmqxfjppqydkhaiu",
+  "mutates_production": false,
+  "pass": true,
+  "checks": [
+    {
+      "id": "migrations.naming",
+      "pass": true,
+      "detail": "54 migration files"
+    },
+    {
+      "id": "migrations.unique_versions",
+      "pass": true,
+      "detail": "All versions unique"
+    },
+    {
+      "id": "migrations.no_bom",
+      "pass": true,
+      "detail": "No byte-order marks"
+    },
+    {
+      "id": "migrations.activation_set_present",
+      "pass": true,
+      "detail": "24 activation migrations present"
+    },
+    {
+      "id": "docs.activation_order_lists_all",
+      "pass": true,
+      "detail": "Checklist lists every activation migration"
+    },
+    {
+      "id": "target.production_identified",
+      "pass": true,
+      "detail": "Production ref fmgccmqxfjppqydkhaiu named in activation docs"
+    },
+    {
+      "id": "target.local_gate_blocks_production",
+      "pass": true,
+      "detail": "Sponsor engine gate hard-blocks the production ref"
+    },
+    {
+      "id": "env.required_present",
+      "pass": true,
+      "detail": "Present: NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY"
+    },
+    {
+      "id": "env.example_documents_required",
+      "pass": true,
+      "detail": ".env.example documents required variables"
+    },
+    {
+      "id": "validation.status_pass",
+      "pass": true,
+      "detail": "All steps passed at 2026-10-03T13:44:07.777Z"
+    },
+    {
+      "id": "validation.status_current",
+      "pass": true,
+      "detail": "Validation newer than all migrations"
+    },
+    {
+      "id": "docs.present",
+      "pass": true,
+      "detail": "6 activation documents present"
+    },
+    {
+      "id": "data.no_fixture_in_migrations",
+      "pass": true,
+      "detail": "No test-market, fixture or branch markers in migrations"
+    },
+    {
+      "id": "data.no_tracked_env_files",
+      "pass": true,
+      "detail": "No environment files tracked by git"
+    }
+  ]
+}

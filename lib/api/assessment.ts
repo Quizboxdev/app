@@ -26,14 +26,25 @@ export async function startAttempt(args: {
   classId?: string | null;
 }) {
   const supabase = getSupabaseBrowserClient();
+  let assignmentId = args.assignmentId ?? null, classId = args.classId ?? null;
+  // Assignment-backed assessments must be started with their assignment and class; the
+  // server verifies the pair. Resolve them when the caller (e.g. the assessments list) has neither.
+  if (!classId) {
+    let query = supabase.from("assignments").select("id,class_id").eq("status", "published").limit(2);
+    query = assignmentId ? query.eq("id", assignmentId) : query.eq("assessment_id", args.assessmentId);
+    const { data: rows, error: lookupError } = await query;
+    if (lookupError) throw new Error(userFacingError(lookupError));
+    if (rows?.length === 1) { assignmentId = rows[0].id; classId = rows[0].class_id; }
+  }
 
   const { data, error } = await supabase.rpc("qb_start_attempt", {
     p_assessment_id: args.assessmentId,
-    p_assignment_id: args.assignmentId ?? null,
-    p_class_id: args.classId ?? null,
+    p_assignment_id: assignmentId,
+    p_class_id: classId,
     p_client_session_id: crypto.randomUUID(),
   });
 
+  if (error) await recordFailure("ATTEMPT_START", error).catch(() => undefined);
   return unwrapRpc<any>(data, error);
 }
 

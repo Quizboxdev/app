@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, usePathname, useRouter } from "next/navigation";
 import QuestionRenderer from "@/components/QuestionRenderer";
 import AnswerInput, { AnswerState } from "@/components/AnswerInput";
 import {
@@ -16,6 +16,8 @@ import { canRevealPracticeFeedback, type PracticeFeedback } from "@/lib/learning
 
 export default function AttemptPage() {
   const params = useParams<{ id: string }>();
+  const pathname = usePathname();
+  const resultPath = `${pathname.startsWith('/competition/attempt/') ? '/competition' : '/student'}/results/${params.id}`;
   const router = useRouter();
   const [attempt, setAttempt] = useState<AttemptPayload | null>(null);
   const [answers, setAnswers] = useState<Record<string, AnswerState>>({});
@@ -61,10 +63,10 @@ export default function AttemptPage() {
     if (attempt && seconds === 0 && !submitting.current) {
       submitting.current = true;
       submitAttempt(params.id, "time_expired")
-        .then(() => router.replace(`/student/results/${params.id}`))
+        .then(() => router.replace(resultPath))
         .catch((e) => { submitting.current = false; setError(e.message); });
     }
-  }, [attempt, seconds, params.id, router]);
+  }, [attempt, seconds, params.id, router, resultPath]);
 
   const question = attempt?.questions[index];
   const questionId = question?.question_id;
@@ -115,7 +117,7 @@ export default function AttemptPage() {
     try {
       await pendingSave.current;
       await submitAttempt(params.id);
-      router.replace(`/student/results/${params.id}`);
+      router.replace(resultPath);
     } catch (e: any) {
       submitting.current = false;
       setError(e.message);

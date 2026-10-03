@@ -5,9 +5,10 @@
 Local domain implementation, authenticated PostgreSQL adapter tests and gated
 organization/draft/upload UI. No paid provider calls, hosted
 database writes, production deployment or sponsor privileges changed.
-The existing Ghana sponsor dashboard, competitions and assessment RPCs are unchanged.
-This is not a release candidate: review/publication/delivery adapters and several
-workflow integrations remain unfinished. Do not deploy it as a completed engine.
+The sixth migration extends existing question, assessment and SME tables additively
+and wraps (never weakens) the market and attempt-review predicates.
+This is not a release candidate: browser acceptance, background scheduling and the
+hosted gates remain unfinished. Do not deploy it as a completed engine.
 
 ## Migration order
 
@@ -19,6 +20,12 @@ explicit staging authorization and verified isolated restore, apply only:
 3. `20261002220000_sponsor_competition_lifecycle.sql`
 4. `20261002230000_sponsor_authenticated_workflows.sql`
 5. `20261002240000_sponsor_candidate_review_bridge.sql`
+6. `20261002250000_sponsor_source_delivery.sql`
+7. `20261002260000_legacy_node_attribution.sql` (legacy Ghana questions attributed through their governed node)
+8. `20261002270000_competition_review_operations.sql` (content-admin assignment queue, source excerpt, participant labels)
+9. `20261002280000_hot_path_performance.sql` (hot-path indexes, RLS initplan, teacher indicator summary)
+
+Full production procedure: `docs/production-activation-checklist.md`.
 
 The third migration adds a private schema only. No existing question, sponsor,
 competition, profile or assessment records are changed. It prepares organizations,
@@ -100,34 +107,40 @@ source approval, context, completed reviews, exact approved question-version
 identity and target count; it rejects stale versions. Bank exclusion is persisted.
 Difficulty/topic-balanced publication and an oversight UI are still unfinished.
 
-**Persisted Demo Knowledge Challenge is FAIL at candidate materialization.**
-Its generated sponsor-document question has no national curriculum-node mapping.
-`assign_candidate` therefore returns `CANDIDATE_QUESTION_MAPPING_REQUIRED` rather
-than creating a fabricated national node. An isolated test using the actual market
-guard confirms that inserting a source-only question under a valid sponsor-document
-context returns `QB_CURRICULUM_OUTSIDE_CONTENT_CONTEXT`. Existing editorial validation
-also requires an indicator. The generation contract does not supply that identity.
-A source-only bridge into the established public question/version/assessment
-contracts is still required; no guard was weakened to mask this gap.
+## Source-only delivery (sixth migration)
 
-The isolated SME-ledger adapter test supplies an explicitly labeled dependency
-fixture for public questions/versions and validation. It proves review/earning/bank
-transactions, including unresolved compensation and idempotency, but **does not**
-prove the full demo E2E or combined market/editorial delivery. Snapshot creation,
-publication, registration, official attempt/results, leaderboard and analytics
-remain unconnected to those persisted candidates. The existing immutable schema
-and pure domain contracts are not reported as completion of those integrations.
+The sixth migration closes the former candidate-materialization FAIL without
+fabricating curriculum nodes. Questions gain `content_origin`
+(`CURRICULUM`, `SPONSOR_DOCUMENT`, `HYBRID`), `origin_candidate_id` and
+`origin_metadata`; a null grade is allowed only for sponsor-origin rows. The
+original curriculum predicates (`question_allowed`, `question_guard`,
+`qb_content_validation_errors`, `assessment_allowed`, `qb_get_attempt_review`) are
+copied to private names and still govern every curriculum row unchanged. Sponsor
+rows instead require verified provenance (approved, rights-confirmed source, exact
+job/draft context, completed SME review event). The curriculum-only insert guard is
+not relaxed; curriculum-aligned candidates still need a real authorized node.
 
-Pending: full wizard browser acceptance, background execution scheduling,
-document-candidate materialization and combined-foundation SME authorization,
-bank balancing, assessment snapshot adapter,
-discovery/registration, aggregate analytics and Super Admin UI. Sponsor-source
-questions without curriculum nodes need an explicit, reviewed bridge into the
-existing question/assessment authorization contract; do not fabricate curriculum
-nodes or weaken `question_allowed` to force them through. The central document-owned
-resolver now uses active membership for managed sponsor organizations, including
-revocation of the original uploader; unmanaged sponsors keep legacy behavior.
-This change still needs a full combined-foundation integration rehearsal before
+SME assignments/events may now reference a candidate directly. Review revisions,
+version-pinned earnings, balanced bank inclusion, immutable snapshot, publication,
+eligibility/registration, invitations, frozen delivery through the existing attempt
+engine, immutable official results, leaderboard, sponsor analytics and Super Admin
+oversight are persisted in private RLS-enabled tables with no browser grants. A
+restrictive `sponsor_answer_isolation` policy hides sponsor questions from anyone
+who is not a member, assigned reviewer or registered participant. Pages:
+`/competition/participate`, `/competition/attempt/[id]`, `/competition/results/[attemptId]`,
+`/review` (candidate reviews) and `/admin/competitions/oversight`.
+
+Evidence: `lib/competition/source-delivery.test.ts` runs the whole chain over the
+isolated assessment, governance and SME SQL fixtures (PGlite), including second
+participant ranking, XP/learning-event idempotency and negative tenant checks.
+These are fixtures, not hosted acceptance.
+
+Pending: browser acceptance (`tsx scripts/sponsor-browser-fixture.ts --local-only`
+against the in-memory fixture), background execution scheduling, aggregate analytics
+beyond a single competition, and participant display names on the leaderboard.
+The central document-owned resolver uses active membership for managed sponsor
+organizations, including revocation of the original uploader; unmanaged sponsors
+keep legacy behavior. This change still needs a full combined-foundation integration rehearsal before
 curriculum/hybrid generation can be certified for non-owner members. This is unfinished local work,
 not a requirement to activate staging now.
 No compensation rate/currency is inferred. No live payments are in scope.
@@ -146,6 +159,12 @@ Reverse the fourth migration first using `supabase/rollback/sponsor_authenticate
 then the third migration. Both refuse populated workflow data. Restoring populated
 data requires an independently verified isolated backup/restore procedure, not a
 destructive cascade. Existing Ghana tables and approved content are never rewritten.
+
+When the sixth migration is present, reverse it first using
+`supabase/rollback/sponsor_source_delivery.sql`. It restores the preserved original
+predicates in place, the review-bridge dispatcher and the earlier grants. Its empty
+reversal and reapplication are tested; it refuses once registrations, invitations,
+results, sponsor-origin questions/assessments or candidate SME work exist.
 
 When the fifth migration is present, reverse it BEFORE the fourth using
 `supabase/rollback/sponsor_candidate_review_bridge.sql`. Its empty reversal is tested;

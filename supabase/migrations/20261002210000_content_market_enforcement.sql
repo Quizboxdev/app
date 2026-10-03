@@ -457,7 +457,7 @@ begin
     when f.proname='qb_publish_assignment' then 'perform quizbox_market.assert_nodes(p_curriculum_node_ids); if not exists(select 1 from public.classes c where c.id=p_class_id and quizbox_market.curriculum_allowed(c.curriculum_id) and not exists(select 1 from public.curriculum_nodes n where n.id=any(p_curriculum_node_ids) and n.curriculum_id<>c.curriculum_id)) then raise exception ''QB_CURRICULUM_OUTSIDE_CONTENT_CONTEXT'' using errcode=''42501''; end if;'
     when f.proname='qb_start_attempt' then 'if not quizbox_market.assessment_allowed(p_assessment_id) then raise exception ''QB_CONTENT_SOURCE_DENIED'' using errcode=''42501''; end if;'
     when f.proname in ('qb_sme_assign_review','qb_sme_publish_question') then 'perform quizbox_market.assert_question(p_question);'
-    else 'if not exists(select 1 from public.sme_review_assignments w where w.id=p_assignment and quizbox_market.question_allowed(w.question_id)) then raise exception ''QB_CONTENT_SOURCE_DENIED'' using errcode=''42501''; end if;'
+    else 'if not exists(select 1 from public.sme_review_assignments ra where ra.id=p_assignment and quizbox_market.question_allowed(ra.question_id)) then raise exception ''QB_CONTENT_SOURCE_DENIED'' using errcode=''42501''; end if;'
    end;
    if body !~* '(^|[\n\r])[ \t]*begin\M' then raise exception 'QB_MARKET_RPC_BODY_CHANGED: %',f.proname; end if;
    body:=regexp_replace(body,'(^|[\n\r])[ \t]*begin\M',E'\\1begin '||gate,'i');

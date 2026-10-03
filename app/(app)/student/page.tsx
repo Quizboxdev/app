@@ -1,5 +1,6 @@
 "use client";
 
+import HomeSections from "@/components/HomeSections";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -38,6 +39,7 @@ export default function StudentDashboardPage() {
           Start assessment
         </Link>
       </div>
+      <HomeSections/>
 
       <div className="qb-grid cols-4">
         <StatCard value={data.xp?.total_xp ?? 0} label={`XP · Level ${data.xp?.level ?? 1}`} />

@@ -1,5 +1,6 @@
 "use client";
 
+import HomeSections from "@/components/HomeSections";
 import { useEffect, useState } from "react";
 import { bootstrapUser } from "@/lib/auth";
 import CompetitionContentScope from "@/components/CompetitionContentScope";
@@ -35,6 +36,7 @@ export default function SponsorPage() {
           <p>Sponsorship and competition impact workspace.</p>
         </div>
       </div>
+      <HomeSections/>
 
       <CompetitionContentScope/>
       <div className="qb-list">
