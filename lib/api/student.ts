@@ -101,3 +101,17 @@ export async function getStudentXp() {
   if (error) throw new Error(userFacingError(error));
   return Array.isArray(data) ? data[0] ?? null : data;
 }
+
+export async function getStudentCompetitionAnalytics(studentId: string) {
+  const supabase = getSupabaseBrowserClient();
+  const { data, error } = await supabase.rpc("qb_student_competition_analytics", { p_student_id: studentId });
+  if (error) throw new Error(userFacingError(error));
+  return data;
+}
+
+export async function getStudentAchievements(studentId: string) {
+  const supabase = getSupabaseBrowserClient();
+  const { data, error } = await supabase.rpc("qb_student_achievements", { p_student_id: studentId });
+  if (error) throw new Error(userFacingError(error));
+  return data ?? [];
+}

@@ -1,7 +1,9 @@
 "use client";
+import WorkflowStepper, { type WorkflowStep } from "@/components/WorkflowStepper";
 import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import { factory, factoryOptions, importQuestions, runCampaignJobs, type Allocation, type Campaign, type CampaignDetail, type FactoryOptions } from "@/lib/api/factory";
 import { parseImport, precheckRows, type ImportRow } from "@/lib/content/factory/import";
+import { factorySources } from "@/lib/api/sources";
 
 type Ops = { totals: Record<string, number>; by_subject: Array<Record<string, any>>; by_level: Array<Record<string, any>>; by_market: Array<Record<string, any>>; indicators: Array<Record<string, any>>; sources: Array<Record<string, any>> };
 const DIFFICULTY = ["easy", "medium", "hard"], COGNITIVE = ["Recall", "Understanding", "Application", "Higher-order"], TYPES = ["SINGLE_CHOICE", "TRUE_FALSE"];
@@ -26,14 +28,17 @@ export default function ContentFactoryPage() {
   useEffect(() => { if (form.curriculum_id) factoryOptions(form.curriculum_id).then((o) => setOptions((prev) => prev ? { ...prev, scope: o.scope } : o)).catch(() => undefined); }, [form.curriculum_id]);
 
   const curricula = useMemo(() => (options?.curricula ?? []).filter((c) => c.market_id === form.market_id), [options, form.market_id]);
-  const sources = useMemo(() => (options?.sources ?? []).filter((s) => s.market_id === form.market_id && s.curriculum_id === form.curriculum_id), [options, form.market_id, form.curriculum_id]);
+  // Country/market -> curriculum -> level -> subject -> approved sources of that market only (server-filtered).
+  const [marketSources, setMarketSources] = useState<Array<{ id: string; title: string; level: string | null; subject: string | null }>>([]);
+  useEffect(() => { if (!form.market_id || !form.curriculum_id) { setMarketSources([]); return; } factorySources(form.market_id, form.curriculum_id).then(setMarketSources).catch(() => setMarketSources([])); }, [form.market_id, form.curriculum_id]);
+  const sources = useMemo(() => marketSources.filter((s) => !s.subject || !form.subjects.length || form.subjects.includes(s.subject)), [marketSources, form.subjects]);
   const scope = options?.scope ?? [];
   const uniq = (key: "subject" | "grade" | "level") => [...new Set(scope.map((s) => s[key]).filter(Boolean))].sort();
   const toggle = (key: "sources" | "subjects" | "grades" | "levels", value: string) => setForm((f) => ({ ...f, [key]: f[key].includes(value) ? f[key].filter((v) => v !== value) : [...f[key], value] }));
   const sum = (m: Record<string, number>) => Object.values(m).reduce((s, v) => s + Number(v || 0), 0);
 
-  async function create(event: FormEvent) {
-    event.preventDefault();
+  async function create(event?: FormEvent) {
+    if (event) event.preventDefault();
     await act(async () => {
       const created = await factory<Campaign>("create", { name: form.name, market_id: form.market_id, curriculum_id: form.curriculum_id, target_question_count: Number(form.target), batch_size: Number(form.batch), provider: form.provider, model: form.model,
         source_scope: { source_document_ids: form.sources, subject_codes: form.subjects, grade_codes: form.grades, education_levels: form.levels, node_codes: form.nodeCodes.split(/[\s,]+/).filter(Boolean), weighting: form.weighting },
@@ -68,40 +73,126 @@ export default function ContentFactoryPage() {
         {!campaigns.length && <p className="qb-muted">No campaigns yet.</p>}</div>
     </section>
 
-    <details className="qb-card"><summary><strong>New generation campaign</strong></summary>
-      <form className="qb-form" onSubmit={create}>
-        <label>Campaign name<input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required minLength={3} maxLength={160}/></label>
-        <div className="qb-content-filters">
-          <label>Market<select value={form.market_id} onChange={(e) => setForm({ ...form, market_id: e.target.value, curriculum_id: "", sources: [] })} required><option value="">Select market</option>{options?.markets.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}</select></label>
-          <label>Curriculum<select value={form.curriculum_id} onChange={(e) => setForm({ ...form, curriculum_id: e.target.value, sources: [], subjects: [], grades: [], levels: [] })} required><option value="">Select active curriculum</option>{curricula.map((c) => <option key={c.id} value={c.id}>{c.code} ({c.authority})</option>)}</select></label>
-          <label>Topic weighting<select value={form.weighting} onChange={(e) => setForm({ ...form, weighting: e.target.value })}><option value="equal">Equal per indicator</option><option value="coverage_gap">Favour indicators with less content</option></select></label>
-        </div>
-        <fieldset><legend>Approved curriculum sources ({form.market_id && form.curriculum_id ? sources.length : 0} available)</legend>
-          {sources.map((s) => <label key={s.id}><input type="checkbox" checked={form.sources.includes(s.id)} onChange={() => toggle("sources", s.id)}/>{s.title}</label>)}
-          {form.curriculum_id && !sources.length && <p className="qb-muted">No approved curriculum source for this curriculum. Approve one in Market Setup first.</p>}</fieldset>
-        {(["levels", "grades", "subjects"] as const).map((key) => <fieldset key={key}><legend>{key === "levels" ? "Education levels" : key === "grades" ? "Grades" : "Subjects"} (none selected = all)</legend>
-          {uniq(key === "levels" ? "level" : key === "grades" ? "grade" : "subject").map((v) => <label key={v}><input type="checkbox" checked={form[key].includes(v)} onChange={() => toggle(key, v)}/>{v}</label>)}</fieldset>)}
-        <label>Restrict to strand / topic / indicator codes (optional, comma-separated)<input value={form.nodeCodes} onChange={(e) => setForm({ ...form, nodeCodes: e.target.value })} placeholder="e.g. B7.1.1.1.1, B7.1.2"/></label>
-        <div className="qb-content-filters">
-          <label>Target questions<input type="number" min={1} max={1000000} value={form.target} onChange={(e) => setForm({ ...form, target: Number(e.target.value) })} required/></label>
-          <label>Batch size (per job)<input type="number" min={1} max={100} value={form.batch} onChange={(e) => setForm({ ...form, batch: Number(e.target.value) })} required/></label>
-          <label>Generation provider<input value={form.provider} onChange={(e) => setForm({ ...form, provider: e.target.value })} required/></label>
-          <label>Generation model<input value={form.model} onChange={(e) => setForm({ ...form, model: e.target.value })} required/></label>
-        </div>
-        {([["difficulty", DIFFICULTY, "Difficulty mix (%)"], ["cognitive", COGNITIVE, "Cognitive-level mix (%)"], ["types", TYPES, "Question types (%)"]] as const).map(([key, labels, legend]) =>
-          <fieldset key={key}><legend>{legend}: total {sum(form[key])}%</legend><div className="qb-content-filters">{labels.map((l) =>
-            <label key={l}>{l}<input type="number" min={0} max={100} value={form[key][l] ?? 0} onChange={(e) => setForm({ ...form, [key]: { ...form[key], [l]: Number(e.target.value) } })}/></label>)}</div></fieldset>)}
-        <fieldset><legend>Review policy and safety limits</legend><div className="qb-content-filters">
-          <label><input type="checkbox" checked={form.senior} onChange={(e) => setForm({ ...form, senior: e.target.checked })}/>Require independent senior review</label>
-          <label>Campaign priority<input type="number" min={1} max={1000} value={form.priority} onChange={(e) => setForm({ ...form, priority: Number(e.target.value) })}/></label>
-          <label>Max jobs per execution<input type="number" min={1} max={10} value={form.maxJobs} onChange={(e) => setForm({ ...form, maxJobs: Number(e.target.value) })}/></label>
-          <label>Retry limit<input type="number" min={0} max={5} value={form.retry} onChange={(e) => setForm({ ...form, retry: Number(e.target.value) })}/></label>
-          <label>Pause after consecutive failures<input type="number" min={1} max={100} value={form.pauseAfter} onChange={(e) => setForm({ ...form, pauseAfter: Number(e.target.value) })}/></label>
-          <label>Large-campaign confirmation from<input type="number" min={1} value={form.largeThreshold} onChange={(e) => setForm({ ...form, largeThreshold: Number(e.target.value) })}/></label>
-        </div></fieldset>
-        <button className="qb-btn" disabled={busy || !form.sources.length}>Create draft campaign</button>
-      </form>
-    </details>
+    <section className="qb-card" style={{ marginBottom: '24px' }}>
+      <details open={!detail}><summary><strong>New Generation Campaign Wizard</strong></summary>
+      <div style={{ marginTop: '16px' }}>
+      <WorkflowStepper 
+        onComplete={create}
+        onCancel={() => setForm(blank)}
+        steps={[
+          {
+            id: "scope",
+            title: "Scope",
+            description: "Define the market, curriculum, and educational targets.",
+            isValid: Boolean(form.name && form.market_id && form.curriculum_id),
+            content: (
+              <div className="qb-form">
+                <label>Campaign name<input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required minLength={3} maxLength={160}/></label>
+                <div className="qb-content-filters">
+                  <label>Market<select value={form.market_id} onChange={(e) => setForm({ ...form, market_id: e.target.value, curriculum_id: "", sources: [] })} required><option value="">Select market</option>{options?.markets.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}</select></label>
+                  <label>Curriculum<select value={form.curriculum_id} onChange={(e) => setForm({ ...form, curriculum_id: e.target.value, sources: [], subjects: [], grades: [], levels: [] })} required><option value="">Select active curriculum</option>{curricula.map((c) => <option key={c.id} value={c.id}>{c.code} ({c.authority})</option>)}</select></label>
+                  <label>Topic weighting<select value={form.weighting} onChange={(e) => setForm({ ...form, weighting: e.target.value })}><option value="equal">Equal per indicator</option><option value="coverage_gap">Favour indicators with less content</option></select></label>
+                </div>
+                {(["levels", "grades", "subjects"] as const).map((key) => <fieldset key={key}><legend>{key === "levels" ? "Education levels" : key === "grades" ? "Grades" : "Subjects"} (none selected = all)</legend>
+                  {uniq(key === "levels" ? "level" : key === "grades" ? "grade" : "subject").map((v) => <label key={v}><input type="checkbox" checked={form[key].includes(v)} onChange={() => toggle(key, v)}/>{v}</label>)}</fieldset>)}
+                <label>Restrict to strand / topic / indicator codes (optional, comma-separated)<input value={form.nodeCodes} onChange={(e) => setForm({ ...form, nodeCodes: e.target.value })} placeholder="e.g. B7.1.1.1.1, B7.1.2"/></label>
+              </div>
+            )
+          },
+          {
+            id: "sources",
+            title: "Sources",
+            description: "Select the approved curriculum documents for generation.",
+            isValid: form.sources.length > 0,
+            content: (
+              <div className="qb-form">
+                <fieldset><legend>Approved curriculum sources ({form.market_id && form.curriculum_id ? sources.length : 0} available)</legend>
+                  {sources.map((s) => <label key={s.id}><input type="checkbox" checked={form.sources.includes(s.id)} onChange={() => toggle("sources", s.id)}/>{s.title}{s.level || s.subject ? ` (${[s.level, s.subject].filter(Boolean).join(" · ")})` : ""}</label>)}
+                  {form.curriculum_id && !sources.length && <p className="qb-warning">No active curriculum source for this selection. Import and activate one first.</p>}
+                  {!form.curriculum_id && <p className="qb-muted">Select a curriculum in the Scope step to view sources.</p>}
+                </fieldset>
+              </div>
+            )
+          },
+          {
+            id: "distribution",
+            title: "Distribution",
+            description: "Set target counts and question characteristic mixes.",
+            isValid: form.target > 0 && form.batch > 0 && sum(form.difficulty) === 100 && sum(form.cognitive) === 100 && sum(form.types) === 100,
+            content: (
+              <div className="qb-form">
+                <div className="qb-content-filters">
+                  <label>Target questions<input type="number" min={1} max={1000000} value={form.target} onChange={(e) => setForm({ ...form, target: Number(e.target.value) })} required/></label>
+                  <label>Batch size (per job)<input type="number" min={1} max={100} value={form.batch} onChange={(e) => setForm({ ...form, batch: Number(e.target.value) })} required/></label>
+                </div>
+                {([["difficulty", DIFFICULTY, "Difficulty mix (%)"], ["cognitive", COGNITIVE, "Cognitive-level mix (%)"], ["types", TYPES, "Question types (%)"]] as const).map(([key, labels, legend]) =>
+                  <fieldset key={key}><legend style={{ color: sum(form[key]) !== 100 ? "var(--qb-danger)" : "inherit" }}>{legend}: total {sum(form[key])}% (must equal 100%)</legend>
+                  <div className="qb-content-filters">{labels.map((l) =>
+                    <label key={l}>{l}<input type="number" min={0} max={100} value={form[key][l] ?? 0} onChange={(e) => setForm({ ...form, [key]: { ...form[key], [l]: Number(e.target.value) } })}/></label>)}
+                  </div></fieldset>)}
+              </div>
+            )
+          },
+          {
+            id: "generation",
+            title: "Generation",
+            description: "Configure AI models and failure thresholds.",
+            isValid: Boolean(form.provider && form.model),
+            content: (
+              <div className="qb-form">
+                <div className="qb-content-filters">
+                  <label>Generation provider<input value={form.provider} onChange={(e) => setForm({ ...form, provider: e.target.value })} required/></label>
+                  <label>Generation model<input value={form.model} onChange={(e) => setForm({ ...form, model: e.target.value })} required/></label>
+                  <label>Max jobs per execution<input type="number" min={1} max={10} value={form.maxJobs} onChange={(e) => setForm({ ...form, maxJobs: Number(e.target.value) })}/></label>
+                  <label>Retry limit<input type="number" min={0} max={5} value={form.retry} onChange={(e) => setForm({ ...form, retry: Number(e.target.value) })}/></label>
+                  <label>Pause after consecutive failures<input type="number" min={1} max={100} value={form.pauseAfter} onChange={(e) => setForm({ ...form, pauseAfter: Number(e.target.value) })}/></label>
+                  <label>Large-campaign confirmation from<input type="number" min={1} value={form.largeThreshold} onChange={(e) => setForm({ ...form, largeThreshold: Number(e.target.value) })}/></label>
+                </div>
+              </div>
+            )
+          },
+          {
+            id: "sme",
+            title: "SME Review",
+            description: "Define the human-in-the-loop review policy.",
+            isValid: true,
+            content: (
+              <div className="qb-form">
+                <fieldset><legend>Review policy and workforce settings</legend><div className="qb-content-filters">
+                  <label><input type="checkbox" checked={form.senior} onChange={(e) => setForm({ ...form, senior: e.target.checked })}/>Require independent senior review</label>
+                  <label>Campaign priority (1-1000)<input type="number" min={1} max={1000} value={form.priority} onChange={(e) => setForm({ ...form, priority: Number(e.target.value) })}/></label>
+                </div></fieldset>
+              </div>
+            )
+          },
+          {
+            id: "review",
+            title: "Review & Launch",
+            description: "Verify the configuration before generating the draft.",
+            isValid: form.sources.length > 0 && form.target > 0,
+            content: (
+              <div className="qb-form">
+                <div className="qb-card" style={{ backgroundColor: "var(--qb-surface-muted)", border: "1px solid var(--qb-primary-light)" }}>
+                  <h3 style={{ margin: "0 0 16px 0", color: "var(--qb-primary)" }}>Campaign Summary</h3>
+                  <dl className="qb-stat-list">
+                    <div><dt>Name</dt><dd>{form.name || "Unnamed"}</dd></div>
+                    <div><dt>Target</dt><dd>{form.target} questions</dd></div>
+                    <div><dt>Sources</dt><dd>{form.sources.length} documents</dd></div>
+                    <div><dt>Model</dt><dd>{form.provider} / {form.model}</dd></div>
+                    <div><dt>SME Review</dt><dd>{form.senior ? "Standard + Senior" : "Standard only"}</dd></div>
+                  </dl>
+                  <p className="qb-warning" style={{ marginTop: "16px" }}>
+                    Launching this will create a Draft Campaign. You will generate a distribution plan before any generation begins.
+                  </p>
+                </div>
+              </div>
+            )
+          }
+        ]} 
+      />
+      </div>
+      </details>
+    </section>
 
     {detail && <>
       <section className="qb-card"><h2>{detail.name}</h2>

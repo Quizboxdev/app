@@ -38,3 +38,27 @@ export async function getCompetitionFundingSummary(competitionId: string) {
   );
   return ensure<any>(data, error);
 }
+
+export async function getSponsorParticipationFunnel(sponsorId: string) {
+  const supabase = getSupabaseBrowserClient();
+  const { data, error } = await supabase.rpc("qb_sponsor_participation_funnel", { p_sponsor_id: sponsorId });
+  return ensure<any>(data, error);
+}
+
+export async function getSponsorScoreDistribution(sponsorId: string) {
+  const supabase = getSupabaseBrowserClient();
+  const { data, error } = await supabase.rpc("qb_sponsor_score_distribution", { p_sponsor_id: sponsorId });
+  return ensure<any>(data, error);
+}
+
+export async function getSponsorDemographics(sponsorId: string) {
+  const supabase = getSupabaseBrowserClient();
+  const { data, error } = await supabase.rpc("qb_sponsor_demographics", { p_sponsor_id: sponsorId });
+  return ensure<any>(data, error);
+}
+
+export async function getSponsorQuestionPerformance(sponsorId: string) {
+  const supabase = getSupabaseBrowserClient();
+  const { data, error } = await supabase.rpc("qb_sponsor_question_performance", { p_sponsor_id: sponsorId });
+  return ensure<any>(data, error);
+}

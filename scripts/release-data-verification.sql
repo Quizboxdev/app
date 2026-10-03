@@ -22,6 +22,8 @@ select * from (
   'No Content Factory campaigns using the branch mock provider'
  union all select 'factory.no_branch_test_config', not exists(select 1 from public.source_documents where title ilike '[BRANCH TEST]%') and not exists(select 1 from public.compensation_policies where name ilike '[BRANCH TEST]%'),
   'No branch-test source documents or compensation policies'
+ union all select 'sources.no_fixture_packages', case when to_regclass('quizbox_sources.packages') is null then true else (xpath('/row/n/text()',query_to_xml($q$select count(*) n from quizbox_sources.packages where name ilike '%branch test%' or notes::text ilike '%BRANCH TEST FIXTURE%'$q$,false,true,'')))[1]::text::int=0 end,
+  'No branch-test source packages'
  union all select 'competitions.no_demo_published', not exists(select 1 from public.competitions where status='PUBLISHED' and title ~* '(demo|challenge 2|multi-market challenge|global challenge)'),
   'No branch demo competitions are published'
 ) checks order by pass, check_id;

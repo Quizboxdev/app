@@ -11,7 +11,21 @@ export default function HomeSections({ only }: { only?: string[] }) {
   const load = useCallback(async () => { setBusy(true); setError(""); try { setHome(await getHome()); } catch (cause) { setError((cause as Error).message); } finally { setBusy(false); } }, []);
   useEffect(() => { void load(); }, [load]);
   const locale = resolveLocale([home?.locale]);
-  if (busy && !home) return <p className="qb-muted" role="status">{t("home.loading", locale)}</p>;
+  if (busy && !home) return (
+    <div className="qb-home" aria-busy="true">
+      <div className="qb-page-head">
+        <div style={{ width: "120px", height: "24px", background: "var(--qb-surface-muted)", borderRadius: "4px" }} />
+      </div>
+      <div className="qb-home-grid">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="qb-card" style={{ minHeight: "150px", background: "var(--qb-surface)", display: "flex", flexDirection: "column", gap: "12px" }}>
+            <div style={{ width: "40%", height: "20px", background: "var(--qb-surface-muted)", borderRadius: "4px" }} />
+            <div style={{ width: "100%", height: "60px", background: "var(--qb-surface-muted)", borderRadius: "8px" }} />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
   if (error && !home) return <div className="qb-card qb-error" role="alert">{t("home.error", locale)} {error} <button className="qb-btn secondary" onClick={() => void load()}>{t("common.retry", locale)}</button></div>;
   const sections = (home?.sections ?? []).filter((s) => !only || only.includes(s.key));
   return <div className="qb-home" aria-busy={busy}>

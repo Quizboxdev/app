@@ -23,7 +23,7 @@ add("migrations.no_bom", bom.length === 0, bom.length ? `BOM in: ${bom.join(", "
 const checklist = existsSync(path.join(root, "docs/production-activation-checklist.md")) ? read("docs/production-activation-checklist.md") : "";
 const expected = ["20261002200000", "20261002210000", "20261002220000", "20261002230000", "20261002240000", "20261002250000", "20261002260000", "20261002270000", "20261002280000",
   "20261003100000", "20261003110000", "20261003120000", "20261003130000", "20261003140000", "20261003150000", "20261003160000", "20261003170000", "20261003180000", "20261003190000", "20261003200000",
-  "20261004100000", "20261004110000", "20261004120000", "20261005100000"];
+  "20261004100000", "20261004110000", "20261004120000", "20261005100000", "20261006100000"];
 const missing = expected.filter((v) => !versions.includes(v));
 add("migrations.activation_set_present", missing.length === 0, missing.length ? `Missing: ${missing.join(", ")}` : `${expected.length} activation migrations present`);
 const undocumented = expected.filter((v) => !checklist.includes(v.slice(8)) && !checklist.includes(v));

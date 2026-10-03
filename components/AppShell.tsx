@@ -83,7 +83,7 @@ export default function AppShell({
     const role = String(ctx.role).toUpperCase();
     const extra: NavItem[] = [];
     if (sme?.reviewer || sme?.content_admin || sme?.super_admin) extra.push(["/review", "SME Reviews"]);
-    if (sme?.super_admin) extra.push(["/admin/markets", "Markets"], ["/admin/reviewers", "SME Reviewers"], ["/admin/compensation", "Compensation"]);
+    if (sme?.super_admin) extra.push(["/admin/markets", "Markets"], ["/admin/curriculum-sources", "Curriculum Sources"], ["/admin/reviewers", "SME Reviewers"], ["/admin/compensation", "Compensation"]);
     if (sme?.super_admin || sme?.finance_admin) extra.push(["/admin/sme-performance", "SME Performance"], ["/admin/payouts", "Payouts"]);
     if (["ADMIN", "OWNER"].includes(role) && (sme?.super_admin || sme?.content_admin)) extra.push(["/admin/content-factory", "Content Factory"], ["/admin/sme-workforce", "SME Workforce"]);
     const withSeller = (items: NavItem[]): NavItem[] =>

@@ -47,7 +47,7 @@ export default function MarketSetup() {
     </section>}
     <section><h2>Markets</h2><div className="qb-table-wrap"><table className="qb-table"><thead><tr><th>Market</th><th>Country</th><th>Currency / locale</th><th>Status</th><th>Readiness</th><th>Actions</th></tr></thead><tbody>
       {markets.map((m) => <tr key={m.id}><td>{m.name}{m.is_test && " (test, hidden from signup)"}</td><td>{m.country} ({m.country_code})</td><td>{m.currency} · {m.locale} · {m.timezone}</td><td>{m.status}</td>
-        <td>{m.readiness.ready ? "Ready" : m.readiness.blockers.map((b) => <div key={b}><small>{b.replaceAll("_", " ")}</small></div>)}<small>SME coverage: {m.readiness.sme_coverage}</small></td>
+        <td>{m.readiness.ready ? "Ready" : m.readiness.blockers.map((b) => <div key={b}><small>{b.replaceAll("_", " ")}</small></div>)}<small>SME coverage: {m.readiness.sme_coverage}</small>{m.readiness.sources && <div><small>Sources: {m.readiness.sources.active} active / {m.readiness.sources.pending} pending · <a href="/admin/curriculum-sources">Curriculum sources</a></small></div>}</td>
         <td className="qb-content-filters"><button disabled={busy} onClick={() => edit(m)}>Edit</button>{NEXT[m.status].map((s) => <button key={s} disabled={busy} onClick={() => void perform(async () => { const r = await marketAdmin<{ changed: boolean; blockers: string[] }>("set_status", { market_id: m.id, status: s }); if (!r.changed) throw new Error(`Not ready: ${r.blockers.join(", ")}`); }, `Status changed to ${s}.`)}>Move to {s}</button>)}</td></tr>)}
     </tbody></table></div></section>
     <section><h2>{form.id ? "Edit market" : "New market"}</h2><form className="qb-content-filters" onSubmit={saveMarket}>

@@ -1,8 +1,8 @@
 {
   "summary": {
-    "generatedAt": "2026-10-02T08:32:51.685Z",
+    "generatedAt": "2026-10-03T17:23:17.909Z",
     "sourceRoot": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum",
-    "totalSourceFiles": 96,
+    "totalSourceFiles": 99,
     "curricula": [
       "Ghana Common Core Programme",
       "Ghana Source Curriculum"
@@ -40,11 +40,11 @@
       "TWI"
     ],
     "normalizedCurriculumNodes": 2722,
-    "questionRecordsDiscovered": 82,
+    "questionRecordsDiscovered": 129,
     "validQuestions": 0,
     "warnings": 8,
-    "rejected": 74,
-    "duplicates": 0,
+    "rejected": 121,
+    "duplicates": 46,
     "successfullyPrepared": 8,
     "parseErrors": 0
   },
@@ -368,6 +368,1881 @@
       ],
       "fingerprint": "bf0dde3c2bfee98e3f29fd50089d8876f42aeaf0bb99dedef0d43a2c3790dfd7",
       "classification": "warning"
+    },
+    {
+      "question": {
+        "externalSourceId": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1:1",
+        "sourceFile": "curriculum_sources.xlsx",
+        "sourceHash": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1",
+        "grade": "B13",
+        "sourceGradeCode": "B13",
+        "canonicalGradeCode": "B13",
+        "subject": "Official CCP Index",
+        "questionType": "unknown",
+        "questionText": "",
+        "options": [],
+        "source": "curriculum_sources.xlsx",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "EMPTY_QUESTION",
+          "message": "Question text is empty."
+        },
+        {
+          "severity": "warning",
+          "code": "UNKNOWN_TYPE",
+          "message": "Question type needs review."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        }
+      ],
+      "fingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1:2",
+        "sourceFile": "curriculum_sources.xlsx",
+        "sourceHash": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1",
+        "grade": "B13",
+        "sourceGradeCode": "B13",
+        "canonicalGradeCode": "B13",
+        "subject": "English Language",
+        "questionType": "unknown",
+        "questionText": "",
+        "options": [],
+        "source": "curriculum_sources.xlsx",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "EMPTY_QUESTION",
+          "message": "Question text is empty."
+        },
+        {
+          "severity": "warning",
+          "code": "UNKNOWN_TYPE",
+          "message": "Question type needs review."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        },
+        {
+          "severity": "rejected",
+          "code": "DUPLICATE_QUESTION",
+          "message": "Normalized question text is duplicated."
+        }
+      ],
+      "fingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1:3",
+        "sourceFile": "curriculum_sources.xlsx",
+        "sourceHash": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1",
+        "grade": "B13",
+        "sourceGradeCode": "B13",
+        "canonicalGradeCode": "B13",
+        "subject": "Mathematics",
+        "questionType": "unknown",
+        "questionText": "",
+        "options": [],
+        "source": "curriculum_sources.xlsx",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "EMPTY_QUESTION",
+          "message": "Question text is empty."
+        },
+        {
+          "severity": "warning",
+          "code": "UNKNOWN_TYPE",
+          "message": "Question type needs review."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        },
+        {
+          "severity": "rejected",
+          "code": "DUPLICATE_QUESTION",
+          "message": "Normalized question text is duplicated."
+        }
+      ],
+      "fingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1:4",
+        "sourceFile": "curriculum_sources.xlsx",
+        "sourceHash": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1",
+        "grade": "B13",
+        "sourceGradeCode": "B13",
+        "canonicalGradeCode": "B13",
+        "subject": "Science",
+        "questionType": "unknown",
+        "questionText": "",
+        "options": [],
+        "source": "curriculum_sources.xlsx",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "EMPTY_QUESTION",
+          "message": "Question text is empty."
+        },
+        {
+          "severity": "warning",
+          "code": "UNKNOWN_TYPE",
+          "message": "Question type needs review."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        },
+        {
+          "severity": "rejected",
+          "code": "DUPLICATE_QUESTION",
+          "message": "Normalized question text is duplicated."
+        }
+      ],
+      "fingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1:5",
+        "sourceFile": "curriculum_sources.xlsx",
+        "sourceHash": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1",
+        "grade": "B13",
+        "sourceGradeCode": "B13",
+        "canonicalGradeCode": "B13",
+        "subject": "Computing",
+        "questionType": "unknown",
+        "questionText": "",
+        "options": [],
+        "source": "curriculum_sources.xlsx",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "EMPTY_QUESTION",
+          "message": "Question text is empty."
+        },
+        {
+          "severity": "warning",
+          "code": "UNKNOWN_TYPE",
+          "message": "Question type needs review."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        },
+        {
+          "severity": "rejected",
+          "code": "DUPLICATE_QUESTION",
+          "message": "Normalized question text is duplicated."
+        }
+      ],
+      "fingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1:6",
+        "sourceFile": "curriculum_sources.xlsx",
+        "sourceHash": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1",
+        "grade": "B13",
+        "sourceGradeCode": "B13",
+        "canonicalGradeCode": "B13",
+        "subject": "Ghanaian Language",
+        "questionType": "unknown",
+        "questionText": "",
+        "options": [],
+        "source": "curriculum_sources.xlsx",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "EMPTY_QUESTION",
+          "message": "Question text is empty."
+        },
+        {
+          "severity": "warning",
+          "code": "UNKNOWN_TYPE",
+          "message": "Question type needs review."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        },
+        {
+          "severity": "rejected",
+          "code": "DUPLICATE_QUESTION",
+          "message": "Normalized question text is duplicated."
+        }
+      ],
+      "fingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1:7",
+        "sourceFile": "curriculum_sources.xlsx",
+        "sourceHash": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1",
+        "grade": "B13",
+        "sourceGradeCode": "B13",
+        "canonicalGradeCode": "B13",
+        "subject": "French",
+        "questionType": "unknown",
+        "questionText": "",
+        "options": [],
+        "source": "curriculum_sources.xlsx",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "EMPTY_QUESTION",
+          "message": "Question text is empty."
+        },
+        {
+          "severity": "warning",
+          "code": "UNKNOWN_TYPE",
+          "message": "Question type needs review."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        },
+        {
+          "severity": "rejected",
+          "code": "DUPLICATE_QUESTION",
+          "message": "Normalized question text is duplicated."
+        }
+      ],
+      "fingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1:8",
+        "sourceFile": "curriculum_sources.xlsx",
+        "sourceHash": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1",
+        "grade": "B13",
+        "sourceGradeCode": "B13",
+        "canonicalGradeCode": "B13",
+        "subject": "Career Technology",
+        "questionType": "unknown",
+        "questionText": "",
+        "options": [],
+        "source": "curriculum_sources.xlsx",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "EMPTY_QUESTION",
+          "message": "Question text is empty."
+        },
+        {
+          "severity": "warning",
+          "code": "UNKNOWN_TYPE",
+          "message": "Question type needs review."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        },
+        {
+          "severity": "rejected",
+          "code": "DUPLICATE_QUESTION",
+          "message": "Normalized question text is duplicated."
+        }
+      ],
+      "fingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1:9",
+        "sourceFile": "curriculum_sources.xlsx",
+        "sourceHash": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1",
+        "grade": "B13",
+        "sourceGradeCode": "B13",
+        "canonicalGradeCode": "B13",
+        "subject": "Religious And Moral Education",
+        "questionType": "unknown",
+        "questionText": "",
+        "options": [],
+        "source": "curriculum_sources.xlsx",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "EMPTY_QUESTION",
+          "message": "Question text is empty."
+        },
+        {
+          "severity": "warning",
+          "code": "UNKNOWN_TYPE",
+          "message": "Question type needs review."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        },
+        {
+          "severity": "rejected",
+          "code": "DUPLICATE_QUESTION",
+          "message": "Normalized question text is duplicated."
+        }
+      ],
+      "fingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1:10",
+        "sourceFile": "curriculum_sources.xlsx",
+        "sourceHash": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1",
+        "grade": "B13",
+        "sourceGradeCode": "B13",
+        "canonicalGradeCode": "B13",
+        "subject": "Physical Education And Health",
+        "questionType": "unknown",
+        "questionText": "",
+        "options": [],
+        "source": "curriculum_sources.xlsx",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "EMPTY_QUESTION",
+          "message": "Question text is empty."
+        },
+        {
+          "severity": "warning",
+          "code": "UNKNOWN_TYPE",
+          "message": "Question type needs review."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        },
+        {
+          "severity": "rejected",
+          "code": "DUPLICATE_QUESTION",
+          "message": "Normalized question text is duplicated."
+        }
+      ],
+      "fingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1:11",
+        "sourceFile": "curriculum_sources.xlsx",
+        "sourceHash": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1",
+        "grade": "B13",
+        "sourceGradeCode": "B13",
+        "canonicalGradeCode": "B13",
+        "subject": "Creative Arts And Design",
+        "questionType": "unknown",
+        "questionText": "",
+        "options": [],
+        "source": "curriculum_sources.xlsx",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "EMPTY_QUESTION",
+          "message": "Question text is empty."
+        },
+        {
+          "severity": "warning",
+          "code": "UNKNOWN_TYPE",
+          "message": "Question type needs review."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        },
+        {
+          "severity": "rejected",
+          "code": "DUPLICATE_QUESTION",
+          "message": "Normalized question text is duplicated."
+        }
+      ],
+      "fingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1:12",
+        "sourceFile": "curriculum_sources.xlsx",
+        "sourceHash": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1",
+        "grade": "B13",
+        "sourceGradeCode": "B13",
+        "canonicalGradeCode": "B13",
+        "subject": "Social Studies",
+        "questionType": "unknown",
+        "questionText": "",
+        "options": [],
+        "source": "curriculum_sources.xlsx",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "EMPTY_QUESTION",
+          "message": "Question text is empty."
+        },
+        {
+          "severity": "warning",
+          "code": "UNKNOWN_TYPE",
+          "message": "Question type needs review."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        },
+        {
+          "severity": "rejected",
+          "code": "DUPLICATE_QUESTION",
+          "message": "Normalized question text is duplicated."
+        }
+      ],
+      "fingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1:13",
+        "sourceFile": "curriculum_sources.xlsx",
+        "sourceHash": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1",
+        "grade": "B13",
+        "sourceGradeCode": "B13",
+        "canonicalGradeCode": "B13",
+        "subject": "Arabic",
+        "questionType": "unknown",
+        "questionText": "",
+        "options": [],
+        "source": "curriculum_sources.xlsx",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "EMPTY_QUESTION",
+          "message": "Question text is empty."
+        },
+        {
+          "severity": "warning",
+          "code": "UNKNOWN_TYPE",
+          "message": "Question type needs review."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        },
+        {
+          "severity": "rejected",
+          "code": "DUPLICATE_QUESTION",
+          "message": "Normalized question text is duplicated."
+        }
+      ],
+      "fingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1:14",
+        "sourceFile": "curriculum_sources.xlsx",
+        "sourceHash": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1",
+        "grade": "SHS (SECONDARY EDUCATION)",
+        "sourceGradeCode": "SHS (SECONDARY EDUCATION)",
+        "canonicalGradeCode": "SHS (SECONDARY EDUCATION)",
+        "subject": "Additional Mathematics",
+        "questionType": "unknown",
+        "questionText": "",
+        "options": [],
+        "source": "curriculum_sources.xlsx",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "EMPTY_QUESTION",
+          "message": "Question text is empty."
+        },
+        {
+          "severity": "warning",
+          "code": "UNKNOWN_TYPE",
+          "message": "Question type needs review."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        },
+        {
+          "severity": "rejected",
+          "code": "DUPLICATE_QUESTION",
+          "message": "Normalized question text is duplicated."
+        }
+      ],
+      "fingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1:15",
+        "sourceFile": "curriculum_sources.xlsx",
+        "sourceHash": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1",
+        "grade": "SHS (SECONDARY EDUCATION)",
+        "sourceGradeCode": "SHS (SECONDARY EDUCATION)",
+        "canonicalGradeCode": "SHS (SECONDARY EDUCATION)",
+        "subject": "Agricultural Science",
+        "questionType": "unknown",
+        "questionText": "",
+        "options": [],
+        "source": "curriculum_sources.xlsx",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "EMPTY_QUESTION",
+          "message": "Question text is empty."
+        },
+        {
+          "severity": "warning",
+          "code": "UNKNOWN_TYPE",
+          "message": "Question type needs review."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        },
+        {
+          "severity": "rejected",
+          "code": "DUPLICATE_QUESTION",
+          "message": "Normalized question text is duplicated."
+        }
+      ],
+      "fingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1:16",
+        "sourceFile": "curriculum_sources.xlsx",
+        "sourceHash": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1",
+        "grade": "SHS (SECONDARY EDUCATION)",
+        "sourceGradeCode": "SHS (SECONDARY EDUCATION)",
+        "canonicalGradeCode": "SHS (SECONDARY EDUCATION)",
+        "subject": "Agriculture",
+        "questionType": "unknown",
+        "questionText": "",
+        "options": [],
+        "source": "curriculum_sources.xlsx",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "EMPTY_QUESTION",
+          "message": "Question text is empty."
+        },
+        {
+          "severity": "warning",
+          "code": "UNKNOWN_TYPE",
+          "message": "Question type needs review."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        },
+        {
+          "severity": "rejected",
+          "code": "DUPLICATE_QUESTION",
+          "message": "Normalized question text is duplicated."
+        }
+      ],
+      "fingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1:17",
+        "sourceFile": "curriculum_sources.xlsx",
+        "sourceHash": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1",
+        "grade": "SHS (SECONDARY EDUCATION)",
+        "sourceGradeCode": "SHS (SECONDARY EDUCATION)",
+        "canonicalGradeCode": "SHS (SECONDARY EDUCATION)",
+        "subject": "Applied Technology",
+        "questionType": "unknown",
+        "questionText": "",
+        "options": [],
+        "source": "curriculum_sources.xlsx",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "EMPTY_QUESTION",
+          "message": "Question text is empty."
+        },
+        {
+          "severity": "warning",
+          "code": "UNKNOWN_TYPE",
+          "message": "Question type needs review."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        },
+        {
+          "severity": "rejected",
+          "code": "DUPLICATE_QUESTION",
+          "message": "Normalized question text is duplicated."
+        }
+      ],
+      "fingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1:18",
+        "sourceFile": "curriculum_sources.xlsx",
+        "sourceHash": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1",
+        "grade": "SHS (SECONDARY EDUCATION)",
+        "sourceGradeCode": "SHS (SECONDARY EDUCATION)",
+        "canonicalGradeCode": "SHS (SECONDARY EDUCATION)",
+        "subject": "Arabic",
+        "questionType": "unknown",
+        "questionText": "",
+        "options": [],
+        "source": "curriculum_sources.xlsx",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "EMPTY_QUESTION",
+          "message": "Question text is empty."
+        },
+        {
+          "severity": "warning",
+          "code": "UNKNOWN_TYPE",
+          "message": "Question type needs review."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        },
+        {
+          "severity": "rejected",
+          "code": "DUPLICATE_QUESTION",
+          "message": "Normalized question text is duplicated."
+        }
+      ],
+      "fingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1:19",
+        "sourceFile": "curriculum_sources.xlsx",
+        "sourceHash": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1",
+        "grade": "SHS (SECONDARY EDUCATION)",
+        "sourceGradeCode": "SHS (SECONDARY EDUCATION)",
+        "canonicalGradeCode": "SHS (SECONDARY EDUCATION)",
+        "subject": "Art And Design Foundation",
+        "questionType": "unknown",
+        "questionText": "",
+        "options": [],
+        "source": "curriculum_sources.xlsx",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "EMPTY_QUESTION",
+          "message": "Question text is empty."
+        },
+        {
+          "severity": "warning",
+          "code": "UNKNOWN_TYPE",
+          "message": "Question type needs review."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        },
+        {
+          "severity": "rejected",
+          "code": "DUPLICATE_QUESTION",
+          "message": "Normalized question text is duplicated."
+        }
+      ],
+      "fingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1:20",
+        "sourceFile": "curriculum_sources.xlsx",
+        "sourceHash": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1",
+        "grade": "SHS (SECONDARY EDUCATION)",
+        "sourceGradeCode": "SHS (SECONDARY EDUCATION)",
+        "canonicalGradeCode": "SHS (SECONDARY EDUCATION)",
+        "subject": "Art And Design Studio",
+        "questionType": "unknown",
+        "questionText": "",
+        "options": [],
+        "source": "curriculum_sources.xlsx",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "EMPTY_QUESTION",
+          "message": "Question text is empty."
+        },
+        {
+          "severity": "warning",
+          "code": "UNKNOWN_TYPE",
+          "message": "Question type needs review."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        },
+        {
+          "severity": "rejected",
+          "code": "DUPLICATE_QUESTION",
+          "message": "Normalized question text is duplicated."
+        }
+      ],
+      "fingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1:21",
+        "sourceFile": "curriculum_sources.xlsx",
+        "sourceHash": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1",
+        "grade": "SHS (SECONDARY EDUCATION)",
+        "sourceGradeCode": "SHS (SECONDARY EDUCATION)",
+        "canonicalGradeCode": "SHS (SECONDARY EDUCATION)",
+        "subject": "Aviation And Aerospace Engineering",
+        "questionType": "unknown",
+        "questionText": "",
+        "options": [],
+        "source": "curriculum_sources.xlsx",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "EMPTY_QUESTION",
+          "message": "Question text is empty."
+        },
+        {
+          "severity": "warning",
+          "code": "UNKNOWN_TYPE",
+          "message": "Question type needs review."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        },
+        {
+          "severity": "rejected",
+          "code": "DUPLICATE_QUESTION",
+          "message": "Normalized question text is duplicated."
+        }
+      ],
+      "fingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1:22",
+        "sourceFile": "curriculum_sources.xlsx",
+        "sourceHash": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1",
+        "grade": "SHS (SECONDARY EDUCATION)",
+        "sourceGradeCode": "SHS (SECONDARY EDUCATION)",
+        "canonicalGradeCode": "SHS (SECONDARY EDUCATION)",
+        "subject": "Biology",
+        "questionType": "unknown",
+        "questionText": "",
+        "options": [],
+        "source": "curriculum_sources.xlsx",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "EMPTY_QUESTION",
+          "message": "Question text is empty."
+        },
+        {
+          "severity": "warning",
+          "code": "UNKNOWN_TYPE",
+          "message": "Question type needs review."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        },
+        {
+          "severity": "rejected",
+          "code": "DUPLICATE_QUESTION",
+          "message": "Normalized question text is duplicated."
+        }
+      ],
+      "fingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1:23",
+        "sourceFile": "curriculum_sources.xlsx",
+        "sourceHash": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1",
+        "grade": "SHS (SECONDARY EDUCATION)",
+        "sourceGradeCode": "SHS (SECONDARY EDUCATION)",
+        "canonicalGradeCode": "SHS (SECONDARY EDUCATION)",
+        "subject": "Biomedical Science",
+        "questionType": "unknown",
+        "questionText": "",
+        "options": [],
+        "source": "curriculum_sources.xlsx",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "EMPTY_QUESTION",
+          "message": "Question text is empty."
+        },
+        {
+          "severity": "warning",
+          "code": "UNKNOWN_TYPE",
+          "message": "Question type needs review."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        },
+        {
+          "severity": "rejected",
+          "code": "DUPLICATE_QUESTION",
+          "message": "Normalized question text is duplicated."
+        }
+      ],
+      "fingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1:24",
+        "sourceFile": "curriculum_sources.xlsx",
+        "sourceHash": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1",
+        "grade": "SHS (SECONDARY EDUCATION)",
+        "sourceGradeCode": "SHS (SECONDARY EDUCATION)",
+        "canonicalGradeCode": "SHS (SECONDARY EDUCATION)",
+        "subject": "Chemistry",
+        "questionType": "unknown",
+        "questionText": "",
+        "options": [],
+        "source": "curriculum_sources.xlsx",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "EMPTY_QUESTION",
+          "message": "Question text is empty."
+        },
+        {
+          "severity": "warning",
+          "code": "UNKNOWN_TYPE",
+          "message": "Question type needs review."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        },
+        {
+          "severity": "rejected",
+          "code": "DUPLICATE_QUESTION",
+          "message": "Normalized question text is duplicated."
+        }
+      ],
+      "fingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1:25",
+        "sourceFile": "curriculum_sources.xlsx",
+        "sourceHash": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1",
+        "grade": "SHS (SECONDARY EDUCATION)",
+        "sourceGradeCode": "SHS (SECONDARY EDUCATION)",
+        "canonicalGradeCode": "SHS (SECONDARY EDUCATION)",
+        "subject": "Computing",
+        "questionType": "unknown",
+        "questionText": "",
+        "options": [],
+        "source": "curriculum_sources.xlsx",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "EMPTY_QUESTION",
+          "message": "Question text is empty."
+        },
+        {
+          "severity": "warning",
+          "code": "UNKNOWN_TYPE",
+          "message": "Question type needs review."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        },
+        {
+          "severity": "rejected",
+          "code": "DUPLICATE_QUESTION",
+          "message": "Normalized question text is duplicated."
+        }
+      ],
+      "fingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1:26",
+        "sourceFile": "curriculum_sources.xlsx",
+        "sourceHash": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1",
+        "grade": "SHS (SECONDARY EDUCATION)",
+        "sourceGradeCode": "SHS (SECONDARY EDUCATION)",
+        "canonicalGradeCode": "SHS (SECONDARY EDUCATION)",
+        "subject": "Design Communication Technology",
+        "questionType": "unknown",
+        "questionText": "",
+        "options": [],
+        "source": "curriculum_sources.xlsx",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "EMPTY_QUESTION",
+          "message": "Question text is empty."
+        },
+        {
+          "severity": "warning",
+          "code": "UNKNOWN_TYPE",
+          "message": "Question type needs review."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        },
+        {
+          "severity": "rejected",
+          "code": "DUPLICATE_QUESTION",
+          "message": "Normalized question text is duplicated."
+        }
+      ],
+      "fingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1:27",
+        "sourceFile": "curriculum_sources.xlsx",
+        "sourceHash": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1",
+        "grade": "SHS (SECONDARY EDUCATION)",
+        "sourceGradeCode": "SHS (SECONDARY EDUCATION)",
+        "canonicalGradeCode": "SHS (SECONDARY EDUCATION)",
+        "subject": "Economics",
+        "questionType": "unknown",
+        "questionText": "",
+        "options": [],
+        "source": "curriculum_sources.xlsx",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "EMPTY_QUESTION",
+          "message": "Question text is empty."
+        },
+        {
+          "severity": "warning",
+          "code": "UNKNOWN_TYPE",
+          "message": "Question type needs review."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        },
+        {
+          "severity": "rejected",
+          "code": "DUPLICATE_QUESTION",
+          "message": "Normalized question text is duplicated."
+        }
+      ],
+      "fingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1:28",
+        "sourceFile": "curriculum_sources.xlsx",
+        "sourceHash": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1",
+        "grade": "SHS (SECONDARY EDUCATION)",
+        "sourceGradeCode": "SHS (SECONDARY EDUCATION)",
+        "canonicalGradeCode": "SHS (SECONDARY EDUCATION)",
+        "subject": "Engineering",
+        "questionType": "unknown",
+        "questionText": "",
+        "options": [],
+        "source": "curriculum_sources.xlsx",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "EMPTY_QUESTION",
+          "message": "Question text is empty."
+        },
+        {
+          "severity": "warning",
+          "code": "UNKNOWN_TYPE",
+          "message": "Question type needs review."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        },
+        {
+          "severity": "rejected",
+          "code": "DUPLICATE_QUESTION",
+          "message": "Normalized question text is duplicated."
+        }
+      ],
+      "fingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1:29",
+        "sourceFile": "curriculum_sources.xlsx",
+        "sourceHash": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1",
+        "grade": "SHS (SECONDARY EDUCATION)",
+        "sourceGradeCode": "SHS (SECONDARY EDUCATION)",
+        "canonicalGradeCode": "SHS (SECONDARY EDUCATION)",
+        "subject": "English Language",
+        "questionType": "unknown",
+        "questionText": "",
+        "options": [],
+        "source": "curriculum_sources.xlsx",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "EMPTY_QUESTION",
+          "message": "Question text is empty."
+        },
+        {
+          "severity": "warning",
+          "code": "UNKNOWN_TYPE",
+          "message": "Question type needs review."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        },
+        {
+          "severity": "rejected",
+          "code": "DUPLICATE_QUESTION",
+          "message": "Normalized question text is duplicated."
+        }
+      ],
+      "fingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1:30",
+        "sourceFile": "curriculum_sources.xlsx",
+        "sourceHash": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1",
+        "grade": "SHS (SECONDARY EDUCATION)",
+        "sourceGradeCode": "SHS (SECONDARY EDUCATION)",
+        "canonicalGradeCode": "SHS (SECONDARY EDUCATION)",
+        "subject": "French",
+        "questionType": "unknown",
+        "questionText": "",
+        "options": [],
+        "source": "curriculum_sources.xlsx",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "EMPTY_QUESTION",
+          "message": "Question text is empty."
+        },
+        {
+          "severity": "warning",
+          "code": "UNKNOWN_TYPE",
+          "message": "Question type needs review."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        },
+        {
+          "severity": "rejected",
+          "code": "DUPLICATE_QUESTION",
+          "message": "Normalized question text is duplicated."
+        }
+      ],
+      "fingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1:31",
+        "sourceFile": "curriculum_sources.xlsx",
+        "sourceHash": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1",
+        "grade": "SHS (SECONDARY EDUCATION)",
+        "sourceGradeCode": "SHS (SECONDARY EDUCATION)",
+        "canonicalGradeCode": "SHS (SECONDARY EDUCATION)",
+        "subject": "General Science",
+        "questionType": "unknown",
+        "questionText": "",
+        "options": [],
+        "source": "curriculum_sources.xlsx",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "EMPTY_QUESTION",
+          "message": "Question text is empty."
+        },
+        {
+          "severity": "warning",
+          "code": "UNKNOWN_TYPE",
+          "message": "Question type needs review."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        },
+        {
+          "severity": "rejected",
+          "code": "DUPLICATE_QUESTION",
+          "message": "Normalized question text is duplicated."
+        }
+      ],
+      "fingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1:32",
+        "sourceFile": "curriculum_sources.xlsx",
+        "sourceHash": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1",
+        "grade": "SHS (SECONDARY EDUCATION)",
+        "sourceGradeCode": "SHS (SECONDARY EDUCATION)",
+        "canonicalGradeCode": "SHS (SECONDARY EDUCATION)",
+        "subject": "Government",
+        "questionType": "unknown",
+        "questionText": "",
+        "options": [],
+        "source": "curriculum_sources.xlsx",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "EMPTY_QUESTION",
+          "message": "Question text is empty."
+        },
+        {
+          "severity": "warning",
+          "code": "UNKNOWN_TYPE",
+          "message": "Question type needs review."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        },
+        {
+          "severity": "rejected",
+          "code": "DUPLICATE_QUESTION",
+          "message": "Normalized question text is duplicated."
+        }
+      ],
+      "fingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1:33",
+        "sourceFile": "curriculum_sources.xlsx",
+        "sourceHash": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1",
+        "grade": "SHS (SECONDARY EDUCATION)",
+        "sourceGradeCode": "SHS (SECONDARY EDUCATION)",
+        "canonicalGradeCode": "SHS (SECONDARY EDUCATION)",
+        "subject": "History",
+        "questionType": "unknown",
+        "questionText": "",
+        "options": [],
+        "source": "curriculum_sources.xlsx",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "EMPTY_QUESTION",
+          "message": "Question text is empty."
+        },
+        {
+          "severity": "warning",
+          "code": "UNKNOWN_TYPE",
+          "message": "Question type needs review."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        },
+        {
+          "severity": "rejected",
+          "code": "DUPLICATE_QUESTION",
+          "message": "Normalized question text is duplicated."
+        }
+      ],
+      "fingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1:34",
+        "sourceFile": "curriculum_sources.xlsx",
+        "sourceHash": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1",
+        "grade": "SHS (SECONDARY EDUCATION)",
+        "sourceGradeCode": "SHS (SECONDARY EDUCATION)",
+        "canonicalGradeCode": "SHS (SECONDARY EDUCATION)",
+        "subject": "Computing",
+        "questionType": "unknown",
+        "questionText": "",
+        "options": [],
+        "source": "curriculum_sources.xlsx",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "EMPTY_QUESTION",
+          "message": "Question text is empty."
+        },
+        {
+          "severity": "warning",
+          "code": "UNKNOWN_TYPE",
+          "message": "Question type needs review."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        },
+        {
+          "severity": "rejected",
+          "code": "DUPLICATE_QUESTION",
+          "message": "Normalized question text is duplicated."
+        }
+      ],
+      "fingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1:35",
+        "sourceFile": "curriculum_sources.xlsx",
+        "sourceHash": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1",
+        "grade": "SHS (SECONDARY EDUCATION)",
+        "sourceGradeCode": "SHS (SECONDARY EDUCATION)",
+        "canonicalGradeCode": "SHS (SECONDARY EDUCATION)",
+        "subject": "Literature In English",
+        "questionType": "unknown",
+        "questionText": "",
+        "options": [],
+        "source": "curriculum_sources.xlsx",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "EMPTY_QUESTION",
+          "message": "Question text is empty."
+        },
+        {
+          "severity": "warning",
+          "code": "UNKNOWN_TYPE",
+          "message": "Question type needs review."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        },
+        {
+          "severity": "rejected",
+          "code": "DUPLICATE_QUESTION",
+          "message": "Normalized question text is duplicated."
+        }
+      ],
+      "fingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1:36",
+        "sourceFile": "curriculum_sources.xlsx",
+        "sourceHash": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1",
+        "grade": "SHS (SECONDARY EDUCATION)",
+        "sourceGradeCode": "SHS (SECONDARY EDUCATION)",
+        "canonicalGradeCode": "SHS (SECONDARY EDUCATION)",
+        "subject": "Manufacturing Engineering",
+        "questionType": "unknown",
+        "questionText": "",
+        "options": [],
+        "source": "curriculum_sources.xlsx",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "EMPTY_QUESTION",
+          "message": "Question text is empty."
+        },
+        {
+          "severity": "warning",
+          "code": "UNKNOWN_TYPE",
+          "message": "Question type needs review."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        },
+        {
+          "severity": "rejected",
+          "code": "DUPLICATE_QUESTION",
+          "message": "Normalized question text is duplicated."
+        }
+      ],
+      "fingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1:37",
+        "sourceFile": "curriculum_sources.xlsx",
+        "sourceHash": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1",
+        "grade": "SHS (SECONDARY EDUCATION)",
+        "sourceGradeCode": "SHS (SECONDARY EDUCATION)",
+        "canonicalGradeCode": "SHS (SECONDARY EDUCATION)",
+        "subject": "Mathematics",
+        "questionType": "unknown",
+        "questionText": "",
+        "options": [],
+        "source": "curriculum_sources.xlsx",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "EMPTY_QUESTION",
+          "message": "Question text is empty."
+        },
+        {
+          "severity": "warning",
+          "code": "UNKNOWN_TYPE",
+          "message": "Question type needs review."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        },
+        {
+          "severity": "rejected",
+          "code": "DUPLICATE_QUESTION",
+          "message": "Normalized question text is duplicated."
+        }
+      ],
+      "fingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1:38",
+        "sourceFile": "curriculum_sources.xlsx",
+        "sourceHash": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1",
+        "grade": "SHS (SECONDARY EDUCATION)",
+        "sourceGradeCode": "SHS (SECONDARY EDUCATION)",
+        "canonicalGradeCode": "SHS (SECONDARY EDUCATION)",
+        "subject": "Performing Arts",
+        "questionType": "unknown",
+        "questionText": "",
+        "options": [],
+        "source": "curriculum_sources.xlsx",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "EMPTY_QUESTION",
+          "message": "Question text is empty."
+        },
+        {
+          "severity": "warning",
+          "code": "UNKNOWN_TYPE",
+          "message": "Question type needs review."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        },
+        {
+          "severity": "rejected",
+          "code": "DUPLICATE_QUESTION",
+          "message": "Normalized question text is duplicated."
+        }
+      ],
+      "fingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1:39",
+        "sourceFile": "curriculum_sources.xlsx",
+        "sourceHash": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1",
+        "grade": "SHS (SECONDARY EDUCATION)",
+        "sourceGradeCode": "SHS (SECONDARY EDUCATION)",
+        "canonicalGradeCode": "SHS (SECONDARY EDUCATION)",
+        "subject": "Physical Education & Health (Core)",
+        "questionType": "unknown",
+        "questionText": "",
+        "options": [],
+        "source": "curriculum_sources.xlsx",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "EMPTY_QUESTION",
+          "message": "Question text is empty."
+        },
+        {
+          "severity": "warning",
+          "code": "UNKNOWN_TYPE",
+          "message": "Question type needs review."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        },
+        {
+          "severity": "rejected",
+          "code": "DUPLICATE_QUESTION",
+          "message": "Normalized question text is duplicated."
+        }
+      ],
+      "fingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1:40",
+        "sourceFile": "curriculum_sources.xlsx",
+        "sourceHash": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1",
+        "grade": "SHS (SECONDARY EDUCATION)",
+        "sourceGradeCode": "SHS (SECONDARY EDUCATION)",
+        "canonicalGradeCode": "SHS (SECONDARY EDUCATION)",
+        "subject": "Physical Education & Health (Elective)",
+        "questionType": "unknown",
+        "questionText": "",
+        "options": [],
+        "source": "curriculum_sources.xlsx",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "EMPTY_QUESTION",
+          "message": "Question text is empty."
+        },
+        {
+          "severity": "warning",
+          "code": "UNKNOWN_TYPE",
+          "message": "Question type needs review."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        },
+        {
+          "severity": "rejected",
+          "code": "DUPLICATE_QUESTION",
+          "message": "Normalized question text is duplicated."
+        }
+      ],
+      "fingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1:41",
+        "sourceFile": "curriculum_sources.xlsx",
+        "sourceHash": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1",
+        "grade": "SHS (SECONDARY EDUCATION)",
+        "sourceGradeCode": "SHS (SECONDARY EDUCATION)",
+        "canonicalGradeCode": "SHS (SECONDARY EDUCATION)",
+        "subject": "Physics",
+        "questionType": "unknown",
+        "questionText": "",
+        "options": [],
+        "source": "curriculum_sources.xlsx",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "EMPTY_QUESTION",
+          "message": "Question text is empty."
+        },
+        {
+          "severity": "warning",
+          "code": "UNKNOWN_TYPE",
+          "message": "Question type needs review."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        },
+        {
+          "severity": "rejected",
+          "code": "DUPLICATE_QUESTION",
+          "message": "Normalized question text is duplicated."
+        }
+      ],
+      "fingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1:42",
+        "sourceFile": "curriculum_sources.xlsx",
+        "sourceHash": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1",
+        "grade": "SHS (SECONDARY EDUCATION)",
+        "sourceGradeCode": "SHS (SECONDARY EDUCATION)",
+        "canonicalGradeCode": "SHS (SECONDARY EDUCATION)",
+        "subject": "Religious And Moral Education",
+        "questionType": "unknown",
+        "questionText": "",
+        "options": [],
+        "source": "curriculum_sources.xlsx",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "EMPTY_QUESTION",
+          "message": "Question text is empty."
+        },
+        {
+          "severity": "warning",
+          "code": "UNKNOWN_TYPE",
+          "message": "Question type needs review."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        },
+        {
+          "severity": "rejected",
+          "code": "DUPLICATE_QUESTION",
+          "message": "Normalized question text is duplicated."
+        }
+      ],
+      "fingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1:43",
+        "sourceFile": "curriculum_sources.xlsx",
+        "sourceHash": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1",
+        "grade": "SHS (SECONDARY EDUCATION)",
+        "sourceGradeCode": "SHS (SECONDARY EDUCATION)",
+        "canonicalGradeCode": "SHS (SECONDARY EDUCATION)",
+        "subject": "Robotics",
+        "questionType": "unknown",
+        "questionText": "",
+        "options": [],
+        "source": "curriculum_sources.xlsx",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "EMPTY_QUESTION",
+          "message": "Question text is empty."
+        },
+        {
+          "severity": "warning",
+          "code": "UNKNOWN_TYPE",
+          "message": "Question type needs review."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        },
+        {
+          "severity": "rejected",
+          "code": "DUPLICATE_QUESTION",
+          "message": "Normalized question text is duplicated."
+        }
+      ],
+      "fingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1:44",
+        "sourceFile": "curriculum_sources.xlsx",
+        "sourceHash": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1",
+        "grade": "SHS (SECONDARY EDUCATION)",
+        "sourceGradeCode": "SHS (SECONDARY EDUCATION)",
+        "canonicalGradeCode": "SHS (SECONDARY EDUCATION)",
+        "subject": "Social Studies",
+        "questionType": "unknown",
+        "questionText": "",
+        "options": [],
+        "source": "curriculum_sources.xlsx",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "EMPTY_QUESTION",
+          "message": "Question text is empty."
+        },
+        {
+          "severity": "warning",
+          "code": "UNKNOWN_TYPE",
+          "message": "Question type needs review."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        },
+        {
+          "severity": "rejected",
+          "code": "DUPLICATE_QUESTION",
+          "message": "Normalized question text is duplicated."
+        }
+      ],
+      "fingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1:45",
+        "sourceFile": "curriculum_sources.xlsx",
+        "sourceHash": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1",
+        "grade": "SHS (SECONDARY EDUCATION)",
+        "sourceGradeCode": "SHS (SECONDARY EDUCATION)",
+        "canonicalGradeCode": "SHS (SECONDARY EDUCATION)",
+        "subject": "Spanish",
+        "questionType": "unknown",
+        "questionText": "",
+        "options": [],
+        "source": "curriculum_sources.xlsx",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "EMPTY_QUESTION",
+          "message": "Question text is empty."
+        },
+        {
+          "severity": "warning",
+          "code": "UNKNOWN_TYPE",
+          "message": "Question type needs review."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        },
+        {
+          "severity": "rejected",
+          "code": "DUPLICATE_QUESTION",
+          "message": "Normalized question text is duplicated."
+        }
+      ],
+      "fingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1:46",
+        "sourceFile": "curriculum_sources.xlsx",
+        "sourceHash": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1",
+        "grade": "SHS (SECONDARY EDUCATION)",
+        "sourceGradeCode": "SHS (SECONDARY EDUCATION)",
+        "canonicalGradeCode": "SHS (SECONDARY EDUCATION)",
+        "subject": "Geography",
+        "questionType": "unknown",
+        "questionText": "",
+        "options": [],
+        "source": "curriculum_sources.xlsx",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "EMPTY_QUESTION",
+          "message": "Question text is empty."
+        },
+        {
+          "severity": "warning",
+          "code": "UNKNOWN_TYPE",
+          "message": "Question type needs review."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        },
+        {
+          "severity": "rejected",
+          "code": "DUPLICATE_QUESTION",
+          "message": "Normalized question text is duplicated."
+        }
+      ],
+      "fingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "rejected"
+    },
+    {
+      "question": {
+        "externalSourceId": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1:47",
+        "sourceFile": "curriculum_sources.xlsx",
+        "sourceHash": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1",
+        "grade": "SHS (SECONDARY EDUCATION)",
+        "sourceGradeCode": "SHS (SECONDARY EDUCATION)",
+        "canonicalGradeCode": "SHS (SECONDARY EDUCATION)",
+        "subject": "Official SHS Index",
+        "questionType": "unknown",
+        "questionText": "",
+        "options": [],
+        "source": "curriculum_sources.xlsx",
+        "reviewStatus": "review"
+      },
+      "issues": [
+        {
+          "severity": "rejected",
+          "code": "EMPTY_QUESTION",
+          "message": "Question text is empty."
+        },
+        {
+          "severity": "warning",
+          "code": "UNKNOWN_TYPE",
+          "message": "Question type needs review."
+        },
+        {
+          "severity": "warning",
+          "code": "UNMAPPED_CURRICULUM",
+          "message": "No indicator or objective was mapped."
+        },
+        {
+          "severity": "rejected",
+          "code": "DUPLICATE_QUESTION",
+          "message": "Normalized question text is duplicated."
+        }
+      ],
+      "fingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "rejected"
     },
     {
       "question": {

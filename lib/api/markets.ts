@@ -13,7 +13,7 @@ export type Account = {
   pending_market_change: { id: string; to_market: string; created_at: string } | null;
 };
 export type MarketStatus = "DRAFT" | "CONFIGURING" | "READY" | "ACTIVE" | "SUSPENDED";
-export type Readiness = { market_id: string; status: MarketStatus; ready: boolean; blockers: string[]; sme_coverage: number };
+export type Readiness = { market_id: string; status: MarketStatus; ready: boolean; blockers: string[]; sme_coverage: number; sources?: { active: number; pending: number; registered: number; by_curriculum: Array<{ curriculum: string; active: number; pending: number }> } };
 export type MarketRow = { id: string; name: string; country: string; country_code: string; currency: string; timezone: string; locale: string; status: MarketStatus; is_test: boolean; configuration: Record<string, unknown>; readiness: Readiness };
 
 async function call<T>(name: string, args: Record<string, unknown> = {}): Promise<T> {

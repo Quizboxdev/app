@@ -1,8 +1,8 @@
 {
   "summary": {
-    "generatedAt": "2026-10-02T08:32:51.685Z",
+    "generatedAt": "2026-10-03T17:23:17.909Z",
     "sourceRoot": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum",
-    "totalSourceFiles": 96,
+    "totalSourceFiles": 99,
     "curricula": [
       "Ghana Common Core Programme",
       "Ghana Source Curriculum"
@@ -40,15 +40,25 @@
       "TWI"
     ],
     "normalizedCurriculumNodes": 2722,
-    "questionRecordsDiscovered": 82,
+    "questionRecordsDiscovered": 129,
     "validQuestions": 0,
     "warnings": 8,
-    "rejected": 74,
-    "duplicates": 0,
+    "rejected": 121,
+    "duplicates": 46,
     "successfullyPrepared": 8,
     "parseErrors": 0
   },
   "sources": [
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\~$curriculum_sources.xlsx",
+      "relativePath": "~$curriculum_sources.xlsx",
+      "extension": ".xlsx",
+      "bytes": 165,
+      "sha256": "916a7d6cd1f3b9744e6c409457fc1b482c6fa5355a657ba98d55a35f7af0952c",
+      "parseability": "supported",
+      "grades": [],
+      "contentType": "curriculum"
+    },
     {
       "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\2022-BECE-MATHS-SCHEME.pdf",
       "relativePath": "2022-BECE-MATHS-SCHEME.pdf",
@@ -655,6 +665,16 @@
       "contentType": "unknown"
     },
     {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\curriculum_sources.xlsx",
+      "relativePath": "curriculum_sources.xlsx",
+      "extension": ".xlsx",
+      "bytes": 12191,
+      "sha256": "c7d1436e65b81ab45047f31482d7e1da718eb10a1a654e798638eb9a09e067c1",
+      "parseability": "supported",
+      "grades": [],
+      "contentType": "curriculum"
+    },
+    {
       "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\Emaths-2019.pdf",
       "relativePath": "Emaths-2019.pdf",
       "extension": ".pdf",
@@ -828,6 +848,16 @@
       ],
       "educationLevel": "JHS / Common Core",
       "subject": "Science",
+      "contentType": "curriculum"
+    },
+    {
+      "absolutePath": "C:\\Users\\USER\\OneDrive\\Documents\\QuizBox\\Codes\\Curriculum\\Ghana_Secondary_Curriculum_Source_Pack_2026.zip",
+      "relativePath": "Ghana_Secondary_Curriculum_Source_Pack_2026.zip",
+      "extension": ".zip",
+      "bytes": 961994,
+      "sha256": "2802f2e5dab8deeb69385c816578f1ae8d0ef0209c24fda1d31dde8da4ba3354",
+      "parseability": "catalog-only",
+      "grades": [],
       "contentType": "curriculum"
     },
     {
