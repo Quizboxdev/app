@@ -2,6 +2,7 @@
 "use client";
 
 import { TeacherInsights } from "@/components/Insights";
+import { humanize, isUuid } from "@/lib/format";
 import HomeSections from "@/components/HomeSections";
 import { useEffect, useState } from "react";
 import StatCard from "@/components/StatCard";
@@ -52,40 +53,25 @@ export default function TeacherDashboardPage() {
   }, []);
 
   if (error) return <div className="qb-card qb-error">{error}</div>;
-  if (busy) return (
-    <div className="qb-home" aria-busy="true">
-      <div className="qb-page-head">
-        <div style={{ width: "120px", height: "24px", background: "var(--qb-surface-muted)", borderRadius: "4px" }} />
-      </div>
-      <div className="qb-home-grid">
-        {[1, 2, 3].map((i) => (
-          <div key={i} className="qb-card" style={{ minHeight: "150px", background: "var(--qb-surface)", display: "flex", flexDirection: "column", gap: "12px" }}>
-            <div style={{ width: "40%", height: "20px", background: "var(--qb-surface-muted)", borderRadius: "4px" }} />
-            <div style={{ width: "100%", height: "60px", background: "var(--qb-surface-muted)", borderRadius: "8px" }} />
-          </div>
-        ))}
-      </div>
-    </div>
-  );
+  if (busy) return <div className="qb-home-grid" aria-busy="true">{[1, 2, 3].map((i) => <div key={i} className="qb-card qb-skeleton" />)}</div>;
 
-  const colors = ["#167a45", "#0b5fff", "#f59e0b", "#b42318"];
+  const colors = ["var(--qb-success)", "var(--blue)", "var(--orange)", "var(--qb-danger)"];
 
   return (
     <>
       <div className="qb-page-head">
         <div>
-          <h1>Teacher Dashboard</h1>
+          <h1>Teacher dashboard</h1>
           <p>Monitor class proficiency, resolve weak indicators, and manage assessments.</p>
         </div>
       </div>
-      <HomeSections only={["summary","pending","submissions","weak","sme","earnings","qa"]}/>
-
-      <div className="qb-grid cols-4" style={{ marginBottom: "24px" }}>
+      <div className="qb-grid cols-4">
         <StatCard value={data.classes.length} label="Classes" />
         <StatCard value={data.assignments.length} label="Assignments" />
         <StatCard value={data.questionBanks.length} label="Question banks" />
         <StatCard value={data.gradebook.length} label="Gradebook records" />
       </div>
+      <HomeSections only={["summary","pending","submissions","weak","sme","earnings","qa"]}/>
 
       {drilldown && (
         <nav className="qb-actions" aria-label="Affected learner pages" style={{ marginBottom: "16px" }}>
@@ -134,8 +120,8 @@ export default function TeacherDashboardPage() {
             </div>
           </div>
         )) : (
-          <div className="qb-card qb-muted" style={{ gridColumn: "span 2", textAlign: "center", padding: "40px" }}>
-            Not enough data. No completed learner attempts yet.
+          <div className="qb-card qb-empty" style={{ gridColumn: "1 / -1" }}>
+            <strong>No class proficiency yet</strong>Class proficiency appears after learners complete an assessment.
           </div>
         )}
       </div>
@@ -248,7 +234,7 @@ export default function TeacherDashboardPage() {
               <div className="qb-row" key={row.id}>
                 <div className="qb-row-main">
                   <strong>{row.title ?? "Assignment"}</strong>
-                  <span>{row.subject_code ?? ""} · {row.status}</span>
+                  <span>{[isUuid(row.subject_code) ? null : row.subject_code, humanize(row.status)].filter(Boolean).join(" · ")}</span>
                 </div>
               </div>
             )) : (

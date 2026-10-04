@@ -1,6 +1,8 @@
 "use client";
 
 import { StudentInsights } from "@/components/Insights";
+import StatusBadge from "@/components/StatusBadge";
+import { formatDateTime, isUuid } from "@/lib/format";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { getMyResultsPage } from "@/lib/api/assessment";
@@ -43,22 +45,20 @@ export default function ResultsPage() {
               <th>Percentage</th>
               <th>Outcome</th>
               <th>Date</th>
-              <th></th>
+              <th><span className="qb-sr-only">Actions</span></th>
             </tr>
           </thead>
           <tbody>
             {rows.map((row) => (
               <tr key={row.id}>
-                <td>{row.subject_code ?? "Assessment"}</td>
+                <td>{!row.subject_code || isUuid(row.subject_code) ? "Assessment" : row.subject_code}</td>
                 <td>
                   {row.score}/{row.total_marks}
                 </td>
                 <td>{Math.round(Number(row.percentage ?? 0))}%</td>
-                <td>{row.passed ? "Passed" : "Not passed"}</td>
+                <td><StatusBadge status={row.passed ? "passed" : "pending"} tone={row.passed ? "success" : "warning"} label={row.passed ? "Passed" : "Not passed"} /></td>
                 <td>
-                  {row.submitted_at
-                    ? new Date(row.submitted_at).toLocaleString()
-                    : ""}
+                  {formatDateTime(row.submitted_at, "")}
                 </td>
                 <td>
                   <Link

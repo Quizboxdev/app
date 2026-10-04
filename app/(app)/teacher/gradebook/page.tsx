@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import StatusBadge from "@/components/StatusBadge";
+import { formatDateTime } from "@/lib/format";
 import Link from "next/link";
 import { bootstrapUser } from "@/lib/auth";
 import { listGradebook } from "@/lib/api/teacher";
@@ -53,7 +55,7 @@ export default function TeacherGradebookPage() {
               <th>Status</th>
               <th>Proficiency</th>
               <th>Graded</th>
-              <th>Detail</th>
+              <th><span className="qb-sr-only">Detail</span></th>
             </tr>
           </thead>
           <tbody>
@@ -64,12 +66,10 @@ export default function TeacherGradebookPage() {
                   {row.score}/{row.total_marks}
                 </td>
                 <td>{Math.round(Number(row.percentage ?? 0))}%</td>
-                <td>{row.status ?? ""}</td>
+                <td>{row.status ? <StatusBadge status={row.status} /> : null}</td>
                 <td>{classifyProficiency(Number(row.percentage ?? 0))}</td>
                 <td>
-                  {row.graded_at
-                    ? new Date(row.graded_at).toLocaleString()
-                    : ""}
+                  {formatDateTime(row.graded_at, "")}
                 </td>
                 <td><Link href={`/teacher/submissions/${row.attempt_id}`}>View</Link></td>
               </tr>

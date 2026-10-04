@@ -39,71 +39,37 @@ export default function WorkflowStepper({
   };
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "24px", width: "100%", maxWidth: "900px", margin: "0 auto" }}>
-      
-      {/* Stepper Header (Desktop & Tablet) */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", overflowX: "auto", paddingBottom: "8px" }}>
+    <div className="qb-stepper">
+      <ol className="qb-stepper-steps" aria-label="Progress">
         {steps.map((step, index) => {
-          const isCompleted = index < currentStepIndex;
-          const isActive = index === currentStepIndex;
-          
+          const state = index < currentStepIndex ? "done" : index === currentStepIndex ? "active" : "todo";
           return (
-            <div key={step.id} style={{ display: "flex", alignItems: "center", flex: 1 }}>
-              <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                  <div 
-                    style={{ 
-                      width: "28px", 
-                      height: "28px", 
-                      borderRadius: "50%", 
-                      backgroundColor: isCompleted ? "var(--qb-success)" : isActive ? "var(--qb-primary)" : "var(--qb-surface-muted)",
-                      color: isCompleted || isActive ? "#fff" : "var(--qb-text-secondary)",
-                      display: "flex", 
-                      alignItems: "center", 
-                      justifyContent: "center",
-                      fontSize: "0.875rem",
-                      fontWeight: 700
-                    }}
-                  >
-                    {isCompleted ? <Check size={16} /> : index + 1}
-                  </div>
-                  <span style={{ fontWeight: isActive ? 700 : 500, color: isActive || isCompleted ? "var(--qb-text-primary)" : "var(--qb-text-secondary)", fontSize: "0.875rem" }}>
-                    {step.title}
-                  </span>
-                </div>
-              </div>
-              {index !== steps.length - 1 && (
-                <div style={{ flex: 1, height: "2px", backgroundColor: isCompleted ? "var(--qb-success)" : "var(--qb-border)", margin: "0 16px" }} />
-              )}
-            </div>
+            <li key={step.id} className={`qb-step ${state}`} aria-current={state === "active" ? "step" : undefined}>
+              <span className="qb-step-dot" aria-hidden="true">{state === "done" ? <Check size={14} /> : index + 1}</span>
+              <span className="qb-step-title">{step.title}</span>
+            </li>
           );
         })}
-      </div>
+      </ol>
+      <p className="qb-stepper-count qb-muted qb-small">Step {currentStepIndex + 1} of {steps.length}</p>
 
-      {/* Main Content Area */}
-      <div className="qb-card" style={{ padding: "32px", minHeight: "400px", display: "flex", flexDirection: "column" }}>
-        <div style={{ marginBottom: "24px" }}>
-          <h2 style={{ fontSize: "1.5rem", margin: "0 0 8px 0" }}>{currentStep.title}</h2>
-          {currentStep.description && <p className="qb-muted" style={{ margin: 0 }}>{currentStep.description}</p>}
+      <div className="qb-card qb-stepper-body">
+        <div className="qb-stepper-head">
+          <h2>{currentStep.title}</h2>
+          {currentStep.description && <p className="qb-muted">{currentStep.description}</p>}
         </div>
-        
-        <div style={{ flex: 1 }}>
+
+        <div className="qb-stepper-content">
           {currentStep.content}
         </div>
-        
-        {/* Footer Navigation */}
-        <div style={{ display: "flex", justifyContent: "space-between", borderTop: "1px solid var(--qb-border)", paddingTop: "24px", marginTop: "24px" }}>
-          <button className="qb-btn ghost" onClick={handleBack}>
+
+        <div className="qb-stepper-foot">
+          <button type="button" className="qb-btn ghost" onClick={handleBack}>
             {isFirstStep ? "Cancel" : "Back"}
           </button>
-          <button 
-            className="qb-btn" 
-            onClick={handleNext} 
-            disabled={currentStep.isValid === false}
-            style={{ display: "flex", alignItems: "center", gap: "8px" }}
-          >
-            {isLastStep ? "Launch Campaign" : "Next Step"}
-            {!isLastStep && <ChevronRight size={16} />}
+          <button type="button" className="qb-btn" onClick={handleNext} disabled={currentStep.isValid === false}>
+            {isLastStep ? "Launch campaign" : "Next step"}
+            {!isLastStep && <ChevronRight size={16} aria-hidden="true" />}
           </button>
         </div>
       </div>

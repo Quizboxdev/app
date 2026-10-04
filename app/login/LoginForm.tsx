@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
@@ -98,6 +98,7 @@ export default function LoginForm({ initial }: { initial: RegistrationParams }) 
     <div className="qb-auth">
       <div className="qb-auth-card">
         <BrandLockup variant="responsive" href="/" size={40} priority />
+        <h1 className="qb-auth-title">{mode === "register" ? "Create your QuizBox account" : "Sign in to QuizBox"}</h1>
         <p className="qb-muted">Learn. Practice. Compete.</p>
         {mode === "register" && smeIntent && <p className="qb-muted qb-small">After you create your teacher account, you can apply to review content as a subject-matter expert during setup. Applications require approval.</p>}
 

@@ -23,14 +23,20 @@ export default function MarketContextControl() {
     catch (cause) { setError(userFacingError(cause)); setBusy(false); }
   };
   // Only users authorized for more than one market get a switcher; everyone else sees their market.
-  if (markets.length <= 1 && context?.scope !== "MULTI_MARKET" && context?.scope !== "GLOBAL") return <div style={{ display: "flex", alignItems: "center", gap: 6 }}><Globe size={16}/><span aria-label="Content market">{markets[0]?.name ?? ""}</span>{error && <span className="qb-error qb-small" role="alert">{error}</span>}</div>;
-  return <div style={{ maxWidth: 260 }}>
-    <label style={{ display: "flex", alignItems: "center", gap: 6 }}><Globe size={16}/>Market
-      <select aria-label="Content market" value={context?.scope === "LOCAL_MARKET" ? context.market_ids[0] ?? "" : ""} disabled={busy || !markets.length} onChange={event => void select(event.target.value)} style={{ maxWidth: 180 }}>
-        <option value="">{context?.scope === "GLOBAL" ? "Global" : context?.scope === "MULTI_MARKET" ? "Selected markets" : "Select market"}</option>
+  if (markets.length <= 1 && context?.scope !== "MULTI_MARKET" && context?.scope !== "GLOBAL") {
+    if (!markets[0]?.name && !error) return null;
+    return <>
+      {markets[0]?.name && <span className="qb-market qb-market-static" aria-label={`Content market: ${markets[0].name}`}><Globe size={14} aria-hidden="true"/>{markets[0].name}</span>}
+      {error && <span className="qb-error qb-small" role="alert">{error}</span>}
+    </>;
+  }
+  return <>
+    <label className="qb-market"><Globe size={14} aria-hidden="true"/><span className="qb-sr-only">Content market</span>
+      <select aria-label="Content market" value={context?.scope === "LOCAL_MARKET" ? context.market_ids[0] ?? "" : ""} disabled={busy || !markets.length} onChange={event => void select(event.target.value)}>
+        <option value="">{context?.scope === "GLOBAL" ? "All markets" : context?.scope === "MULTI_MARKET" ? "Selected markets" : "Select market"}</option>
         {markets.map(market => <option key={market.id} value={market.id}>{market.name}</option>)}
       </select>
     </label>
     {error && <span className="qb-error qb-small" role="alert">{error}</span>}
-  </div>;
+  </>;
 }

@@ -4,7 +4,8 @@ import Link from "next/link";
 import NotificationBell from "@/components/NotificationBell";
 import GlobalSearch from "@/components/GlobalSearch";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { LayoutGrid, X } from "lucide-react";
 import { bootstrapUser, getHomeRouteForRole, signOut } from "@/lib/auth";
 import type { UserContext } from "@/lib/types";
 import { findMySeller } from "@/lib/api/marketplace";
@@ -13,6 +14,7 @@ import MarketContextControl from "@/components/MarketContextControl";
 import BrandLockup from "@/components/BrandLockup";
 
 type NavItem = [string, string];
+type NavGroup = { label: string; items: NavItem[] };
 
 export default function AppShell({
   children,
@@ -23,6 +25,8 @@ export default function AppShell({
   const [isSeller, setIsSeller] = useState(false);
   const [sellerChecked, setSellerChecked] = useState(false);
   const [sme, setSme] = useState<SmeContext | null>(null);
+  const [moreOpen, setMoreOpen] = useState(false);
+  const contentRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
   const router = useRouter();
 
@@ -78,86 +82,171 @@ export default function AppShell({
     }
   }, [ctx, isSeller, pathname, router, sellerChecked, sme]);
 
-  const nav = useMemo<NavItem[]>(() => {
+  const groups = useMemo<NavGroup[]>(() => {
     if (!ctx) return [];
 
     const role = String(ctx.role).toUpperCase();
-    const extra: NavItem[] = [];
-    if (sme?.reviewer || sme?.content_admin || sme?.super_admin) extra.push(["/review", "SME Reviews"]);
-    if (sme?.super_admin) extra.push(["/admin/markets", "Markets"], ["/admin/curriculum-sources", "Curriculum Sources"], ["/admin/reviewers", "SME Reviewers"], ["/admin/compensation", "Compensation"]);
-    if (sme?.super_admin || sme?.finance_admin) extra.push(["/admin/sme-performance", "SME Performance"], ["/admin/payouts", "Payouts"]);
-    if (["ADMIN", "OWNER"].includes(role) && (sme?.super_admin || sme?.content_admin)) extra.push(["/admin/content-factory", "Content Factory"], ["/admin/sme-workforce", "SME Workforce"]);
-    const withSeller = (items: NavItem[]): NavItem[] =>
-      [...items, ...(isSeller && ["TEACHER", "ADMIN", "OWNER"].includes(role) ? [["/seller", "Seller"] as NavItem] : []), ...extra];
+    const isAdmin = ["ADMIN", "OWNER"].includes(role);
+    const reviewer = Boolean(sme?.reviewer || sme?.content_admin || sme?.super_admin);
+    const seller: NavItem[] = isSeller && ["TEACHER", "ADMIN", "OWNER"].includes(role) ? [["/seller", "Seller"]] : [];
+    const when = (condition: unknown, items: NavItem[]): NavItem[] => (condition ? items : []);
+    const groups: NavGroup[] = [];
+    const add = (label: string, items: NavItem[]) => { if (items.length) groups.push({ label, items }); };
+    // Non-admin accounts can still hold SME super-admin or finance duties.
+    const administration: NavItem[] = [
+      ...when(sme?.super_admin, [["/admin/markets", "Markets"], ["/admin/curriculum-sources", "Curriculum Sources"], ["/admin/reviewers", "Reviewers"], ["/admin/compensation", "Compensation"]]),
+      ...when(sme?.super_admin || sme?.finance_admin, [["/admin/sme-performance", "SME Performance"], ["/admin/payouts", "Payouts"]]),
+    ];
 
-    if (["ADMIN", "OWNER"].includes(role)) {
-      return withSeller([
-        ["/admin", "Admin"],
-        ["/admin/content", "Content"],
-        ["/admin/marketplace", "Marketplace"],
-        ["/admin/competitions", "Competitions"],
-        ["/admin/support", "Support"],
-        ["/admin/tenants", "Tenants"],
+    if (isAdmin) {
+      add("Overview", [["/admin", "Dashboard"]]);
+      add("Markets & organizations", [
+        ...when(sme?.super_admin, [["/admin/markets", "Markets"]]),
         ["/admin/market-setup", "Market Setup"],
-        ["/admin/quality", "Content Quality"],
-        ["/admin/operations", "Operations"],
-        ["/marketplace", "Catalogue"],
+        ["/admin/tenants", "Tenants"],
       ]);
+      add("Content & curriculum", [
+        ["/admin/content", "Content Operations"],
+        ...when(sme?.super_admin || sme?.content_admin, [["/admin/content-factory", "Content Factory"]]),
+        ...when(sme?.super_admin, [["/admin/curriculum-sources", "Curriculum Sources"]]),
+        ["/admin/quality", "Content Quality"],
+        ["/admin/marketplace", "Marketplace Governance"],
+      ]);
+      add("Competitions", [
+        ["/admin/competitions", "Competition Operations"],
+        ["/admin/competitions/assignments", "Assignments"],
+        ["/admin/competitions/oversight", "Oversight"],
+      ]);
+      add("SME & payments", [
+        ...when(reviewer, [["/review", "SME Reviews"]]),
+        ...when(sme?.super_admin, [["/admin/reviewers", "Reviewers"]]),
+        ...when(sme?.super_admin || sme?.finance_admin, [["/admin/sme-performance", "SME Performance"]]),
+        ...when(sme?.super_admin || sme?.content_admin, [["/admin/sme-workforce", "SME Workforce"]]),
+        ...when(sme?.super_admin, [["/admin/compensation", "Compensation"]]),
+        ...when(sme?.super_admin || sme?.finance_admin, [["/admin/payouts", "Payouts"]]),
+      ]);
+      add("Operations", [
+        ["/admin/operations", "Platform Operations"],
+        ["/admin/support", "Support"],
+      ]);
+      add("Marketplace", [["/marketplace", "Catalogue"], ...seller]);
+      return groups;
     }
 
     if (role === "SPONSOR") {
-      return withSeller([
-        ["/sponsor", "Sponsor"],
+      add("", [
+        ["/sponsor", "Dashboard"],
+        ["/sponsor/workspace", "Workspace"],
         ["/competition", "Competitions"],
         ["/marketplace", "Marketplace"],
       ]);
+      add("SME", when(reviewer, [["/review", "SME Reviews"]]));
+      add("Administration", administration);
+      return groups;
     }
 
     if (role === "TEACHER") {
-      return withSeller([
+      add("Teaching", [
         ["/teacher", "Dashboard"],
         ["/teacher/classes", "Classes"],
         ["/teacher/assignments", "Assignments"],
-        ["/teacher/question-banks", "Question Banks"],
         ["/teacher/gradebook", "Gradebook"],
-        ["/competition", "Competitions"],
-        ["/marketplace", "Marketplace"],
+        ["/teacher/question-banks", "Question Banks"],
       ]);
+      add("Explore", [["/competition", "Competitions"], ["/marketplace", "Marketplace"], ...seller]);
+      add("SME", when(reviewer, [["/review", "SME Reviews"]]));
+      add("Administration", administration);
+      return groups;
     }
 
-    return withSeller([
+    add("", [
       ["/student", "Home"],
       ["/student/assessments", "Assessments"],
-      ["/student/classroom", "Classroom"],
       ["/student/results", "Progress"],
       ["/competition", "Competitions"],
+      ["/student/classroom", "Classroom"],
       ["/marketplace", "Marketplace"],
     ]);
+    add("SME", when(reviewer, [["/review", "SME Reviews"]]));
+    add("Administration", administration);
+    return groups;
   }, [ctx, isSeller, sme]);
 
+  const nav = useMemo(() => groups.flatMap((group) => group.items), [groups]);
+  // The most specific matching link is the current page (so /admin is not active on /admin/content).
+  const activeHref = useMemo(
+    () => nav.map(([href]) => href).filter((href) => pathname === href || pathname.startsWith(`${href}/`)).sort((a, b) => b.length - a.length)[0],
+    [nav, pathname]
+  );
+
+  useEffect(() => setMoreOpen(false), [pathname]);
+  useEffect(() => {
+    if (!moreOpen) return;
+    const close = (event: KeyboardEvent) => { if (event.key === "Escape") setMoreOpen(false); };
+    window.addEventListener("keydown", close);
+    return () => window.removeEventListener("keydown", close);
+  }, [moreOpen]);
+
+  // Phones show tables as record cards; each cell is labelled with its column header.
+  useEffect(() => {
+    const root = contentRef.current;
+    if (!root) return;
+    let frame = 0;
+    const label = () => {
+      frame = 0;
+      root.querySelectorAll<HTMLElement>(".qb-table-wrap").forEach((wrap) => {
+        if (wrap.scrollWidth > wrap.clientWidth + 1) {
+          if (!wrap.hasAttribute("tabindex")) { wrap.tabIndex = 0; wrap.setAttribute("role", "region"); wrap.setAttribute("aria-label", "Scrollable table"); }
+        } else if (wrap.getAttribute("aria-label") === "Scrollable table") { wrap.removeAttribute("tabindex"); wrap.removeAttribute("role"); wrap.removeAttribute("aria-label"); }
+      });
+      root.querySelectorAll("table").forEach((table) => {
+        const headers = Array.from(table.querySelectorAll("thead th")).map((th) => th.textContent?.trim() ?? "");
+        if (!headers.length) return;
+        table.querySelectorAll("tbody tr").forEach((row) => {
+          Array.from(row.children).forEach((cell, index) => {
+            if (cell.tagName === "TD" && !cell.hasAttribute("data-label") && headers[index]) cell.setAttribute("data-label", headers[index]);
+          });
+        });
+      });
+    };
+    const observer = new MutationObserver(() => { if (!frame) frame = requestAnimationFrame(label); });
+    observer.observe(root, { childList: true, subtree: true });
+    label();
+    return () => { observer.disconnect(); if (frame) cancelAnimationFrame(frame); };
+  }, [ctx]);
+
   if (!ctx) {
-    return <div className="qb-content">Loading QuizBox…</div>;
+    return <div className="qb-boot" role="status" aria-live="polite"><BrandLockup variant="mark" size={36} /><span>Loading your workspace…</span></div>;
   }
 
   const role = String(ctx.role).toUpperCase();
   const name =
     String((ctx.profile as any).full_name ?? "") ||
     String((ctx.profile as any).email ?? "QuizBox User");
-  const isStudent = role === "STUDENT" || pathname.startsWith("/student");
+  const navLinks = (items: NavItem[]) => items.map(([href, label]) => (
+    <Link key={href} href={href} aria-current={href === activeHref ? "page" : undefined}>
+      {label}
+    </Link>
+  ));
+  const navGroups = groups.map((group, index) => (
+    <div key={group.label || index} role="group" aria-label={group.label || undefined}>
+      {group.label && <div className="qb-nav-group" aria-hidden="true">{group.label}</div>}
+      {navLinks(group.items)}
+    </div>
+  ));
+  // Phones get four primary destinations plus "More", which opens the full navigation.
+  const primary = nav.slice(0, 4);
+
   return (
-    <div className={`qb-shell ${isStudent ? 'qb-shell-student' : ''}`}>
+    <div className="qb-shell">
       <aside className="qb-sidebar">
         <div className="qb-brand">
           <BrandLockup variant="compact" size={32} />
         </div>
 
-        <div className="qb-nav">
-          {nav.map(([href, label]) => (
-            <Link key={href} href={href} aria-current={pathname === href || pathname.startsWith(href + '/') ? "page" : undefined}>
-              {label}
-            </Link>
-          ))}
-        </div>
+        <nav className="qb-nav" aria-label="Main">
+          {navGroups}
+        </nav>
       </aside>
 
       <main className="qb-main">
@@ -169,7 +258,7 @@ export default function AppShell({
           <div className="qb-topbar-user">
             <div className="qb-topbar-who">
               <strong>{name}</strong>
-              <span className="qb-muted qb-small">{role}</span>
+              <span className="qb-muted">{role}</span>
             </div>
             <Link className="qb-btn secondary" href="/account">Account</Link>
             <button
@@ -184,15 +273,29 @@ export default function AppShell({
           </div>
         </header>
 
-        <div className="qb-content"><div style={{ marginBottom: '1.5rem' }}><MarketContextControl/></div>{children}</div>
+        <div className="qb-content" ref={contentRef}>
+          <div className="qb-context-bar"><MarketContextControl/></div>
+          {children}
+        </div>
 
-        <nav className="qb-mobile-nav">
-          {(sme?.reviewer ? [...nav.slice(0, 3), ["/review", "SME Reviews"] as NavItem] : nav.slice(0, 4)).map(([href, label]) => (
-            <Link key={href} href={href} aria-current={pathname === href || pathname.startsWith(href + '/') ? "page" : undefined}>
-              {label}
-            </Link>
-          ))}
+        <nav className="qb-mobile-nav" aria-label="Main">
+          {navLinks(primary)}
+          <button type="button" aria-haspopup="dialog" aria-expanded={moreOpen} onClick={() => setMoreOpen(true)}>
+            <LayoutGrid size={18} aria-hidden="true" />More
+          </button>
         </nav>
+
+        {moreOpen && (
+          <div className="qb-more-sheet" onClick={(event) => { if (event.target === event.currentTarget) setMoreOpen(false); }}>
+            <div className="qb-more-panel" role="dialog" aria-modal="true" aria-label="All sections">
+              <div className="qb-more-head">
+                <span>All sections</span>
+                <button type="button" aria-label="Close" onClick={() => setMoreOpen(false)} autoFocus><X size={18} aria-hidden="true" /></button>
+              </div>
+              <nav className="qb-nav" aria-label="All sections">{navGroups}</nav>
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );

@@ -1,6 +1,9 @@
 "use client";
 
 import { FormEvent, useCallback, useEffect, useState } from "react";
+import type { ReactNode } from "react";
+import StatusBadge from "@/components/StatusBadge";
+import { formatDateTime, humanize, isUuid, shortId } from "@/lib/format";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight, RefreshCw, Save, Pencil, X, Check, Plus } from "lucide-react";
 import { actOnSmePayout, ConfigEntity, createSmePayout, getSmeContext, listSmeRecords, ReadEntity, RecordRow, releaseSmeEarning, saveSmeConfiguration, SmeContext } from "@/lib/api/sme";
@@ -19,7 +22,16 @@ const areas: Record<Area, { title: string; entities: ReadEntity[] }> = {
 const titles: Record<string, string> = { countries: "Countries", markets: "Markets", currencies: "Currencies", sme_profiles: "Profiles", sme_domain_assignments: "Domains", user_capabilities: "Capabilities", compensation_policies: "Policies", compensation_policy_versions: "Historical Versions", sme_performance: "Review Work", sme_financial_performance: "Earnings by Currency", sme_earnings_current: "Earnings", sme_payout_batch_summary: "Batches", sme_payout_item_details: "Batch Items" };
 Object.assign(titles,{curriculum_authorities:"Authorities",market_curricula:"Curricula by Market",user_market_memberships:"User / Sponsor Markets",source_documents:"Source Documents"});
 const hidden = new Set(["created_at", "updated_at", "configuration", "bio", "qualification_summary", "content_text"]);
-const text = (value: unknown) => value == null ? "-" : typeof value === "object" ? JSON.stringify(value) : String(value);
+// Readable cells: short IDs, formatted timestamps, status badges, summarised objects.
+const text = (value: unknown, column = ""): ReactNode => {
+  if (value == null || value === "") return <span className="qb-muted">—</span>;
+  if (typeof value === "boolean") return value ? "Yes" : "No";
+  if (/(^|_)status$/.test(column) && typeof value === "string") return <StatusBadge status={value} />;
+  if (/_at$/.test(column)) return formatDateTime(value);
+  if (isUuid(value)) return <span className="qb-mono" title={String(value)}>{shortId(value)}</span>;
+  if (typeof value === "object") return Object.entries(value as Record<string, unknown>).map(([key, item]) => `${humanize(key)}: ${typeof item === "object" ? JSON.stringify(item) : String(item)}`).join(" · ");
+  return String(value);
+};
 
 export default function SmeAdmin({ area }: { area: Area }) {
   const [context, setContext] = useState<SmeContext | null>(null);
@@ -87,9 +99,9 @@ export default function SmeAdmin({ area }: { area: Area }) {
       </form>
     </section>}
     {entity === "sme_earnings_current" && <label>Earning status<select value={earningsStatus} disabled={busy} onChange={event => { setEarningsStatus(event.target.value); setPage(1); setSelected([]); }}>{["payable", "pending_qa", "held", "paid", "reversed"].map(status => <option key={status}>{status}</option>)}</select></label>}
-    <div className="qb-table-wrap" aria-busy={busy}><table className="qb-table"><thead><tr>{entity === "sme_earnings_current" && <th>Select</th>}{columns.map(column => <th key={column}>{column.replaceAll("_", " ")}</th>)}<th>Actions</th></tr></thead><tbody>{rows.map((row, i) => <tr key={entity==="user_market_memberships" ? `${row.user_id}-${row.market_id}` : row.id ?? row.curriculum_id ?? row.user_id ?? `${row.reviewer_id}-${row.currency_code ?? i}`}>
+    <div className="qb-table-wrap" aria-busy={busy}><table className="qb-table"><thead><tr>{entity === "sme_earnings_current" && <th>Select</th>}{columns.map(column => <th key={column}>{humanize(column)}</th>)}<th><span className="qb-sr-only">Actions</span></th></tr></thead><tbody>{rows.map((row, i) => <tr key={entity==="user_market_memberships" ? `${row.user_id}-${row.market_id}` : row.id ?? row.curriculum_id ?? row.user_id ?? `${row.reviewer_id}-${row.currency_code ?? i}`}>
       {entity === "sme_earnings_current" && <td><input type="checkbox" aria-label={`Select earning ${row.id}`} checked={selected.includes(row.id)} disabled={busy || row.current_status !== "payable"} onChange={event => setSelected(event.target.checked ? [...selected, row.id] : selected.filter(id => id !== row.id))}/></td>}
-      {columns.map(column => <td key={column} style={{ overflowWrap: "anywhere", maxWidth: 260 }}>{text(row[column])}</td>)}
+      {columns.map(column => <td key={column} style={{ overflowWrap: "anywhere", maxWidth: 260 }}>{text(row[column], column)}</td>)}
       <td>{fields && entity !== "compensation_policy_versions" && <button disabled={busy} aria-label="Edit configuration" title="Edit configuration" onClick={() => { setEditing(row); setCreating(false); }}><Pencil size={16}/></button>}
         {entity === "sme_payout_batch_summary" && row.status !== "paid" && <button disabled={busy} onClick={() => void perform(() => actOnSmePayout(row.id, row.status === "draft" ? "approve" : "paid"), row.status === "draft" ? "Batch approved." : "Batch marked paid.")}><Check size={16}/> {row.status === "draft" ? "Approve" : "Mark Paid"}</button>}
         {entity === "sme_earnings_current" && ["pending_qa", "held"].includes(row.current_status) && <button disabled={busy || note.trim().length < 3 || Boolean(row.current_payout_batch_id)} onClick={() => void perform(() => releaseSmeEarning(row.id, "payable", note), "Earning released.")}>Release after QA</button>}

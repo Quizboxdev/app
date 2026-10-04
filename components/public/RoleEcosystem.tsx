@@ -1,6 +1,6 @@
 const ROLES = [
   { href: "#students", title: "Students", tag: "Learn · Practise · Compete", text: "Curriculum practice, feedback and challenges.", color: "var(--blue)" },
-  { href: "#teachers", title: "Teachers", tag: "Teach · Assign · Monitor", text: "Assignments, class mastery and intervention.", color: "var(--green)" },
+  { href: "#teachers", title: "Teachers", tag: "Teach · Assign · Monitor", text: "Assignments, class mastery and intervention.", color: "#0f7a30" },
   { href: "#schools", title: "Schools", tag: "Organize · Support · Measure", text: "Classes, teachers and participation in one place.", color: "#00758c" },
   { href: "#sponsors", title: "Sponsors", tag: "Support · Challenge · Recognize", text: "Support curriculum-aligned challenges for learners.", color: "#9a5b00" },
   { href: "#smes", title: "Subject experts", tag: "Review · Verify · Improve", text: "Human review of content before it reaches learners.", color: "var(--purple)" },

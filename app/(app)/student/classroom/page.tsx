@@ -1,6 +1,8 @@
-"use client";
+﻿"use client";
 
 import { FormEvent, useEffect, useState } from "react";
+import StatusBadge from "@/components/StatusBadge";
+import { formatDateTime, isUuid } from "@/lib/format";
 import { bootstrapUser } from "@/lib/auth";
 import { getStudentClassroom, joinClass } from "@/lib/api/student";
 
@@ -41,7 +43,7 @@ export default function StudentClassroomPage() {
   }
 
   if (error && !data) return <div className="qb-card qb-error" role="alert">{error}</div>;
-  if (!data) return <div>Loading classroom…</div>;
+  if (!data) return <div className="qb-card qb-empty" aria-busy="true">Loading classroom…</div>;
 
   return (
     <>
@@ -70,14 +72,13 @@ export default function StudentClassroomPage() {
               <div className="qb-row" key={row.id}>
                 <div className="qb-row-main">
                   <strong>{row.classes?.class_name ?? "Class"}</strong>
-                  <span>
-                    {row.classes?.grade ?? ""} · {row.status}
-                  </span>
+                  <span>{row.classes?.grade ?? "Class"}</span>
                 </div>
+                <StatusBadge status={row.status} />
               </div>
             ))}
             {!data.memberships.length && (
-              <div className="qb-muted">No classes joined.</div>
+              <div className="qb-empty"><strong>No classes yet</strong>Enter the join code your teacher gave you.</div>
             )}
           </div>
         </div>
@@ -89,17 +90,12 @@ export default function StudentClassroomPage() {
               <div className="qb-row" key={row.id}>
                 <div className="qb-row-main">
                   <strong>{row.title ?? "Assignment"}</strong>
-                  <span>
-                    {row.subject_code ?? ""}{" "}
-                    {row.due_at
-                      ? `· Due ${new Date(row.due_at).toLocaleString()}`
-                      : ""}
-                  </span>
+                  <span>{[isUuid(row.subject_code) ? null : row.subject_code, row.due_at ? `Due ${formatDateTime(row.due_at)}` : "No due date"].filter(Boolean).join(" · ")}</span>
                 </div>
               </div>
             ))}
             {!data.assignments.length && (
-              <div className="qb-muted">No assignments available.</div>
+              <div className="qb-empty"><strong>No assignments yet</strong>Assignments from your classes appear here.</div>
             )}
           </div>
         </div>

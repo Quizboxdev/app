@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { schoolAction } from "@/lib/api/platform";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
+import StatusBadge from "@/components/StatusBadge";
 
 type School = { id: string; name: string; role: string };
 type Overview = { institution: string; teachers: Array<{ user_id: string; name: string; role: string }>; classes: Array<{ id: string; name: string; grade: string | null; status: string; teacher: string | null; students: number }> };
@@ -24,14 +25,17 @@ export default function SchoolPage() {
     try { await schoolAction(action, data); setNotice(done); await load(); } catch (e) { setError((e as Error).message); } finally { setBusy(false); }
   }
   if (schools === null) return error ? <p className="qb-error" role="alert">{error}</p> : <p className="qb-muted" role="status">Loading…</p>;
-  if (!schools.length) return <><h1>School</h1><p className="qb-muted">You are not an administrator of any school.</p></>;
+  if (!schools.length) return <>
+    <div className="qb-page-head"><div><h1>School</h1><p>Classes, teachers and student class membership for institutions you administer.</p></div></div>
+    <div className="qb-card qb-empty"><strong>No school linked to your account</strong>School administrators see their classes, teachers and transfers here. Ask your school or QuizBox support to add you as an institution administrator.</div>
+  </>;
   const active = overview?.classes.filter((c) => c.status === "active") ?? [];
   return <>
     <div className="qb-page-head"><div><h1>{overview?.institution ?? "School"}</h1><p>Classes, teachers and student class membership.</p></div>
       {schools.length > 1 && <label>School<select value={school} onChange={(e) => setSchool(e.target.value)}>{schools.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}</select></label>}</div>
     {error && <p className="qb-error" role="alert">{error}</p>}{notice && <p role="status">{notice}</p>}
-    <section className="qb-card"><h2>Classes</h2><div className="qb-table-wrap"><table className="qb-table"><thead><tr><th>Class</th><th>Grade</th><th>Teacher</th><th>Students</th><th>Status</th><th>Actions</th></tr></thead><tbody>
-      {(overview?.classes ?? []).map((c) => <tr key={c.id}><td>{c.name}</td><td>{c.grade ?? "-"}</td><td>{c.teacher ?? "-"}</td><td>{c.students}</td><td>{c.status}</td><td>
+    <section className="qb-card"><h2>Classes</h2><div className="qb-table-wrap"><table className="qb-table"><thead><tr><th>Class</th><th>Grade</th><th>Teacher</th><th>Students</th><th>Status</th><th><span className="qb-sr-only">Actions</span></th></tr></thead><tbody>
+      {(overview?.classes ?? []).map((c) => <tr key={c.id}><td>{c.name}</td><td>{c.grade ?? "-"}</td><td>{c.teacher ?? "-"}</td><td>{c.students}</td><td><StatusBadge status={c.status} /></td><td>
         {c.status === "active" && <div className="qb-content-filters">
           <label className="qb-sr-only" htmlFor={`t-${c.id}`}>Reassign teacher for {c.name}</label>
           <select id={`t-${c.id}`} defaultValue="" disabled={busy} onChange={(e) => e.target.value && void act("assign_teacher", { class_id: c.id, teacher_user_id: e.target.value }, "Teacher reassigned.")}>

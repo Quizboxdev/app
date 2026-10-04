@@ -156,8 +156,9 @@ export default function CompetitionDetailPage() {
           <h2>Create team</h2>
 
           <div className="qb-field">
-            <label>Institution</label>
+            <label htmlFor="team-institution">Institution</label>
             <select
+              id="team-institution"
               value={institutionId}
               onChange={(e) => setInstitutionId(e.target.value)}
               required
@@ -172,8 +173,9 @@ export default function CompetitionDetailPage() {
           </div>
 
           <div className="qb-field">
-            <label>Team name</label>
+            <label htmlFor="team-name">Team name</label>
             <input
+              id="team-name"
               value={teamName}
               onChange={(e) => setTeamName(e.target.value)}
               required

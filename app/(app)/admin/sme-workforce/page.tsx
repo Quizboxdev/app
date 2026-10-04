@@ -1,6 +1,8 @@
 "use client";
-import { FormEvent, useCallback, useEffect, useState } from "react";
+import { Fragment, FormEvent, useCallback, useEffect, useState } from "react";
 import { factory, workforce, type Campaign } from "@/lib/api/factory";
+import StatusBadge from "@/components/StatusBadge";
+import { humanize } from "@/lib/format";
 
 type Money = Record<string, string>;
 type Row = { reviewer_id: string; reviewer: string; status: string; market: string; subject: string; policy_id: string | null; mode: string | null; daily_limit: number | null; target_queue: number | null; max_queue: number | null;
@@ -15,6 +17,7 @@ const emptyPolicy = { reviewer_id: "", market_id: "", subject_code: "", grade_co
 
 // Assignment quota and compensation stay separate: this page controls workload only; earnings come from completed reviews.
 export default function SmeWorkforcePage() {
+  const [managing, setManaging] = useState<string | null>(null);
   const [rows, setRows] = useState<Row[]>([]), [reviewers, setReviewers] = useState<Reviewer[]>([]), [policies, setPolicies] = useState<Policy[]>([]), [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [filters, setFilters] = useState({ market_id: "", subject: "", campaign_id: "", reviewer_id: "", status: "" }), [run, setRun] = useState<RunResult | null>(null), [policy, setPolicy] = useState(emptyPolicy);
   const [allocation, setAllocation] = useState({ campaign_id: "", total: "" }), [reassignTo, setReassignTo] = useState<Record<string, string>>({}), [limits, setLimits] = useState<Record<string, { daily: string; target: string; max: string }>>({});
@@ -44,7 +47,7 @@ export default function SmeWorkforcePage() {
 
     <section className="qb-card"><h2>Scheduler</h2>
       <p className="qb-muted">Finds eligible unassigned questions and assigns them within each reviewer&apos;s authorized domain, daily limit, target queue, maximum queue, working days and campaign priority. Re-running is safe: a full queue receives nothing.</p>
-      <div className="qb-content-filters"><button className="qb-btn secondary" disabled={busy} onClick={() => scheduler(true)}>Preview assignment</button><button className="qb-btn" disabled={busy} onClick={() => scheduler(false)}>Run scheduler now</button></div>
+      <div className="qb-actions"><button className="qb-btn secondary" disabled={busy} onClick={() => scheduler(true)}>Preview assignment</button><button className="qb-btn" disabled={busy} onClick={() => scheduler(false)}>Run scheduler now</button></div>
       {run && <div className="qb-table-wrap"><p>{run.dry_run ? "Preview" : "Assigned"}: {run.dry_run ? run.policies.reduce((s, p) => s + p.eligible, 0) : run.assigned}</p><table className="qb-table"><thead><tr><th>Reviewer</th><th>Mode</th><th>Kind</th><th>Outstanding before</th><th>Capacity</th><th>Eligible</th><th>Assigned</th><th>Note</th></tr></thead>
         <tbody>{run.policies.map((p, i) => <tr key={i}><td>{p.reviewer}</td><td>{p.mode}</td><td>{p.kind}</td><td>{p.outstanding_before}</td><td>{p.capacity}</td><td>{p.eligible}</td><td>{p.assigned}</td><td>{[p.reason, ...p.errors].filter(Boolean).join(", ") || "-"}</td></tr>)}</tbody></table></div>}
     </section>
@@ -57,13 +60,18 @@ export default function SmeWorkforcePage() {
         <label>Reviewer<select value={filters.reviewer_id} onChange={(e) => setFilters({ ...filters, reviewer_id: e.target.value })}><option value="">All</option>{reviewers.map((r) => <option key={r.reviewer_id} value={r.reviewer_id}>{r.name}</option>)}</select></label>
         <label>Status<select value={filters.status} onChange={(e) => setFilters({ ...filters, status: e.target.value })}><option value="">All</option><option value="active">Active</option><option value="paused">Paused</option><option value="no_policy">No policy</option></select></label>
       </div>
-      <div className="qb-table-wrap"><table className="qb-table"><thead><tr><th>Reviewer</th><th>Market</th><th>Subject</th><th>Daily limit</th><th>Target queue</th><th>Assigned today</th><th>Outstanding</th><th>Completed today</th><th>Completed month</th>
-        <th>Approved</th><th>Revisions</th><th>Rejected</th><th>QA reversals</th><th>Avg review</th><th>Compensation unresolved</th><th>Payable</th><th>Paid</th><th>Actions</th></tr></thead>
-        <tbody>{rows.map((r) => <tr key={r.reviewer_id}>
-          <td>{r.reviewer}<div className="qb-small qb-muted">{r.status}{r.mode ? ` · ${r.mode}` : ""}</div></td><td>{r.market}</td><td>{r.subject}</td><td>{r.daily_limit ?? "-"}</td><td>{r.target_queue ?? "-"}</td><td>{r.assigned_today}</td><td>{r.outstanding}</td><td>{r.completed_today}</td>
-          <td>{r.month.completed}</td><td>{r.month.approved}</td><td>{r.month.revisions} ({r.month.revision_rate}%)</td><td>{r.month.rejected}</td><td>{r.month.qa_reversals} ({r.month.qa_reversal_rate}%)</td>
-          <td>{r.month.average_review_seconds == null ? "-" : `${Math.round(r.month.average_review_seconds / 60)} min`}</td><td>{r.compensation_unresolved}</td><td>{money(r.payable)}{Object.keys(r.pending_qa ?? {}).length ? <div className="qb-small qb-muted">pending QA {money(r.pending_qa)}</div> : null}</td><td>{money(r.paid)}</td>
-          <td><div className="qb-content-filters">
+      <div className="qb-table-wrap"><table className="qb-table"><thead><tr><th>Reviewer</th><th>Domain</th><th>Limits</th><th>Today</th><th>This month</th><th>QA</th><th>Avg review</th><th>Earnings</th><th><span className="qb-sr-only">Actions</span></th></tr></thead>
+        <tbody>{rows.map((r) => <Fragment key={r.reviewer_id}><tr>
+          <td><strong>{r.reviewer}</strong><div><StatusBadge status={r.status} />{r.mode ? <span className="qb-small qb-muted"> {humanize(r.mode)}</span> : null}</div></td>
+          <td>{r.subject}<div className="qb-small qb-muted">{r.market}</div></td>
+          <td>{r.daily_limit ?? "—"} / day<div className="qb-small qb-muted">target {r.target_queue ?? "—"}</div></td>
+          <td>{r.completed_today} done<div className="qb-small qb-muted">{r.assigned_today} assigned · {r.outstanding} open</div></td>
+          <td>{r.month.completed} done<div className="qb-small qb-muted">{r.month.approved} approved · {r.month.revisions} revised ({r.month.revision_rate}%) · {r.month.rejected} rejected</div></td>
+          <td>{r.month.qa_reversals}<div className="qb-small qb-muted">{r.month.qa_reversal_rate}% reversed</div></td>
+          <td>{r.month.average_review_seconds == null ? "—" : `${Math.round(r.month.average_review_seconds / 60)} min`}</td>
+          <td>{money(r.payable)}<div className="qb-small qb-muted">paid {money(r.paid)}{Object.keys(r.pending_qa ?? {}).length ? ` · pending QA ${money(r.pending_qa)}` : ""}{r.compensation_unresolved ? ` · ${r.compensation_unresolved} unresolved` : ""}</div></td>
+          <td><button type="button" aria-expanded={managing === r.reviewer_id} onClick={() => setManaging(managing === r.reviewer_id ? null : r.reviewer_id)}>{managing === r.reviewer_id ? "Close" : "Manage"}</button></td></tr>
+          {managing === r.reviewer_id && <tr className="qb-row-detail"><td colSpan={9}><div className="qb-content-filters">
             <button className="qb-btn secondary" disabled={busy || !r.policy_id} onClick={() => act(async () => { await workforce("pause_reviewer", { reviewer_id: r.reviewer_id, paused: r.status !== "paused", reason: r.status === "paused" ? "Resumed by admin" : "Paused by admin" }); await load(); }, r.status === "paused" ? "Assignments resumed." : "Assignments paused.")}>{r.status === "paused" ? "Resume" : "Pause"}</button>
             <label className="qb-small">Reassign outstanding to<select value={reassignTo[r.reviewer_id] ?? ""} onChange={(e) => setReassignTo({ ...reassignTo, [r.reviewer_id]: e.target.value })}><option value="">Return to pool</option>{reviewers.filter((x) => x.reviewer_id !== r.reviewer_id).map((x) => <option key={x.reviewer_id} value={x.reviewer_id}>{x.name}</option>)}</select></label>
             <button className="qb-btn secondary" disabled={busy || !r.outstanding} onClick={() => window.confirm(`Release ${r.outstanding} outstanding review(s) from ${r.reviewer}?`) && act(async () => { const res = await workforce<{ released: number }>("reassign", { reviewer_id: r.reviewer_id, all_outstanding: true, to_reviewer_id: reassignTo[r.reviewer_id] || undefined, reason: "Workload rebalanced by admin" }); await load(); setNotice(`${res.released} review(s) released.`); })}>Reassign</button>
@@ -73,8 +81,8 @@ export default function SmeWorkforcePage() {
               <label className="qb-small">Max<input type="number" min={0} style={{ width: "4.5rem" }} value={limits[r.policy_id]?.max ?? String(r.max_queue ?? "")} onChange={(e) => setLimits({ ...limits, [r.policy_id!]: { daily: limits[r.policy_id!]?.daily ?? String(r.daily_limit ?? ""), target: limits[r.policy_id!]?.target ?? String(r.target_queue ?? ""), max: e.target.value } })}/></label>
               <button className="qb-btn secondary" disabled={busy || !limits[r.policy_id]} onClick={() => act(async () => { const l = limits[r.policy_id!]; await workforce("set_limits", { policy_id: r.policy_id, daily_limit: l.daily === "" ? null : Number(l.daily), target_open_queue: l.target === "" ? null : Number(l.target), max_open_queue: Number(l.max) }); await load(); }, "Limits changed.")}>Save limits</button>
             </>}
-          </div></td></tr>)}</tbody></table>
-        {!rows.length && <p className="qb-muted">No reviewers match these filters.</p>}</div>
+          </div></td></tr>}</Fragment>)}</tbody></table>
+        {!rows.length && <div className="qb-empty"><strong>No reviewers match these filters</strong>Clear a filter to see more reviewers.</div>}</div>
     </section>
 
     <section className="qb-card"><h2>Workload policies</h2>

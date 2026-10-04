@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import { formatDate, isUuid } from "@/lib/format";
 import { useEffect, useState } from "react";
 import { studentInsights, teacherInsights } from "@/lib/api/platform";
 
@@ -19,9 +20,9 @@ export function StudentInsights() {
   if (!data) return <p className="qb-muted" role="status">Loading insights…</p>;
   return <section className="qb-card" aria-labelledby="student-insights"><h2 id="student-insights">My progress</h2>
     <p>{data.recent_improvement === null || data.recent_improvement === undefined ? "Complete more assessments to see your trend." : `Recent change: ${data.recent_improvement > 0 ? "+" : ""}${data.recent_improvement} points versus your previous five results.`}</p>
-    <h3>Mastery by subject</h3><Table head={["Subject", "Mastery", "Topics"]} rows={(data.by_subject ?? []).map((s: any) => [s.subject, `${s.mastery}%`, s.topics])} empty="No mastery data yet."/>
+    <h3>Mastery by subject</h3><Table head={["Subject", "Mastery", "Topics"]} rows={(data.by_subject ?? []).map((s: any) => [!s.subject || isUuid(s.subject) ? "General" : s.subject, `${s.mastery}%`, s.topics])} empty="No mastery data yet."/>
     <h3>Weak areas</h3><Table head={["Topic", "Mastery"]} rows={(data.weak_topics ?? []).map((w: any) => [w.topic, `${w.mastery}%`])} empty="No weak areas identified."/>
-    <h3>Attempt history</h3><Table head={["Subject", "Score", "Submitted"]} rows={(data.history ?? []).map((h: any) => [<Link key={h.attempt_id} href={`/student/results/${h.attempt_id}`}>{h.subject || "Assessment"}</Link>, `${h.percentage}%`, new Date(h.submitted_at).toLocaleDateString()])} empty="No attempts yet."/>
+    <h3>Attempt history</h3><Table head={["Subject", "Score", "Submitted"]} rows={(data.history ?? []).map((h: any) => [<Link key={h.attempt_id} href={`/student/results/${h.attempt_id}`}>{!h.subject || isUuid(h.subject) ? "Assessment" : h.subject}</Link>, `${h.percentage}%`, formatDate(h.submitted_at)])} empty="No attempts yet."/>
   </section>;
 }
 

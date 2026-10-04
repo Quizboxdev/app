@@ -107,8 +107,9 @@ export default function AnswerInput({
   if (type === "NUMERIC") {
     return (
       <div className="qb-field">
-        <label>Your answer</label>
+        <label htmlFor="qb-answer-value">Your answer</label>
         <input
+          id="qb-answer-value"
           type="number"
           step="any"
           value={value.selectedValue?.value ?? ""}
@@ -129,8 +130,9 @@ export default function AnswerInput({
     return (
       <div className="qb-grid cols-2">
         <div className="qb-field">
-          <label>Numerator</label>
+          <label htmlFor="qb-answer-numerator">Numerator</label>
           <input
+            id="qb-answer-numerator"
             type="number"
             value={value.selectedValue?.numerator ?? ""}
             onChange={(e) =>
@@ -146,8 +148,9 @@ export default function AnswerInput({
           />
         </div>
         <div className="qb-field">
-          <label>Denominator</label>
+          <label htmlFor="qb-answer-denominator">Denominator</label>
           <input
+            id="qb-answer-denominator"
             type="number"
             value={value.selectedValue?.denominator ?? ""}
             onChange={(e) =>
@@ -168,8 +171,9 @@ export default function AnswerInput({
 
   return (
     <div className="qb-field">
-      <label>Your answer</label>
+      <label htmlFor="qb-answer-text">Your answer</label>
       <input
+        id="qb-answer-text"
         value={value.selectedAnswer ?? ""}
         onChange={(e) =>
           onChange({

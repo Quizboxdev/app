@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { FormEvent, useCallback, useEffect, useState } from "react";
 import { getMyAccount, listSignupCountries, requestMarketChange, type Account, type SignupCountry } from "@/lib/api/markets";
@@ -129,8 +129,8 @@ export default function AccountPage() {
         ) : (
           <form className="qb-form" style={{ gap: '1.25rem', marginTop: 0 }} onSubmit={submit}>
             <div className="qb-field">
-              <label>New country</label>
-              <select value={target} onChange={(e) => setTarget(e.target.value)} required>
+              <label htmlFor="account-new-country">New country</label>
+              <select id="account-new-country" value={target} onChange={(e) => setTarget(e.target.value)} required>
                 <option value="">Select country</option>
                 {countries.filter((c) => c.market_id !== account.primary_market?.id).map((c) => (
                   <option key={c.country_code} value={c.market_id ?? ""}>{c.country}</option>
@@ -138,8 +138,8 @@ export default function AccountPage() {
               </select>
             </div>
             <div className="qb-field">
-              <label>Reason</label>
-              <textarea rows={3} placeholder="Please explain why you need to change your market..." value={reason} onChange={(e) => setReason(e.target.value)} minLength={3} required />
+              <label htmlFor="account-change-reason">Reason</label>
+              <textarea id="account-change-reason" rows={3} placeholder="Please explain why you need to change your market..." value={reason} onChange={(e) => setReason(e.target.value)} minLength={3} required />
             </div>
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '0.5rem' }}>
               <button className="qb-btn" disabled={busy} style={{ minWidth: '10rem' }}>
