@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { bootstrapUser } from "@/lib/auth";
 import CompetitionContentScope from "@/components/CompetitionContentScope";
 import StatCard from "@/components/StatCard";
+import DashboardHero from "@/components/DashboardHero";
 import DistributionBars from "@/components/charts/DistributionBars";
 import StatusBadge from "@/components/StatusBadge";
 import { humanize } from "@/lib/format";
@@ -16,7 +17,7 @@ import {
   getSponsorDemographics,
   getSponsorQuestionPerformance
 } from "@/lib/api/sponsor";
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, BarChart, Bar, CartesianGrid, XAxis, YAxis } from "recharts";
+import { ResponsiveContainer, Tooltip, BarChart, Bar, CartesianGrid, XAxis, YAxis } from "recharts";
 
 export default function SponsorPage() {
   const [profile, setProfile] = useState<any>(null);
@@ -70,6 +71,7 @@ export default function SponsorPage() {
         </div>
       </div>
 
+      <DashboardHero eyebrow="Sponsor workspace" title="Turn support into measurable participation." description="Run governed learning competitions and track engagement and performance." primary={{ label: "Open workspace", href: "/sponsor/workspace" }} secondary={{ label: "Browse competitions", href: "/competition" }} />
       <div className="qb-grid cols-4">
         <StatCard value={rows.length} label="Active sponsorships" />
         <StatCard value={rows.reduce((sum, r) => sum + Number(r.committed_amount ?? 0), 0).toFixed(2)} label={`Total committed (${rows[0]?.currency ?? "USD"})`} />

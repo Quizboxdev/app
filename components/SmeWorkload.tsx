@@ -5,7 +5,6 @@ import { useEffect, useState } from "react";
 import { workforce } from "@/lib/api/factory";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import StatCard from "@/components/StatCard";
-import MasteryRing from "@/components/charts/MasteryRing";
 import MasteryBar from "@/components/charts/MasteryBar";
 
 type Money = Record<string, string>;
@@ -52,7 +51,7 @@ export default function SmeWorkload() {
   ] : [];
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+    <div className="qb-sme-dashboard">
       {mine.policy?.paused && (
         <div className="qb-card" style={{ backgroundColor: "var(--qb-warning-bg)", color: "var(--qb-warning)", border: "1px solid var(--qb-warning)" }}>
           <strong>Reviews Paused:</strong> New assignments are paused for you. Finish your outstanding reviews; your administrator will resume allocation.
@@ -72,7 +71,7 @@ export default function SmeWorkload() {
         <section className="qb-card" style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
           <h2>Quality & Decisions (This Month)</h2>
           {decisionData.length > 0 ? (
-            <div style={{ display: "flex", alignItems: "center", gap: "24px" }}>
+            <div className="qb-class-proficiency">
               <div style={{ width: "120px", height: "120px" }}>
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>

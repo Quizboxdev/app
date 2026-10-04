@@ -6,6 +6,7 @@ import { humanize, isUuid } from "@/lib/format";
 import HomeSections from "@/components/HomeSections";
 import { useEffect, useState } from "react";
 import StatCard from "@/components/StatCard";
+import DashboardHero from "@/components/DashboardHero";
 import { bootstrapUser } from "@/lib/auth";
 import { getTeacherAnalytics, getTeacherDashboard, listIndicatorLearners, listIndicatorLearnersPage, publishAssignment } from "@/lib/api/teacher";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -65,6 +66,7 @@ export default function TeacherDashboardPage() {
           <p>Monitor class proficiency, resolve weak indicators, and manage assessments.</p>
         </div>
       </div>
+      <DashboardHero eyebrow="Teacher workspace" title="Your classes at a glance." description="Track assignments, learner mastery and students who need attention." primary={{ label: "Manage assignments", href: "/teacher/assignments" }} secondary={{ label: "View classes", href: "/teacher/classes" }} />
       <div className="qb-grid cols-4">
         <StatCard value={data.classes.length} label="Classes" />
         <StatCard value={data.assignments.length} label="Assignments" />
@@ -92,7 +94,7 @@ export default function TeacherDashboardPage() {
               </div>
             </div>
             
-            <div style={{ display: "flex", alignItems: "center", gap: "24px" }}>
+            <div className="qb-class-proficiency">
               <MasteryRing percentage={cls.average} label="Avg Score" size={120} />
               <div style={{ flex: 1, height: "140px" }}>
                 {cls.bands.length > 0 && (

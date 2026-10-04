@@ -5,7 +5,7 @@ import NotificationBell from "@/components/NotificationBell";
 import GlobalSearch from "@/components/GlobalSearch";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { LayoutGrid, X } from "lucide-react";
+import { LayoutGrid, X, Home, BookOpen, FileText, Users, Trophy, ShoppingBag, Globe, ShieldCheck, Layers, LifeBuoy, Settings, CircleUser, LogOut, type LucideIcon } from "lucide-react";
 import { bootstrapUser, getHomeRouteForRole, signOut } from "@/lib/auth";
 import type { UserContext } from "@/lib/types";
 import { findMySeller } from "@/lib/api/marketplace";
@@ -15,6 +15,20 @@ import BrandLockup from "@/components/BrandLockup";
 
 type NavItem = [string, string];
 type NavGroup = { label: string; items: NavItem[] };
+
+function navigationIcon(href: string): LucideIcon {
+  if (/competition/.test(href)) return Trophy;
+  if (/marketplace|seller/.test(href)) return ShoppingBag;
+  if (/classes|classroom|tenants|school/.test(href)) return Users;
+  if (/markets|market-setup/.test(href)) return Globe;
+  if (/question-banks|curriculum|content/.test(href)) return BookOpen;
+  if (/assignments|assessments|gradebook|results/.test(href)) return FileText;
+  if (/review|quality/.test(href)) return ShieldCheck;
+  if (/support/.test(href)) return LifeBuoy;
+  if (/operations|compensation|payout/.test(href)) return Settings;
+  if (/workspace/.test(href)) return Layers;
+  return Home;
+}
 
 export default function AppShell({
   children,
@@ -223,11 +237,12 @@ export default function AppShell({
   const name =
     String((ctx.profile as any).full_name ?? "") ||
     String((ctx.profile as any).email ?? "QuizBox User");
-  const navLinks = (items: NavItem[]) => items.map(([href, label]) => (
-    <Link key={href} href={href} aria-current={href === activeHref ? "page" : undefined}>
-      {label}
-    </Link>
-  ));
+  const navLinks = (items: NavItem[]) => items.map(([href, label]) => {
+    const Icon = navigationIcon(href);
+    return <Link key={href} href={href} aria-current={href === activeHref ? "page" : undefined}>
+      <Icon size={18} aria-hidden="true" /><span>{label}</span>
+    </Link>;
+  });
   const navGroups = groups.map((group, index) => (
     <div key={group.label || index} role="group" aria-label={group.label || undefined}>
       {group.label && <div className="qb-nav-group" aria-hidden="true">{group.label}</div>}
@@ -236,6 +251,12 @@ export default function AppShell({
   ));
   // Phones get four primary destinations plus "More", which opens the full navigation.
   const primary = nav.slice(0, 4);
+  const activeLabel = nav.find(([href]) => href === activeHref)?.[1];
+  const pageTitle = pathname === "/review" ? "SME Dashboard"
+    : pathname === "/school" ? "School Dashboard"
+      : activeLabel === "Home" || activeLabel === "Dashboard" ? `${role.charAt(0)}${role.slice(1).toLowerCase()} Dashboard`
+        : activeLabel ?? "QuizBox";
+  const initials = name.trim().split(/\s+/).slice(0, 2).map((part) => part[0]).join("").toUpperCase();
 
   return (
     <div className="qb-shell">
@@ -243,6 +264,7 @@ export default function AppShell({
         <div className="qb-brand">
           <BrandLockup variant="compact" size={32} />
         </div>
+        <div className="qb-workspace-label">{pathname.startsWith("/review") ? "SME" : pathname.startsWith("/school") ? "School" : role.toLowerCase()} workspace</div>
 
         <nav className="qb-nav" aria-label="Main">
           {navGroups}
@@ -252,23 +274,27 @@ export default function AppShell({
       <main className="qb-main">
         <header className="qb-topbar">
           <BrandLockup variant="mark" size={28} href={getHomeRouteForRole(role)} className="qb-topbar-brand" />
+          <strong className="qb-topbar-title">{pageTitle}</strong>
           <GlobalSearch/>
           <NotificationBell/>
 
           <div className="qb-topbar-user">
+            <Link className="qb-avatar" href="/account" aria-label="Your profile" title="Your profile">{initials}</Link>
             <div className="qb-topbar-who">
               <strong>{name}</strong>
               <span className="qb-muted">{role}</span>
             </div>
-            <Link className="qb-btn secondary" href="/account">Account</Link>
+            <Link className="qb-btn secondary qb-account-link" href="/account"><CircleUser size={16} aria-hidden="true" />Account</Link>
             <button
               className="qb-btn ghost"
+              title="Sign out"
+              aria-label="Sign out"
               onClick={async () => {
                 await signOut();
                 router.replace("/login");
               }}
             >
-              Sign out
+              <LogOut size={16} aria-hidden="true" /><span className="qb-signout-label">Sign out</span>
             </button>
           </div>
         </header>

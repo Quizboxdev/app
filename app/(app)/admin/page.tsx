@@ -10,6 +10,7 @@ import {
   getOperationsHealth,
 } from "@/lib/api/admin";
 import StatCard from "@/components/StatCard";
+import DashboardHero from "@/components/DashboardHero";
 import DistributionBars from "@/components/charts/DistributionBars";
 
 type Attention = { label: string; value: unknown; href: string; action: string };
@@ -68,6 +69,15 @@ export default function AdminHomePage() {
     <>
       {head}
 
+      <DashboardHero eyebrow="Administration workspace" title="Platform operations without visual noise." description="Focus on exceptions, governance, throughput and required actions." primary={{ label: "Open operations", href: "/admin/operations" }} secondary={{ label: "Review content", href: "/admin/content" }} />
+
+      <div className="qb-grid cols-4">
+        <StatCard label="Total users" value={overview?.users?.total} />
+        <StatCard label="Active markets" value={overview?.markets?.active} />
+        <StatCard label="Approved questions" value={content?.approved_questions ?? overview?.content?.questions} />
+        <StatCard label="Competitions" value={competition?.total_competitions ?? overview?.competitions?.competitions} />
+      </div>
+
       <section className="qb-card qb-attention" aria-labelledby="attention-heading">
         <div className="qb-page-head">
           <h2 id="attention-heading">Needs attention</h2>
@@ -92,13 +102,6 @@ export default function AdminHomePage() {
           })}
         </div>
       </section>
-
-      <div className="qb-grid cols-4">
-        <StatCard label="Total users" value={overview?.users?.total} />
-        <StatCard label="Active markets" value={overview?.markets?.active} />
-        <StatCard label="Approved questions" value={content?.approved_questions ?? overview?.content?.questions} />
-        <StatCard label="Competitions" value={competition?.total_competitions ?? overview?.competitions?.competitions} />
-      </div>
 
       <div className="qb-grid cols-2">
         <section className="qb-card">

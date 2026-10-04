@@ -79,10 +79,11 @@ export default function StudentDashboardPage() {
 
   return (
     <>
+      <div className="qb-page-head"><div><h1>Student Dashboard</h1><p>Practice, complete assignments and track your progress.</p></div></div>
       <section className="qb-welcome" aria-labelledby="welcome-heading">
         <div>
           <p className="qb-welcome-eyebrow">{greeting}{studentName ? `, ${studentName}` : ""}</p>
-          <h1 id="welcome-heading">Your learning dashboard</h1>
+          <h2 id="welcome-heading">Welcome back.</h2>
           <p>{assignments.length ? `You have ${assignments.length} assignment${assignments.length === 1 ? "" : "s"} waiting. Keep the momentum going.` : "You are all caught up. Practise or join a competition to keep growing."}</p>
         </div>
         <div className="qb-welcome-next">
@@ -101,13 +102,30 @@ export default function StudentDashboardPage() {
       </section>
 
       <div className="qb-grid cols-4">
-        <StatCard label="Assessments completed" value={data.stats.completed} />
+        <StatCard label="Assessments completed" value={data.stats.completed} icon={CheckCircle} />
         <StatCard label="Average score" value={data.stats.completed > 0 ? `${Math.round(data.stats.average)}%` : null} />
-        <StatCard label="Assignments to do" value={assignments.length} />
-        <StatCard label="Competition rank" value={rank ? `#${rank}` : null} hint={rank ? undefined : "Join a ranked competition"} />
+        <StatCard label="Assignments to do" value={assignments.length} icon={FileText} />
+        <StatCard label="Competition rank" value={rank ? `#${rank}` : null} hint={rank ? undefined : "Join a ranked competition"} icon={Trophy} />
       </div>
 
-      <div className="qb-grid cols-3">
+      <div className="qb-grid cols-2">
+        <section className="qb-card qb-dash-card">
+          <div className="qb-page-head"><h2>Recent performance</h2></div>
+          {trendData.length > 1 ? <TrendChart data={trendData} height={180} yAxisLabel="Score %" />
+            : <div className="qb-empty"><strong>Not enough attempts</strong>Complete at least two assessments to see your trend.</div>}
+        </section>
+
+        <section className="qb-card qb-dash-card">
+          <div className="qb-page-head"><h2>Latest results</h2><Link className="qb-link" href="/student/results">View all</Link></div>
+          {data.results?.length ? <ul className="qb-task-list">
+            {data.results.slice(0, 4).map((result: any, index: number) => <li key={result.attempt_id ?? index}>
+              <span className="qb-task-icon" aria-hidden="true"><CheckCircle size={16} /></span>
+              <div className="qb-row-main"><strong>{sanitizeLabel(result.assessment_title ?? "Assessment")}</strong><span>{subjectLabel(result.subject_code)}{result.submitted_at ? ` · ${formatDate(result.submitted_at)}` : ""}</span></div>
+              <strong>{Math.round(Number(result.percentage ?? 0))}%</strong>
+            </li>)}
+          </ul> : <div className="qb-empty"><strong>No results yet</strong>Completed assessments appear here.</div>}
+        </section>
+
         <section className="qb-card qb-dash-card">
           <div className="qb-page-head"><h2>Upcoming assignments</h2><Link className="qb-link" href="/student/assessments">View all</Link></div>
           {assignments.length ? (
@@ -146,12 +164,6 @@ export default function StudentDashboardPage() {
           {data.stats.completed > 0 ? (
             <div className="qb-center"><MasteryRing percentage={Math.round(data.stats.average)} label="Average score" size={132} color="var(--color-primary)" /></div>
           ) : <div className="qb-empty"><strong>No mastery yet</strong>Your average appears after your first assessment.</div>}
-        </section>
-
-        <section className="qb-card qb-dash-card">
-          <div className="qb-page-head"><h2>Performance trend</h2></div>
-          {trendData.length > 1 ? <TrendChart data={trendData} height={180} yAxisLabel="Score %" />
-            : <div className="qb-empty"><strong>Not enough attempts</strong>Complete at least two assessments to see your trend.</div>}
         </section>
 
         <section className="qb-card qb-dash-card">

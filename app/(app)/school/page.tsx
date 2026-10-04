@@ -3,6 +3,8 @@ import { useCallback, useEffect, useState } from "react";
 import { schoolAction } from "@/lib/api/platform";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import StatusBadge from "@/components/StatusBadge";
+import DashboardHero from "@/components/DashboardHero";
+import StatCard from "@/components/StatCard";
 
 type School = { id: string; name: string; role: string };
 type Overview = { institution: string; teachers: Array<{ user_id: string; name: string; role: string }>; classes: Array<{ id: string; name: string; grade: string | null; status: string; teacher: string | null; students: number }> };
@@ -34,7 +36,14 @@ export default function SchoolPage() {
     <div className="qb-page-head"><div><h1>{overview?.institution ?? "School"}</h1><p>Classes, teachers and student class membership.</p></div>
       {schools.length > 1 && <label>School<select value={school} onChange={(e) => setSchool(e.target.value)}>{schools.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}</select></label>}</div>
     {error && <p className="qb-error" role="alert">{error}</p>}{notice && <p role="status">{notice}</p>}
-    <section className="qb-card"><h2>Classes</h2><div className="qb-table-wrap"><table className="qb-table"><thead><tr><th>Class</th><th>Grade</th><th>Teacher</th><th>Students</th><th>Status</th><th><span className="qb-sr-only">Actions</span></th></tr></thead><tbody>
+    <DashboardHero eyebrow="School workspace" title="One view across your institution." description="Monitor classes, teachers and learner membership across your school." primary={{ label: "Manage classes", href: "#school-classes" }} secondary={{ label: "View account", href: "/account" }} />
+    <div className="qb-grid cols-4">
+      <StatCard label="Teachers" value={overview?.teachers.length} />
+      <StatCard label="Classes" value={overview?.classes.length} />
+      <StatCard label="Active classes" value={overview ? active.length : null} />
+      <StatCard label="Class enrollments" value={overview ? overview.classes.reduce((sum, c) => sum + c.students, 0) : null} hint="Includes membership in multiple classes" />
+    </div>
+    <section id="school-classes" className="qb-card qb-anchor"><h2>Classes</h2><div className="qb-table-wrap"><table className="qb-table"><thead><tr><th>Class</th><th>Grade</th><th>Teacher</th><th>Students</th><th>Status</th><th><span className="qb-sr-only">Actions</span></th></tr></thead><tbody>
       {(overview?.classes ?? []).map((c) => <tr key={c.id}><td>{c.name}</td><td>{c.grade ?? "-"}</td><td>{c.teacher ?? "-"}</td><td>{c.students}</td><td><StatusBadge status={c.status} /></td><td>
         {c.status === "active" && <div className="qb-content-filters">
           <label className="qb-sr-only" htmlFor={`t-${c.id}`}>Reassign teacher for {c.name}</label>
