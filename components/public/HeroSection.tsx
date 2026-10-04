@@ -7,7 +7,7 @@ export default function HeroSection() {
   return (
     <section className="qbp-wrap qbp-hero" aria-labelledby="qbp-hero-title" data-qb-section="hero">
       <div className="qbp-hero-copy">
-        <p className="qbp-eyebrow">Ghana curriculum · JHS learning · Global ready</p>
+        <p className="qbp-eyebrow">Curriculum-aligned · Human-reviewed · Global ready</p>
         <h1 id="qbp-hero-title" className="qbp-h1">Learn it. Practice it.<br /><span className="qbp-accent">Challenge someone.</span></h1>
         <p className="qbp-lead">A curriculum-aligned learning and competition platform. Students practise and compete, teachers assign and monitor, sponsors support challenges, and qualified subject experts review content before it reaches learners.</p>
         <div className="qbp-actions">
