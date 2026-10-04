@@ -33,6 +33,7 @@ None open.
 | Item | Assessment |
 | --- | --- |
 | `qb_marketplace_catalog()` executable by `anon` | Intentional public catalogue; read-only, published/approved products only. Accept. |
+| `qb_signup_markets()` executable by `anon` | Intentional public contract (grant in `20261003100000_multi_market_platform.sql`): read-only list of active countries and ACTIVE non-test markets with display configuration, used by country-first signup and the public homepage (which renders display labels only). Accept. Explicitly allowlisted in `lib/operations/public-rpc-allowlist.ts`, which `scripts/security-readiness.ts` uses; no wildcard. |
 | 47 tables with RLS and no policy | All private workflow tables (`quizbox_competition.*`, ledger/attribution tables); access only through SECURITY DEFINER RPCs. Accept. |
 | `qb_settle_paid_order` | Requires platform admin or `FINANCE_MANAGE`; assumes an external trusted payment confirmation. No client caller. Keep; revisit when payments go live. |
 | 14 helper functions in `quizbox_market`/`quizbox_sme` executable by authenticated | Predicates used inside RLS policies and RPCs (e.g. `is_super`, `market_allowed`, `has_capability`). Return booleans about the caller only. Accept. |

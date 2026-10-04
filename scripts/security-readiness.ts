@@ -1,6 +1,7 @@
 import { writeFile,readFile } from "node:fs/promises";
 import { execFileSync } from "node:child_process";
 import { operatorClient } from "./operator";
+import { INTENTIONAL_ANON_RPCS, unexpectedAnonFunctions } from "../lib/operations/public-rpc-allowlist";
 export async function auditSecurity(authenticatedPassed = false) {
   const client = await operatorClient();
   const audit = await client.rpc("qb_production_security_audit");
@@ -8,7 +9,7 @@ export async function auditSecurity(authenticatedPassed = false) {
   let dependency: any;
   try { dependency = JSON.parse(execFileSync(process.platform === "win32" ? "cmd.exe" : "npm", process.platform === "win32" ? ["/d","/s","/c","npm.cmd audit --json"] : ["audit","--json"], { encoding: "utf8", maxBuffer: 8*1024*1024 })); }
   catch (error: any) { try { dependency = JSON.parse(String(error.stdout)); } catch { throw new Error("DEPENDENCY_AUDIT_UNAVAILABLE"); } }
-  const data = audit.data, unexpected = data.functions.filter((f: any) => f.anon && f.name !== "qb_marketplace_catalog");
+  const data = audit.data, unexpected = unexpectedAnonFunctions(data.functions as any[]);
   const advisoryReceipt=JSON.parse(await readFile("reports/live-security-advisors.json","utf8"));
   const leakedDisabled=advisoryReceipt.advisories.some((a:any)=>a.name==="auth_leaked_password_protection");
   const tracked=execFileSync("git",["ls-files","-z"],{encoding:"utf8"}).split("\0").filter(Boolean);
@@ -34,9 +35,9 @@ export async function auditSecurity(authenticatedPassed = false) {
     {id:"media",severity:"P1",status:data.private_media?"PASS":"FAIL",reference:"private question-media bucket; attempt snapshot storage policy; app/api/content/media/route.ts"}
   ];
   const report = { generatedAt:new Date().toISOString(), findings, live:data, dependencies:dependency.metadata.vulnerabilities,
-    advisors:advisoryReceipt,privilegeInventory:data.functions.map((f:any)=>({...f,legitimateExecute:f.name==="qb_marketplace_catalog"?"anon published catalogue; authenticated":f.authenticated?"authenticated with actor/RLS/role checks; service_role":"internal/trigger/service_role only",reviewStatus:"Catalog and code review; not blanket dynamic certification"})) };
+    advisors:advisoryReceipt,privilegeInventory:data.functions.map((f:any)=>({...f,legitimateExecute:INTENTIONAL_ANON_RPCS[f.name]??(f.authenticated?"authenticated with actor/RLS/role checks; service_role":"internal/trigger/service_role only"),reviewStatus:"Catalog and code review; not blanket dynamic certification"})) };
   await writeFile("reports/production-security-readiness.json",JSON.stringify(report,null,2));
-  await writeFile("reports/production-security-readiness.md","# Production Security Readiness\n\n"+findings.map((f)=>"- "+f.severity+" "+f.id+": "+f.status+" ("+f.reference+")").join("\n")+"\n\nPublic catalogue is the only intentional anonymous definer endpoint.\n");
+  await writeFile("reports/production-security-readiness.md","# Production Security Readiness\n\n"+findings.map((f)=>"- "+f.severity+" "+f.id+": "+f.status+" ("+f.reference+")").join("\n")+"\n\nIntentional anonymous definer endpoints (explicit allowlist, lib/operations/public-rpc-allowlist.ts): "+Object.keys(INTENTIONAL_ANON_RPCS).join(", ")+".\n");
   return report;
 }
 if (process.argv[1]?.endsWith("security-readiness.ts")) auditSecurity().then((r)=>console.log(JSON.stringify({findings:r.findings.map(({id,status,severity})=>({id,status,severity})),functions:r.privilegeInventory.length}))).catch(()=>{console.error("SECURITY_READINESS_FAILED");process.exitCode=1;});

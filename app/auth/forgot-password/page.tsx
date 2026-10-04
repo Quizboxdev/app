@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import BrandLockup from "@/components/BrandLockup";
 import { FormEvent, useEffect, useState } from "react";
 import { recoveryErrorMessage, requestPasswordReset } from "@/lib/auth-recovery";
 import { createResetEmailRequest, isResetEmailRateLimit, RESET_EMAIL_RATE_LIMIT, RESET_EMAIL_SENT } from "@/lib/password-reset-request";
@@ -27,7 +28,7 @@ export default function ForgotPasswordPage() {
     finally { setRemaining(request.remainingSeconds()); setBusy(false); }
   }
   return <div className="qb-auth"><div className="qb-auth-card">
-    <div className="qb-brand">QuizBox</div><h1>Reset password</h1>
+    <BrandLockup variant="responsive" href="/" size={36} /><h1>Reset password</h1>
     {sent && <p role="status">{RESET_EMAIL_SENT}</p>}
     <form className="qb-form" onSubmit={submit}>
       <div className="qb-field"><label htmlFor="reset-email">Email</label><input id="reset-email" type="email" autoComplete="email" required value={email} onChange={event=>setEmail(event.target.value)} disabled={busy}/></div>

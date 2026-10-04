@@ -10,6 +10,7 @@ import type { UserContext } from "@/lib/types";
 import { findMySeller } from "@/lib/api/marketplace";
 import { getSmeContext, type SmeContext } from "@/lib/api/sme";
 import MarketContextControl from "@/components/MarketContextControl";
+import BrandLockup from "@/components/BrandLockup";
 
 type NavItem = [string, string];
 
@@ -147,8 +148,7 @@ export default function AppShell({
     <div className={`qb-shell ${isStudent ? 'qb-shell-student' : ''}`}>
       <aside className="qb-sidebar">
         <div className="qb-brand">
-          <img src="/logo.jpg" alt="QuizBox" style={{ width: "32px", height: "32px", borderRadius: "8px", objectFit: "cover" }} />
-          QuizBox
+          <BrandLockup variant="compact" size={32} />
         </div>
 
         <div className="qb-nav">
@@ -162,17 +162,18 @@ export default function AppShell({
 
       <main className="qb-main">
         <header className="qb-topbar">
+          <BrandLockup variant="mark" size={28} href={getHomeRouteForRole(role)} className="qb-topbar-brand" />
           <GlobalSearch/>
           <NotificationBell/>
-          
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', paddingLeft: '1.25rem', borderLeft: '1px solid var(--qb-border)' }}>
-            <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column' }}>
-              <strong style={{ fontSize: '0.875rem', lineHeight: 1.2 }}>{name}</strong>
+
+          <div className="qb-topbar-user">
+            <div className="qb-topbar-who">
+              <strong>{name}</strong>
               <span className="qb-muted qb-small">{role}</span>
             </div>
-            <Link className="qb-btn secondary" style={{ padding: '0.4375rem 0.75rem', fontSize: '0.8125rem' }} href="/account">Account</Link>
+            <Link className="qb-btn secondary" href="/account">Account</Link>
             <button
-              className="qb-btn ghost" style={{ padding: '0.4375rem 0.75rem', fontSize: '0.8125rem' }}
+              className="qb-btn ghost"
               onClick={async () => {
                 await signOut();
                 router.replace("/login");

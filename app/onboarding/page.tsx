@@ -7,6 +7,7 @@ import { bootstrapUser, getHomeRouteForRole } from "@/lib/auth";
 import { completeOnboarding, listSignupCountries, type OnboardingRole, type SignupCountry } from "@/lib/api/markets";
 import { userFacingError } from "@/lib/errors";
 import { recordFailure } from "@/lib/api/operations";
+import BrandLockup from "@/components/BrandLockup";
 
 // Country → role → role-specific details. Options come from the selected market's configuration.
 export default function OnboardingPage() {
@@ -25,6 +26,8 @@ export default function OnboardingPage() {
       if (!data.user) { router.replace("/login"); return; }
       const meta = data.user.user_metadata ?? {};
       setFullName(String(meta.full_name ?? "")); setCountryCode(String(meta.country_code ?? "")); if (["student", "teacher", "sponsor"].includes(meta.role)) setRole(meta.role);
+      // Set by the public "Apply to become a QuizBox SME" link; only pre-ticks the approval-controlled option.
+      if (meta.role === "teacher" && meta.sme_intent === true) setApplySme(true);
       setOrg((current) => ({ ...current, contact_email: data.user?.email ?? "" }));
       setCountries(await listSignupCountries());
     })().catch((cause) => setError(userFacingError(cause)));
@@ -54,7 +57,7 @@ export default function OnboardingPage() {
   return (
     <div className="qb-auth">
       <div className="qb-auth-card">
-        <div className="qb-brand">QuizBox</div>
+        <BrandLockup variant="responsive" href="/" size={36} />
         <p className="qb-muted">Set up your account</p>
         <form className="qb-form" onSubmit={submit}>
           <div className="qb-field"><label htmlFor="ob-name">Full name</label><input id="ob-name" value={fullName} onChange={(e) => setFullName(e.target.value)} required/></div>
