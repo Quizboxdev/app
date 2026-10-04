@@ -69,7 +69,7 @@ export default function AdminHomePage() {
     <>
       {head}
 
-      <DashboardHero eyebrow="Administration workspace" title="Platform operations without visual noise." description="Focus on exceptions, governance, throughput and required actions." primary={{ label: "Open operations", href: "/admin/operations" }} secondary={{ label: "Review content", href: "/admin/content" }} />
+      <DashboardHero eyebrow="Administration workspace" title="Govern the platform. Resolve what needs attention." description="Monitor markets, content quality, competitions, reviewer operations and platform health from one control point." primary={{ label: "Open operations", href: "/admin/operations" }} secondary={{ label: "Review content", href: "/admin/content" }} />
 
       <div className="qb-grid cols-4">
         <StatCard label="Total users" value={overview?.users?.total} />
