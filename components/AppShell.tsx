@@ -12,6 +12,8 @@ import { findMySeller } from "@/lib/api/marketplace";
 import { getSmeContext, type SmeContext } from "@/lib/api/sme";
 import MarketContextControl from "@/components/MarketContextControl";
 import BrandLockup from "@/components/BrandLockup";
+import WorkspaceProvider from "@/components/WorkspaceProvider";
+import WorkspaceChip from "@/components/WorkspaceChip";
 
 type NavItem = [string, string];
 type NavGroup = { label: string; items: NavItem[] };
@@ -300,8 +302,10 @@ export default function AppShell({
         </header>
 
         <div className="qb-content" ref={contentRef}>
-          <div className="qb-context-bar"><MarketContextControl/></div>
-          {children}
+          <WorkspaceProvider>
+            <div className="qb-context-bar"><WorkspaceChip/><MarketContextControl/></div>
+            {children}
+          </WorkspaceProvider>
         </div>
 
         <nav className="qb-mobile-nav" aria-label="Main">

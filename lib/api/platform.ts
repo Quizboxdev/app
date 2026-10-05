@@ -2,7 +2,7 @@ import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { userFacingError } from "@/lib/errors";
 
 // Thin clients for server-derived platform endpoints. All authorization and aggregation is server-side.
-async function call<T>(name: string, args: Record<string, unknown> = {}): Promise<T> {
+export async function call<T>(name: string, args: Record<string, unknown> = {}): Promise<T> {
   const { data, error } = await getSupabaseBrowserClient().rpc(name, args);
   if (error) throw new Error(userFacingError(error));
   return data as T;
@@ -21,7 +21,7 @@ export const markAllNotificationsRead = () => call("qb_notifications", { p_actio
 export const search = (query: string) => call<SearchHit[]>("qb_search", { p_query: query, p_limit: 8 });
 export const contentQuality = <T>(action: string, data: Record<string, unknown> = {}) => call<T>("qb_content_quality", { p_action: action, p_data: data });
 export const reportQuestion = (question: string, reason: string) => call("qb_report_question", { p_question: question, p_reason: reason });
-export const studentInsights = () => call<Record<string, any>>("qb_student_insights");
+export const studentInsights = (studentId?: string) => call<Record<string, any>>("qb_student_insights", studentId ? { p_student_id: studentId } : {});
 export const teacherInsights = () => call<Record<string, any>>("qb_teacher_insights");
 export const platformInsights = () => call<Record<string, any>>("qb_platform_insights");
 export const schoolAction = <T>(action: string, data: Record<string, unknown> = {}) => call<T>("qb_school", { p_action: action, p_data: data });
