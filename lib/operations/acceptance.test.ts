@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { readFile } from "node:fs/promises";
-import { acceptanceAccount } from "./acceptance";
+import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { acceptanceAccount, applyLocalEnvironmentSafely } from "./acceptance";
+import { acceptancePassword, assertNotProduction, PRODUCTION_PROJECT_REF } from "./safety";
 import { releaseBlocked, releaseGates } from "./release";
 const environment = { QB_ENVIRONMENT: "acceptance", QB_ACCEPTANCE_PROJECT_REF: "unit", NEXT_PUBLIC_SUPABASE_URL: "https://unit.supabase.co",
  QB_ACCEPTANCE_STUDENT_EMAIL: "student.test@quizbox.local", QB_ACCEPTANCE_STUDENT_PASSWORD: "unit-only-credential" };
@@ -28,5 +32,56 @@ describe("acceptance credentials and release boundaries", () => {
   const script = await readFile("scripts/restore-isolated.ps1", "utf8");
   for (const check of ["RESTORE_TARGET_IS_NOT_ISOLATED", "RESTORE_ARCHIVE_CHECKSUM_MISMATCH", "RESTORE_CONNECTION_OVERRIDE_NOT_ALLOWED", "--single-transaction"]) expect(script).toContain(check);
   expect(script).not.toContain("--clean");
+ });
+});
+
+describe("acceptance can never target production", () => {
+ const preview = { QB_ENVIRONMENT: "acceptance", QB_ACCEPTANCE_PROJECT_REF: "previewprojectref00", NEXT_PUBLIC_SUPABASE_URL: "https://previewprojectref00.supabase.co", QB_ACCEPTANCE_PASSWORD: "unit-only-credential" };
+ const prod = `https://${PRODUCTION_PROJECT_REF}.supabase.co`;
+ it("allows a non-production preview target", () => { expect(() => assertNotProduction(preview)).not.toThrow(); expect(acceptancePassword(preview)).toBe("unit-only-credential"); });
+ it.each([
+  ["the production URL, even when no production ref is declared", { ...preview, NEXT_PUBLIC_SUPABASE_URL: prod }],
+  ["the production URL declared as the acceptance ref", { ...preview, NEXT_PUBLIC_SUPABASE_URL: prod, QB_ACCEPTANCE_PROJECT_REF: PRODUCTION_PROJECT_REF }],
+  ["a production SUPABASE_URL", { ...preview, SUPABASE_URL: prod }],
+  ["a pooler/database value embedding the production ref", { ...preview, PREVIEW_DB_USER: `postgres.${PRODUCTION_PROJECT_REF}` }],
+  ["an operator-declared production ref equal to the target", { ...preview, QB_PRODUCTION_PROJECT_REF: "previewprojectref00" }],
+ ])("refuses %s", (_name, env) => {
+  expect(() => assertNotProduction(env)).toThrow("ACCEPTANCE_PRODUCTION_TARGET_REFUSED");
+  expect(() => acceptancePassword(env)).toThrow();
+ });
+ it("lets preview values win over .env.local and shields production secrets from later loads", () => {
+  const dir = mkdtempSync(join(tmpdir(), "qb-env-")), file = join(dir, ".env.local");
+  writeFileSync(file, `NEXT_PUBLIC_SUPABASE_URL=${prod}
+SUPABASE_SERVICE_ROLE_KEY=prod-service-key
+QB_PRODUCTION_PROJECT_REF=${PRODUCTION_PROJECT_REF}
+UNRELATED_SETTING=kept
+`);
+  const saved = Object.fromEntries(["NEXT_PUBLIC_SUPABASE_URL", "SUPABASE_SERVICE_ROLE_KEY", "UNRELATED_SETTING", "QB_PRODUCTION_PROJECT_REF"].map(k => [k, process.env[k]]));
+  try {
+   process.env.NEXT_PUBLIC_SUPABASE_URL = preview.NEXT_PUBLIC_SUPABASE_URL;
+   for (const k of ["SUPABASE_SERVICE_ROLE_KEY", "UNRELATED_SETTING", "QB_PRODUCTION_PROJECT_REF"]) delete process.env[k];
+   applyLocalEnvironmentSafely(file);
+   expect(process.env.NEXT_PUBLIC_SUPABASE_URL).toBe(preview.NEXT_PUBLIC_SUPABASE_URL); // preview wins
+   expect(process.env.SUPABASE_SERVICE_ROLE_KEY).toBe("");                              // production key never inherited
+   expect(process.env.QB_PRODUCTION_PROJECT_REF).toBe("");
+   expect(process.env.UNRELATED_SETTING).toBe("kept");                                  // harmless defaults still apply
+   process.loadEnvFile(file);                                                            // what child scripts do afterwards
+   expect(process.env.SUPABASE_SERVICE_ROLE_KEY).toBe("");
+   expect(process.env.NEXT_PUBLIC_SUPABASE_URL).toBe(preview.NEXT_PUBLIC_SUPABASE_URL);
+  } finally {
+   for (const [k, v] of Object.entries(saved)) { if (v === undefined) delete process.env[k]; else process.env[k] = v; }
+   rmSync(dir, { recursive: true, force: true });
+  }
+ });
+ it("entry points load preview values first, never read .env.local directly, and carry no embedded credentials", async () => {
+  for (const file of ["scripts/run-acceptance.ts", "scripts/run-live-acceptance.ts", "scripts/reset-passwords.ts"]) {
+   const source = await readFile(file, "utf8");
+   expect(source, file).toContain("loadAcceptanceEnvironment");
+   expect(source, file).toContain("applyLocalEnvironmentSafely");
+   expect(source, file).toContain("assertNotProduction");
+   expect(source, file).not.toMatch(/loadEnvFile\(\s*["']\.env\.local["']\s*\)/);
+   expect(source, file).not.toMatch(/eyJ[A-Za-z0-9_-]{20,}\./);
+   expect(source, file).not.toContain("Quixbox123");
+  }
  });
 });

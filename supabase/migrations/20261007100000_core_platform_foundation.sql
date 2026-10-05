@@ -308,6 +308,19 @@ declare w public.wallets; bucket text; part bigint; remaining bigint:=p_amount; 
 begin
  if p_amount is null or p_amount<=0 then raise exception 'QB_INVALID_AMOUNT'; end if;
  if length(trim(coalesce(p_purpose,'')))<3 or length(trim(coalesce(p_ref,'')))<1 or length(coalesce(p_idem,'')) not between 8 and 190 then raise exception 'QB_INVALID_SPEND'; end if;
+ -- Entitlement input is validated up front (before any lock or write) so malformed input fails with a controlled QB_ code, never a raw Postgres error.
+ if p_entitlement is not null then
+  if jsonb_typeof(p_entitlement)<>'object' then raise exception 'QB_INVALID_ENTITLEMENT'; end if;
+  if coalesce(jsonb_typeof(p_entitlement->'kind'),'')<>'string' or length(trim(coalesce(p_entitlement->>'kind','')))=0 then raise exception 'QB_INVALID_ENTITLEMENT_KIND'; end if;
+  if jsonb_typeof(p_entitlement->'valid_until') is not null and jsonb_typeof(p_entitlement->'valid_until')<>'null' then
+   if jsonb_typeof(p_entitlement->'valid_until')<>'string' then raise exception 'QB_INVALID_ENTITLEMENT_VALID_UNTIL'; end if;
+   if length(trim(p_entitlement->>'valid_until'))>0 then
+    begin perform (p_entitlement->>'valid_until')::timestamptz;
+    exception when others then raise exception 'QB_INVALID_ENTITLEMENT_VALID_UNTIL'; end;
+   end if;
+  end if;
+  if jsonb_typeof(p_entitlement->'metadata') is not null and jsonb_typeof(p_entitlement->'metadata') not in ('object','null') then raise exception 'QB_INVALID_ENTITLEMENT_METADATA'; end if;
+ end if;
  select * into w from public.wallets where user_id=p_user for update;
  if not found then raise exception 'QB_INSUFFICIENT_BALANCE'; end if;
  -- Replay: same key returns the original outcome; a different amount under the same key is a conflict.
@@ -330,7 +343,7 @@ begin
  if p_entitlement is not null then
   begin
    insert into public.access_entitlements(user_id,kind,source,source_ref,valid_until,metadata)
-   values(p_user,p_entitlement->>'kind','coin_spend',p_ref,nullif(p_entitlement->>'valid_until','')::timestamptz,coalesce(p_entitlement->'metadata','{}')) returning id into ent;
+   values(p_user,p_entitlement->>'kind','coin_spend',p_ref,nullif(p_entitlement->>'valid_until','')::timestamptz,case when jsonb_typeof(p_entitlement->'metadata')='object' then p_entitlement->'metadata' else '{}'::jsonb end) returning id into ent;
   exception when unique_violation then raise exception 'QB_ORDER_ALREADY_FULFILLED'; end;
  end if;
  perform quizbox_core.audit('coins.spend','coin_transactions',t.id,jsonb_build_object('user',p_user,'amount',p_amount,'purpose',p_purpose,'ref',p_ref,'split',spent));

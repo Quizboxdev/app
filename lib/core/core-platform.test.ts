@@ -281,6 +281,41 @@ describe("Coin spend primitive", () => {
     expect((await q("select count(*)::int n from public.coin_transactions")).n).toBe(before);
     await fails("update public.coin_transactions set amount=-1 where kind='spend'", [], "QB_IMMUTABLE_HISTORY");
   });
+  it("rejects malformed entitlement input with controlled QB_ errors and no side effects", async () => {
+    const counts = async () => ({ ...(await balances()), ledger: (await q("select count(*)::int n from public.coin_transactions")).n, ent: (await q("select count(*)::int n from public.access_entitlements")).n });
+    const before = await counts();
+    const cases: Array<[string, string]> = [
+      ['{"metadata":{}}', "QB_INVALID_ENTITLEMENT_KIND"], ['{"kind":""}', "QB_INVALID_ENTITLEMENT_KIND"], ['{"kind":"   "}', "QB_INVALID_ENTITLEMENT_KIND"],
+      ['{"kind":null}', "QB_INVALID_ENTITLEMENT_KIND"], ['{"kind":7}', "QB_INVALID_ENTITLEMENT_KIND"], ['{"kind":{"a":1}}', "QB_INVALID_ENTITLEMENT_KIND"],
+      ['{"kind":["x"]}', "QB_INVALID_ENTITLEMENT_KIND"], ['[]', "QB_INVALID_ENTITLEMENT"], ['"challenge_entry"', "QB_INVALID_ENTITLEMENT"], ['5', "QB_INVALID_ENTITLEMENT"],
+      ['{"kind":"k","valid_until":"not-a-date"}', "QB_INVALID_ENTITLEMENT_VALID_UNTIL"], ['{"kind":"k","valid_until":"2026-13-45"}', "QB_INVALID_ENTITLEMENT_VALID_UNTIL"],
+      ['{"kind":"k","valid_until":5}', "QB_INVALID_ENTITLEMENT_VALID_UNTIL"], ['{"kind":"k","valid_until":true}', "QB_INVALID_ENTITLEMENT_VALID_UNTIL"],
+      ['{"kind":"k","metadata":"text"}', "QB_INVALID_ENTITLEMENT_METADATA"], ['{"kind":"k","metadata":[]}', "QB_INVALID_ENTITLEMENT_METADATA"], ['{"kind":"k","metadata":5}', "QB_INVALID_ENTITLEMENT_METADATA"],
+    ];
+    await db.exec("set role service_role");
+    for (const [i, [ent, code]] of cases.entries()) {
+      await fails("select public.qb_coin_spend($1,1,'marketplace purchase',$2,$3,$4::jsonb)", [STRANGER, `bad-order-${i}`, `bad-entitlement-${String(i).padStart(3, "0")}`, ent], code);
+    }
+    await db.exec("reset role");
+    expect(await counts()).toEqual(before); // nothing was spent, written or granted
+  });
+  it("still accepts well-formed entitlements (omitted, null or empty optional fields) and keeps the RPC contract", async () => {
+    await db.exec("set role service_role");
+    const ok = await spend(1, "spend-valid-001", "order-v1", { kind: "challenge_entry", valid_until: "2027-01-01T00:00:00Z", metadata: { pack: "x" } });
+    const nullish = await spend(1, "spend-valid-002", "order-v2", { kind: "challenge_entry", valid_until: null, metadata: null });
+    const emptyUntil = await spend(1, "spend-valid-003", "order-v3", { kind: "challenge_entry", valid_until: "" });
+    await db.exec("reset role");
+    for (const r of [ok, nullish, emptyUntil]) expect(r).toMatchObject({ spent: 1, duplicate: false }), expect(r.entitlement_id).toBeTruthy();
+    const rows = (await db.query<Record<string, any>>("select id,valid_until,metadata from public.access_entitlements where source_ref in ('order-v1','order-v2','order-v3') order by source_ref")).rows;
+    expect(rows.map((r) => r.id)).toEqual([ok.entitlement_id, nullish.entitlement_id, emptyUntil.entitlement_id]);
+    expect(rows[0].valid_until).not.toBeNull();
+    expect(rows[1]).toMatchObject({ valid_until: null, metadata: {} });
+    expect(rows[2].valid_until).toBeNull();
+    // Spend without an entitlement is unchanged.
+    await db.exec("set role service_role");
+    expect((await spend(1, "spend-valid-004", "order-v4")).entitlement_id).toBeNull();
+    await db.exec("reset role");
+  });
 });
 
 describe("catalogue security checks (mirrors what release:verify-security must see on a real branch)", () => {

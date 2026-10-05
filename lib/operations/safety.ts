@@ -1,5 +1,19 @@
+// Hard-coded on purpose: the guard must not depend on a value that comes from the same environment it is checking.
+export const PRODUCTION_PROJECT_REF = "fmgccmqxfjppqydkhaiu";
+const projectRef = (url?: string) => { try { return new URL(url ?? "").hostname.split(".")[0]; } catch { return ""; } };
+
+// Refuses when anything in the resolved environment points at production: the Supabase URL(s), the declared acceptance ref,
+// or any other value (pooler user, DB URL, ...) that embeds the production project ref.
+export function assertNotProduction(env: Record<string,string|undefined> = process.env) {
+  const production = new Set([PRODUCTION_PROJECT_REF, env.QB_PRODUCTION_PROJECT_REF].filter(Boolean));
+  const refs = [projectRef(env.NEXT_PUBLIC_SUPABASE_URL), projectRef(env.SUPABASE_URL), env.QB_ACCEPTANCE_PROJECT_REF].filter(Boolean) as string[];
+  const embedsProduction = Object.entries(env).some(([key, value]) => key !== "QB_PRODUCTION_PROJECT_REF" && typeof value === "string" && value.includes(PRODUCTION_PROJECT_REF));
+  if (refs.some(ref => production.has(ref)) || embedsProduction) throw new Error("ACCEPTANCE_PRODUCTION_TARGET_REFUSED");
+}
+
 export function acceptancePassword(env: Record<string,string|undefined> = process.env): string {
   if (env.QB_ENVIRONMENT !== "acceptance" || env.NODE_ENV === "production" || env.VERCEL_ENV === "production") throw new Error("ACCEPTANCE_ENVIRONMENT_REQUIRED");
+  assertNotProduction(env);
   const ref = new URL(env.NEXT_PUBLIC_SUPABASE_URL ?? "https://invalid.local").hostname.split(".")[0];
   if (!env.QB_ACCEPTANCE_PROJECT_REF || ref !== env.QB_ACCEPTANCE_PROJECT_REF || ref === env.QB_PRODUCTION_PROJECT_REF) throw new Error("ACCEPTANCE_PROJECT_NOT_AUTHORIZED");
   if (!env.QB_ACCEPTANCE_PASSWORD) throw new Error("QB_ACCEPTANCE_PASSWORD_REQUIRED");

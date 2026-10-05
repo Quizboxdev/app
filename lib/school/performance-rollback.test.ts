@@ -6,7 +6,8 @@ import { createDeliveryFixture } from "../competition/fixtures/database";
 
 // Applies 20261008100000_school_performance, then its rollback, on the isolated in-memory database (never a hosted project).
 const id = (n: number) => `00000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
-const read = (path: string) => readFileSync(new URL(path, import.meta.url), "utf8");
+// Normalised so the exact-text comparison holds on checkouts that convert line endings (core.autocrlf on Windows), as in lib/core/rollback.test.ts.
+const read = (path: string) => readFileSync(new URL(path, import.meta.url), "utf8").replace(/\r\n/g, "\n");
 let db: PGlite;
 async function as(user: string | null) { await db.exec("reset role"); await db.query("select set_config('request.jwt.claim.sub',$1,false)", [user ?? ""]); await db.exec(user ? "set role authenticated" : "set role anon"); }
 const school = async (action: string, inst: string) => (await db.query<{ v: any }>("select public.qb_school($1,$2::jsonb) v", [action, JSON.stringify({ institution_id: inst })])).rows[0].v;

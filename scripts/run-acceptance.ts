@@ -1,9 +1,12 @@
 import { spawnSync } from "node:child_process";
-import { acceptanceAccount, ACCEPTANCE_ROLES, loadAcceptanceEnvironment } from "../lib/operations/acceptance";
+import { acceptanceAccount, ACCEPTANCE_ROLES, applyLocalEnvironmentSafely, loadAcceptanceEnvironment } from "../lib/operations/acceptance";
+import { assertNotProduction } from "../lib/operations/safety";
 
 try {
- process.loadEnvFile(".env.local");
+ // Preview-only values first, then .env.local with every Supabase/database/secret key shielded (never production), then a hard production refusal.
  loadAcceptanceEnvironment();
+ applyLocalEnvironmentSafely();
+ assertNotProduction(process.env);
  const student = acceptanceAccount("student");
  process.env.QB_ACCEPTANCE_PASSWORD ??= student.password;
  const accounts = ACCEPTANCE_ROLES.map(role => acceptanceAccount(role));

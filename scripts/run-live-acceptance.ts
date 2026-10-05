@@ -1,12 +1,13 @@
 import { spawnSync } from "node:child_process";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { createClient } from "@supabase/supabase-js";
-import { acceptanceAccount, ACCEPTANCE_ROLES } from "../lib/operations/acceptance";
+import { acceptanceAccount, ACCEPTANCE_ROLES, applyLocalEnvironmentSafely, loadAcceptanceEnvironment } from "../lib/operations/acceptance";
+import { assertNotProduction } from "../lib/operations/safety";
 export async function runLiveAcceptance() {
  const checkedAt=new Date().toISOString();
  const report:any={checkedAt,project:"",status:"FAIL",category:"CONFIGURATION",passed:0,failed:0,skipped:95,executed:0};
  try {
-  try {process.loadEnvFile('.env.local');} catch { /* CI may supply configuration. */ }
+  loadAcceptanceEnvironment(); applyLocalEnvironmentSafely(); assertNotProduction(process.env); // preview first; .env.local can never supply Supabase/secret values
   report.project=new URL(process.env.NEXT_PUBLIC_SUPABASE_URL!).hostname.split('.')[0];
   const accounts=ACCEPTANCE_ROLES.map(role=>acceptanceAccount(role));
   for(const [i,account] of accounts.entries()){
