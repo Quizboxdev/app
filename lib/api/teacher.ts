@@ -99,13 +99,18 @@ export async function listClassRoster(classId: string) {
   return data ?? [];
 }
 
-export async function listQuestions(filters: { search?: string; grade?: string; subject?: string; status?: string; difficulty?: string; page?: number; pageSize?: number }) {
+export async function listQuestions(filters: { search?: string; grade?: string; subject?: string; status?: string; difficulty?: string; answerType?: string; strand?: string; substrand?: string; standard?: string; indicator?: string; page?: number; pageSize?: number }) {
   const page = Math.max(1, filters.page ?? 1);
   const pageSize = Math.min(100, Math.max(10, filters.pageSize ?? 25));
   let query = getSupabaseBrowserClient().from("questions").select("id,question_code,question_text,grade,subject_code,strand_name,substrand_name,content_standard_code,indicator_code,difficulty_label,answer_type,status,source_type,created_at", { count: "exact" });
   if (filters.search) query = query.ilike("question_text", `%${filters.search.replace(/[%_]/g, "")}%`);
   if (filters.grade) query = query.eq("canonical_grade_code", canonicalFilterGrade(filters.grade));
   if (filters.subject) query = query.eq("subject_code", filters.subject);
+  if (filters.strand) query = query.eq("strand_name", filters.strand);
+  if (filters.substrand) query = query.eq("substrand_name", filters.substrand);
+  if (filters.standard) query = query.eq("content_standard_code", filters.standard);
+  if (filters.indicator) query = query.eq("indicator_code", filters.indicator);
+  if (filters.answerType) query = query.eq("answer_type", filters.answerType);
   if (filters.status) query = query.eq("validation_status", filters.status.toLowerCase());
   if (filters.difficulty) query = query.or(`difficulty_code.eq.${filters.difficulty},difficulty_label.eq.${filters.difficulty}`);
   const { data, error, count } = await query.order("created_at", { ascending: false }).range((page - 1) * pageSize, page * pageSize - 1);
