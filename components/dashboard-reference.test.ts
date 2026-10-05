@@ -48,7 +48,7 @@ describe("UI reference dashboard presentation", () => {
     for (const route of ["student", "teacher", "sponsor", "review", "school", "admin"]) {
       const source = readFileSync(`app/(app)/${route}/page.tsx`, "utf8");
       expect(source).not.toMatch(/Static design reference|Illustrative|Reference screen|data-route=/);
-      expect(source).toMatch(/DashboardHero|qb-welcome/);
+      expect(source).toMatch(/DashboardHero|qb-welcome|qb-dashboard-hero/);
     }
   });
 
@@ -60,9 +60,9 @@ describe("UI reference dashboard presentation", () => {
     expect(shell).toContain('aria-current={href === activeHref ? "page" : undefined}');
   });
 
-  it("uses the kit palette, compact geometry and responsive grids", () => {
+  it("uses the design-system palette, compact geometry and responsive grids", () => {
     const css = readFileSync("app/globals.css", "utf8");
-    for (const value of ["#f6f8fc", "#1769e8", "#10203b", "--sidebar-w: 224px", "--topbar-h: 64px"]) expect(css).toContain(value);
+    for (const value of ["#f8fafc", "#2563eb", "#0f172a", "--sidebar-w: 224px", "--topbar-h: 64px"]) expect(css).toContain(value);
     expect(css).toContain("grid-template-columns: repeat(2,minmax(0,1fr))");
     expect(css).toContain("prefers-reduced-motion: reduce");
     expect(css).toContain(".qb-dashboard-hero");

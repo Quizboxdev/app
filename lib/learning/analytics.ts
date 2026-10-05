@@ -32,3 +32,41 @@ export type IndicatorSummaryRow = { code: string; title: string; class_id: strin
 export function indicatorsFromSummary(rows: IndicatorSummaryRow[]): IndicatorAnalytics[] {
   return rows.map((row) => { const averageMastery = Number(row.average_mastery); return { code: row.code, title: row.title ?? row.code, learnerCount: Number(row.learner_count), attemptCount: Number(row.attempt_count), averageMastery, averageAccuracy: Number(row.average_accuracy), proficiencyState: row.proficiency_state ?? classifyProficiency(averageMastery) }; }).sort((a, b) => a.averageMastery - b.averageMastery);
 }
+
+// ---- Teacher home: assignment lifecycle and the "what needs my attention" queue (pure, from rows the dashboard already loads) ----
+export type AssignmentPhase = "Draft" | "Scheduled" | "Active" | "Closed";
+type AssignmentRow = { id?: string; class_id?: string | null; title?: string | null; status?: string | null; start_at?: string | null; opens_at?: string | null; due_at?: string | null };
+
+export function assignmentPhase(row: AssignmentRow, now = Date.now()): AssignmentPhase {
+  const status = String(row.status ?? "").toLowerCase();
+  if (status === "draft") return "Draft";
+  if (status === "closed" || status === "archived") return "Closed";
+  const start = Date.parse(row.start_at ?? row.opens_at ?? "");
+  if (Number.isFinite(start) && start > now) return "Scheduled";
+  const due = Date.parse(row.due_at ?? "");
+  return Number.isFinite(due) && due < now ? "Closed" : "Active";
+}
+
+export type AttentionItem = { key: string; tone: "danger" | "warning" | "info"; title: string; detail?: string; href?: string; indicator?: { code: string; classId?: string; curriculumNodeId?: string } };
+const DAY = 864e5;
+
+export function buildAttentionQueue(input: {
+  assignments: AssignmentRow[];
+  classes: Array<{ id: string; class_name?: string; completionRate: number; average: number }>;
+  needsAttention: Array<{ code: string; title?: string; learnerCount: number; averageMastery: number; classId?: string; curriculumNodeId?: string }>;
+  now?: number;
+}): AttentionItem[] {
+  const now = input.now ?? Date.now();
+  const active = input.assignments.filter((row) => assignmentPhase(row, now) === "Active");
+  const items: AttentionItem[] = [];
+  const dueSoon = active.filter((row) => row.due_at && Date.parse(row.due_at) - now <= 3 * DAY).sort((a, b) => Date.parse(a.due_at!) - Date.parse(b.due_at!));
+  if (dueSoon.length) items.push({ key: "due", tone: "warning", title: `${dueSoon.length} assignment${dueSoon.length === 1 ? "" : "s"} due within 3 days`, detail: dueSoon[0].title ?? undefined, href: "/teacher/assignments" });
+  const activeClassIds = new Set(active.map((row) => row.class_id).filter(Boolean));
+  for (const cls of input.classes.filter((c) => activeClassIds.has(c.id) && c.completionRate < 50).slice(0, 2)) {
+    items.push({ key: `completion-${cls.id}`, tone: "warning", title: `Low completion in ${cls.class_name ?? "a class"}`, detail: `${Math.round(cls.completionRate)}% of learners have a final grade`, href: "/teacher/gradebook" });
+  }
+  for (const row of input.needsAttention.slice(0, 3)) {
+    items.push({ key: `weak-${row.classId ?? ""}-${row.code}`, tone: "danger", title: `${row.title ?? row.code} needs work`, detail: `${row.learnerCount} learner${row.learnerCount === 1 ? "" : "s"} affected · ${Math.round(row.averageMastery)}% mastery`, indicator: { code: row.code, classId: row.classId, curriculumNodeId: row.curriculumNodeId } });
+  }
+  return items.sort((a, b) => ["danger", "warning", "info"].indexOf(a.tone) - ["danger", "warning", "info"].indexOf(b.tone)).slice(0, 6);
+}

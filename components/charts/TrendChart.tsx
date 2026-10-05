@@ -61,6 +61,7 @@ export default function TrendChart({
             stroke={color} 
             strokeWidth={3}
             dot={{ r: 4, fill: color, strokeWidth: 0 }}
+            isAnimationActive={false}
             activeDot={{ r: 6, strokeWidth: 0 }}
           />
         </LineChart>

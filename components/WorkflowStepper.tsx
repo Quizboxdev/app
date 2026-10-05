@@ -15,12 +15,16 @@ interface WorkflowStepperProps {
   steps: WorkflowStep[];
   onComplete: () => void;
   onCancel?: () => void;
+  completeLabel?: string;
+  busy?: boolean;
 }
 
 export default function WorkflowStepper({
   steps,
   onComplete,
   onCancel,
+  completeLabel = "Launch campaign",
+  busy = false,
 }: WorkflowStepperProps) {
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
 
@@ -67,8 +71,8 @@ export default function WorkflowStepper({
           <button type="button" className="qb-btn ghost" onClick={handleBack}>
             {isFirstStep ? "Cancel" : "Back"}
           </button>
-          <button type="button" className="qb-btn" onClick={handleNext} disabled={currentStep.isValid === false}>
-            {isLastStep ? "Launch campaign" : "Next step"}
+          <button type="button" className="qb-btn" onClick={handleNext} disabled={busy || currentStep.isValid === false}>
+            {isLastStep ? (busy ? "Working…" : completeLabel) : "Next step"}
             {!isLastStep && <ChevronRight size={16} aria-hidden="true" />}
           </button>
         </div>
