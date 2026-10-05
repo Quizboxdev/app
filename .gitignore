@@ -10,6 +10,12 @@ out/
 .env.*
 !.env.example
 
+# Generated visual-QA screenshots and reports (npm run qa:visual)
+reports/qa/
+
+# Gate 2 staging seed output (branch-specific ids)
+.gate2-nodes.json
+
 # Logs and local tooling
 *.log
 *.tsbuildinfo
