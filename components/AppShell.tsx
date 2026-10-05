@@ -104,6 +104,7 @@ export default function AppShell({
     }
   }, [ctx, isSeller, pathname, router, sellerChecked, sme]);
 
+  const inSchool = pathname.startsWith("/school");
   const groups = useMemo<NavGroup[]>(() => {
     if (!ctx) return [];
 
@@ -119,6 +120,11 @@ export default function AppShell({
       ...when(sme?.super_admin, [["/admin/markets", "Markets"], ["/admin/curriculum-sources", "Curriculum Sources"], ["/admin/reviewers", "Reviewers"], ["/admin/compensation", "Compensation"]]),
       ...when(sme?.super_admin || sme?.finance_admin, [["/admin/sme-performance", "SME Performance"], ["/admin/payouts", "Payouts"]]),
     ];
+
+    if (inSchool) {
+      add("School", [["/school", "Overview"], ["/school/classes", "Classes"], ["/school/teachers", "Teachers"], ["/school/learners", "Learners"], ["/school/performance", "Performance"]]);
+      return groups;
+    }
 
     if (isAdmin) {
       add("Overview", [["/admin", "Dashboard"]]);
@@ -198,7 +204,7 @@ export default function AppShell({
     add("SME", when(reviewer, [["/review", "SME Reviews"]]));
     add("Administration", administration);
     return groups;
-  }, [ctx, isSeller, sme]);
+  }, [ctx, isSeller, inSchool, sme]);
 
   const nav = useMemo(() => groups.flatMap((group) => group.items), [groups]);
   // The most specific matching link is the current page (so /admin is not active on /admin/content).

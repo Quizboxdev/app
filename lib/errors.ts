@@ -1,4 +1,5 @@
 const messages: Record<string, string> = {
+  INVALID_SCHOOL_ACTION: "This school report is not available yet.",
   QB_CONTENT_MARKET_REQUIRED: "Your account needs an assigned content market. Contact your administrator.",
   QB_CONTENT_MARKET_DENIED: "This market is not assigned to your account.",
   QB_CONTENT_CONTEXT_DENIED: "This content context is not available to your account.",
