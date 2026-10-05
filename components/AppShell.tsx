@@ -5,7 +5,7 @@ import NotificationBell from "@/components/NotificationBell";
 import GlobalSearch from "@/components/GlobalSearch";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { LayoutGrid, X, Home, BookOpen, FileText, Users, Trophy, ShoppingBag, Globe, ShieldCheck, Layers, LifeBuoy, Settings, CircleUser, LogOut, type LucideIcon } from "lucide-react";
+import { LayoutGrid, X, Home, BookOpen, Dumbbell, FileText, BarChart3, Bell, Users, Trophy, ShoppingBag, Globe, ShieldCheck, Layers, LifeBuoy, Settings, CircleUser, LogOut, type LucideIcon } from "lucide-react";
 import { bootstrapUser, getHomeRouteForRole, signOut } from "@/lib/auth";
 import type { UserContext } from "@/lib/types";
 import { findMySeller } from "@/lib/api/marketplace";
@@ -19,6 +19,12 @@ type NavItem = [string, string];
 type NavGroup = { label: string; items: NavItem[] };
 
 function navigationIcon(href: string): LucideIcon {
+  if (/^\/practise/.test(href)) return Dumbbell;
+  if (/^\/learn/.test(href)) return BookOpen;
+  if (/student\/results/.test(href)) return BarChart3;
+  if (/notifications/.test(href)) return Bell;
+  if (/^\/account/.test(href)) return CircleUser;
+  if (/student\/classroom/.test(href)) return FileText;
   if (/competition/.test(href)) return Trophy;
   if (/marketplace|seller/.test(href)) return ShoppingBag;
   if (/classes|classroom|tenants|school/.test(href)) return Users;
@@ -79,7 +85,7 @@ export default function AppShell({
         ? ["/teacher", "/competition", "/marketplace"]
         : role === "SPONSOR"
           ? ["/sponsor", "/competition", "/marketplace"]
-          : ["/student", "/competition", "/marketplace"];
+          : ["/student", "/learn", "/practise", "/competition", "/marketplace"];
 
     if (isSeller && ["TEACHER", "ADMIN", "OWNER"].includes(role)) {
       allowedPrefixes.push("/seller");
@@ -175,14 +181,20 @@ export default function AppShell({
       return groups;
     }
 
+    // Learn → Practise → Assignments (delivery, not a mode) → Compete; secondary destinations follow.
     add("", [
       ["/student", "Home"],
-      ["/student/assessments", "Assessments"],
+      ["/learn", "Learn"],
+      ["/practise", "Practise"],
+      ["/student/classroom", "Assignments"],
+      ["/competition", "Compete"],
+    ]);
+    add("My learning", [
       ["/student/results", "Progress"],
-      ["/competition", "Competitions"],
-      ["/student/classroom", "Classroom"],
+      ["/student/assessments", "Assessments"],
       ["/marketplace", "Marketplace"],
     ]);
+    add("Me", [["/notifications", "Notifications"], ["/account", "Account"]]);
     add("SME", when(reviewer, [["/review", "SME Reviews"]]));
     add("Administration", administration);
     return groups;
@@ -251,17 +263,21 @@ export default function AppShell({
       {navLinks(group.items)}
     </div>
   ));
+  // Role accent (design system): drives --role for the eyebrow, workspace label, avatar ring and hero rule.
+  const roleKey = pathname.startsWith("/review") ? "sme" : pathname.startsWith("/school") ? "school"
+    : ["ADMIN", "OWNER"].includes(role) ? "admin" : role === "TEACHER" ? "teacher" : role === "SPONSOR" ? "sponsor" : "student";
   // Phones get four primary destinations plus "More", which opens the full navigation.
-  const primary = nav.slice(0, 4);
+  const primary = nav.slice(0, roleKey === "student" ? 5 : 4);
   const activeLabel = nav.find(([href]) => href === activeHref)?.[1];
   const pageTitle = pathname === "/review" ? "SME Dashboard"
     : pathname === "/school" ? "School Dashboard"
-      : activeLabel === "Home" || activeLabel === "Dashboard" ? `${role.charAt(0)}${role.slice(1).toLowerCase()} Dashboard`
+      : activeLabel === "Home" && roleKey === "student" ? "Home"
+        : activeLabel === "Home" || activeLabel === "Dashboard" ? `${role.charAt(0)}${role.slice(1).toLowerCase()} Dashboard`
         : activeLabel ?? "QuizBox";
   const initials = name.trim().split(/\s+/).slice(0, 2).map((part) => part[0]).join("").toUpperCase();
 
   return (
-    <div className="qb-shell">
+    <div className="qb-shell" data-role={roleKey}>
       <aside className="qb-sidebar">
         <div className="qb-brand">
           <BrandLockup variant="compact" size={32} />
@@ -308,7 +324,7 @@ export default function AppShell({
           </WorkspaceProvider>
         </div>
 
-        <nav className="qb-mobile-nav" aria-label="Main">
+        <nav className="qb-mobile-nav" aria-label="Main" style={{ gridTemplateColumns: `repeat(${primary.length + 1}, minmax(0, 1fr))` }}>
           {navLinks(primary)}
           <button type="button" aria-haspopup="dialog" aria-expanded={moreOpen} onClick={() => setMoreOpen(true)}>
             <LayoutGrid size={18} aria-hidden="true" />More
