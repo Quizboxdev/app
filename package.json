@@ -21,6 +21,7 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
+    "qa:visual": "tsx scripts/qa/visual-qa.ts",
     "content:audit": "tsx scripts/content-audit.ts ../Curriculum",
     "content:validate": "tsx scripts/validate-curriculum.ts",
     "content:verify": "tsx scripts/verify-curriculum-import.ts",
