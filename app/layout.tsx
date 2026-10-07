@@ -3,8 +3,11 @@ import "./globals.css";
 import type { Metadata } from "next";
 import Script from "next/script";
 import { RECOVERY_REDIRECT_SCRIPT } from "@/lib/recovery-redirect";
+import { SITE_URL } from "@/lib/site";
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
+  openGraph: { siteName: "QuizBox", url: SITE_URL, type: "website" },
   title: "QuizBox",
   description: "Learn. Practice. Compete.",
   icons: { icon: "/brand/quizbox-icon-96.png", apple: "/brand/quizbox-apple-icon.png" },

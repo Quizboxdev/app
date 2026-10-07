@@ -10,7 +10,9 @@ export const metadata: Metadata = {
   title: "QuizBox — Learn, Practice & Compete",
   description:
     "QuizBox is a curriculum-aligned learning, assessment and competition platform for students, teachers, schools and sponsors, with content reviewed by qualified subject experts.",
+  alternates: { canonical: "/" },
   openGraph: {
+    url: "/",
     title: "QuizBox — Learn, Practice & Compete",
     description: "Curriculum-aligned practice, assessment and competitions, with SME-reviewed content.",
     images: [{ url: "/brand/quizbox-app-icon.png", width: 512, height: 512, alt: "QuizBox" }],
