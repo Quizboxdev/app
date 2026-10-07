@@ -1,4 +1,5 @@
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
+import { readJson } from "./http";
 import { userFacingError } from "@/lib/errors";
 import type { ImportRow } from "@/lib/content/factory/import";
 
@@ -28,7 +29,7 @@ export async function runCampaignJobs(campaignId: string) {
   const supabase = getSupabaseBrowserClient(); const session = await supabase.auth.getSession();
   const token = session.data.session?.access_token; if (!token) throw new Error(userFacingError(new Error("AUTH_REQUIRED")));
   const response = await fetch("/api/admin/content-factory/run", { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ campaign_id: campaignId }) });
-  const body = await response.json();
+  const body = await readJson(response, "question generation");
   if (!response.ok) throw new Error(userFacingError(new Error(body.error ?? "GENERATION_FAILED")));
   return body as { claimed: number; outcomes: Array<{ job_id: string; status: string; valid?: number; duplicates?: number; duplicates_skipped?: number; error?: string }> };
 }

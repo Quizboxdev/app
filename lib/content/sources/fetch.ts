@@ -1,5 +1,5 @@
 import { createHash, randomUUID } from "node:crypto";
-import { PDFParse } from "pdf-parse";
+import { pdfPages } from "../../pdf";
 
 // Server-side fetch of official curriculum PDFs. Only hosts configured as the authority's official domains are
 // contacted (checked again on every redirect); bodies are size-capped and must be real PDFs. Nothing is approved here.
@@ -35,9 +35,8 @@ export async function fetchOfficialPdf(url: string, domains: string[], request: 
 }
 
 export async function extractPdfText(bytes: Buffer) {
-  const parser = new PDFParse({ data: bytes });
-  try { const result = await parser.getText(); return { text: result.pages.map((p) => p.text).join("\n\n").slice(0, 3_000_000), pages: result.pages.length }; }
-  finally { await parser.destroy(); }
+  const pages = await pdfPages(bytes);
+  return { text: pages.map((p) => p.text).join("\n\n").slice(0, 3_000_000), pages: pages.length };
 }
 
 const code = (error: unknown) => error instanceof Error && /^[A-Z][A-Z0-9_]{2,60}$/.test(error.message) ? error.message : "FETCH_FAILED";

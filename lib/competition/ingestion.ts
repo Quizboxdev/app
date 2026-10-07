@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 import mammoth from "mammoth";
-import { PDFParse } from "pdf-parse";
+import { pdfPages } from "../pdf";
 import { chunkExtract, type Chunk } from "./lifecycle";
 import type { SponsorRepository } from "./repository";
 
@@ -11,9 +11,7 @@ export const extractSource: Extractor = async (bytes, mime) => {
   if (!bytes.length || bytes.length > SOURCE_MAX_BYTES || !mimes.has(mime)) throw new Error("INVALID_SOURCE_UPLOAD");
   if (mime === "application/pdf") {
     if (!bytes.subarray(0, 5).equals(Buffer.from("%PDF-"))) throw new Error("INVALID_PDF_SIGNATURE");
-    const parser = new PDFParse({ data: bytes });
-    try { const result = await parser.getText(); return result.pages.map(page => ({ text: page.text, page: page.num, chapter: null, section: null, heading: null })); }
-    finally { await parser.destroy(); }
+    return (await pdfPages(bytes)).map(page => ({ text: page.text, page: page.num, chapter: null, section: null, heading: null }));
   }
   if (mime.includes("wordprocessingml")) {
     if (!bytes.subarray(0, 2).equals(Buffer.from("PK"))) throw new Error("INVALID_DOCX_SIGNATURE");

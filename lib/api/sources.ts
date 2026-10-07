@@ -1,5 +1,6 @@
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { userFacingError } from "@/lib/errors";
+import { readJson } from "./http";
 import type { ParsedPackage } from "@/lib/content/sources/package";
 
 // Thin clients for the curriculum source registry. Country isolation and every governance rule are enforced in SQL.
@@ -28,6 +29,7 @@ export async function fetchSources(filter: { market_id?: string; job_id?: string
   const supabase = getSupabaseBrowserClient(); const token = (await supabase.auth.getSession()).data.session?.access_token;
   if (!token) throw new Error(userFacingError(new Error("AUTH_REQUIRED")));
   const response = await fetch("/api/admin/curriculum-sources/fetch", { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify(filter) });
-  const body = await response.json(); if (!response.ok) throw new Error(userFacingError(new Error(body.error ?? "FETCH_FAILED")));
+  const body = await readJson(response, "curriculum source fetch");
+  if (!response.ok) throw new Error(userFacingError(new Error(body.error ?? "FETCH_FAILED")));
   return body as { claimed: number; outcomes: Array<{ id: string; title: string; status: string; error?: string; pages?: number }> };
 }

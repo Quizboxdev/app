@@ -3,7 +3,7 @@ import { readFile, readdir, stat } from "node:fs/promises";
 import path from "node:path";
 import * as XLSX from "xlsx";
 import mammoth from "mammoth";
-import { PDFParse } from "pdf-parse";
+import { pdfPages } from "../pdf";
 import { auditQuestion, canonicalGradeCode, educationLevelForGrade, fingerprintQuestion, normalizeGrade, normalizeSubject, normalizeText } from "./normalize";
 import type { AuditedQuestion, NormalizedCurriculumNode, NormalizedQuestion, SourceDocument } from "./types";
 
@@ -62,8 +62,7 @@ export async function discoverSources(root: string): Promise<SourceDocument[]> {
 export async function extractText(source: SourceDocument): Promise<string> {
   const buffer = await readFile(source.absolutePath);
   if (source.extension === ".pdf") {
-    const parser = new PDFParse({ data: buffer });
-    try { return (await parser.getText()).text; } finally { await parser.destroy(); }
+    return (await pdfPages(buffer)).map((page) => page.text).join("\n\n");
   }
   if (source.extension === ".docx") return (await mammoth.extractRawText({ buffer })).value;
   if ([".txt", ".csv", ".json"].includes(source.extension)) return buffer.toString("utf8");
