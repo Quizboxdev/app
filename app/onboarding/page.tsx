@@ -15,7 +15,7 @@ export default function OnboardingPage() {
   const [countries, setCountries] = useState<SignupCountry[]>([]);
   const [countryCode, setCountryCode] = useState(""), [role, setRole] = useState<OnboardingRole>("student"), [fullName, setFullName] = useState("");
   const [level, setLevel] = useState(""), [grade, setGrade] = useState(""), [school, setSchool] = useState("");
-  const [subjects, setSubjects] = useState<string[]>([]), [grades, setGrades] = useState<string[]>([]), [levels, setLevels] = useState<string[]>([]);
+  const [subjects, setSubjects] = useState<string[]>([]);
   const [org, setOrg] = useState({ organization_name: "", contact_name: "", contact_email: "", contact_phone: "" });
   const [applySme, setApplySme] = useState(false), [qualifications, setQualifications] = useState(""), [years, setYears] = useState("0");
   const [busy, setBusy] = useState(false), [error, setError] = useState("");
@@ -46,7 +46,7 @@ export default function OnboardingPage() {
       await completeOnboarding({
         country_code: countryCode, role, full_name: fullName, school_name: school,
         ...(role === "student" ? { education_level: level, grade_code: grade, subjects } : {}),
-        ...(role === "teacher" ? { subjects, grade_codes: grades, education_levels: levels, apply_sme: applySme, qualifications, years_experience: Number(years) } : {}),
+        ...(role === "teacher" ? { subjects, apply_sme: applySme, qualifications, years_experience: Number(years) } : {}),
         ...(role === "sponsor" ? org : {}),
       });
       const ctx = await bootstrapUser();
@@ -62,7 +62,7 @@ export default function OnboardingPage() {
         <form className="qb-form" onSubmit={submit}>
           <div className="qb-field"><label htmlFor="ob-name">Full name</label><input id="ob-name" value={fullName} onChange={(e) => setFullName(e.target.value)} required/></div>
           <div className="qb-field"><label htmlFor="ob-country">Country</label>
-            <select id="ob-country" value={countryCode} onChange={(e) => { setCountryCode(e.target.value); setLevel(""); setGrade(""); setSubjects([]); setGrades([]); setLevels([]); }} required>
+            <select id="ob-country" value={countryCode} onChange={(e) => { setCountryCode(e.target.value); setLevel(""); setGrade(""); setSubjects([]); }} required>
               <option value="">Select your country</option>{countries.map((c) => <option key={c.country_code} value={c.country_code}>{c.country}</option>)}
             </select>
             {country && !country.available && <div className="qb-error" role="alert">QuizBox is not yet available in this country.</div>}
@@ -71,14 +71,12 @@ export default function OnboardingPage() {
             <select id="ob-role" value={role} onChange={(e) => setRole(e.target.value as OnboardingRole)}><option value="student">Student</option><option value="teacher">Teacher</option><option value="sponsor">Sponsor / organization</option></select>
           </div>
           {country?.available && role === "student" && <>
-            <div className="qb-field"><label htmlFor="ob-level">Education level</label><select id="ob-level" value={level} onChange={(e) => { setLevel(e.target.value); setGrade(""); }}><option value="">All levels</option>{country.education_levels.map((l) => <option key={l.code} value={l.code}>{l.label}</option>)}</select></div>
-            <div className="qb-field"><label htmlFor="ob-grade">Grade / class</label><select id="ob-grade" value={grade} onChange={(e) => setGrade(e.target.value)} required><option value="">Select grade</option>{levelGrades.map((g) => <option key={g.code} value={g.code}>{g.label}</option>)}</select></div>
+            <div className="qb-field"><label htmlFor="ob-level">Education level</label><select id="ob-level" value={level} required onChange={(e) => { setLevel(e.target.value); setGrade(""); }}><option value="">Select education level</option>{country.education_levels.map((l) => <option key={l.code} value={l.code}>{l.label}</option>)}</select></div>
+            <div className="qb-field"><label htmlFor="ob-grade">Grade / class</label><select id="ob-grade" value={grade} disabled={!level} onChange={(e) => setGrade(e.target.value)} required><option value="">{level ? "Select grade / class" : "Select education level first"}</option>{levelGrades.map((g) => <option key={g.code} value={g.code}>{g.label}</option>)}</select></div>
             {checks(country.subjects, subjects, setSubjects, "Subjects")}
           </>}
           {country?.available && role === "teacher" && <>
             {checks(country.subjects, subjects, setSubjects, "Subjects taught")}
-            {checks(country.education_levels, levels, setLevels, "Education levels taught")}
-            {checks(country.grades, grades, setGrades, "Grades taught")}
             <label><input type="checkbox" checked={applySme} onChange={(e) => setApplySme(e.target.checked)}/>Apply to review content as a subject-matter expert (requires approval)</label>
             {applySme && <><div className="qb-field"><label htmlFor="ob-qual">Qualifications</label><textarea id="ob-qual" value={qualifications} onChange={(e) => setQualifications(e.target.value)}/></div>
               <div className="qb-field"><label htmlFor="ob-years">Years of experience</label><input id="ob-years" type="number" min={0} value={years} onChange={(e) => setYears(e.target.value)}/></div></>}

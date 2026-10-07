@@ -22,7 +22,34 @@ const admin = <T = Record<string, unknown>>(action: string, data: Record<string,
 const allowed = async (user: string, question: string) => { await as(user); return rpc<boolean>("quizbox_market.question_allowed($1)", [question]); };
 
 const TL_CONFIG = { education_levels: [{ code: "TL-PRI", label: "Primary" }], grades: [{ code: "TL7", label: "Year 7", level: "TL-PRI" }], subjects: [{ code: "TL-MATH", label: "Mathematics" }], grade_policy: { self_practice: "STRICT_GRADE" } };
-const GH_CONFIG = { education_levels: [{ code: "JHS", label: "JHS" }, { code: "SHS", label: "SHS" }], grades: [{ code: "B7", label: "Basic 7", level: "JHS" }, { code: "SHS1", label: "SHS 1", level: "SHS" }], subjects: [{ code: "Science", label: "Science" }], grade_policy: { self_practice: "STRICT_GRADE" } };
+const GH_CONFIG = {
+  education_levels: [
+    { code: "PRIMARY", label: "Primary" },
+    { code: "JHS", label: "Junior High School" },
+    { code: "SHS", label: "Senior High School" },
+  ],
+  grades: [
+    { code: "B4", label: "Class 4", level: "PRIMARY" },
+    { code: "B5", label: "Class 5", level: "PRIMARY" },
+    { code: "B6", label: "Class 6", level: "PRIMARY" },
+    { code: "B7", label: "Basic 7 (JHS 1)", level: "JHS" },
+    { code: "B8", label: "Basic 8 (JHS 2)", level: "JHS" },
+    { code: "B9", label: "Basic 9 (JHS 3)", level: "JHS" },
+    { code: "SHS1", label: "SHS 1 (Basic 10)", level: "SHS" },
+    { code: "SHS2", label: "SHS 2", level: "SHS" },
+    { code: "SHS3", label: "SHS 3", level: "SHS" },
+  ],
+  subjects: [
+    { code: "Mathematics", label: "Mathematics" },
+    { code: "Science", label: "Science" },
+    { code: "Computing", label: "Computing" },
+    { code: "Social Studies", label: "Social Studies" },
+    { code: "FRENCH", label: "French" },
+    { code: "ARABIC", label: "Arabic" },
+    { code: "Religious and Moral Education", label: "Religious and Moral Education" },
+  ],
+  grade_policy: { self_practice: "STRICT_GRADE" },
+};
 
 describe("multi-country platform over the isolated governance SQL", () => {
   beforeAll(async () => {
@@ -85,7 +112,7 @@ describe("multi-country platform over the isolated governance SQL", () => {
     expect(await onboard(u.tlStudent, { country_code: "XT", role: "student", grade_code: "TL7", full_name: "Tia Lander" })).toMatchObject({ role: "student", market: "Testland" });
     await onboard(u.ghStudent, { country_code: "GH", role: "student", grade_code: "SHS1", full_name: "Kofi Mensah" });
     await onboard(u.b7, { country_code: "GH", role: "student", grade_code: "B7", full_name: "Ama B" });
-    await onboard(u.ghTeacher, { country_code: "GH", role: "teacher", subjects: ["Science"], grade_codes: ["SHS1"], school_name: "Accra Academy" });
+    await onboard(u.ghTeacher, { country_code: "GH", role: "teacher", subjects: ["Science"], school_name: "Accra Academy" });
     await expect(onboard(u.tlTeacher, { country_code: "XT", role: "teacher", subjects: ["TL-MATH"], grade_codes: ["TL7"] })).rejects.toThrow("QB_SCHOOL_REQUIRED");
     await onboard(u.tlTeacher, { country_code: "XT", role: "teacher", subjects: ["TL-MATH"], grade_codes: ["TL7"], school_name: "Testland Central" });
     await onboard(u.smeGh, { country_code: "GH", role: "teacher", apply_sme: true, subjects: ["Science"], qualifications: "BSc", school_name: "Kumasi High" });
