@@ -1,4 +1,5 @@
 import { getSupabaseBrowserClient } from "./supabase/client";
+import { isNetworkError, NETWORK_MESSAGE } from "./auth-errors";
 
 // Canonical recovery route. /auth/reset-password (the previous route, already in sent emails and possibly in the Supabase
 // allow-list) forwards here with its query and hash intact.
@@ -118,5 +119,38 @@ export function recoveryErrorMessage(error: unknown) {
   const code = typeof error === "object" && error !== null && "code" in error ? String((error as { code: unknown }).code) : "";
   if (code === "weak_password") return "Choose a stronger password that meets the password policy.";
   if (code === "same_password") return "Choose a password different from your current password.";
+  if (code === "email_address_invalid") return "Enter a valid email address.";
+  if (isNetworkError(error)) return NETWORK_MESSAGE;
   return "The request could not be completed. Please try again.";
 }
+
+export { AUTH_CALLBACK_PATH } from "./auth-links";
+export type AuthCallbackResult = "recovery" | "session";
+
+// Exchanges the link (PKCE code or legacy hash tokens) for a session and says what kind of link it was. A recovery link stores the
+// same marker initializePasswordRecovery() writes, so /auth/update-password resumes it without a second (impossible) code exchange.
+export async function completeAuthCallback(url: URL, storage: RecoveryStorage, client = getSupabaseBrowserClient()): Promise<AuthCallbackResult> {
+  const hash = new URLSearchParams(url.hash.slice(1));
+  const failure = urlFailure(url.searchParams, hash);
+  if (failure) throw new RecoveryLinkError(failure);
+  let recovery = url.searchParams.get("type") === "recovery" || hash.get("type") === "recovery";
+  const { data: { subscription } } = client.auth.onAuthStateChange((event) => { if (event === "PASSWORD_RECOVERY") recovery = true; });
+  try {
+    const initialized = await client.auth.initialize();
+    if (initialized.error) throw new RecoveryLinkError(exchangeFailure(initialized.error));
+    // Custom email templates may link with ?token_hash=&type= instead of a PKCE code.
+    const tokenHash = url.searchParams.get("token_hash"), type = url.searchParams.get("type");
+    if (tokenHash && type) {
+      const verified = await client.auth.verifyOtp({ token_hash: tokenHash, type: type as "recovery" | "signup" | "email" | "invite" | "magiclink" | "email_change" });
+      if (verified.error) throw new RecoveryLinkError(exchangeFailure(verified.error));
+    }
+    const { data: { session }, error } = await client.auth.getSession();
+    if (error || !session) throw new RecoveryLinkError(url.searchParams.has("code") || tokenHash || hash.has("access_token") ? "used" : "missing");
+    if (!recovery) return "session";
+    const expiresAt = (session.expires_at ?? 0) * 1000;
+    if (expiresAt <= Date.now()) throw new RecoveryLinkError("expired");
+    try { storage.setItem(RECOVERY_STORAGE_KEY, JSON.stringify({ userId: session.user.id, expiresAt })); } catch { /* the reset form still works in this tab */ }
+    return "recovery";
+  } finally { subscription.unsubscribe(); }
+}
+

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import BrandLockup from "@/components/BrandLockup";
+import AuthShell from "@/components/auth/AuthShell";
 import PasswordUpdateForm from "@/components/auth/PasswordUpdateForm";
 import { FormEvent, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -45,11 +45,10 @@ export default function UpdatePasswordPage() {
       if (recoveryFailureOf(cause)) setFailure(recoveryErrorMessage(cause)); else setError(recoveryErrorMessage(cause));
     } finally { setBusy(false); }
   }
-  return <div className="qb-auth"><div className="qb-auth-card">
-    <BrandLockup variant="responsive" href="/" size={36} /><h1>Set a new password</h1>
-    {checking ? <p role="status">Checking reset link...</p>
-      : failure ? <><p role="alert" className="qb-error">{failure}</p><p><Link href="/auth/forgot-password">Request a new reset email</Link></p></>
-      : success ? <><p role="status">{RESET_SUCCESS_MESSAGE}</p><p><Link href={success}>Continue to sign in</Link></p></>
+  return <AuthShell title="Set a new password" subtitle={checking || failure || success ? undefined : "Choose a strong password you don't use anywhere else."} footer={<Link href="/login">← Back to sign in</Link>}>
+    {checking ? <div className="qb-auth-progress" role="status" aria-live="polite"><span className="qb-spinner" aria-hidden /> Checking reset link…</div>
+      : failure ? <><p role="alert" className="qb-auth-alert is-error">{failure}</p><Link className="qb-btn qb-btn-block" href="/auth/forgot-password">Request a new reset email</Link></>
+      : success ? <><p role="status" className="qb-auth-alert is-success">{RESET_SUCCESS_MESSAGE}</p><Link className="qb-btn qb-btn-block" href={success}>Continue to sign in</Link></>
       : <PasswordUpdateForm password={password} confirmation={confirmation} visible={visible} busy={busy} error={error} minLength={PASSWORD_MIN_LENGTH} requirements={PASSWORD_REQUIREMENTS} onPassword={setPassword} onConfirmation={setConfirmation} onToggleVisible={() => setVisible(value => !value)} onSubmit={submit} />}
-  </div></div>;
+  </AuthShell>;
 }
