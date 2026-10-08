@@ -28,10 +28,11 @@ import without --apply, then import --apply. Identical replay returns the existi
 batch. Changed input with an existing external ID is rejected rather than overwriting
 content. Original staging and question_versions provide recovery evidence.
 
-Fixture recovery is separate from production import. seed:dev-acceptance restores
-only DEV_ACCEPTANCE_FIXTURE data through an explicitly authorized server operator.
-Do not reseed as part of normal content operations. Factory pilot live tests replay
-their labeled batches idempotently. The current implementation provides no general
+Fixture recovery is not needed. The live acceptance suites (npm run acceptance:live) build and remove their
+own run-scoped world on the Preview branch (lib/operations/live-fixture.ts); no persistent DEV_ACCEPTANCE_FIXTURE
+pool is seeded or restored, and nothing is reseeded as part of normal content operations. Run-scoped data carries a
+QBRUN-<run id> prefix, and the stale-run sweeper removes only runs matching that strict pattern. The current
+implementation provides no general
 delete/reset CLI, intentionally avoiding a production-wipe command.
 
 Rollback is not a DROP TABLE recipe. Archive/withdraw affected content through the
