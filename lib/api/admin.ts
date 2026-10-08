@@ -50,17 +50,6 @@ export async function getEventSummary(days = 30) {
   return ensure<any[]>(data, error);
 }
 
-export async function listTenants() {
-  const supabase = getSupabaseBrowserClient();
-  const { data, error } = await supabase
-    .from("tenants")
-    .select("*")
-    .order("created_at", { ascending: false });
-
-  if (error) throw error;
-  return data ?? [];
-}
-
 export async function listSupportTickets() {
   const supabase = getSupabaseBrowserClient();
   const { data, error } = await supabase

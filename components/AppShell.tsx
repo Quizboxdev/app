@@ -131,7 +131,6 @@ export default function AppShell({
       add("Markets & organizations", [
         ...when(sme?.super_admin, [["/admin/markets", "Markets"]]),
         ["/admin/market-setup", "Market Setup"],
-        ["/admin/tenants", "Tenants"],
       ]);
       add("Content & curriculum", [
         ["/admin/content", "Content Operations"],
