@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { fetchSources, importPackage, previewPackage, sourceRegistry, type PreviewGroup, type RegistryRow, type SourceMarket } from "@/lib/api/sources";
 import { parsePackage, type ParsedPackage } from "@/lib/content/sources/package";
+import { describeErrorMessage } from "@/lib/errors";
 
 const STATUSES = ["IMPORTED", "FETCHED", "EXTRACTED", "MAPPED", "NEEDS_REVIEW", "APPROVED", "ACTIVE", "SUPERSEDED", "REJECTED", "DIRECT_PDF_PENDING"];
 const ALL = "__ALL__";
@@ -16,7 +17,7 @@ export default function CurriculumSourcesPage() {
   const [filters, setFilters] = useState({ country_id: "", market_id: "", authority_id: "", curriculum_id: "", level: "", subject: "", status: "" });
   const [notes, setNotes] = useState<Record<string, string>>({}), [rights, setRights] = useState<Record<string, boolean>>({}), [urls, setUrls] = useState<Record<string, string>>({}), [domains, setDomains] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false), [error, setError] = useState(""), [notice, setNotice] = useState("");
-  const act = useCallback(async (work: () => Promise<unknown>, message?: string) => { setBusy(true); setError(""); setNotice(""); try { await work(); if (message) setNotice(message); } catch (cause) { setError((cause as Error).message); } finally { setBusy(false); } }, []);
+  const act = useCallback(async (work: () => Promise<unknown>, message?: string) => { setBusy(true); setError(""); setNotice(""); try { await work(); if (message) setNotice(message); } catch (cause) { setError(describeErrorMessage((cause as Error).message)); } finally { setBusy(false); } }, []);
   const loadRegistry = useCallback(async () => {
     const list = await sourceRegistry<{ rows: RegistryRow[]; by_status: Record<string, number>; packages: any[] }>("list", filters);
     setRows(list.rows); setByStatus(list.by_status); setPackages(list.packages);

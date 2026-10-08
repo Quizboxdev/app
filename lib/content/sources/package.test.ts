@@ -43,3 +43,12 @@ describe("curriculum source-pack parsing", () => {
     await expect(parsePackage("x.docx", new Uint8Array([1]))).rejects.toThrow("PACKAGE_FORMAT_UNSUPPORTED");
   });
 });
+
+describe("package error text shown to admins", () => {
+  it("maps every parser error code to readable text and keeps the file detail", async () => {
+    const { describeErrorMessage } = await import("@/lib/errors");
+    for (const code of ["PACKAGE_MANIFEST_NOT_FOUND", "PACKAGE_FORMAT_UNSUPPORTED", "PACKAGE_TOO_LARGE", "PACKAGE_EMPTY", "PACKAGE_JSON_INVALID", "MANIFEST_COUNTRY_MISSING"]) expect(describeErrorMessage(code)).not.toBe(code);
+    expect(describeErrorMessage("PACKAGE_JSON_INVALID: ghana/sources.json")).toBe("A JSON file in the package is not valid JSON. (ghana/sources.json)");
+    expect(describeErrorMessage("Something the server said")).toBe("Something the server said");
+  });
+});

@@ -63,7 +63,8 @@ const messages: Record<string, string> = {
   QB_SOURCE_RIGHTS_ATTESTATION_REQUIRED: "Confirm the source is an official publication QuizBox may use before approving.", QB_SOURCE_HOST_NOT_OFFICIAL: "The URL must be on the authority's official domain.",
   QB_SOURCE_NOT_FOUND: "Source not found.", QB_SOURCE_REGISTRY_DENIED: "The source registry is limited to content and super administrators.", QB_AUTHORITY_NOT_FOUND: "Authority not found.",
   QB_FACTORY_SOURCE_NOT_ACTIVE: "Only active curriculum sources can be used.", QB_FACTORY_SOURCE_SUBJECT_MISMATCH: "A selected source is for a different subject than the campaign.",
-  PACKAGE_MANIFEST_NOT_FOUND: "No source manifest was found in the package.", PACKAGE_FORMAT_UNSUPPORTED: "Upload a ZIP, JSON or CSV source package.", PACKAGE_TOO_LARGE: "The package has too many entries.",
+  PACKAGE_MANIFEST_NOT_FOUND: "No source list was found. Include a JSON file with a \"country\" and \"sources\" list, or a CSV with country, level, subject, title and url columns.",
+  PACKAGE_JSON_INVALID: "A JSON file in the package is not valid JSON.", MANIFEST_COUNTRY_MISSING: "Every source needs a country; add a \"country\" field or column.", PACKAGE_EMPTY: "The package has no source entries.", PACKAGE_FORMAT_UNSUPPORTED: "Upload a ZIP, JSON or CSV source package.", PACKAGE_TOO_LARGE: "The package has too many entries.",
   ACCOUNT_SUSPENDED: "This account is suspended. Contact your school or QuizBox support.",
   QB_COUNTRY_NOT_AVAILABLE: "QuizBox is not yet available in this country.",
   QB_INVALID_ONBOARDING_ROLE: "Choose student, teacher or sponsor.",
@@ -102,6 +103,12 @@ const messages: Record<string, string> = {
 };
 // Readable text for a status/blocker code; unknown codes are shown as-is rather than hidden.
 export function describeCode(code: string): string { return messages[code] ?? code; }
+
+// Readable text for a thrown "CODE" or "CODE: detail" message; the detail (e.g. the offending file) is kept. Unknown text is shown as-is.
+export function describeErrorMessage(message: string): string {
+  const [code, ...detail] = message.split(": ");
+  return code in messages ? messages[code] + (detail.length ? ` (${detail.join(": ")})` : "") : message;
+}
 
 export function userFacingError(error: unknown): string {
   const message = typeof error === "object" && error !== null && "message" in error ? String(error.message) : String(error);

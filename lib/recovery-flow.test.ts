@@ -32,11 +32,33 @@ describe("recovery redirect (Supabase falls back to the Site URL)", () => {
     const replace = runRedirect("https://quizbox.example/?code=abc123", `a=b; ${verifierCookie("verifier-123/PASSWORD_RECOVERY")}`);
     expect(replace).toHaveBeenCalledWith("/auth/update-password?code=abc123");
   });
+  it("recognises the JSON-quoted '/recovery' verifier current auth-js writes", () => {
+    const current = verifierCookie(JSON.stringify("verifier-123/recovery"));
+    expect(runRedirect("https://quizbox.example/?code=abc123", current)).toHaveBeenCalledWith("/auth/update-password?code=abc123");
+    expect(runRedirect("https://quizbox.example/auth/callback?code=abc123", current)).toHaveBeenCalledWith("/auth/update-password?code=abc123");
+  });
+  it("recognises the verifier the installed auth-js actually stores for resetPasswordForEmail", async () => {
+    const { GoTrueClient } = await import("@supabase/auth-js");
+    const jar = new Map<string, string>();
+    const auth = new GoTrueClient({ url: "https://abc.supabase.example/auth/v1", storageKey: "sb-abc-auth-token", flowType: "pkce", autoRefreshToken: false, detectSessionInUrl: false, persistSession: true,
+      storage: { getItem: (k: string) => jar.get(k) ?? null, setItem: (k: string, v: string) => { jar.set(k, v); }, removeItem: (k: string) => { jar.delete(k); } },
+      fetch: (async () => new Response("{}", { status: 200, headers: { "content-type": "application/json" } })) as typeof fetch });
+    await auth.resetPasswordForEmail("user@example.invalid", { redirectTo: "https://quizbox.example/auth/update-password" });
+    const cookies = [...jar].filter(([k]) => k.endsWith("code-verifier")).map(([k, v]) => `${k}=base64-${b64(v)}`).join("; ");
+    expect(runRedirect("https://quizbox.example/?code=abc", cookies)).toHaveBeenCalledWith("/auth/update-password?code=abc");
+  });
+  it("reads the per-flow verifier slot named by sb_flow_id", () => {
+    const slot = `sb-abc-auth-token-flow-f1-code-verifier=base64-${b64(JSON.stringify("v/recovery"))}`;
+    const fixed = verifierCookie(JSON.stringify("other"));
+    expect(runRedirect("https://quizbox.example/?code=abc&sb_flow_id=f1", `${fixed}; ${slot}`)).toHaveBeenCalledWith("/auth/update-password?code=abc&sb_flow_id=f1");
+    expect(runRedirect("https://quizbox.example/?code=abc&sb_flow_id=f2", `${fixed}; ${slot}`)).not.toHaveBeenCalled();
+  });
   it("forwards implicit-style recovery links and keeps the hash", () => {
     expect(runRedirect("https://quizbox.example/login#access_token=t&type=recovery")).toHaveBeenCalledWith("/auth/update-password#access_token=t&type=recovery");
   });
   it("leaves ordinary sign-up or OAuth codes alone", () => {
     expect(runRedirect("https://quizbox.example/?code=abc", verifierCookie("verifier-123"))).not.toHaveBeenCalled();
+    expect(runRedirect("https://quizbox.example/?code=abc", verifierCookie(JSON.stringify("verifier-123")))).not.toHaveBeenCalled();
     expect(runRedirect("https://quizbox.example/?code=abc")).not.toHaveBeenCalled();
   });
   it("never redirects from the recovery routes or without a code", () => {
