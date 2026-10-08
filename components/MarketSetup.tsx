@@ -8,6 +8,14 @@ type RecordRow = Record<string, any>;
 const NEXT: Record<MarketStatus, MarketStatus[]> = { DRAFT: ["CONFIGURING"], CONFIGURING: ["DRAFT", "READY"], READY: ["CONFIGURING", "ACTIVE"], ACTIVE: ["SUSPENDED"], SUSPENDED: ["ACTIVE", "CONFIGURING"] };
 type Dashboard = Record<string, number> & { markets: Array<Record<string, string | number | boolean>> };
 type ChangeRequest = { id: string; user: string; role: string; from: string | null; to: string; reason: string; created_at: string };
+// Labels, examples and formats for "Register a curriculum" (examples are the Ghana curricula already in use).
+const CURRICULUM_FIELDS: Array<{ key: "code" | "name" | "version" | "source_name" | "source_hash"; label: string; placeholder: string; hint: string; pattern?: string }> = [
+  { key: "code", label: "Curriculum code", placeholder: "e.g. GH-SBC-2019", hint: "Unique short code: country, curriculum abbreviation and year, in capitals with hyphens.", pattern: "[A-Z0-9][A-Z0-9-]{2,39}" },
+  { key: "name", label: "Curriculum name", placeholder: "e.g. Ghana Standards-Based Curriculum (Primary)", hint: "Full official name as published by the authority." },
+  { key: "version", label: "Version", placeholder: "e.g. 2019", hint: "Edition or year printed on the official document." },
+  { key: "source_name", label: "Source document", placeholder: "e.g. NaCCA Standards-Based Curriculum B4-B6", hint: "Title of the official document this curriculum is taken from." },
+  { key: "source_hash", label: "Source SHA-256", placeholder: "64 hex characters", hint: "SHA-256 fingerprint of the official PDF: exactly 64 characters, 0-9 and a-f.", pattern: "[0-9a-fA-F]{64}" },
+];
 const blank = { id: "", country_code: "", country_iso3: "", country_name: "", name: "", currency_code: "", currency_name: "", timezone: "", locale: "", is_test: false,
   levels: "", grades: "", subjects: "", self_practice: "STRICT_GRADE", sme_currency: "", sponsors_enabled: true, competitions_enabled: true };
 
@@ -66,9 +74,10 @@ export default function MarketSetup() {
       <form className="qb-content-filters" onSubmit={(e) => { e.preventDefault(); void perform(async () => { await marketAdmin("save_curriculum", curriculum); }, "Curriculum registered (inactive)."); }}>
         <label>Market<select value={curriculum.market_id} onChange={(e) => setCurriculum({ ...curriculum, market_id: e.target.value })} required><option value="">Select</option>{markets.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}</select></label>
         <label>Authority<select value={curriculum.authority_id} onChange={(e) => setCurriculum({ ...curriculum, authority_id: e.target.value })} required><option value="">Select</option>{authorities.filter((a) => a.market_id === curriculum.market_id).map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}</select></label>
-        {(["code", "name", "version", "source_name", "source_hash"] as const).map((k) => <label key={k}>{k.replace("_", " ")}<input value={curriculum[k]} onChange={(e) => setCurriculum({ ...curriculum, [k]: e.target.value })} required/></label>)}
+        {CURRICULUM_FIELDS.map(({ key: k, label, placeholder, hint, pattern }) => <label key={k} title={hint}>{label}<input value={curriculum[k]} placeholder={placeholder} pattern={pattern} title={hint} onChange={(e) => setCurriculum({ ...curriculum, [k]: e.target.value })} required/></label>)}
         <label>Effective from<input type="date" value={curriculum.effective_from} onChange={(e) => setCurriculum({ ...curriculum, effective_from: e.target.value })}/></label>
         <label>Effective to<input type="date" value={curriculum.effective_to} onChange={(e) => setCurriculum({ ...curriculum, effective_to: e.target.value })}/></label>
+        <p className="qb-small qb-muted">Source SHA-256: in PowerShell run <code>{`Get-FileHash "curriculum.pdf"`}</code> and paste the Hash value.</p>
         <button className="qb-btn" disabled={busy}><Plus size={16}/>Register curriculum</button>
       </form></section>
     <section><h2>Curricula, sources and admins</h2>

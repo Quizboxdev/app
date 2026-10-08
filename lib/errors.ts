@@ -64,6 +64,8 @@ const messages: Record<string, string> = {
   QB_SOURCE_NOT_FOUND: "Source not found.", QB_SOURCE_REGISTRY_DENIED: "The source registry is limited to content and super administrators.", QB_AUTHORITY_NOT_FOUND: "Authority not found.",
   QB_FACTORY_SOURCE_NOT_ACTIVE: "Only active curriculum sources can be used.", QB_FACTORY_SOURCE_SUBJECT_MISMATCH: "A selected source is for a different subject than the campaign.",
   PACKAGE_MANIFEST_NOT_FOUND: "No source list was found. Include a JSON file with a \"country\" and \"sources\" list, or a CSV with country, level, subject, title and url columns.",
+  QB_INVALID_TARGET: "Fill in the curriculum and all four counts.", QB_INVALID_TARGET_SCOPE: "No curriculum content matches that grade and subject. Use codes such as B7 and COMPUTING, or leave them blank.",
+  QB_INVALID_TYPE_MIX: "Question-type targets must be JSON such as {\"SINGLE_CHOICE\":8,\"TRUE_FALSE\":2}, use only supported types, and not add up to more than the minimum.",
   PACKAGE_JSON_INVALID: "A JSON file in the package is not valid JSON.", MANIFEST_COUNTRY_MISSING: "Every source needs a country; add a \"country\" field or column.", PACKAGE_EMPTY: "The package has no source entries.", PACKAGE_FORMAT_UNSUPPORTED: "Upload a ZIP, JSON or CSV source package.", PACKAGE_TOO_LARGE: "The package has too many entries.",
   ACCOUNT_SUSPENDED: "This account is suspended. Contact your school or QuizBox support.",
   QB_COUNTRY_NOT_AVAILABLE: "QuizBox is not yet available in this country.",
