@@ -74,7 +74,7 @@ UNRELATED_SETTING=kept
   }
  });
  it("entry points load preview values first, never read .env.local directly, and carry no embedded credentials", async () => {
-  for (const file of ["scripts/run-acceptance.ts", "scripts/run-live-acceptance.ts", "scripts/reset-passwords.ts"]) {
+  for (const file of ["scripts/run-acceptance.ts", "scripts/reset-passwords.ts"]) {
    const source = await readFile(file, "utf8");
    expect(source, file).toContain("loadAcceptanceEnvironment");
    expect(source, file).toContain("applyLocalEnvironmentSafely");
@@ -83,5 +83,19 @@ UNRELATED_SETTING=kept
    expect(source, file).not.toMatch(/eyJ[A-Za-z0-9_-]{20,}\./);
    expect(source, file).not.toContain("Quixbox123");
   }
+ });
+ it("the live acceptance runner and fixture helper are Preview-only, self-provisioning and credential-free", async () => {
+  const runner = await readFile("scripts/run-live-acceptance.ts", "utf8");
+  const fixture = await readFile("lib/operations/live-fixture.ts", "utf8");
+  expect(runner).toContain("resolveTarget");
+  expect(runner).not.toMatch(/acceptanceAccount|loadEnvFile|\.env\.local/);
+  for (const [name, source] of [["runner", runner], ["fixture", fixture]] as const) {
+   expect(source, name).not.toMatch(/eyJ[A-Za-z0-9_-]{20,}\./);
+   expect(source, name).not.toContain("Quixbox123");
+  }
+  expect(fixture).toContain("assertNotProduction");
+  expect(fixture).toContain("FIXTURE_PRODUCTION_TARGET_REFUSED");
+  expect(fixture).not.toMatch(/readFileSync\(\s*["']\.env\.local["']/);
+  expect(fixture).not.toMatch(/legacy_content_attributions\s+(disable|enable)\s+trigger|disable trigger|session_replication_role/i);
  });
 });

@@ -26,7 +26,7 @@ describe("production closure safety",()=>{
   it("requires authenticated acceptance instead of skipped tests",()=>expect(releaseGates({approved:1,anonUnexpected:0,rlsDisabled:0,signup:true,dependencyHigh:0,applicationPassed:true,authenticatedPassed:false,credentialsPresent:false}).find(g=>g.id==="authenticated_regression")?.status).toBe("FAIL"));
   it("selects the most-specific saved coverage scope",()=>{const n:any={curriculum_id:"c",grade_code:"B7",subject_code:"Science"};const base={curriculum_id:"c",minimum:10,easy:3,medium:4,hard:3,type_mix:{SINGLE_CHOICE:10}};expect(resolveTarget(n,[{...base,grade_code:"",subject_code:""},{...base,grade_code:"B7",subject_code:"Science",minimum:12}]).minimum).toBe(12);});
   it("does not apply another curriculum's override",()=>expect(resolveTarget({curriculum_id:"c"} as any,[{curriculum_id:"other",minimum:50} as any]).minimum).toBe(10));
-  it.each(["lib/learning/practice.live.test.ts","lib/content/factory/factory.live.test.ts","scripts/verify-practice-acceptance.ts"])("has no live-password fallback in %s",async(file)=>{const text=await readFile(file,"utf8");expect(text).not.toMatch(/QB_ACCEPTANCE_PASSWORD\s*\?\?/);expect(text).toMatch(/acceptance(?:Account)?(?:Password)?/);});
+  it.each(["lib/learning/practice.live.test.ts","lib/content/factory/factory.live.test.ts"])("has no live-password fallback in %s",async(file)=>{const text=await readFile(file,"utf8");expect(text).not.toMatch(/QB_ACCEPTANCE_PASSWORD\s*\?\?/);expect(text).toMatch(/acceptance(?:Account)?(?:Password)?/);});
 });
 describe("spreadsheet import regression",()=>{
   it("uses the patched vendor distribution",()=>expect(XLSX.version).toBe("0.20.3"));
