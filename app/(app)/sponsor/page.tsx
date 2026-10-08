@@ -6,6 +6,7 @@ import { bootstrapUser } from "@/lib/auth";
 import CompetitionContentScope from "@/components/CompetitionContentScope";
 import StatCard from "@/components/StatCard";
 import DashboardHero from "@/components/DashboardHero";
+import { useSponsorEngine } from "@/components/SponsorEngineFlag";
 import DistributionBars from "@/components/charts/DistributionBars";
 import StatusBadge from "@/components/StatusBadge";
 import { humanize } from "@/lib/format";
@@ -20,6 +21,7 @@ import {
 import { ResponsiveContainer, Tooltip, BarChart, Bar, CartesianGrid, XAxis, YAxis } from "recharts";
 
 export default function SponsorPage() {
+  const sponsorEngine = useSponsorEngine();
   const [profile, setProfile] = useState<any>(null);
   const [rows, setRows] = useState<any[]>([]);
   const [funnel, setFunnel] = useState<any>(null);
@@ -71,7 +73,7 @@ export default function SponsorPage() {
         </div>
       </div>
 
-      <DashboardHero eyebrow="Sponsor workspace" title="Turn support into measurable participation." description="Run governed learning competitions and track engagement and performance." primary={{ label: "Open workspace", href: "/sponsor/workspace" }} secondary={{ label: "Browse competitions", href: "/competition" }} />
+      <DashboardHero eyebrow="Sponsor workspace" title="Turn support into measurable participation." description="Run governed learning competitions and track engagement and performance." primary={sponsorEngine ? { label: "Open workspace", href: "/sponsor/workspace" } : { label: "Browse competitions", href: "/competition" }} secondary={sponsorEngine ? { label: "Browse competitions", href: "/competition" } : undefined} />
       <div className="qb-grid cols-4">
         <StatCard value={rows.length} label="Active sponsorships" />
         <StatCard value={rows.reduce((sum, r) => sum + Number(r.committed_amount ?? 0), 0).toFixed(2)} label={`Total committed (${rows[0]?.currency ?? "USD"})`} />

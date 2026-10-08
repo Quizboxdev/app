@@ -14,6 +14,7 @@ import MarketContextControl from "@/components/MarketContextControl";
 import BrandLockup from "@/components/BrandLockup";
 import WorkspaceProvider from "@/components/WorkspaceProvider";
 import WorkspaceChip from "@/components/WorkspaceChip";
+import { SponsorEngineProvider } from "@/components/SponsorEngineFlag";
 
 type NavItem = [string, string];
 type NavGroup = { label: string; items: NavItem[] };
@@ -40,8 +41,10 @@ function navigationIcon(href: string): LucideIcon {
 
 export default function AppShell({
   children,
+  sponsorEngine = false,
 }: {
   children: React.ReactNode;
+  sponsorEngine?: boolean;
 }) {
   const [ctx, setCtx] = useState<UserContext | null>(null);
   const [isSeller, setIsSeller] = useState(false);
@@ -80,7 +83,7 @@ export default function AppShell({
 
     const role = String(ctx.role).toUpperCase();
     const allowedPrefixes = ["ADMIN", "OWNER"].includes(role)
-      ? ["/admin", "/tenant", "/teacher", "/competition", "/marketplace"]
+      ? ["/admin", "/teacher", "/competition", "/marketplace"]
       : role === "TEACHER"
         ? ["/teacher", "/competition", "/marketplace"]
         : role === "SPONSOR"
@@ -141,8 +144,7 @@ export default function AppShell({
       ]);
       add("Competitions", [
         ["/admin/competitions", "Competition Operations"],
-        ["/admin/competitions/assignments", "Assignments"],
-        ["/admin/competitions/oversight", "Oversight"],
+        ...when(sponsorEngine, [["/admin/competitions/assignments", "Assignments"], ["/admin/competitions/oversight", "Oversight"]]),
       ]);
       add("SME & payments", [
         ...when(reviewer, [["/review", "SME Reviews"]]),
@@ -163,7 +165,7 @@ export default function AppShell({
     if (role === "SPONSOR") {
       add("", [
         ["/sponsor", "Dashboard"],
-        ["/sponsor/workspace", "Workspace"],
+        ...when(sponsorEngine, [["/sponsor/workspace", "Workspace"]]),
         ["/competition", "Competitions"],
         ["/marketplace", "Marketplace"],
       ]);
@@ -203,7 +205,7 @@ export default function AppShell({
     add("SME", when(reviewer, [["/review", "SME Reviews"]]));
     add("Administration", administration);
     return groups;
-  }, [ctx, isSeller, inSchool, sme]);
+  }, [ctx, isSeller, inSchool, sme, sponsorEngine]);
 
   const nav = useMemo(() => groups.flatMap((group) => group.items), [groups]);
   // The most specific matching link is the current page (so /admin is not active on /admin/content).
@@ -323,10 +325,10 @@ export default function AppShell({
         </header>
 
         <div className="qb-content" ref={contentRef}>
-          <WorkspaceProvider>
+          <SponsorEngineProvider value={sponsorEngine}><WorkspaceProvider>
             <div className="qb-context-bar"><WorkspaceChip/><MarketContextControl/></div>
             {children}
-          </WorkspaceProvider>
+          </WorkspaceProvider></SponsorEngineProvider>
         </div>
 
         <nav className="qb-mobile-nav" aria-label="Main" style={{ gridTemplateColumns: `repeat(${primary.length + 1}, minmax(0, 1fr))` }}>

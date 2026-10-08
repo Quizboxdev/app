@@ -2,12 +2,14 @@
 import Link from "next/link";
 import { FormEvent, useCallback, useEffect, useState } from "react";
 import { adminOps, platformInsights } from "@/lib/api/platform";
+import { useSponsorEngine } from "@/components/SponsorEngineFlag";
 
 type Hit = { kind: "user" | "sponsor"; id: string; name: string; email?: string; role?: string; status: string; primary_market?: string; markets?: string; verification?: string };
 type AuditRow = { at: string; action: string; actor: string; entity: string; entity_id: string | null; status: string; details: Record<string, unknown> };
 
 // Super Admin operations. Every call is authorization-checked and written to the audit trail server-side.
 export default function AdminOperationsPage() {
+  const sponsorEngine = useSponsorEngine();
   const [query, setQuery] = useState(""), [hits, setHits] = useState<Hit[]>([]), [audit, setAudit] = useState<AuditRow[]>([]), [failures, setFailures] = useState<Array<Record<string, string>>>([]);
   const [insights, setInsights] = useState<Record<string, any> | null>(null), [actionFilter, setActionFilter] = useState(""), [busy, setBusy] = useState(false), [error, setError] = useState(""), [notice, setNotice] = useState("");
   const loadAudit = useCallback(async () => { try { setAudit(await adminOps<AuditRow[]>("audit_trail", { action: actionFilter, limit: 50 })); setFailures(await adminOps("failures")); } catch (cause) { setError((cause as Error).message); } }, [actionFilter]);
@@ -23,8 +25,8 @@ export default function AdminOperationsPage() {
     <div className="qb-page-head"><div><h1>Operations</h1><p>Account lookup, suspension, audit trail and failure monitoring.</p></div></div>
     {error && <p className="qb-error" role="alert">{error}</p>}{notice && <p role="status">{notice}</p>}
     <section className="qb-card"><h2>Other controls</h2><div className="qb-content-filters">
-      <Link href="/admin/markets">Market memberships and sources</Link><Link href="/admin/reviewers">SME permissions</Link><Link href="/admin/competitions/assignments">Review assignment</Link>
-      <Link href="/admin/compensation">Compensation policy</Link><Link href="/admin/competitions/oversight">Competition oversight</Link><Link href="/admin/quality">Content quality</Link><Link href="/admin/market-setup">Market setup</Link></div></section>
+      <Link href="/admin/markets">Market memberships and sources</Link><Link href="/admin/reviewers">SME permissions</Link>{sponsorEngine && <Link href="/admin/competitions/assignments">Review assignment</Link>}
+      <Link href="/admin/compensation">Compensation policy</Link>{sponsorEngine && <Link href="/admin/competitions/oversight">Competition oversight</Link>}<Link href="/admin/quality">Content quality</Link><Link href="/admin/market-setup">Market setup</Link></div></section>
     <section className="qb-card"><h2>Account lookup</h2>
       <form className="qb-content-filters" onSubmit={lookup}><label>Name, email or organization<input value={query} onChange={(e) => setQuery(e.target.value)} minLength={2} required/></label><button className="qb-btn" disabled={busy}>Search</button></form>
       <div className="qb-table-wrap"><table className="qb-table"><thead><tr><th>Type</th><th>Name</th><th>Role / verification</th><th>Markets</th><th>Status</th><th>Action</th></tr></thead>

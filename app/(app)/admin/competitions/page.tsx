@@ -3,9 +3,11 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import StatCard from "@/components/StatCard";
+import { useSponsorEngine } from "@/components/SponsorEngineFlag";
 import { getCompetitionMetrics } from "@/lib/api/admin";
 
 export default function AdminCompetitionsPage() {
+  const sponsorEngine = useSponsorEngine();
   const [m, setM] = useState<any>(null);
   const [error, setError] = useState("");
 
@@ -25,10 +27,7 @@ export default function AdminCompetitionsPage() {
           <h1>Competition Operations</h1>
           <p>Interschool participation, teams, results and sponsorship.</p>
         </div>
-        <div className="qb-content-filters">
-          <Link href="/admin/competitions/assignments">Review assignment</Link>
-          <Link href="/admin/competitions/oversight">Sponsor oversight</Link>
-        </div>
+        {sponsorEngine && <div className="qb-content-filters"><Link href="/admin/competitions/assignments">Review assignment</Link><Link href="/admin/competitions/oversight">Sponsor oversight</Link></div>}
       </div>
 
       <div className="qb-grid cols-4">
