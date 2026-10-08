@@ -23,6 +23,9 @@ export default function LoginForm({ initial }: { initial: RegistrationParams }) 
   const [fullName, setFullName] = useState("");
   const [countries, setCountries] = useState<SignupCountry[]>([]);
   const [countriesFailed, setCountriesFailed] = useState(false);
+  const [countriesEmpty, setCountriesEmpty] = useState(false);
+  // An empty list is an answer, not a pending load: no market is open for sign-up (none ACTIVE, or all marked test).
+  const loadCountries = () => listSignupCountries().then((list) => { setCountries(list ?? []); setCountriesEmpty(!list?.length); setCountriesFailed(false); }).catch(() => setCountriesFailed(true));
   const [countryCode, setCountryCode] = useState("");
   const [role, setRole] = useState<string>(initial.role ?? "student");
   const [email, setEmail] = useState("");
@@ -38,7 +41,8 @@ export default function LoginForm({ initial }: { initial: RegistrationParams }) 
   }, []);
   useEffect(() => {
     if (mode !== "register" || countries.length) return;
-    listSignupCountries().then((list) => { setCountries(list); setCountriesFailed(false); }).catch(() => setCountriesFailed(true));
+    void loadCountries();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mode, countries.length]);
   useEffect(() => {
     if (initial.country && countries.some((c) => c.country_code === initial.country)) setCountryCode((current) => current || initial.country!);
@@ -131,10 +135,11 @@ export default function LoginForm({ initial }: { initial: RegistrationParams }) 
           <div className="qb-field">
             <label htmlFor="auth-country">Country</label>
             <select id="auth-country" value={countryCode} onChange={(e) => setCountryCode(e.target.value)} required disabled={busy}>
-              <option value="">{countries.length ? "Select your country" : countriesFailed ? "Countries unavailable — retry" : "Loading countries…"}</option>
+              <option value="">{countries.length ? "Select your country" : countriesFailed ? "Countries unavailable — retry" : countriesEmpty ? "No countries open yet" : "Loading countries…"}</option>
               {countries.map((c) => <option key={c.country_code} value={c.country_code}>{c.country}</option>)}
             </select>
-            {countriesFailed && <button type="button" className="qb-link-btn" onClick={() => { setCountriesFailed(false); setCountries([]); listSignupCountries().then(setCountries).catch(() => setCountriesFailed(true)); }}>Retry loading countries</button>}
+            {countriesFailed && <button type="button" className="qb-link-btn" onClick={() => { setCountriesFailed(false); setCountries([]); void loadCountries(); }}>Retry loading countries</button>}
+            {countriesEmpty && <div className="qb-error" role="alert">Sign-up is not open in any country yet. Please try again later or contact QuizBox support.</div>}
             {country && !country.available && <div className="qb-error" role="alert">QuizBox is not yet available in this country.</div>}
           </div>
         )}
