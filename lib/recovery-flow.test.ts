@@ -5,7 +5,7 @@ import { runInNewContext } from "node:vm";
 import ts from "typescript";
 import { renderToStaticMarkup } from "react-dom/server";
 import { readFileSync } from "node:fs";
-import { initializePasswordRecovery, INVALID_RESET_MESSAGE, PASSWORD_MIN_LENGTH, PASSWORD_REQUIREMENTS, RECOVERY_FAILURE_MESSAGES, RecoveryLinkError, recoveryErrorMessage, recoveryFailureMessage, requestPasswordReset, RESET_PASSWORD_PATH, RESET_SUCCESS_MESSAGE, RESET_SUCCESS_PATH, validateResetPasswords } from "@/lib/auth-recovery";
+import { initializePasswordRecovery, INVALID_RESET_MESSAGE, passwordChecks, PASSWORD_REQUIREMENTS, RECOVERY_FAILURE_MESSAGES, RecoveryLinkError, recoveryErrorMessage, recoveryFailureMessage, requestPasswordReset, RESET_PASSWORD_PATH, RESET_SUCCESS_MESSAGE, RESET_SUCCESS_PATH, validateResetPasswords } from "@/lib/auth-recovery";
 import { RECOVERY_REDIRECT_SCRIPT } from "@/lib/recovery-redirect";
 
 // Next preserves JSX; compile this one presentational component the same way dashboard-reference.test.ts does.
@@ -115,12 +115,12 @@ describe("recovery link failures", () => {
     expect(recoveryFailureMessage(new RecoveryLinkError("expired"))).toBe(RECOVERY_FAILURE_MESSAGES.expired);
     expect(recoveryErrorMessage({ code: "otp_expired" })).toBe(RECOVERY_FAILURE_MESSAGES.expired);
     expect(recoveryErrorMessage({ code: "refresh_token_already_used" })).toBe(RECOVERY_FAILURE_MESSAGES.used);
-    expect(recoveryErrorMessage({ code: "weak_password" })).toMatch(/stronger password/);
+    expect(recoveryErrorMessage({ code: "weak_password" })).toMatch(/too easy to guess/);
   });
 });
 
 describe("password update form", () => {
-  const props = { minLength: PASSWORD_MIN_LENGTH, requirements: PASSWORD_REQUIREMENTS, password: "", confirmation: "", visible: false, busy: false, error: "", onPassword: () => {}, onConfirmation: () => {}, onToggleVisible: () => {}, onSubmit: () => {} };
+  const props = { requirements: PASSWORD_REQUIREMENTS, met: passwordChecks("", "") as readonly boolean[], password: "", confirmation: "", visible: false, busy: false, error: "", onPassword: () => {}, onConfirmation: () => {}, onToggleVisible: () => {}, onSubmit: () => {} };
   const html = (over: Partial<typeof props> = {}) => renderToStaticMarkup(React.createElement(PasswordUpdateForm, { ...props, ...over }));
 
   it("renders both fields, the visibility toggle, requirements and the submit button", () => {
@@ -128,15 +128,17 @@ describe("password update form", () => {
     expect(markup).toContain("New password");
     expect(markup).toContain("Confirm new password");
     expect(markup).toContain("Show passwords");
-    expect(markup).toContain("At least 8 characters");
+    expect(markup).toContain("At least 6 characters");
+    expect(markup).toContain("Not easy to guess");
     expect(markup).toContain("Both fields match");
     expect(markup).toContain("Update password");
     expect(markup.match(/type="password"/g)).toHaveLength(2);
   });
   it("shows the typed passwords when the toggle is on, and marks requirements as met", () => {
-    const markup = html({ visible: true, password: "longenough1", confirmation: "longenough1" });
+    const markup = html({ visible: true, password: "longenough1", confirmation: "longenough1", met: passwordChecks("longenough1", "longenough1") });
     expect(markup).not.toContain('type="password"');
-    expect(markup.match(/data-met="true"/g)).toHaveLength(2);
+    expect(markup.match(/data-met="true"/g)).toHaveLength(3);
+    expect(passwordChecks("123456", "123456")).toEqual([true, false, true]);
   });
   it("surfaces a mismatch error and disables the form while updating", () => {
     expect(validateResetPasswords("longenough1", "longenough2")).toBe("Passwords do not match.");

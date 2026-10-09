@@ -19,7 +19,7 @@ describe("acceptance credentials and release boundaries", () => {
   const teacher = { ...environment, QB_ACCEPTANCE_TEACHER_EMAIL: "teacher.test@quizbox.local", QB_ACCEPTANCE_TEACHER_PASSWORD: "different-unit-secret" };
   expect(acceptanceAccount("teacher", teacher).password).not.toBe(acceptanceAccount("student", teacher).password);
  });
- it.each(["leaked_password_protection", "test_credential_rotation", "backup_restore"])("keeps %s blocked without verification", id => {
+ it.each(["password_policy", "test_credential_rotation", "backup_restore"])("keeps %s blocked without verification", id => {
   const gates = releaseGates({ approved: 45, anonUnexpected: 0, rlsDisabled: 0, signup: true, dependencyHigh: 0, applicationPassed: true, authenticatedPassed: true, credentialsPresent: true });
   expect(gates.find(g => g.id === id)?.status).not.toBe("PASS"); expect(releaseBlocked(gates)).toBe(true);
  });

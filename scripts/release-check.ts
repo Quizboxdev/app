@@ -29,7 +29,7 @@ async function main() {
   const authenticatedPassed=live.status==='PASS'&&live.executed>=95&&live.skipped===0;
   const evidence={passwordProtectionVerified,credentialsVerified,restoreVerified};
   const describeEvidence=(gates:ReturnType<typeof releaseGates>)=>{
-    gates.find(g=>g.id==='leaked_password_protection')!.evidence=passwordProtectionVerified?'Fresh Auth configuration confirms password_hibp_enabled=true':verification.passwordProtection.reason??'Live Auth configuration reports protection disabled';
+    gates.find(g=>g.id==='password_policy')!.evidence=passwordProtectionVerified?`Fresh Auth configuration matches the password policy (minimum ${verification.passwordProtection.minLength}, ${verification.passwordProtection.mode})`:verification.passwordProtection.reason??'Live Auth configuration does not match the password policy';
     gates.find(g=>g.id==='test_credential_rotation')!.evidence=credentialsVerified?'Current distinct six-account rotation, rejection and known access-token expiry verified':verification.credentials.reason??'Rotation evidence missing';
   };
   const commands=["typecheck","lint","test","build","content:audit","content:validate","content:verify","content:factory -- coverage --server-readonly"];
@@ -44,7 +44,7 @@ async function main() {
     // Preserve the release blockers even when operator authentication prevents a fresh audit.
     const gates=releaseGates({approved:0,anonUnexpected:0,rlsDisabled:0,signup:false,dependencyHigh:0,applicationPassed:Object.values(results).every(Boolean),authenticatedPassed,credentialsPresent:credentials,...evidence});
     describeEvidence(gates);
-    for (const gate of gates) if (!["approved_production_content","leaked_password_protection","test_credential_rotation","backup_restore","authenticated_regression","quality_gates"].includes(gate.id)) {
+    for (const gate of gates) if (!["approved_production_content","password_policy","test_credential_rotation","backup_restore","authenticated_regression","quality_gates"].includes(gate.id)) {
       gate.status="MANUAL VERIFICATION REQUIRED";gate.evidence="Fresh authenticated audit unavailable; not certified from stale receipts";
     }
     let coverage: any = null;try { if(results['content:factory -- coverage --server-readonly'])coverage=JSON.parse(await readFile("reports/question-coverage.json","utf8")); } catch { /* Missing content evidence fails closed. */ }

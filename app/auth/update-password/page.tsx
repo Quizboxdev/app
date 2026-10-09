@@ -5,7 +5,7 @@ import AuthShell from "@/components/auth/AuthShell";
 import PasswordUpdateForm from "@/components/auth/PasswordUpdateForm";
 import { FormEvent, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { PASSWORD_MIN_LENGTH, PASSWORD_REQUIREMENTS, browserRecoveryStorage, initializePasswordRecovery, recoveryErrorMessage, recoveryFailureMessage, recoveryFailureOf, RESET_SUCCESS_MESSAGE, updateRecoveryPassword, validateResetPasswords } from "@/lib/auth-recovery";
+import { passwordChecks, PASSWORD_REQUIREMENTS, browserRecoveryStorage, initializePasswordRecovery, recoveryErrorMessage, recoveryFailureMessage, recoveryFailureOf, RESET_SUCCESS_MESSAGE, updateRecoveryPassword, validateResetPasswords } from "@/lib/auth-recovery";
 
 // Canonical password-recovery screen. A valid recovery session (the PASSWORD_RECOVERY event for this link, or the same verified
 // user resuming after a refresh) is required before the form appears; anything else shows why the link cannot be used.
@@ -49,6 +49,6 @@ export default function UpdatePasswordPage() {
     {checking ? <div className="qb-auth-progress" role="status" aria-live="polite"><span className="qb-spinner" aria-hidden /> Checking reset link…</div>
       : failure ? <><p role="alert" className="qb-auth-alert is-error">{failure}</p><Link className="qb-btn qb-btn-block" href="/auth/forgot-password">Request a new reset email</Link></>
       : success ? <><p role="status" className="qb-auth-alert is-success">{RESET_SUCCESS_MESSAGE}</p><Link className="qb-btn qb-btn-block" href={success}>Continue to sign in</Link></>
-      : <PasswordUpdateForm password={password} confirmation={confirmation} visible={visible} busy={busy} error={error} minLength={PASSWORD_MIN_LENGTH} requirements={PASSWORD_REQUIREMENTS} onPassword={setPassword} onConfirmation={setConfirmation} onToggleVisible={() => setVisible(value => !value)} onSubmit={submit} />}
+      : <PasswordUpdateForm password={password} confirmation={confirmation} visible={visible} busy={busy} error={error} requirements={PASSWORD_REQUIREMENTS} met={passwordChecks(password, confirmation)} onPassword={setPassword} onConfirmation={setConfirmation} onToggleVisible={() => setVisible(value => !value)} onSubmit={submit} />}
   </AuthShell>;
 }

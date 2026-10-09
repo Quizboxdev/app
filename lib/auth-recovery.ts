@@ -1,5 +1,6 @@
 import { getSupabaseBrowserClient } from "./supabase/client";
 import { isNetworkError, NETWORK_MESSAGE } from "./auth-errors";
+import { isEasyToGuess, PASSWORD_MIN_LENGTH, PASSWORD_TOO_EASY, PASSWORD_TOO_SHORT, passwordProblem } from "./password-policy";
 
 // Canonical recovery route. /auth/reset-password (the previous route, already in sent emails and possibly in the Supabase
 // allow-list) forwards here with its query and hash intact.
@@ -8,8 +9,11 @@ export const LEGACY_RESET_PASSWORD_PATH = "/auth/reset-password";
 export const RESET_SUCCESS_PATH = "/login?password_reset=success";
 export const RESET_SUCCESS_MESSAGE = "Password updated successfully. Sign in with your new password.";
 export const INVALID_RESET_MESSAGE = "This password reset link is invalid or expired. Request a new reset email.";
-export const PASSWORD_MIN_LENGTH = 8;
-export const PASSWORD_REQUIREMENTS = [`At least ${PASSWORD_MIN_LENGTH} characters`, "Both fields match"] as const;
+export { PASSWORD_MIN_LENGTH };
+export const PASSWORD_REQUIREMENTS = [`At least ${PASSWORD_MIN_LENGTH} characters`, "Not easy to guess (not 123456 or password)", "Both fields match"] as const;
+// Which PASSWORD_REQUIREMENTS are met, in the same order.
+export const passwordChecks = (password: string, confirmation: string) =>
+  [password.length >= PASSWORD_MIN_LENGTH, password.length >= PASSWORD_MIN_LENGTH && !isEasyToGuess(password), password.length > 0 && password === confirmation];
 export const RECOVERY_STORAGE_KEY = "quizbox-password-recovery";
 
 // Why a recovery link cannot be used. The Error message stays INVALID_RESET_MESSAGE; screens show the reason-specific copy.
@@ -41,7 +45,8 @@ export async function requestPasswordReset(email: string, origin: string, client
 
 export function validateResetPasswords(password: string, confirmation: string) {
   if (!password || !confirmation) return "Both password fields are required.";
-  if (password.length < PASSWORD_MIN_LENGTH) return `Password must contain at least ${PASSWORD_MIN_LENGTH} characters.`;
+  const problem = passwordProblem(password);
+  if (problem) return problem;
   if (password !== confirmation) return "Passwords do not match.";
   return null;
 }
@@ -113,11 +118,11 @@ export function recoveryFailureOf(error: unknown): RecoveryFailure | null {
 }
 
 export function recoveryErrorMessage(error: unknown) {
-  if (error instanceof Error && [INVALID_RESET_MESSAGE, "Both password fields are required.", `Password must contain at least ${PASSWORD_MIN_LENGTH} characters.`, "Passwords do not match."].includes(error.message)) return error.message;
+  if (error instanceof Error && [INVALID_RESET_MESSAGE, "Both password fields are required.", PASSWORD_TOO_SHORT, PASSWORD_TOO_EASY, "Passwords do not match."].includes(error.message)) return error.message;
   const failure = recoveryFailureOf(error);
   if (failure) return RECOVERY_FAILURE_MESSAGES[failure];
   const code = typeof error === "object" && error !== null && "code" in error ? String((error as { code: unknown }).code) : "";
-  if (code === "weak_password") return "Choose a stronger password that meets the password policy.";
+  if (code === "weak_password") return PASSWORD_TOO_EASY;
   if (code === "same_password") return "Choose a password different from your current password.";
   if (code === "email_address_invalid") return "Enter a valid email address.";
   if (isNetworkError(error)) return NETWORK_MESSAGE;

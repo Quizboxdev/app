@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createBrowserClient } from "@supabase/ssr";
 import { initializePasswordRecovery, INVALID_RESET_MESSAGE, RECOVERY_STORAGE_KEY, requestPasswordReset, RESET_SUCCESS_PATH, updateRecoveryPassword, validateResetPasswords } from "./auth-recovery";
+import { PASSWORD_TOO_EASY, PASSWORD_TOO_SHORT } from "./password-policy";
 
 const storage = () => {
   const values = new Map<string,string>();
@@ -18,7 +19,7 @@ describe("password recovery guards",()=>{
       expect(client.auth.resetPasswordForEmail).toHaveBeenLastCalledWith("unit@example.invalid",{redirectTo:origin+"/auth/update-password"});
     }
   });
-  it.each([["","","Both password fields are required."],["short","short","Password must contain at least 8 characters."],["unit-new-password","unit-other-password","Passwords do not match."]])("rejects invalid password fields",(password,confirmation,message)=>expect(validateResetPasswords(password,confirmation)).toBe(message));
+  it.each([["","","Both password fields are required."],["short","short",PASSWORD_TOO_SHORT],["123456","123456",PASSWORD_TOO_EASY],["unit-new-password","unit-other-password","Passwords do not match."]])("rejects invalid password fields",(password,confirmation,message)=>expect(validateResetPasswords(password,confirmation)).toBe(message));
   it("does not update a mismatched password",async()=>{const client=mockClient();await expect(updateRecoveryPassword("unit-new-password","unit-other-password","unit-user",storage(),client)).rejects.toThrow("Passwords do not match.");expect(client.auth.updateUser).not.toHaveBeenCalled();});
   it("does not mistake an ordinary signed-in session for recovery",async()=>{await expect(initializePasswordRecovery(new URL("https://unit.invalid/auth/update-password"),storage(),()=>new URL("https://unit.invalid/auth/update-password"),mockClient(false))).rejects.toThrow(INVALID_RESET_MESSAGE);});
   it("rejects expired links without falling back to an existing session",async()=>{const client=mockClient();await expect(initializePasswordRecovery(new URL("https://unit.invalid/auth/update-password#error=access_denied&error_code=otp_expired"),storage(),()=>new URL("https://unit.invalid/auth/update-password"),client)).rejects.toThrow(INVALID_RESET_MESSAGE);expect(client.auth.getUser).not.toHaveBeenCalled();});

@@ -4,6 +4,7 @@ import { randomBytes } from "node:crypto";
 import { createClient } from "@supabase/supabase-js";
 import { acceptanceAccount, ACCEPTANCE_ROLES } from "../lib/operations/acceptance";
 import { credentialDigest, credentialEvidenceValid } from "../lib/operations/release-evidence";
+import { authConfigMeetsPolicy } from "../lib/password-policy";
 
 export async function verifyReleaseSecurity() {
  try { process.loadEnvFile(".env.local"); } catch { /* CI can supply environment. */ }
@@ -16,8 +17,10 @@ export async function verifyReleaseSecurity() {
    const response = await fetch(`https://api.supabase.com/v1/projects/${project}/config/auth`, { headers: { Authorization: `Bearer ${token}` }, signal: AbortSignal.timeout(15000) });
    if (!response.ok) throw new Error("AUTH_CONFIG_READ_DENIED");
    const config = await response.json();
-   passwordProtection.enabled = config.password_hibp_enabled === true;
-   passwordProtection.status = passwordProtection.enabled ? "PASS" : "FAIL";
+   const policy = authConfigMeetsPolicy(config);
+   passwordProtection.enabled = policy.met; passwordProtection.mode = policy.mode;
+   passwordProtection.minLength = config.password_min_length; passwordProtection.hibp = config.password_hibp_enabled === true;
+   passwordProtection.status = policy.met ? "PASS" : "FAIL";
   } catch { passwordProtection.reason = "AUTH_CONFIG_READ_UNAVAILABLE"; }
  } else passwordProtection.reason = "MANAGEMENT_TOKEN_REQUIRED_FOR_POSITIVE_CONFIG_VERIFICATION";
  await writeFile("reports/password-protection-verification.json", JSON.stringify(passwordProtection,null,2));

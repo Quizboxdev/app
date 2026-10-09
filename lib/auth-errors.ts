@@ -13,7 +13,7 @@ const AUTH_CODE_MESSAGES: Record<string, string> = {
   email_address_invalid: "Enter a valid email address.",
   email_exists: "An account with this email already exists. Sign in or reset your password.",
   user_already_exists: "An account with this email already exists. Sign in or reset your password.",
-  weak_password: "Choose a stronger password: at least 8 characters, not a common or leaked password.",
+  weak_password: "That password is too easy to guess. Try two or three words together, like \"blue mango river\".",
   same_password: "Choose a password different from your current password.",
   signup_disabled: "New registrations are temporarily closed.",
   email_provider_disabled: "Email sign-in is temporarily unavailable.",

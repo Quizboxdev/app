@@ -2,13 +2,12 @@ import type { FormEvent } from "react";
 
 // Presentation only: the page owns state and the Supabase calls, so this renders identically on the server (tests) and in the browser.
 export type PasswordUpdateFormProps = {
-  password: string; confirmation: string; visible: boolean; busy: boolean; error: string; minLength: number; requirements: readonly string[];
+  password: string; confirmation: string; visible: boolean; busy: boolean; error: string; requirements: readonly string[]; met: readonly boolean[];
   onPassword: (value: string) => void; onConfirmation: (value: string) => void; onToggleVisible: () => void; onSubmit: (event: FormEvent) => void;
 };
 
-export default function PasswordUpdateForm({ password, confirmation, visible, busy, error, minLength, requirements, onPassword, onConfirmation, onToggleVisible, onSubmit }: PasswordUpdateFormProps) {
+export default function PasswordUpdateForm({ password, confirmation, visible, busy, error, requirements, met, onPassword, onConfirmation, onToggleVisible, onSubmit }: PasswordUpdateFormProps) {
   const type = visible ? "text" : "password";
-  const met = [password.length >= minLength, password.length > 0 && password === confirmation];
   return <form className="qb-form" onSubmit={onSubmit} aria-label="Set a new password" noValidate>
     <div className="qb-field"><label htmlFor="new-password">New password</label>
       <input id="new-password" name="new-password" type={type} autoComplete="new-password" required disabled={busy} value={password} onChange={event => onPassword(event.target.value)} aria-describedby="password-requirements" /></div>

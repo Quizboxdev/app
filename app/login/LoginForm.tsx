@@ -13,6 +13,7 @@ import { recordAuthFailure } from "@/lib/api/platform";
 import type { RegistrationParams } from "@/lib/public/registration-params";
 import AuthShell from "@/components/auth/AuthShell";
 import PasswordField from "@/components/auth/PasswordField";
+import { PASSWORD_MIN_LENGTH, passwordProblem, suggestPassphrase } from "@/lib/password-policy";
 
 type Notice = { kind: "error" | "success" | "info"; text: string } | null;
 
@@ -30,6 +31,7 @@ export default function LoginForm({ initial }: { initial: RegistrationParams }) 
   const [role, setRole] = useState<string>(initial.role ?? "student");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [notice, setNotice] = useState<Notice>(null);
   const [busy, setBusy] = useState(false);
   const router = useRouter();
@@ -81,6 +83,8 @@ export default function LoginForm({ initial }: { initial: RegistrationParams }) 
         return;
       }
       if (!country?.available) throw new Error("QB_COUNTRY_NOT_AVAILABLE");
+      const problem = passwordProblem(password);
+      if (problem) { setNotice({ kind: "error", text: problem }); return; }
       const { data, error } = await supabase.auth.signUp({
         email: normalizedEmail,
         password,
@@ -156,9 +160,9 @@ export default function LoginForm({ initial }: { initial: RegistrationParams }) 
           <label htmlFor="auth-email">Email</label>
           <input id="auth-email" autoComplete="email" inputMode="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required disabled={busy} />
         </div>
-        <PasswordField id="auth-password" label="Password" autoComplete={register ? "new-password" : "current-password"} minLength={8} value={password} onChange={(e) => setPassword(e.target.value)} required disabled={busy} />
+        <PasswordField id="auth-password" label="Password" autoComplete={register ? "new-password" : "current-password"} minLength={register ? PASSWORD_MIN_LENGTH : undefined} visible={showPassword} onToggle={() => setShowPassword((v) => !v)} value={password} onChange={(e) => setPassword(e.target.value)} required disabled={busy} />
         {!register && <div className="qb-auth-row"><Link href="/auth/forgot-password">Forgot password?</Link></div>}
-        {register && <p className="qb-auth-hint">At least 8 characters. Avoid passwords you use elsewhere.</p>}
+        {register && <p className="qb-auth-hint">At least {PASSWORD_MIN_LENGTH} characters. Two or three words are easy to remember, like &ldquo;blue mango river&rdquo;. <button type="button" className="qb-link-btn" disabled={busy} onClick={() => { setPassword(suggestPassphrase()); setShowPassword(true); }}>Suggest a password for me</button></p>}
 
         {notice && <div role={notice.kind === "error" ? "alert" : "status"} className={`qb-auth-alert is-${notice.kind}`}>{notice.text}</div>}
 

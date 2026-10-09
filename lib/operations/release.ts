@@ -9,7 +9,7 @@ export function releaseGates(input: { approved: number; anonUnexpected: number; 
     gate("SECURITY","dependencies",input.dependencyHigh===0,String(input.dependencyHigh)+" high/critical dependency findings"),
     gate("APPLICATION","quality_gates",input.applicationPassed,"Current run: typecheck, lint, tests, build and content verification"),
     gate("APPLICATION","authenticated_regression",input.authenticatedPassed && input.credentialsPresent,"Current run requires QB_LIVE_ACCEPTANCE=1 and acceptance environment credentials"),
-    gate("AUTH","leaked_password_protection",input.passwordProtectionVerified===true,"Fresh Management API configuration must confirm password_hibp_enabled=true"),
+    gate("AUTH","password_policy",input.passwordProtectionVerified===true,"Fresh Management API configuration must confirm the documented password policy (docs/security/password-policy.md)"),
     gate("SECURITY","test_credential_rotation",input.credentialsVerified===true,"Six current distinct credentials verified; old passwords/refresh denied and access JWT expiry elapsed"),
     gate("OPERATIONS","backup_restore",input.restoreVerified===true,"Isolated restore execution, schema/data checksums, FK integrity and storage verification required")
   ];
