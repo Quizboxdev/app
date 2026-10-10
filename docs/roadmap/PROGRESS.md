@@ -124,7 +124,7 @@ Design: docs/question-loading/DESIGN.md. Template and prompts: docs/question-loa
 |---|---|---|---|---|---|
 | L1 | Template (xlsx + csv) and Gemini prompts A (curriculum), B (sponsor document), C (batch check) | DONE | Claude | | docs/question-loading/ (19 columns; written to match the database import rules) |
 | L2 | Trial: run Prompt A on one real grade/subject in Gemini, check by hand, refine the prompts | IN PROGRESS | Both | L1 | Owner is running Prompt A on a sample curriculum and will send the output |
-| L3 | Loader core (pure code): read .xlsx/.csv, validate against the template and database rules, quality flags (templated or repeated explanations, repeated stems, off-topic options, duplicates, answer-letter balance), counts and downloadable problem list | TODO | Claude | L1 | No database needed |
+| L3 | Loader core (pure code): read .xlsx/.csv, validate against the template and database rules, quality flags (templated or repeated explanations, repeated stems, off-topic options, duplicates, answer-letter balance), counts and downloadable problem list | DONE | Claude | L1 | lib/question-loading/ (35 tests) and `npx tsx scripts/check-question-file.ts`; on the B7 Science sample it blocks the batch: 489/500 templated explanations, 212 off-topic-option warnings |
 | L4 | Admin screen "Load questions": scope picker (approved curriculum or approved sponsor source), upload, check report, load in tracked batches (replaces the old CSV box) | TODO | Claude | L3, D6 | Reuses `qb_content_factory_import` |
 | L5 | Batch tracking: file hash, who, when, counts, report, status; same file can't be loaded twice | TODO | Claude | L4 | |
 | L6 | Batch acceptance: SME sample audit (random sample, pass threshold) then bulk accept or return; per-question review stays available | TODO | Both | L5, D7 | Decision D-10 |
@@ -182,6 +182,7 @@ Design canvas: https://claude.ai/artifact/8JyB9ENBGKYpV1ZfGmke7n (5 pages, 19 ar
 | D-8 | How Gemini is used for bulk drafting: chat on one Pro account within its limits, or the paid API | L2 | Chat for drafting, within the terms of service; API only where automation is needed |
 
 # Change log
+- 2026-10-10: L3 DONE (loader core and command-line checker; 777 unit tests pass).
 - 2026-10-10: one admin-only loading engine (track L) and an admin-controlled sponsor process (track S) replace the earlier bulk-loading and sponsor self-service plans; API generation (E4–E6, E1b) and sponsor generation (F2, F4, F8) deferred; L1 DONE (template and prompts); L2 in progress.
 - 2026-10-10: E1 and E3 DONE (Gemini adapter, 742 tests pass); E2 in progress; E4 now waits on the owner's Gemini key and env vars.
 - 2026-10-10: D-1 and E1 reworded: provider-agnostic adapter, owner chooses Google or Anthropic.

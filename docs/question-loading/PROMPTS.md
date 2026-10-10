@@ -143,3 +143,16 @@ Check for:
 - Run Prompt C on every batch. It is free and catches most faults before an SME sees them.
 - An SME still reads a sample of every batch. The loader will also flag templated explanations, repeated stems and off-topic options.
 - Use your Gemini account within its normal limits and terms of service.
+
+---
+
+## Check a file on your computer (before it goes to an SME)
+
+After saving the AI's output as `.csv` or `.xlsx` (sheet named QUESTIONS), run in the project folder:
+
+```
+npx tsx scripts/check-question-file.ts "path\to\file.csv" --problems problems.csv
+npx tsx scripts/check-question-file.ts "path\to\sponsor-file.xlsx" --scope sponsor
+```
+
+It prints row counts by level, grade, subject, difficulty and answer letter, every rule problem (with the row number), and batch warnings (templated explanations, repeated question patterns, uneven answer letters, off-topic wrong options). Nothing is uploaded anywhere. "Can load: YES" means the file passes every rule; the admin loading screen (tracker L4) runs the same check.
