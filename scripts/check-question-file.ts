@@ -6,6 +6,7 @@ import { verifySource, type SourcePage } from "../lib/question-loading/source";
 import { LOAD_COLUMNS } from "../lib/question-loading/template";
 import { readQuestionFile } from "../lib/question-loading/read";
 import { buildPlan, describePlan } from "../lib/question-loading/plan";
+import { createHash } from "node:crypto";
 import { buildIndex, parseVerifiedCsv } from "../lib/curriculum/verified";
 
 // Usage: npx tsx scripts/check-question-file.ts <file.xlsx|file.csv|file.txt> [more files: batches are merged] [--scope curriculum|sponsor] [--problems problems.csv]
@@ -68,7 +69,7 @@ Topics: ${report.topics.length}   complete blocks of ${topicBlock}: ${complete}`
   if (curriculumPath || scope === "SPONSOR") {
     const index = curriculumPath ? buildIndex(parseVerifiedCsv(await readFile(curriculumPath, "utf8"))) : undefined;
     const bytes = Buffer.concat(await Promise.all(files.map((f) => readFile(f))));
-    const plan = buildPlan({ rows: parsed.rows, fileRows: parsed.fileRows, fileBytes: bytes, scope, index, topicBlock });
+    const plan = buildPlan({ rows: parsed.rows, fileRows: parsed.fileRows, fileSha256: createHash("sha256").update(bytes).digest("hex"), scope, index, topicBlock });
     console.log(String.fromCharCode(10) + "Loading plan (file " + plan.fileSha256.slice(0, 12) + "):");
     for (const line of describePlan(plan)) console.log("  " + line);
     for (const u of plan.unresolved.slice(0, 8)) console.log("  row " + u.fileRow + ": " + u.status + " (" + u.subject + " " + u.grade + " " + u.indicator_code + ")" + (u.candidates.length ? " candidates: " + u.candidates.join("; ") : ""));

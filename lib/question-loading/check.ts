@@ -1,5 +1,5 @@
 import { normalize } from "../content/factory/contract";
-import { similarity } from "../content/factory/duplicates";
+import { similarity } from "../content/factory/similarity";
 import { ANSWER_TYPES, COGNITIVE_LEVELS, DIFFICULTIES, LEVELS, TOPIC_BLOCK_SIZE, type LoadRow, type LoadScope } from "./template";
 
 // Checks a parsed question file before anything touches the database. Rules mirror validateCandidate (lib/content/factory/contract.ts)

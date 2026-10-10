@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { buildIndex, gradeKey, parseVerifiedCsv, resolveIndicator, standardCode, subjectMatches } from "../curriculum/verified";
-import { buildPlan, describePlan, sha256 } from "./plan";
+import { createHash } from "node:crypto";
+import { buildPlan, describePlan } from "./plan";
+const sha256 = (t: string) => createHash("sha256").update(t).digest("hex");
 import type { LoadRow } from "./template";
 
 const HEADER = "subject,grade,strand_no,strand,sub_strand,content_standard_code,content_standard,indicator_code,indicator,exemplars,page,wording_verified,flags";
@@ -58,7 +60,7 @@ describe("loading plan", () => {
 
   it("places every question, registers each topic with its concepts and difficulty, and is ready to load", () => {
     const rows = [...block("Forms of energy", "B7.4.1.1.1", ["energy forms", "energy sources", "energy chains"]), ...block("Daily uses of energy", "B7.4.1.1.2", ["home uses", "school uses", "farm uses"])];
-    const plan = buildPlan({ rows, fileBytes: "file-1", scope: "CURRICULUM", index });
+    const plan = buildPlan({ rows, fileSha256: sha256("file-1"), scope: "CURRICULUM", index });
     expect(plan.unresolved).toEqual([]);
     expect(plan.topics).toHaveLength(2);
     expect(plan.topics[0]).toMatchObject({ title: "Forms of energy", rows: 50, easy: 15, medium: 20, hard: 15, concepts: ["energy forms", "energy sources", "energy chains"],
@@ -71,7 +73,7 @@ describe("loading plan", () => {
 
   it("blocks questions that cannot be placed on the curriculum and says why", () => {
     const rows = [...block("Forms of energy", "B7.4.1.1.1", ["energy forms", "energy sources", "energy chains"], 20), row({ subject: "Social Studies", indicator_code: "B7.1.1.1.1", topic: "Sanitation", question_text: "What is sanitation in a community setting today?" })];
-    const plan = buildPlan({ rows, fileBytes: "file-2", scope: "CURRICULUM", index });
+    const plan = buildPlan({ rows, fileSha256: sha256("file-2"), scope: "CURRICULUM", index });
     expect(plan.canLoad).toBe(false);
     expect(plan.unresolved).toEqual([expect.objectContaining({ fileRow: 22, status: "UNKNOWN_SUBJECT", subject: "Social Studies" })]);
     expect(plan.blockers).toContain("QL_UNRESOLVED_INDICATORS:1");
@@ -80,7 +82,7 @@ describe("loading plan", () => {
 
   it("uses one consistent topic title when a batch drifted in spelling, and keeps concepts in first-seen order", () => {
     const rows = block("Forms of energy", "B7.4.1.1.1", ["energy forms", "energy sources", "energy chains"], 12).map((r, i) => (i === 0 ? { ...r, topic: "forms of energy " } : r));
-    const plan = buildPlan({ rows, fileBytes: "file-3", scope: "CURRICULUM", index });
+    const plan = buildPlan({ rows, fileSha256: sha256("file-3"), scope: "CURRICULUM", index });
     expect(plan.topics).toHaveLength(1);
     expect(plan.topics[0].title).toBe("Forms of energy");
     expect(plan.topics[0].concepts).toEqual(["energy forms", "energy sources", "energy chains"]);
@@ -88,14 +90,14 @@ describe("loading plan", () => {
 
   it("blocks a topic whose questions have no concept tags", () => {
     const rows = block("Forms of energy", "B7.4.1.1.1", ["x"], 10).map((r) => ({ ...r, concept: "" }));
-    expect(buildPlan({ rows, fileBytes: "file-4", scope: "CURRICULUM", index }).blockers).toContain("QL_TOPIC_WITHOUT_CONCEPTS:1");
+    expect(buildPlan({ rows, fileSha256: sha256("file-4"), scope: "CURRICULUM", index }).blockers).toContain("QL_TOPIC_WITHOUT_CONCEPTS:1");
   });
 
   it("plans a sponsor document without a curriculum, grouping topics by chapter and section", () => {
     const rows = Array.from({ length: 30 }, (_, i) => row({ level: "SPONSOR", grade: "", subject: "", indicator_code: "", strand: "Chapter 2", sub_strand: "Crossings", topic: "Zebra crossings",
       concept: ["right of way", "signs"][i % 2], source_quote: "drivers must give way to pedestrians", question_text: `Sponsor question ${i} about behaviour at a marked crossing in situation ${i}`,
       explanation: `Explanation ${i}: the guide says drivers give way to people on a marked crossing, so this behaviour is the safe one.` }));
-    const plan = buildPlan({ rows, fileBytes: "file-5", scope: "SPONSOR", topicBlock: 30 });
+    const plan = buildPlan({ rows, fileSha256: sha256("file-5"), scope: "SPONSOR", topicBlock: 30 });
     expect(plan.unresolved).toEqual([]);
     expect(plan.topics).toHaveLength(1);
     expect(plan.topics[0]).toMatchObject({ title: "Zebra crossings", rows: 30, concepts: ["right of way", "signs"] });

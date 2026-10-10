@@ -5,6 +5,7 @@ import { parseCsv } from "../content/factory/import";
 export type VerifiedIndicator = {
   subject: string; grade: string; strand_no: string; strand: string; sub_strand: string; content_standard_code: string; content_standard: string;
   indicator_code: string; indicator: string; exemplars: string; page: string; wording_verified: string; flags: string; level: "JHS" | "SHS" | "OTHER";
+  node_id?: string; // set when the row is a learning indicator already loaded into the database
 };
 
 const COLUMNS = ["subject", "grade", "strand_no", "strand", "sub_strand", "content_standard_code", "content_standard", "indicator_code", "indicator", "exemplars", "page", "wording_verified", "flags"] as const;

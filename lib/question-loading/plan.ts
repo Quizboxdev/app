@@ -1,4 +1,3 @@
-import { createHash } from "node:crypto";
 import { checkRows, normaliseRow, toImportRows, type Report } from "./check";
 import { keyOf, resolveIndicator, type CurriculumIndex, type Resolution, type VerifiedIndicator } from "../curriculum/verified";
 import { TOPIC_BLOCK_SIZE, type LoadRow } from "./template";
@@ -7,7 +6,7 @@ import { TOPIC_BLOCK_SIZE, type LoadRow } from "./template";
 // It places each question on a verified curriculum indicator, derives the topics and concepts to register, and says exactly what
 // could not be placed. Pure code: the database step (tracker L4/L5) only executes the plan.
 export type PlannedTopic = {
-  key: string; title: string; indicator: Pick<VerifiedIndicator, "subject" | "grade" | "indicator_code" | "strand" | "sub_strand" | "content_standard_code" | "indicator">;
+  key: string; title: string; indicator: Pick<VerifiedIndicator, "subject" | "grade" | "indicator_code" | "strand" | "sub_strand" | "content_standard_code" | "indicator" | "node_id">;
   concepts: string[]; rows: number; easy: number; medium: number; hard: number; fileRows: number[];
 };
 export type RowPlacement = { fileRow: number; resolution: Resolution["status"]; topicKey: string | null; concept: string };
@@ -17,8 +16,6 @@ export type LoadPlan = {
   importRows: ReturnType<typeof toImportRows>; canLoad: boolean; blockers: string[];
 };
 
-export const sha256 = (bytes: Uint8Array | string) => createHash("sha256").update(bytes).digest("hex");
-
 // Chooses the commonest spelling of a name so the registry gets one consistent title even if a batch drifted.
 function commonest(values: string[]): string {
   const counts = new Map<string, number>();
@@ -26,7 +23,8 @@ function commonest(values: string[]): string {
   return [...counts.entries()].sort((a, b) => b[1] - a[1] || b[0].length - a[0].length)[0][0];
 }
 
-export function buildPlan(input: { rows: LoadRow[]; fileRows?: number[]; fileBytes: Uint8Array | string; scope: "CURRICULUM" | "SPONSOR"; index?: CurriculumIndex; topicBlock?: number }): LoadPlan {
+// fileSha256 is computed by the caller (node:crypto on the command line, crypto.subtle in the browser) so this module runs in both.
+export function buildPlan(input: { rows: LoadRow[]; fileRows?: number[]; fileSha256: string; scope: "CURRICULUM" | "SPONSOR"; index?: CurriculumIndex; topicBlock?: number }): LoadPlan {
   const fileRows = input.fileRows ?? input.rows.map((_, i) => i + 2);
   const rows = input.rows.map(normaliseRow);
   const report = checkRows(rows, input.scope, fileRows, { topicBlock: input.topicBlock ?? TOPIC_BLOCK_SIZE });
@@ -59,7 +57,7 @@ export function buildPlan(input: { rows: LoadRow[]; fileRows?: number[]; fileByt
     const ind = g.indicator;
     return { key, title: commonest(g.rows.map((r) => r.topic)), concepts, rows: g.rows.length,
       easy: g.rows.filter((r) => r.difficulty === "easy").length, medium: g.rows.filter((r) => r.difficulty === "medium").length, hard: g.rows.filter((r) => r.difficulty === "hard").length, fileRows: g.fileRows,
-      indicator: ind ? { subject: ind.subject, grade: ind.grade, indicator_code: ind.indicator_code, strand: ind.strand, sub_strand: ind.sub_strand, content_standard_code: ind.content_standard_code, indicator: ind.indicator }
+      indicator: ind ? { subject: ind.subject, grade: ind.grade, indicator_code: ind.indicator_code, strand: ind.strand, sub_strand: ind.sub_strand, content_standard_code: ind.content_standard_code, indicator: ind.indicator, node_id: ind.node_id }
         : { subject: rows[0]?.subject ?? "", grade: "", indicator_code: "", strand: "", sub_strand: "", content_standard_code: "", indicator: "" } };
   });
 
@@ -69,7 +67,7 @@ export function buildPlan(input: { rows: LoadRow[]; fileRows?: number[]; fileByt
   const tooMany = topics.filter((t) => t.concepts.length > 12);
   if (tooMany.length) blockers.push(`QL_TOPIC_TOO_MANY_CONCEPTS:${tooMany.length}`);
 
-  return { fileSha256: sha256(typeof input.fileBytes === "string" ? input.fileBytes : input.fileBytes), scope: input.scope, report, topics, placements, unresolved,
+  return { fileSha256: input.fileSha256, scope: input.scope, report, topics, placements, unresolved,
     importRows: toImportRows(rows), canLoad: blockers.length === 0, blockers };
 }
 
