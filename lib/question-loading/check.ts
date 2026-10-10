@@ -18,6 +18,8 @@ export type Report = {
 const HTML = /<[^>]*>|javascript:|data:|\bon\w+\s*=/i;
 const LEAK = /\b(correct answer|answer key|the answer is)\b/i;
 const DOUBLE_NEGATIVE = /\bnot\b.*\b(not|never|no)\b|\bnever\b.*\bnot\b/i;
+// Learners are not shown the curriculum, so a question about what a document "lists" tests memory of the document, not the subject.
+const META_REFERENCE = /\b(according to|as (?:listed|identified|stated|named|described|mentioned) in|(?:listed|identified|stated|named|described|mentioned|explicitly named|specified|cited|highlighted) in|in|from) the (?:social studies |science |computing )?(?:curriculum|syllabus|passage|text|document|guide|book)\b/i;
 const BAD_OPTION = /\b(all of the above|none of the above|both [a-d] and [a-d]|a and b|b and c)\b/i;
 const CODE = /^[A-Za-z0-9][A-Za-z0-9._-]{1,39}$/;
 const words = (text: string) => new Set((text.toLowerCase().match(/\p{L}{4,}/gu) ?? []));
@@ -56,6 +58,7 @@ export function checkRows(input: LoadRow[], scope: LoadScope, fileRows: number[]
     if (!(ANSWER_TYPES as readonly string[]).includes(r.answer_type)) err("QL_ANSWER_TYPE", "answer_type");
     if (!r.question_text) err("QL_QUESTION_REQUIRED", "question_text");
     if (LEAK.test(r.question_text)) err("QL_ANSWER_LEAKAGE", "question_text");
+    if (scope === "CURRICULUM" && META_REFERENCE.test(r.question_text)) warn("QL_META_REFERENCE", "question_text");
     for (const field of ["question_text", "option_a", "option_b", "option_c", "option_d", "explanation"] as const)
       if (HTML.test(r[field])) err("QL_UNSAFE_CONTENT", field); else if (/[<>]/.test(r[field])) warn("QL_ANGLE_BRACKET", field);
     if (!r.explanation) err("QL_EXPLANATION_REQUIRED", "explanation"); else if (r.explanation.length < 40) warn("QL_THIN_EXPLANATION", "explanation");
@@ -72,9 +75,10 @@ export function checkRows(input: LoadRow[], scope: LoadScope, fileRows: number[]
       if (r.option_c || r.option_d) warn("QL_TRUE_FALSE_EXTRA_OPTIONS");
       if (DOUBLE_NEGATIVE.test(r.question_text)) err("QL_DOUBLE_NEGATIVE", "question_text");
     }
-    // Wrong options that share nothing with the question, the right answer or the topic labels are probably borrowed from another topic.
+    // Wrong options that share nothing with the question, the right answer, the topic labels or the explanation are probably borrowed from another topic.
+    // (A good explanation names what makes each tempting wrong option wrong, so words found there count as on-topic.)
     if (r.answer_type === "SINGLE_CHOICE" && ["A", "B", "C", "D"].includes(r.correct_answer) && options.every(Boolean)) {
-      const k = "ABCD".indexOf(r.correct_answer), context = new Set([...words(`${r.question_text} ${r.strand} ${r.sub_strand} ${r.topic}`), ...words(options[k])]);
+      const k = "ABCD".indexOf(r.correct_answer), context = new Set([...words(`${r.question_text} ${r.strand} ${r.sub_strand} ${r.topic} ${r.explanation}`), ...words(options[k])]);
       const stray = options.filter((_, j) => j !== k).filter((o) => { const w = words(o); return w.size >= 3 && ![...w].some((x) => context.has(x)); });
       if (stray.length >= 2) warn("QL_OFF_TOPIC_OPTIONS");
     }
@@ -98,6 +102,7 @@ export function checkRows(input: LoadRow[], scope: LoadScope, fileRows: number[]
   };
   dominance("QL_TEMPLATED_EXPLANATIONS", "explanations", (r) => opening(r.explanation));
   dominance("QL_REPEATED_STEM_PATTERN", "questions", (r) => opening(r.question_text));
+  if (scope === "CURRICULUM" && total >= 5) { const meta = issues.filter((x) => x.code === "QL_META_REFERENCE").length; if (meta / total >= 0.2) batchFlags.push({ code: "QL_MANY_META_REFERENCES", severity: "warning", share: Math.round(meta / total * 100) / 100, detail: `${meta} of ${total} questions ask what \"the curriculum\" lists instead of testing the subject` }); }
   const correct = tally(rows.map((r) => r.correct_answer));
   const mcq = rows.filter((r) => r.answer_type === "SINGLE_CHOICE");
   if (mcq.length >= 20) { const top = Math.max(...["A", "B", "C", "D"].map((l) => mcq.filter((r) => r.correct_answer === l).length)) / mcq.length; if (top > 0.4) batchFlags.push({ code: "QL_ANSWER_KEY_SKEW", severity: "warning", share: Math.round(top * 100) / 100, detail: "one letter is correct in over 40% of multiple-choice questions" }); }

@@ -87,6 +87,8 @@ FORMAT RULES (a row that breaks one is rejected on loading)
     Write maths in words and plain symbols (3/4, 2 x 5, 50%, m/s). No LaTeX.
  6. Never write "the answer is", "correct answer" or "answer key" inside question_text.
  7. Do not create IDs, codes or serial numbers. QuizBox assigns them.
+ 8. source_quote is ONE continuous passage copied exactly from the source, or two such passages joined by " ... ".
+    Never paraphrase it, shorten words inside it, join sentences from different places, or correct its spelling.
 
 QUESTION QUALITY
  - Every question tests exactly its topic or indicator at the stated difficulty and cognitive level.
@@ -100,7 +102,14 @@ QUESTION QUALITY
    understanding. They stay on the SAME topic and match the right answer in grammar, length and detail.
    No absurd options, no giveaway wording, no overlapping options, no "All of the above",
    "None of the above" or "A and B".
- - The longest option must not usually be the correct one.
+ - The longest option must not usually be the correct one: make the wrong options as detailed as the right one.
+ - Every wrong option must be wrong in the real world, not just absent from the document. If another option is also
+   true in reality (for example another desert that is also hot), rewrite the question.
+ - Wrong options must not be absurd or from a different kind of thing (for example three politicians as options
+   when the answer is a soldier). Use realistic alternatives of the same kind.
+ - Test the knowledge itself. Do not ask what the document "lists" or "says" ("according to the curriculum", "listed in
+   the syllabus", "named in the text"): the learner will not have the document. For a book, product or company
+   source, refer to the document only where the fact is specific to it.
  - Explanation: 20 to 60 words, specific to this question. Say why the answer is right, name the
    principle or the passage it rests on, and say what the most tempting wrong option gets wrong.
    Never a generic sentence like "the correct response states the accepted idea".
@@ -127,7 +136,8 @@ ANSWER-KEY CONTROL
    answers in a row (three is the absolute limit).
  - In each batch of 25, use letters 6/6/6/7, giving the extra to a different letter each batch, so
    every 100 rows have exactly 25 of each.
- - To move an answer, move the whole option text, not only the letter.
+ - To move an answer, move the whole option text, not only the letter. (The loader can also rebalance letters
+   automatically, but still aim for an even spread.)
 
 BATCH REPORT (after every batch; this is your own count, not verification)
  Rows this batch, rows so far / TOTAL_QUESTIONS; difficulty counts so far; cognitive counts so far;
@@ -199,8 +209,14 @@ Check for:
 After saving the AI's output as `.csv` or `.xlsx` (sheet named QUESTIONS), run in the project folder:
 
 ```
-npx tsx scripts/check-question-file.ts "path\to\file.csv" --problems problems.csv
-npx tsx scripts/check-question-file.ts "path\to\sponsor-file.xlsx" --scope sponsor
+npx tsx scripts/check-question-file.ts "path/to/file.csv" --problems problems.csv
+npx tsx scripts/check-question-file.ts "path/to/file.csv" --source "path/to/curriculum.pdf"
+npx tsx scripts/check-question-file.ts "path/to/file.csv" --rebalance balanced.csv
+npx tsx scripts/check-question-file.ts "path/to/sponsor-file.xlsx" --scope sponsor
 ```
 
-It prints row counts by level, grade, subject, difficulty and answer letter, every rule problem (with the row number), and batch warnings (templated explanations, repeated question patterns, uneven answer letters, off-topic wrong options). Nothing is uploaded anywhere. "Can load: YES" means the file passes every rule; the admin loading screen (tracker L4) runs the same check.
+- **Rules and quality** (always): row counts, every rule problem with its row number, and batch warnings: templated explanations, repeated question patterns, uneven answer letters, the correct option being the longest, questions that ask what "the curriculum" lists, and wrong options that look borrowed from another topic.
+- **`--source`**: checks every `source_quote` against the real text of your PDF or text file (word for word, near, or not found), learns the page offset between printed and physical pages and flags rows that depart from it, and checks that each indicator code exists in the curriculum.
+- **`--rebalance`**: writes a copy with the correct-answer letters evened out by moving whole option texts. It leaves true/false rows and any question whose wording points at an option position ("Option B", "Both A and B") alone.
+
+Nothing is uploaded anywhere. "Can load: YES" means the file passes every rule; the admin loading screen (tracker L4) runs the same checks.

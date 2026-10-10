@@ -1,12 +1,17 @@
 import { readFile, writeFile } from "node:fs/promises";
 import { basename } from "node:path";
 import { checkRows } from "../lib/question-loading/check";
+import { balanceAnswerKey } from "../lib/question-loading/balance";
+import { verifySource, type SourcePage } from "../lib/question-loading/source";
+import { LOAD_COLUMNS } from "../lib/question-loading/template";
 import { readQuestionFile } from "../lib/question-loading/read";
 
 // Usage: npx tsx scripts/check-question-file.ts <file.xlsx|file.csv> [--scope curriculum|sponsor] [--problems problems.csv]
+//        [--source document.pdf|document.txt]  verify quotes, pages and indicator codes against the source
+//        [--rebalance balanced.csv]            write a copy with the correct-answer letters evened out
 // Read-only: checks a question-loading file against the template rules and prints a report. Nothing is sent anywhere.
 const args = process.argv.slice(2);
-const file = args.find((a) => !a.startsWith("--") && args[args.indexOf(a) - 1] !== "--scope" && args[args.indexOf(a) - 1] !== "--problems");
+const file = args.find((a) => !a.startsWith("--") && args[args.indexOf(a) - 1] !== "--scope" && args[args.indexOf(a) - 1] !== "--problems" && args[args.indexOf(a) - 1] !== "--source" && args[args.indexOf(a) - 1] !== "--rebalance");
 const option = (name: string) => { const i = args.indexOf(name); return i >= 0 ? args[i + 1] : undefined; };
 if (!file) { console.error("Usage: tsx scripts/check-question-file.ts <file.xlsx|file.csv> [--scope curriculum|sponsor] [--problems out.csv]"); process.exit(2); }
 const path: string = file;
@@ -15,6 +20,25 @@ const scope = option("--scope")?.toUpperCase() === "SPONSOR" ? "SPONSOR" : "CURR
 async function main() {
   const parsed = await readQuestionFile(basename(path), new Uint8Array(await readFile(path)));
   const report = checkRows(parsed.rows, scope, parsed.fileRows);
+  const sourcePath = option("--source");
+  if (sourcePath) {
+    const pages: SourcePage[] = /\.pdf$/i.test(sourcePath)
+      ? await (async () => { const { PDFParse } = await import("pdf-parse") as any; const parser = new PDFParse({ data: new Uint8Array(await readFile(sourcePath)) }); const result = await parser.getText(); await parser.destroy(); return result.pages.map((p: any) => ({ n: p.num, text: p.text })); })()
+      : [{ n: 1, text: await readFile(sourcePath, "utf8") }];
+    const checked = verifySource(parsed.rows, pages, scope, parsed.fileRows);
+    report.issues.push(...checked.issues);
+    const sm = checked.summary;
+    console.log(`Source check (${pages.length} pages): quotes word-for-word ${sm.exact}, near ${sm.near}, not found ${sm.missing}, none given ${sm.noQuote}; page offset ${sm.pageOffset ?? "n/a"}, page mismatches ${sm.pageMismatch}; indicator codes found ${sm.indicatorsChecked - sm.indicatorsMissing.length}/${sm.indicatorsChecked}${sm.indicatorsMissing.length ? ` (missing: ${sm.indicatorsMissing.join(", ")})` : ""}`);
+    const errors = new Set(report.issues.filter((i) => i.severity === "error").map((i) => i.row));
+    report.errorRows = errors.size; report.canLoad = errors.size === 0 && !report.batchFlags.some((f) => f.severity === "error");
+  }
+  const rebalance = option("--rebalance");
+  if (rebalance) {
+    const balanced = balanceAnswerKey(parsed.rows);
+    const line = (r: Record<string, string>) => LOAD_COLUMNS.map((c) => `"${(r[c] ?? "").replace(/"/g, '""')}"`).join(",");
+    await writeFile(rebalance, "\ufeff" + LOAD_COLUMNS.join(",") + "\r\n" + balanced.rows.map(line).join("\r\n") + "\r\n", "utf8");
+    console.log(`Answer letters rebalanced: ${JSON.stringify(balanced.report.before)} -> ${JSON.stringify(balanced.report.after)} (${balanced.report.moved} rows changed${balanced.report.skipped.length ? `, rows left alone because they mention option positions: ${balanced.report.skipped.join(", ")}` : ""}). Written to ${rebalance}`);
+  }
   const top = (counts: Record<string, number>, n = 8) => Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, n).map(([k, v]) => `${k}: ${v}`).join(" | ");
 
   console.log(`File: ${basename(path)}${parsed.sheet ? ` (sheet ${parsed.sheet})` : ""}   Scope: ${scope}`);
