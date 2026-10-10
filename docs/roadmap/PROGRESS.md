@@ -18,7 +18,7 @@ Created 2026-10-10. Last updated 2026-10-10.
 
 ## Gates
 
-- **Gate 1, core ready for a pilot:** every A, B, C, D row DONE, L1–L5, L7 and L9 DONE, L6 and R1–R6 DONE, G1–G6 DONE.
+- **Gate 1, core ready for a pilot:** every A, B, C, D row DONE, L1–L5, L7 and L9 DONE, L6 and R1–R6 DONE, T1–T4 DONE, G1–G6 DONE.
 - **Gate 2, Stage 1 complete:** Gate 1, plus every S row DONE, every F row DONE or DEFERRED by decision, plus G7 (pilot) passed with no P0/P1 defects.
 - **Stage 2 starts at Gate 2.** Exceptions that touch no existing behaviour may start at Gate 1: X0 (documents) and X1 (design-system components, new files only).
 
@@ -122,7 +122,7 @@ Status per docs/sponsor-competition-activation.md: built and tested on local fix
 Design: docs/question-loading/DESIGN.md. Template and prompts: docs/question-loading/. Audit of the first sample files: docs/uat/sample-delivery-audit-2026-10-10.md.
 | ID | Item | Status | Who | Depends on | Evidence / notes |
 |---|---|---|---|---|---|
-| L1 | Template (xlsx + csv) and Gemini prompts: one generator for any source (curriculum, book, product, company, policy) and one batch-check prompt | DONE | Claude | | docs/question-loading/ (19 columns; written to match the database import rules) |
+| L1 | Template (xlsx + csv, 20 columns incl. topic and concept) and Gemini prompts: one generator for any source that asks only for the level and writes blocks of 50 questions per topic in batches of 100, and one batch-check prompt | DONE | Claude | | docs/question-loading/ (prompt v3) |
 | L2 | Trial: run the generator prompt on a real source in Gemini, check with the checker and by hand, refine the prompts | IN PROGRESS | Both | L1 | Trial 1 (Social Studies B7, 100 rows) passed every hard rule; 87 quotes verbatim, 12 near, 1 stitched; letters 47/41/7/5, correct option longest in 56 of 85, 24 'according to the curriculum' stems. Prompt v2 addresses these. Next: rerun on another subject and a non-curriculum source |
 | L3 | Loader core (pure code): read .xlsx/.csv, validate against the template and database rules, quality flags (templated or repeated explanations, repeated stems, off-topic options, duplicates, answer-letter balance, 'according to the curriculum' stems), source verification (quotes, pages, indicator codes against the PDF), automatic answer-letter rebalancing, problem list | DONE | Claude | L1 | lib/question-loading/ (45 tests) and `npx tsx scripts/check-question-file.ts` (--source, --rebalance). Blocks the script-built Science sample (489/500 templated explanations) and catches the real issues in the Gemini sample |
 | L4 | Admin screen "Load questions": scope picker (approved curriculum or approved sponsor source), upload, check report, load in tracked batches (replaces the old CSV box) | TODO | Claude | L3, D6 | Reuses `qb_content_factory_import` |
@@ -145,6 +145,17 @@ Owner flow 2026-10-10: a loaded batch goes to an SME review pool; any SME whose 
 | R6 | Earnings and tracking: daily and weekly counts and earnings per SME (pending QA / payable / paid); admin view per SME, per pool and per batch | TODO | Claude | R3, R5 | Earnings are created per completed review |
 | R7 | Quality control on paid work: senior QA samples each SME's reviews (a reversed review earns nothing), minimum review time, seeded known-bad questions to catch rubber-stamping | TODO | Both | R6 | Decision D-12 |
 | R8 | Payout batches: approve and mark paid | TODO | Both | R6, D7 | `sme_payout_batches` and items exist |
+
+## T. Topic-based teaching and assignments
+Owner design 2026-10-10: teachers teach topics and concepts, not chapters. Each topic has a block of 50 different questions spread over easy, medium and hard, tagged by concept, with explanations that teach. A teacher assigns a topic to students (even absent ones) so they gain understanding of more than half the topic by working through it. A teacher can also pick several topics under a subject; the system spreads the questions evenly (50 questions from 5 topics = 10 from each). Today `qb_publish_assignment` picks at random across all chosen curriculum nodes, with no even spread per topic and no difficulty spread.
+| ID | Item | Status | Who | Depends on | Evidence / notes |
+|---|---|---|---|---|---|
+| T1 | Topic registry: a record per topic (title, concepts, order, grade, subject, linked curriculum node) and a link from each question to its topic and concept | TODO | Claude | L4 | Additive migration. Topics come from the loader's topic map and are confirmed by an admin |
+| T2 | Loader creates and links topics and concepts; a topic is offered to teachers only when it has enough approved questions (admin setting, default 50); admin readiness view of topics ready or short | TODO | Claude | T1, R2 | Checker already reports topic blocks, spread and concepts (L3) |
+| T3 | Teacher assignment by topic: pick a subject, tick topics (named in teacher language), choose a total; questions spread evenly across the chosen topics (remainder shared fairly), each topic's share drawn across difficulty levels, no repeats; clear message when a topic cannot supply its share | TODO | Claude | T1, T2 | Replaces random selection across nodes in `qb_publish_assignment` |
+| T4 | Topic study mode for students: work through a topic's questions in learning order (easy to hard) with instant feedback and the explanation as a mini-lesson; assignable to absent students; progress per topic | TODO | Claude | T2 | Reuses the practice engine and mastery records |
+| T5 | Topic understanding measure: concept-level mastery per student and per topic; "understood" means more than half the topic's concepts mastered | TODO | Both | T4 | Decision D-13 |
+| T6 | Teacher view: topic coverage and understanding by class and student; suggest re-assigning topics below the threshold | TODO | Claude | T5 | |
 
 ## S. Sponsor process (admin-controlled; sponsors never load or create directly)
 | ID | Item | Status | Who | Depends on | Evidence / notes |
@@ -193,10 +204,14 @@ Design canvas: https://claude.ai/artifact/8JyB9ENBGKYpV1ZfGmke7n (5 pages, 19 ar
 | D-9 | Sponsor signs off the finished competition before go-live | S7 | Yes: protects both sides |
 | D-10 | Review model for loaded questions | L6 | DECIDED 2026-10-10: every question is reviewed by an SME picked from the pool; senior QA samples the SMEs' work (R7) |
 | D-11 | Fee per question reviewed and its currency (an admin setting; the figures here are examples only). "10 per 100 reviews" is 0.10 each (10 per day at 100 a day); 1.00 each would be 100 per day | R5 | Owner to confirm the figure; currency code GHS |
+| D-13 | What "understanding above 50% of a topic" means | T5 | A concept counts as understood after the student answers at least two of its questions correctly, including one medium or hard; topic understanding = understood concepts divided by the topic's concepts, target more than 50% after one pass |
+| D-14 | When a chosen topic can't supply its share of an assignment | T3 | Block the assignment and tell the teacher which topic is short (no silent redistribution) |
+| D-15 | Questions per topic block and the minimum approved before a topic is offered | T2 | 50 per block; both are admin settings |
 | D-12 | Daily review cap per SME, hours before an unfinished pick returns to the pool, pick size (admin settings, not fixed in code) | R2, R7 | Cap 100 a day, release after 24 hours, pick 25 at a time, plus QA sampling |
 | D-8 | How Gemini is used for bulk drafting: chat on one Pro account within its limits, or the paid API | L2 | Chat for drafting, within the terms of service; API only where automation is needed |
 
 # Change log
+- 2026-10-10: track T (topic-based teaching and assignments) added; prompt v3 (asks only the level, topic blocks of 50, batches of 100, concept tags); template now 20 columns; checker reports topic blocks.
 - 2026-10-10: L3 extended (source verification, rebalancing, curriculum-reference check, 45 tests); prompt v2 after Gemini trial 1; pricing and limits recorded as admin settings.
 - 2026-10-10: track R (SME review pool, pick, ownership, pay) added from the owner's flow; L6 and D-10 settled as full SME review of every question.
 - 2026-10-10: L3 DONE (loader core and command-line checker; 777 unit tests pass).

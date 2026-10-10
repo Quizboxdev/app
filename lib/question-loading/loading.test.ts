@@ -6,7 +6,7 @@ import { readCsv, readQuestionFile, readXlsx } from "./read";
 import { LOAD_COLUMNS, type LoadRow } from "./template";
 
 const row = (over: Partial<LoadRow> = {}): LoadRow => ({
-  level: "JHS", grade: "B7", subject: "Science", strand: "Forces and Energy", sub_strand: "Conservation of Energy", indicator_code: "B7.4.3.1.2", topic: "energy conversion",
+  level: "JHS", grade: "B7", subject: "Science", strand: "Forces and Energy", sub_strand: "Conservation of Energy", indicator_code: "B7.4.3.1.2", topic: "energy conversion", concept: "energy transformation",
   difficulty: "medium", cognitive_level: "Apply", answer_type: "SINGLE_CHOICE",
   question_text: "A torch converts the chemical energy in its battery mainly into which two forms of energy?", option_a: "Light and heat", option_b: "Sound and light", option_c: "Kinetic and sound", option_d: "Chemical and heat",
   correct_answer: "A", explanation: "A battery stores chemical energy; in a torch it becomes light from the bulb and heat from the filament, not sound or motion.", source_reference: "NaCCA Science B7 p.34", source_quote: "conversion of energy into useable forms", ...over });
@@ -32,10 +32,10 @@ describe("reading files", () => {
   it("reads .xlsx (shared and inline strings, sparse cells, QUESTIONS sheet chosen by name)", async () => {
     const shared = [...LOAD_COLUMNS, "JHS", "Which?", "B", "C"].map((t) => `<si><t>${t}</t></si>`).join("");
     const idx = (t: string) => [...LOAD_COLUMNS, "JHS", "Which?", "B", "C"].indexOf(t);
-    const col = (i: number) => String.fromCharCode(65 + i);
+    const col = (i: number) => String.fromCharCode(65 + i), at = (name: string) => col(LOAD_COLUMNS.indexOf(name as never));
     const head = LOAD_COLUMNS.map((c, i) => `<c r="${col(i)}1" t="s"><v>${idx(c)}</v></c>`).join("");
-    const cells = [["level", `<c r="A2" t="s"><v>${idx("JHS")}</v></c>`], ["question_text", `<c r="K2" t="inlineStr"><is><t>Fish &amp; chips &lt;3?</t></is></c>`],
-      ["correct_answer", `<c r="P2" t="s"><v>${idx("B")}</v></c>`], ["marks", `<c r="Z2"><v>1</v></c>`]].map(([, c]) => c).join("");
+    const cells = [["level", `<c r="A2" t="s"><v>${idx("JHS")}</v></c>`], ["question_text", `<c r="${at("question_text")}2" t="inlineStr"><is><t>Fish &amp; chips &lt;3?</t></is></c>`],
+      ["correct_answer", `<c r="${at("correct_answer")}2" t="s"><v>${idx("B")}</v></c>`], ["marks", `<c r="AZ2"><v>1</v></c>`]].map(([, c]) => c).join("");
     const zip = new JSZip();
     zip.file("xl/workbook.xml", `<workbook><sheets><sheet name="README" sheetId="1" r:id="rId1"/><sheet name="QUESTIONS" sheetId="2" r:id="rId2"/></sheets></workbook>`);
     zip.file("xl/_rels/workbook.xml.rels", `<Relationships><Relationship Id="rId1" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Target="worksheets/sheet2.xml"/></Relationships>`);

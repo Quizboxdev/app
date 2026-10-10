@@ -5,7 +5,7 @@ import { normaliseText, verifySource, type SourcePage } from "./source";
 import type { LoadRow } from "./template";
 
 const row = (over: Partial<LoadRow> = {}): LoadRow => ({
-  level: "JHS", grade: "B7", subject: "Social Studies", strand: "Strand 1", sub_strand: "Mapping", indicator_code: "B7.1.2.1.1", topic: "maps",
+  level: "JHS", grade: "B7", subject: "Social Studies", strand: "Strand 1", sub_strand: "Mapping", indicator_code: "B7.1.2.1.1", topic: "maps", concept: "map components",
   difficulty: "easy", cognitive_level: "Remember", answer_type: "SINGLE_CHOICE", question_text: "Which map component shows direction and orientation?",
   option_a: "Map key", option_b: "North arrow", option_c: "Linear scale", option_d: "Cartographic grid", correct_answer: "B",
   explanation: "The North arrow shows orientation. A map key decodes symbols and the scale measures distance, so neither points to direction.", source_reference: "Page 24",
@@ -88,5 +88,38 @@ describe("source verification", () => {
     expect(checked.summary).toMatchObject({ indicatorsChecked: 2, indicatorsMissing: ["B7.9.9.9.9"] });
     expect(checked.issues.map((i) => [i.row, i.code])).toContainEqual([3, "QL_INDICATOR_NOT_IN_SOURCE"]);
     expect(verifySource(withUnknown, pages, "SPONSOR").summary.indicatorsChecked).toBe(0);
+  });
+});
+
+describe("topic blocks (teachers assign by topic)", () => {
+  // A full block: 50 questions, 15 easy / 20 medium / 15 hard, four concepts.
+  const block = (topic: string, over: (i: number) => Partial<LoadRow> = () => ({})) => Array.from({ length: 50 }, (_, i) => row({
+    topic, concept: ["components", "scale", "direction", "symbols"][i % 4], difficulty: i < 15 ? "easy" : i < 35 ? "medium" : "hard",
+    question_text: `${topic} question number ${i} about how learners use maps to find places`, ...over(i) }));
+  it("requires a topic for curriculum questions as well", () => {
+    expect(checkRows([row({ topic: "" })], "CURRICULUM").issues.map((i) => i.code)).toContain("QL_TOPIC_REQUIRED");
+  });
+  it("accepts complete blocks and summarises each topic", () => {
+    const report = checkRows([...block("Components of maps"), ...block("Types of maps")], "CURRICULUM");
+    expect(report.batchFlags.filter((f) => f.code.startsWith("QL_TOPIC"))).toEqual([]);
+    expect(report.topics).toEqual([
+      { indicator: "B7.1.2.1.1", topic: "Components of maps", rows: 50, easy: 15, medium: 20, hard: 15, concepts: 4, withoutConcept: 0 },
+      { indicator: "B7.1.2.1.1", topic: "Types of maps", rows: 50, easy: 15, medium: 20, hard: 15, concepts: 4, withoutConcept: 0 }]);
+  });
+  it("flags a topic that is not 50 questions, and honours a different target", () => {
+    const short = checkRows([...block("Components of maps"), ...block("Types of maps").slice(0, 30)], "CURRICULUM");
+    expect(short.batchFlags.find((f) => f.code === "QL_TOPIC_BLOCK_SIZE")?.detail).toContain("Types of maps (30)");
+    expect(checkRows(block("Components of maps").slice(0, 30), "CURRICULUM", undefined, { topicBlock: 30 }).batchFlags.map((f) => f.code)).not.toContain("QL_TOPIC_BLOCK_SIZE");
+  });
+  it("flags lopsided difficulty and thin concept coverage inside a topic", () => {
+    const lopsided = checkRows(block("Components of maps", (i) => ({ difficulty: i < 40 ? "easy" : "medium" })), "CURRICULUM");
+    expect(lopsided.batchFlags.map((f) => f.code)).toContain("QL_TOPIC_DIFFICULTY_SPREAD");
+    const thin = checkRows(block("Components of maps", () => ({ concept: "components" })), "CURRICULUM");
+    expect(thin.batchFlags.map((f) => f.code)).toContain("QL_TOPIC_FEW_CONCEPTS");
+    expect(checkRows(block("Components of maps", () => ({ concept: "" })), "CURRICULUM").topics[0].withoutConcept).toBe(50);
+  });
+  it("spots the same topic written two ways under one indicator", () => {
+    const rows = [...block("Components of maps").slice(0, 25), ...block("Map components").slice(0, 25).map((r) => ({ ...r, question_text: r.question_text + " today" }))];
+    expect(checkRows(rows, "CURRICULUM").batchFlags.map((f) => f.code)).toContain("QL_TOPIC_NAME_VARIANTS");
   });
 });

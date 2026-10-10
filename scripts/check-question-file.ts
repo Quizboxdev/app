@@ -8,10 +8,11 @@ import { readQuestionFile } from "../lib/question-loading/read";
 
 // Usage: npx tsx scripts/check-question-file.ts <file.xlsx|file.csv> [--scope curriculum|sponsor] [--problems problems.csv]
 //        [--source document.pdf|document.txt]  verify quotes, pages and indicator codes against the source
+//        [--topic-block 50]                    questions expected per topic (default 50)
 //        [--rebalance balanced.csv]            write a copy with the correct-answer letters evened out
 // Read-only: checks a question-loading file against the template rules and prints a report. Nothing is sent anywhere.
 const args = process.argv.slice(2);
-const file = args.find((a) => !a.startsWith("--") && args[args.indexOf(a) - 1] !== "--scope" && args[args.indexOf(a) - 1] !== "--problems" && args[args.indexOf(a) - 1] !== "--source" && args[args.indexOf(a) - 1] !== "--rebalance");
+const file = args.find((a) => !a.startsWith("--") && args[args.indexOf(a) - 1] !== "--scope" && args[args.indexOf(a) - 1] !== "--problems" && args[args.indexOf(a) - 1] !== "--source" && args[args.indexOf(a) - 1] !== "--rebalance" && args[args.indexOf(a) - 1] !== "--topic-block");
 const option = (name: string) => { const i = args.indexOf(name); return i >= 0 ? args[i + 1] : undefined; };
 if (!file) { console.error("Usage: tsx scripts/check-question-file.ts <file.xlsx|file.csv> [--scope curriculum|sponsor] [--problems out.csv]"); process.exit(2); }
 const path: string = file;
@@ -19,7 +20,8 @@ const scope = option("--scope")?.toUpperCase() === "SPONSOR" ? "SPONSOR" : "CURR
 
 async function main() {
   const parsed = await readQuestionFile(basename(path), new Uint8Array(await readFile(path)));
-  const report = checkRows(parsed.rows, scope, parsed.fileRows);
+  const topicBlock = Number(option("--topic-block") ?? 50) || 50;
+  const report = checkRows(parsed.rows, scope, parsed.fileRows, { topicBlock });
   const sourcePath = option("--source");
   if (sourcePath) {
     const pages: SourcePage[] = /\.pdf$/i.test(sourcePath)
@@ -45,6 +47,11 @@ async function main() {
   if (parsed.unknownColumns.length) console.log(`Ignored columns: ${parsed.unknownColumns.join(", ")}`);
   console.log(`Rows: ${report.rows}   clean: ${report.cleanRows}   with warnings only: ${report.warningRows}   with errors: ${report.errorRows}`);
   console.log(`Level: ${top(report.counts.level)}\nGrade: ${top(report.counts.grade)}\nSubject: ${top(report.counts.subject)}\nDifficulty: ${top(report.counts.difficulty)}\nCognitive: ${top(report.counts.cognitive)}\nAnswer type: ${top(report.counts.answerType)}\nCorrect letters: ${top(report.counts.correct)}\nIndicators/topics: ${Object.keys(report.counts.indicator).length}`);
+  const complete = report.topics.filter((t) => t.rows === topicBlock).length;
+  console.log(`
+Topics: ${report.topics.length}   complete blocks of ${topicBlock}: ${complete}`);
+  for (const t of report.topics.slice(0, 40)) console.log(`  ${String(t.rows).padStart(3)} questions  easy/medium/hard ${t.easy}/${t.medium}/${t.hard}  concepts ${t.concepts}  ${t.indicator ? t.indicator + "  " : ""}${t.topic}`);
+  if (report.topics.length > 40) console.log(`  ... and ${report.topics.length - 40} more topics`);
   if (report.batchFlags.length) { console.log("\nBatch flags:"); for (const f of report.batchFlags) console.log(`  [${f.severity.toUpperCase()}] ${f.code}: ${f.detail}`); }
   const byCode = report.issues.reduce<Record<string, number>>((acc, i) => { const k = `${i.severity === "error" ? "ERROR" : "warn "} ${i.code}`; acc[k] = (acc[k] ?? 0) + 1; return acc; }, {});
   if (Object.keys(byCode).length) { console.log("\nProblems by type:"); for (const [k, v] of Object.entries(byCode).sort((a, b) => b[1] - a[1])) console.log(`  ${String(v).padStart(5)}  ${k}`); }

@@ -35,6 +35,15 @@ Follows status and results         <-  Competition runs; results reach the spons
 ```
 Request states: SUBMITTED, IN_REVIEW, SOURCE_APPROVED, POOL_LOADING, POOL_VERIFIED, COMPETITION_CONFIGURED, SIGNED_OFF, LIVE, COMPLETED, plus REJECTED and CANCELLED. The sponsor is notified at each stage change (existing notifications table and bell).
 
+## Topics: how teachers use the questions (track T)
+Teachers teach topics and concepts, so the bank is organised that way:
+- **A topic** is a unit taught in one to three lessons, named in teacher language, attached to one curriculum indicator. A topic has a block of **50 different questions** (15 easy, 20 medium, 15 hard), each tagged with one **concept** (3 to 8 concepts per topic, each with at least 3 questions).
+- **Explanations teach.** Working through a topic's questions, with instant feedback, should leave a learner who missed the lesson understanding more than half of its concepts.
+- **Assign one topic** to a class or to selected students, including absent ones, in study mode (easy to hard).
+- **Assign several topics:** the teacher ticks topics under a subject and chooses a total; the system spreads the questions evenly (50 from 5 topics = 10 each, the remainder shared fairly), draws each topic's share across the difficulty levels and never repeats a question. If a topic cannot supply its share the assignment is blocked with a clear message.
+- **Understanding** is measured per concept: a concept counts as understood after two correct answers, including one at medium or hard difficulty; topic understanding is understood concepts divided by the topic's concepts.
+Existing code: `qb_publish_assignment` currently picks at random across all chosen curriculum nodes. The topic registry (T1) and the even-spread selection (T3) are the changes.
+
 ## SME review pool, ownership and pay (track R)
 ```
 Loaded batch --> REVIEW POOL --> SME clicks "Pick" --> question is theirs --> decision (approve / reject / revise)

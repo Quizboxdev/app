@@ -1,6 +1,6 @@
 import { normalize } from "../content/factory/contract";
 import { similarity } from "../content/factory/duplicates";
-import { ANSWER_TYPES, COGNITIVE_LEVELS, DIFFICULTIES, LEVELS, type LoadRow, type LoadScope } from "./template";
+import { ANSWER_TYPES, COGNITIVE_LEVELS, DIFFICULTIES, LEVELS, TOPIC_BLOCK_SIZE, type LoadRow, type LoadScope } from "./template";
 
 // Checks a parsed question file before anything touches the database. Rules mirror validateCandidate (lib/content/factory/contract.ts)
 // and qb_content_factory_import; the quality flags exist because a file's own audit sheets are not evidence of quality
@@ -9,9 +9,11 @@ export type Severity = "error" | "warning";
 export type Issue = { row: number; code: string; severity: Severity; field?: string };
 export type BatchFlag = { code: string; severity: Severity; share?: number; detail: string };
 export type Counts = Record<string, number>;
+export type TopicSummary = { indicator: string; topic: string; rows: number; easy: number; medium: number; hard: number; concepts: number; withoutConcept: number };
 export type Report = {
   rows: number; errorRows: number; warningRows: number; cleanRows: number; issues: Issue[]; batchFlags: BatchFlag[];
   counts: { level: Counts; grade: Counts; subject: Counts; indicator: Counts; difficulty: Counts; cognitive: Counts; answerType: Counts; correct: Counts };
+  topics: TopicSummary[];
   canLoad: boolean;
 };
 
@@ -35,7 +37,8 @@ export function normaliseRow(row: LoadRow): LoadRow {
     correct_answer: row.correct_answer.trim().toUpperCase(), cognitive_level: COGNITIVE_LEVELS.find((c) => c.toLowerCase() === cognitive) ?? row.cognitive_level.trim() };
 }
 
-export function checkRows(input: LoadRow[], scope: LoadScope, fileRows: number[] = input.map((_, i) => i + 2)): Report {
+export function checkRows(input: LoadRow[], scope: LoadScope, fileRows: number[] = input.map((_, i) => i + 2), options: { topicBlock?: number } = {}): Report {
+  const topicBlock = options.topicBlock ?? TOPIC_BLOCK_SIZE;
   const rows = input.map(normaliseRow), issues: Issue[] = [];
   const add = (i: number, code: string, severity: Severity, field?: string) => issues.push({ row: fileRows[i], code, severity, field });
 
@@ -44,11 +47,11 @@ export function checkRows(input: LoadRow[], scope: LoadScope, fileRows: number[]
     if (!(LEVELS as readonly string[]).includes(r.level)) err("QL_LEVEL", "level");
     else if (scope === "CURRICULUM" && r.level === "SPONSOR") err("QL_LEVEL_SCOPE_MISMATCH", "level");
     else if (scope === "SPONSOR" && r.level !== "SPONSOR") err("QL_LEVEL_SCOPE_MISMATCH", "level");
+    if (!r.topic) err("QL_TOPIC_REQUIRED", "topic");
     if (scope === "CURRICULUM") {
       if (!r.indicator_code) err("QL_INDICATOR_REQUIRED", "indicator_code"); else if (!CODE.test(r.indicator_code)) err("QL_INDICATOR_FORMAT", "indicator_code");
       if (!r.grade) err("QL_GRADE_REQUIRED", "grade"); if (!r.subject) err("QL_SUBJECT_REQUIRED", "subject");
     } else {
-      if (!r.topic) err("QL_TOPIC_REQUIRED", "topic");
       if (!r.source_quote) err("QL_SOURCE_QUOTE_REQUIRED", "source_quote");
       if (r.grade || r.subject || r.indicator_code) warn("QL_CURRICULUM_FIELDS_IGNORED");
     }
@@ -109,11 +112,32 @@ export function checkRows(input: LoadRow[], scope: LoadScope, fileRows: number[]
   const longest = mcq.filter((r) => { const o = [r.option_a, r.option_b, r.option_c, r.option_d]; const k = "ABCD".indexOf(r.correct_answer); return k >= 0 && o[k].length >= Math.max(...o.map((x) => x.length)); }).length;
   if (mcq.length >= 20 && longest / mcq.length > 0.5) batchFlags.push({ code: "QL_LONGEST_OPTION_CORRECT", severity: "warning", share: Math.round(longest / mcq.length * 100) / 100, detail: "the correct option is the longest in over half of the multiple-choice questions (a guessing cue)" });
 
+  // Topic blocks: teachers assign by topic, so each topic needs a full block spread over the difficulty levels and its concepts.
+  const byTopic = new Map<string, LoadRow[]>();
+  rows.forEach((r) => { const key = `${r.indicator_code}|${normalize(r.topic)}`; byTopic.set(key, [...(byTopic.get(key) ?? []), r]); });
+  const topics: TopicSummary[] = [...byTopic.values()].map((group) => ({ indicator: group[0].indicator_code, topic: group[0].topic, rows: group.length,
+    easy: group.filter((r) => r.difficulty === "easy").length, medium: group.filter((r) => r.difficulty === "medium").length, hard: group.filter((r) => r.difficulty === "hard").length,
+    concepts: new Set(group.map((r) => normalize(r.concept)).filter(Boolean)).size, withoutConcept: group.filter((r) => !r.concept).length }));
+  const list = (items: string[]) => items.slice(0, 5).join("; ") + (items.length > 5 ? `; and ${items.length - 5} more` : "");
+  const wrongSize = topics.filter((t) => t.topic && t.rows !== topicBlock);
+  if (wrongSize.length) batchFlags.push({ code: "QL_TOPIC_BLOCK_SIZE", severity: "warning", detail: `${wrongSize.length} of ${topics.length} topics do not have exactly ${topicBlock} questions: ${list(wrongSize.map((t) => `${t.topic} (${t.rows})`))}` });
+  const lopsided = topics.filter((t) => t.rows >= 20 && [t.easy, t.medium, t.hard].some((n) => n / t.rows < 0.2 || n / t.rows > 0.5));
+  if (lopsided.length) batchFlags.push({ code: "QL_TOPIC_DIFFICULTY_SPREAD", severity: "warning", detail: `difficulty is lopsided in ${lopsided.length} topics (each level should be 20% to 50%): ${list(lopsided.map((t) => `${t.topic} (${t.easy}/${t.medium}/${t.hard})`))}` });
+  const fewConcepts = topics.filter((t) => t.rows >= 20 && t.concepts < 3);
+  if (fewConcepts.length) batchFlags.push({ code: "QL_TOPIC_FEW_CONCEPTS", severity: "warning", detail: `fewer than 3 concepts tagged in ${fewConcepts.length} topics, so coverage of the topic cannot be shown: ${list(fewConcepts.map((t) => `${t.topic} (${t.concepts})`))}` });
+  // Plural endings and filler words are ignored so "Components of maps" and "Map components" count as the same topic.
+  const STOP = new Set(["of", "the", "and", "in", "on", "for", "to", "a", "an"]);
+  const stems = (t: string) => new Set(normalize(t).split(" ").filter((w) => w && !STOP.has(w)).map((w) => (w.length > 3 && w.endsWith("s") ? w.slice(0, -1) : w)));
+  const overlap = (a: Set<string>, b: Set<string>) => [...a].filter((w) => b.has(w)).length / new Set([...a, ...b]).size;
+  const names = topics.filter((t) => t.topic);
+  const variants = names.flatMap((a, i) => names.slice(i + 1).filter((b) => a.indicator === b.indicator && overlap(stems(a.topic), stems(b.topic)) >= 0.6).map((b) => `"${a.topic}" / "${b.topic}"`));
+  if (variants.length) batchFlags.push({ code: "QL_TOPIC_NAME_VARIANTS", severity: "warning", detail: `topic names that look like the same topic spelled differently: ${list(variants)}` });
+
   const errorRows = new Set(issues.filter((x) => x.severity === "error").map((x) => x.row)), warningRows = new Set(issues.filter((x) => x.severity === "warning").map((x) => x.row));
   return { rows: total, errorRows: errorRows.size, warningRows: [...warningRows].filter((r) => !errorRows.has(r)).length, cleanRows: total - new Set([...errorRows, ...warningRows]).size, issues, batchFlags,
     counts: { level: tally(rows.map((r) => r.level)), grade: tally(rows.map((r) => r.grade)), subject: tally(rows.map((r) => r.subject)), indicator: tally(rows.map((r) => r.indicator_code || r.topic)),
       difficulty: tally(rows.map((r) => r.difficulty)), cognitive: tally(rows.map((r) => r.cognitive_level)), answerType: tally(rows.map((r) => r.answer_type)), correct },
-    canLoad: errorRows.size === 0 && !batchFlags.some((f) => f.severity === "error") };
+    topics, canLoad: errorRows.size === 0 && !batchFlags.some((f) => f.severity === "error") };
 }
 
 // Shape accepted by the existing admin import (lib/content/factory/import.ts, qb_content_factory_import). Curriculum scope only.
