@@ -2,6 +2,8 @@ import { createClient } from "@supabase/supabase-js";
 import { boundedRequest, sponsorError } from "@/lib/competition/request-client";
 import { configuredFactoryProvider, executeCampaignJobs, type FactoryRpc } from "@/lib/content/factory/campaign";
 export const runtime = "nodejs";
+// Up to max_jobs_per_execution sequential provider calls, each allowed 80 s by the adapter.
+export const maxDuration = 300;
 
 // One bounded Content Factory execution (at most the campaign's max_jobs_per_execution provider calls).
 // Every RPC runs with the caller's own JWT, so content-admin, market and source authorization stay in SQL.
