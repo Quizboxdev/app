@@ -1,5 +1,38 @@
 # NotebookLM prompts: extract the curriculum structure, in small steps
 
+# ONE-SHOT: whole curriculum into one data table (use this first)
+
+Use NotebookLM's **Studio > Data table**, tick every curriculum source you want, paste the prompt below into the instructions box, and generate. Export to Google Sheets, then download as CSV and send me the file. I verify every row against the original PDFs, so no checking is needed on your side.
+
+```
+Create ONE data table that lists EVERY learning indicator in EVERY ticked source document, for ALL grades and ALL strands in each document. One row per learning indicator. Do not skip, merge, summarise or reword anything: copy codes and wording exactly as printed.
+
+Columns, in this order:
+1. Subject (as named in the document title)
+2. Grade (for example B7, B8, B9, SHS 1)
+3. Strand number
+4. Strand name
+5. Sub-strand name
+6. Content standard code
+7. Content standard wording
+8. Indicator code
+9. Indicator wording
+10. Exemplars: every exemplar listed under that indicator, exactly as written, joined with " || " (put a number before each, like 1) ... || 2) ...). If none are printed write NONE.
+11. Page: the page number where the indicator appears
+12. Source: the title of the source document
+
+Rules:
+- Cover every grade in each document, in order: all strands of the first grade, then the next grade.
+- A document that has four grades must give rows for all four grades.
+- Never invent a code or wording. If something is not printed, leave the cell empty.
+- Do not stop early. The table is complete only when the last indicator of the last grade of each document is included.
+```
+
+If the table stops early, ask in chat: "Continue the table from the last indicator you gave, same columns, no repeats." Then merge the two sheets.
+
+---
+
+
 NotebookLM answers only from the sources in the notebook and cites them, so it is the right tool for **exact extraction**. It does badly at two things: questions about the notebook itself ("list every source", "count them") and long answers with many columns. So these prompts are **short, one document at a time, and about content**.
 
 **The one rule that makes it work.** In the Sources panel, **tick only the one document you are working on** and untick all the others. Then ask the short questions below. Use the document's own grade wording (for example "Basic 7" for JHS, "SHS 1" for SHS).
