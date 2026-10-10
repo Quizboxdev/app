@@ -18,7 +18,7 @@ Created 2026-10-10. Last updated 2026-10-10.
 
 ## Gates
 
-- **Gate 1, core ready for a pilot:** every A, B, C, D row DONE, L1–L7 and L9 DONE, G1–G6 DONE.
+- **Gate 1, core ready for a pilot:** every A, B, C, D row DONE, L1–L5, L7 and L9 DONE, L6 and R1–R6 DONE, G1–G6 DONE.
 - **Gate 2, Stage 1 complete:** Gate 1, plus every S row DONE, every F row DONE or DEFERRED by decision, plus G7 (pilot) passed with no P0/P1 defects.
 - **Stage 2 starts at Gate 2.** Exceptions that touch no existing behaviour may start at Gate 1: X0 (documents) and X1 (design-system components, new files only).
 
@@ -127,11 +127,24 @@ Design: docs/question-loading/DESIGN.md. Template and prompts: docs/question-loa
 | L3 | Loader core (pure code): read .xlsx/.csv, validate against the template and database rules, quality flags (templated or repeated explanations, repeated stems, off-topic options, duplicates, answer-letter balance), counts and downloadable problem list | DONE | Claude | L1 | lib/question-loading/ (35 tests) and `npx tsx scripts/check-question-file.ts`; on the B7 Science sample it blocks the batch: 489/500 templated explanations, 212 off-topic-option warnings |
 | L4 | Admin screen "Load questions": scope picker (approved curriculum or approved sponsor source), upload, check report, load in tracked batches (replaces the old CSV box) | TODO | Claude | L3, D6 | Reuses `qb_content_factory_import` |
 | L5 | Batch tracking: file hash, who, when, counts, report, status; same file can't be loaded twice | TODO | Claude | L4 | |
-| L6 | Batch acceptance: SME sample audit (random sample, pass threshold) then bulk accept or return; per-question review stays available | TODO | Both | L5, D7 | Decision D-10 |
+| L6 | Route every loaded question to the SME review pool (track R); a batch is complete when each question has an SME decision | TODO | Claude | L5, R2 | Replaces the earlier idea of batch sample acceptance; decision D-10 |
 | L7 | Truthful provenance labels: internal "AI-assisted, SME-verified"; learners see "Reviewed by subject experts" | TODO | Claude | L5 | Decision D-7 |
 | L8 | Triage of the 17,000 questions in Google Sheets: who made them and under what rights, sample audit, convert to the template, staged load | TODO | Owner | L3, L6 | docs/IP_PROVENANCE.md |
 | L9 | One clean subject and grade code list for the pickers (e.g. `Mathematics` vs `COMPUTING`, B10 vs SHS1) | TODO | Claude | D6 | |
 | L10 | Import from a Google Sheets link | DEFERRED | Claude | L4 | Upload first |
+
+## R. SME review pool, ownership and pay
+Owner flow 2026-10-10: a loaded batch goes to an SME review pool; any SME whose profile is bound to the subject (or tagged Sponsor reviewer) clicks Pick and owns the question; their work is tracked against their compensation plan. Reuses: domain assignments, review assignments (one open reviewer per question), review events, compensation policy versions, earnings and payout batches. New: the pool view and the Pick action.
+| ID | Item | Status | Who | Depends on | Evidence / notes |
+|---|---|---|---|---|---|
+| R1 | SME "Review pool" page: what I can pick (by my subject, grade, market, and the Sponsor-reviewer tag), pool size, my fee per review, today's picked / done / earned, my daily limit | TODO | Claude | L5, D7 | Today SMEs only see what the scheduler or an admin assigns |
+| R2 | Pick action: one click claims 1 or N questions. Claimed items become the SME's assignment. Two SMEs can never take the same question; domain, daily limit and open-queue limit are enforced; the compensation policy version is pinned at pick time | TODO | Claude | R1 | Reuses `domain_matches`, `resolve_policy`, workload policies |
+| R3 | My work: owned list, review workbench (exists), release an unfinished item back to the pool (no pay), automatic release of stale claims after N hours | TODO | Claude | R2 | Released work already never becomes payable |
+| R4 | Sponsor-reviewer tag: admin grants an SME a "SPONSOR" domain; sponsor-pool questions carry the same pseudo-subject so the same matching rules apply | TODO | Claude | R2, S3 | No new tables needed |
+| R5 | Compensation plan screen: fee entered per question with a "per 100 reviews" helper and a daily-earnings calculator, currency, effective dates. Check the market's default SME currency (screens show GHC; the cedi code is GHS) | TODO | Claude | | /admin/compensation exists; fees support 6 decimals |
+| R6 | Earnings and tracking: daily and weekly counts and earnings per SME (pending QA / payable / paid); admin view per SME, per pool and per batch | TODO | Claude | R3, R5 | Earnings are created per completed review |
+| R7 | Quality control on paid work: senior QA samples each SME's reviews (a reversed review earns nothing), minimum review time, seeded known-bad questions to catch rubber-stamping | TODO | Both | R6 | Decision D-12 |
+| R8 | Payout batches: approve and mark paid | TODO | Both | R6, D7 | `sme_payout_batches` and items exist |
 
 ## S. Sponsor process (admin-controlled; sponsors never load or create directly)
 | ID | Item | Status | Who | Depends on | Evidence / notes |
@@ -139,7 +152,7 @@ Design: docs/question-loading/DESIGN.md. Template and prompts: docs/question-loa
 | S1 | Sponsor request form (who, goals, audience, dates, document) and status page | TODO | Claude | A9 | States: SUBMITTED → IN_REVIEW → SOURCE_APPROVED → POOL_LOADING → POOL_VERIFIED → COMPETITION_CONFIGURED → SIGNED_OFF → LIVE → COMPLETED (+ REJECTED, CANCELLED) |
 | S2 | Admin requests queue: verify sponsor, confirm content rights, register and approve the document as a source | TODO | Claude | S1 | Reuses source registry approval |
 | S3 | Sponsor-scope loading through the same loader (SPONSOR_DOCUMENT origin; document approved first) | TODO | Claude | L4, S2 | `questions.content_origin` already supports it |
-| S4 | Pool verification (same acceptance as L6) → request moves to POOL_VERIFIED | TODO | Both | S3, L6 | |
+| S4 | Pool verification by Sponsor-reviewer SMEs through the review pool (R4) → request moves to POOL_VERIFIED | TODO | Both | S3, R4 | |
 | S5 | Admin sets up the competition from a verified pool (rules, dates, eligibility), reusing the competition engine and snapshots | TODO | Claude | S4, F3, F7 | No admin competition setup exists today |
 | S6 | Notifications to the sponsor at each stage (incl. sign-off request) and queue alerts to admins | TODO | Claude | S1 | Existing notifications table and bell |
 | S7 | Sponsor sign-off, then admin publishes; sponsor sees status and results | TODO | Claude | S5, S6, F5 | Decision D-9 |
@@ -178,10 +191,13 @@ Design canvas: https://claude.ai/artifact/8JyB9ENBGKYpV1ZfGmke7n (5 pages, 19 ar
 | D-6 | SHS2/SHS3 curricula: which source documents | D4 | After D5–D6 are working |
 | D-7 | How AI-drafted questions are labelled | L7 | Keep true provenance internally; show learners "Reviewed by subject experts". Do not record AI-drafted items as human-authored |
 | D-9 | Sponsor signs off the finished competition before go-live | S7 | Yes: protects both sides |
-| D-10 | Batch acceptance by SME sample audit, or review of every question | L6 | Sample audit with a pass threshold; full review for sponsor pools shown publicly |
+| D-10 | Review model for loaded questions | L6 | DECIDED 2026-10-10: every question is reviewed by an SME picked from the pool; senior QA samples the SMEs' work (R7) |
+| D-11 | Fee per question reviewed and its currency. "10 per 100 reviews" is 0.10 each (10 per day at 100 a day); 1.00 each would be 100 per day | R5 | Owner to confirm the figure; currency code GHS |
+| D-12 | Daily review cap per SME, hours before an unfinished pick returns to the pool, pick size | R2, R7 | Cap 100 a day, release after 24 hours, pick 25 at a time, plus QA sampling |
 | D-8 | How Gemini is used for bulk drafting: chat on one Pro account within its limits, or the paid API | L2 | Chat for drafting, within the terms of service; API only where automation is needed |
 
 # Change log
+- 2026-10-10: track R (SME review pool, pick, ownership, pay) added from the owner's flow; L6 and D-10 settled as full SME review of every question.
 - 2026-10-10: L3 DONE (loader core and command-line checker; 777 unit tests pass).
 - 2026-10-10: one admin-only loading engine (track L) and an admin-controlled sponsor process (track S) replace the earlier bulk-loading and sponsor self-service plans; API generation (E4–E6, E1b) and sponsor generation (F2, F4, F8) deferred; L1 DONE (template and prompts); L2 in progress.
 - 2026-10-10: E1 and E3 DONE (Gemini adapter, 742 tests pass); E2 in progress; E4 now waits on the owner's Gemini key and env vars.
