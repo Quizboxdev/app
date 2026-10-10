@@ -3,7 +3,7 @@
 Owner decisions, 2026-10-10: keep it simple; one injection system for every kind of question; **admin-only loading**; questions are loaded against an **academically approved curriculum**; the **sponsor workflow is never direct**: sponsors request, admins run the process. Tracker: docs/roadmap/PROGRESS.md tracks L (loading) and S (sponsor process).
 
 ## Principles
-1. **One engine, one template.** `docs/question-loading/QuizBox_Question_Load_Template.xlsx` (and `.csv`) is the only format. Prompts A/B/C in PROMPTS.md make an AI produce it.
+1. **One engine, one template.** `docs/question-loading/QuizBox_Question_Load_Template.xlsx` (and `.csv`) is the only format. The two prompts in PROMPTS.md (a generator for any source, and a batch check) make an AI produce it.
 2. **Admin only.** Loading needs content-admin or super-admin rights (the existing `quizbox_factory.can_manage()` check). Sponsors, teachers and learners never see the loader.
 3. **No approved scope, no load.** Every batch names its scope, and the database refuses a batch without one:
    - **Curriculum bank:** a market and an active curriculum approved for it (Primary / JHS / SHS). The `indicator_code` links each question to the curriculum.
@@ -25,7 +25,7 @@ Sponsor                                Admin
 -------                                -----
 Submits a request (who we are,         Verifies the sponsor, confirms content rights
 goals, audience, dates, document)  ->  Registers the document as an approved source
-                                       Makes the question pool with Prompt B (offline)
+                                       Makes the question pool with the generator prompt (offline)
                                        Loads it through the same loader (scope = this request)
                                        SME verifies the batch  -> pool READY
                                        Sets up the competition from the pool (rules, dates, eligibility)

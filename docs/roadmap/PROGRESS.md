@@ -122,8 +122,8 @@ Status per docs/sponsor-competition-activation.md: built and tested on local fix
 Design: docs/question-loading/DESIGN.md. Template and prompts: docs/question-loading/. Audit of the first sample files: docs/uat/sample-delivery-audit-2026-10-10.md.
 | ID | Item | Status | Who | Depends on | Evidence / notes |
 |---|---|---|---|---|---|
-| L1 | Template (xlsx + csv) and Gemini prompts A (curriculum), B (sponsor document), C (batch check) | DONE | Claude | | docs/question-loading/ (19 columns; written to match the database import rules) |
-| L2 | Trial: run Prompt A on one real grade/subject in Gemini, check by hand, refine the prompts | IN PROGRESS | Both | L1 | Owner is running Prompt A on a sample curriculum and will send the output |
+| L1 | Template (xlsx + csv) and Gemini prompts: one generator for any source (curriculum, book, product, company, policy) and one batch-check prompt | DONE | Claude | | docs/question-loading/ (19 columns; written to match the database import rules) |
+| L2 | Trial: run Prompt 1 on a real source in Gemini, check with the checker and by hand, refine the prompts | IN PROGRESS | Both | L1 | Owner is running Prompt 1 on a sample curriculum and will send the output |
 | L3 | Loader core (pure code): read .xlsx/.csv, validate against the template and database rules, quality flags (templated or repeated explanations, repeated stems, off-topic options, duplicates, answer-letter balance), counts and downloadable problem list | DONE | Claude | L1 | lib/question-loading/ (35 tests) and `npx tsx scripts/check-question-file.ts`; on the B7 Science sample it blocks the batch: 489/500 templated explanations, 212 off-topic-option warnings |
 | L4 | Admin screen "Load questions": scope picker (approved curriculum or approved sponsor source), upload, check report, load in tracked batches (replaces the old CSV box) | TODO | Claude | L3, D6 | Reuses `qb_content_factory_import` |
 | L5 | Batch tracking: file hash, who, when, counts, report, status; same file can't be loaded twice | TODO | Claude | L4 | |
