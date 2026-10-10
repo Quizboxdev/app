@@ -132,7 +132,7 @@ Design: docs/question-loading/DESIGN.md. Template and prompts: docs/question-loa
 | L8 | Triage of the 17,000 questions in Google Sheets: who made them and under what rights, sample audit, convert to the template, staged load | TODO | Owner | L3, L6 | docs/IP_PROVENANCE.md |
 | L9 | One clean subject and grade code list for the pickers (e.g. `Mathematics` vs `COMPUTING`, B10 vs SHS1) | TODO | Claude | D6 | |
 | L10 | Import from a Google Sheets link | DEFERRED | Claude | L4 | Upload first |
-| L11 | Curriculum extract from NotebookLM (short step-by-step prompts in docs/question-loading/NOTEBOOK_PROMPTS.md; NotebookLM cannot answer questions about the notebook itself or long many-column requests, so one document and one strand at a time): validator that checks the extract against the original PDFs (codes, verbatim wording, exemplar completeness, indicator counts), then builds the curriculum structure and topic map used for question writing | TODO | Both | L1 | Owner runs the prompts in the JHS and SHS notebooks and sends the output; Claude builds the validator when real output arrives |
+| L11 | Curriculum structure extraction from the official PDFs: deterministic extractor (scripts/extract-curriculum.ts, lib/curriculum/) with page numbers and completeness checks. Done for Science, Mathematics, Computing (NaCCA site) and Social Studies (GES copy): 515 indicators; remaining: the other JHS subjects, the SHS documents (needs their URL list), resolving source defects and Mathematics layout gaps (about 30 indicators), then topic grouping into the registry | IN PROGRESS | Claude | L1 | data/curriculum/extracts/ and README.md; 7 extractor tests. NotebookLM is no longer needed for structure |
 
 ## R. SME review pool, ownership and pay
 Owner flow 2026-10-10: a loaded batch goes to an SME review pool; any SME whose profile is bound to the subject (or tagged Sponsor reviewer) clicks Pick and owns the question; their work is tracked against their compensation plan. Reuses: domain assignments, review assignments (one open reviewer per question), review events, compensation policy versions, earnings and payout batches. New: the pool view and the Pick action.
@@ -212,6 +212,7 @@ Design canvas: https://claude.ai/artifact/8JyB9ENBGKYpV1ZfGmke7n (5 pages, 19 ar
 | D-8 | How Gemini is used for bulk drafting: chat on one Pro account within its limits, or the paid API | L2 | Chat for drafting, within the terms of service; API only where automation is needed |
 
 # Change log
+- 2026-10-10: curriculum structure extractor built (L11): 515 indicators from four official PDFs read directly; source-document defects recorded.
 - 2026-10-10: NotebookLM prompts added (source health check, inventory, structure extract, optional fact sheet); L11 added.
 - 2026-10-10: trial 2 read by hand; checker gains guessing-cue error (correct option longest in 75%+), implausible-option and LaTeX checks, page check fixed for repeated wording; prompt v3.1.
 - 2026-10-10: track T (topic-based teaching and assignments) added; prompt v3 (asks only the level, topic blocks of 50, batches of 100, concept tags); template now 20 columns; checker reports topic blocks.
