@@ -54,11 +54,13 @@ describe("load payload", () => {
     expect(() => buildLoadPayload(plan, rows)).toThrow("QL_PLAN_BLOCKED");
   });
 
-  it("splits into calls of at most 500 rows, each with only its own topics", () => {
-    const rows = Array.from({ length: 1200 }, (_, i) => row(i, { topic: `Topic ${Math.floor(i / 50)}` }));
+  it("splits into calls of at most the chunk size, each with only its own topics", () => {
+    // 130 rows over 3 topics; a chunk size of 50 stands in for the 500-row limit of one database call.
+    const rows = Array.from({ length: 130 }, (_, i) => row(i, { topic: `Topic ${Math.floor(i / 50)}` }));
     const payload = buildLoadPayload(build(rows), rows);
-    const calls = chunkPayload(payload);
-    expect(calls.map((c) => c.rows.length)).toEqual([500, 500, 200]);
+    const calls = chunkPayload(payload, 50);
+    expect(calls.map((c) => c.rows.length)).toEqual([50, 50, 30]);
+    expect(calls.flatMap((c) => c.rows)).toEqual(payload.rows);
     for (const c of calls) {
       const used = new Set(c.rows.map((r) => r.topic_key));
       expect(new Set(c.topics.map((t) => t.key))).toEqual(used);

@@ -27,6 +27,8 @@ export default function SmeReviewWorkbench({ questionId }: { questionId?: string
   const [markets, setMarkets] = useState<MarketOption[]>([]);
   useEffect(() => { getSmeContext().then(setContext).catch(() => {}); listAuthorizedMarkets().then(setMarkets).catch(() => {}); }, []);
   useEffect(() => { void load(); }, [load]);
+  // The review pool announces picks and returns so this list refreshes without a page reload.
+  useEffect(() => { const refresh = () => void load(); window.addEventListener("qb:review-queue", refresh); return () => window.removeEventListener("qb:review-queue", refresh); }, [load]);
   const perform = async (operation: () => Promise<void>) => {
     if (busy) return; setBusy(true); setError("");
     try { await operation(); await load(); } catch (cause) { setError(userFacingError(cause)); } finally { setBusy(false); }
