@@ -8,7 +8,7 @@ One generator prompt for **any source**: a curriculum, a book, product informati
 1. Open a fresh chat. Upload the document.
 2. Paste **Prompt 1**. It reads the document and asks one question. Answer it (for example `JHS`).
 3. It shows the topic map and writes the first 100 questions (two topics). Say `next` for each further batch. If the topic map looks wrong, say what to change before saying `next`.
-4. Save each batch as `.csv` (UTF-8). Run the checker (bottom of this page). Paste **Prompt 2** for any batch the checker or you doubt.
+4. Save each batch as `.csv` or `.txt` (Gemini's "copy code" saved as a text file is fine; a batch after the first has no header row, and that is fine too). Run the checker on all the batch files together (bottom of this page). Paste **Prompt 2** for any batch the checker or you doubt.
 
 The AI's own report is its own opinion, not proof. The loader and the checker are the real gate, and an SME reviews every question.
 
@@ -213,6 +213,7 @@ After saving the AI's output as `.csv` or `.xlsx` (sheet named QUESTIONS), run i
 
 ```
 npx tsx scripts/check-question-file.ts "path/to/file.csv" --problems problems.csv
+npx tsx scripts/check-question-file.ts batch1.txt batch2.txt batch3.txt --source "path/to/curriculum.pdf"   (several batches checked together)
 npx tsx scripts/check-question-file.ts "path/to/file.csv" --source "path/to/curriculum.pdf"
 npx tsx scripts/check-question-file.ts "path/to/file.csv" --rebalance balanced.csv
 npx tsx scripts/check-question-file.ts "path/to/sponsor-file.xlsx" --scope sponsor

@@ -1,9 +1,9 @@
 import JSZip from "jszip";
 import { parseCsv } from "../content/factory/import";
-import { LOAD_COLUMNS, MAX_FILE_BYTES, MAX_FILE_ROWS, REQUIRED_COLUMNS, type LoadColumn, type LoadRow } from "./template";
+import { LEVELS, LOAD_COLUMNS, MAX_FILE_BYTES, MAX_FILE_ROWS, REQUIRED_COLUMNS, type LoadColumn, type LoadRow } from "./template";
 
 // Reads the question-loading template from .csv or .xlsx. Pure code: no database, no network.
-export type ParsedFile = { rows: LoadRow[]; fileRows: number[]; unknownColumns: string[]; sheet?: string };
+export type ParsedFile = { rows: LoadRow[]; fileRows: number[]; unknownColumns: string[]; sheet?: string; headerless?: boolean };
 
 const xml = (text: string) => text.replace(/&(#x[0-9a-f]+|#\d+|amp|lt|gt|quot|apos);/gi, (_, e: string) => {
   const k = e.toLowerCase();
@@ -32,8 +32,17 @@ function toRows(table: string[][]): ParsedFile {
   return { rows, fileRows, unknownColumns };
 }
 
+// The AI prints the header on the first block only, so a later batch saved on its own has no header row: when the first row is
+// data (it starts with a level) the template header is assumed.
 export function readCsv(bytes: Uint8Array): ParsedFile {
-  return toRows(parseCsv(new TextDecoder("utf-8").decode(bytes).replace(/^﻿/, "")));
+  const table = parseCsv(new TextDecoder("utf-8").decode(bytes).replace(/^﻿/, ""));
+  const first = (table[0] ?? []).map((c) => c.trim().toLowerCase());
+  const headerless = table.length > 0 && !REQUIRED_COLUMNS.every((c) => first.includes(c)) && (LEVELS as readonly string[]).includes((table[0][0] ?? "").trim().toUpperCase());
+  if (!headerless) return toRows(table);
+  // Files made before the concept column existed have 19 columns.
+  const header = table[0].length === LOAD_COLUMNS.length - 1 ? LOAD_COLUMNS.filter((c) => c !== "concept") : [...LOAD_COLUMNS];
+  const parsed = toRows([header, ...table]);
+  return { ...parsed, fileRows: parsed.fileRows.map((r) => r - 1), headerless: true };
 }
 
 export async function readXlsx(bytes: Uint8Array): Promise<ParsedFile> {
@@ -70,7 +79,8 @@ export async function readXlsx(bytes: Uint8Array): Promise<ParsedFile> {
 export async function readQuestionFile(name: string, bytes: Uint8Array): Promise<ParsedFile> {
   if (bytes.length > MAX_FILE_BYTES) throw new Error("QL_FILE_TOO_LARGE");
   if (/\.xlsx$/i.test(name)) return readXlsx(bytes);
-  if (/\.csv$/i.test(name)) return readCsv(bytes);
+  // Gemini saves a copied code block as .txt.
+  if (/\.(csv|txt)$/i.test(name)) return readCsv(bytes);
   throw new Error("QL_FILE_TYPE_UNSUPPORTED");
 }
 

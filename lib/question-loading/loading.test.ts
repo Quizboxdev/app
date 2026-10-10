@@ -27,7 +27,16 @@ describe("reading files", () => {
   it("rejects a header missing required columns, and empty files", () => {
     expect(() => readCsv(bytes("level,question_text\r\nJHS,x"))).toThrow(/QL_HEADER_INVALID: missing .*difficulty/);
     expect(() => readCsv(bytes(LOAD_COLUMNS.join(",") + "\r\n"))).toThrow("QL_FILE_EMPTY");
-    return expect(readQuestionFile("notes.txt", bytes("x"))).rejects.toThrow("QL_FILE_TYPE_UNSUPPORTED");
+    return expect(readQuestionFile("notes.pdf", bytes("x"))).rejects.toThrow("QL_FILE_TYPE_UNSUPPORTED");
+  });
+  it("accepts .txt (a copied code block) and a later batch saved without its header row", async () => {
+    const data = csv([row() as never, row({ question_text: "Another question about maps and directions on a page?" }) as never]).split("\r\n");
+    const noHeader = await readQuestionFile("batch2.txt", bytes(data.slice(1).join("\r\n")));
+    expect(noHeader.headerless).toBe(true);
+    expect(noHeader.rows).toHaveLength(2);
+    expect(noHeader.fileRows).toEqual([1, 2]);
+    expect((await readQuestionFile("batch1.txt", bytes(data.join("\r\n")))).headerless).toBeUndefined();
+    expect(checkRows(noHeader.rows, "CURRICULUM").rows).toBe(2);
   });
   it("reads .xlsx (shared and inline strings, sparse cells, QUESTIONS sheet chosen by name)", async () => {
     const shared = [...LOAD_COLUMNS, "JHS", "Which?", "B", "C"].map((t) => `<si><t>${t}</t></si>`).join("");
@@ -140,5 +149,15 @@ describe("hand-off to the existing import", () => {
     const report = checkRows(parsed.rows, "CURRICULUM", parsed.fileRows);
     expect(report.issues).toEqual([{ row: 3, code: "QL_ANSWER_FORMAT", severity: "error", field: "correct_answer" }]);
     expect(report).toMatchObject({ rows: 2, errorRows: 1, cleanRows: 1, canLoad: false });
+  });
+});
+
+describe("older 19-column files", () => {
+  it("are read correctly when saved without a header row", async () => {
+    const old = LOAD_COLUMNS.filter((c) => c !== "concept");
+    const line = old.map((c) => `"${(row() as unknown as Record<string, string>)[c].replace(/"/g, '""')}"`).join(",");
+    const parsed = await readQuestionFile("old.txt", bytes(line + "\r\n"));
+    expect(parsed.headerless).toBe(true);
+    expect(parsed.rows[0]).toMatchObject({ topic: "energy conversion", concept: "", difficulty: "medium", correct_answer: "A" });
   });
 });
