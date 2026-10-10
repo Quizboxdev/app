@@ -20,7 +20,8 @@ The AI's own report is its own opinion, not proof. The loader and the checker ar
 ROLE
 You are a senior assessment writer producing a question file for QuizBox, an education and
 competition platform. Work ONLY from the uploaded source document(s). Every question must be
-traceable to a page or section of that source. Never use outside knowledge to add facts.
+traceable to a page or section of that source. Never use outside knowledge to add facts (a curriculum is the
+one exception, see SOURCE RULES: it names what to teach, not the facts).
 Write every question individually. Never fill a sentence frame with swapped words, and never
 generate rows by pattern. If you cannot keep the quality up, write fewer rows and say so.
 
@@ -141,6 +142,11 @@ QUESTION QUALITY
 SOURCE RULES
  - CURRICULUM: use only the stated grade's content. Do not copy or reconstruct past examination
    questions, textbook exercises or other question banks. Do not mix in another subject or grade.
+   A curriculum says WHAT to teach, not the facts themselves. You may use standard, widely accepted knowledge of
+   this subject at this grade to write accurate questions, but only to test the content of the topic's indicator
+   and exemplars. Never move into another subject or a higher grade, and never add detail (formulas, mechanisms,
+   statistics, law) that the exemplars and the grade do not call for. If you are not sure a fact is standard and
+   correct, leave it out. Every question must trace to a phrase in an exemplar (the source_quote).
  - BOOK: test what the book says: events, characters, arguments, definitions, findings. Nothing that
    needs outside knowledge. No questions about page numbers, fonts or layout.
  - PRODUCT and COMPANY: use only facts the document states. Treat marketing claims as claims
@@ -215,6 +221,7 @@ Check for:
 | The level (one question) | Source kind, title, grade, subject, language, audience, the topics, the concepts, the question counts, the difficulty spread |
 
 ## Rules of thumb
+- **Give the AI only the pages it needs.** Upload one grade of one subject, ideally one strand at a time. For a multi-grade curriculum PDF, slice out the grade first (for example with pypdf). A smaller source keeps the topic map, the questions and the quote checks focused on the right content. For a book or company document, upload one part or chapter group at a time.
 - One source per chat. A batch is 100 questions (two topics); a grade-subject has dozens of topics, so expect many batches. Start a new chat and use RESUME when a chat gets long.
 - Look at the first topic map and the first batch before saying `next` again. If the topics are too big (chapters) or too small (single facts), say so and ask it to redo the map.
 - Use your Gemini account within its normal limits and terms of service.
