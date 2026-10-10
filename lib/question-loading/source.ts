@@ -18,7 +18,7 @@ export function verifySource(input: LoadRow[], pages: SourcePage[], scope: "CURR
   normalised.forEach((t) => { starts.push(whole.length); whole += t.replace(/ /g, ""); });
   const pageAt = (offset: number) => { let lo = 0, hi = starts.length - 1; while (lo < hi) { const mid = (lo + hi + 1) >> 1; if (starts[mid] <= offset) lo = mid; else hi = mid - 1; } return pages[lo].n; };
   const pageSets = normalised.map((t) => new Set(t.split(" ")));
-  const found: Array<{ row: number; page: number; claimed: number | null }> = [];
+  const found: Array<{ row: number; pages: number[]; claimed: number | null }> = [];
   const s = { rows: input.length, exact: 0, near: 0, missing: 0, noQuote: 0 };
 
   input.forEach((r, i) => {
@@ -30,7 +30,10 @@ export function verifySource(input: LoadRow[], pages: SourcePage[], scope: "CURR
     if (positions.every((p) => p >= 0)) {
       s.exact++;
       const claimed = /\d+/.exec(r.source_reference)?.[0];
-      found.push({ row: i, page: pageAt(positions[0]), claimed: claimed ? Number(claimed) : null });
+      // The same wording can appear on several pages (introductions, overviews), so keep every page it appears on.
+      const where = new Set<number>(); let at = positions[0];
+      for (let n = 0; at >= 0 && n < 50; n++) { where.add(pageAt(at)); at = whole.indexOf(parts[0].flat, at + 1); }
+      found.push({ row: i, pages: [...where], claimed: claimed ? Number(claimed) : null });
       return;
     }
     const words = [...new Set(parts.map((f) => f.words).join(" ").split(" ").filter((t) => t.length > 1))];
@@ -39,12 +42,12 @@ export function verifySource(input: LoadRow[], pages: SourcePage[], scope: "CURR
   });
 
   // Printed page numbers usually sit a fixed distance from the physical page: judge each row against the common distance.
-  const offsets = found.filter((f) => f.claimed != null).map((f) => f.page - (f.claimed as number));
-  const tally = offsets.reduce<Record<number, number>>((acc, o) => { acc[o] = (acc[o] ?? 0) + 1; return acc; }, {});
+  // Every page a quote appears on votes for an offset; the true offset collects the most votes.
+  const tally = found.filter((f) => f.claimed != null).flatMap((f) => f.pages.map((pg) => pg - (f.claimed as number))).reduce<Record<number, number>>((acc, o) => { acc[o] = (acc[o] ?? 0) + 1; return acc; }, {});
   const common = Object.entries(tally).sort((a, b) => b[1] - a[1])[0];
   const pageOffset = common && Number(common[1]) >= 5 ? Number(common[0]) : null;
   let pageMismatch = 0;
-  if (pageOffset != null) for (const f of found) if (f.claimed != null && f.page - f.claimed !== pageOffset) { pageMismatch++; add(f.row, "QL_PAGE_MISMATCH", "warning", "source_reference"); }
+  if (pageOffset != null) for (const f of found) if (f.claimed != null && !f.pages.includes(f.claimed + pageOffset)) { pageMismatch++; add(f.row, "QL_PAGE_MISMATCH", "warning", "source_reference"); }
 
   const missing: string[] = []; let checked = 0;
   if (scope === "CURRICULUM") {

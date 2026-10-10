@@ -22,6 +22,10 @@ const LEAK = /\b(correct answer|answer key|the answer is)\b/i;
 const DOUBLE_NEGATIVE = /\bnot\b.*\b(not|never|no)\b|\bnever\b.*\bnot\b/i;
 // Learners are not shown the curriculum, so a question about what a document "lists" tests memory of the document, not the subject.
 const META_REFERENCE = /\b(according to|as (?:listed|identified|stated|named|described|mentioned) in|(?:listed|identified|stated|named|described|mentioned|explicitly named|specified|cited|highlighted) in|in|from) the (?:social studies |science |computing )?(?:curriculum|syllabus|passage|text|document|guide|book)\b/i;
+// Silly wrong options lean on extreme wording ("permanently stops", "eliminates all", "forces ... to close"): a learner can rule them out
+// by common sense without knowing the topic.
+const HYPERBOLE = /\b(completely|totally|entirely|permanently|instantly|automatically|eliminat(?:e|es|ed|ing)|eradicat(?:e|es|ed|ing)|exclusively|solely|always|never|zero|bankrupt\w*|forces?|halts?|immediately)\b/i;
+const LATEX = /\$[^$]{1,80}\$|\\(?:frac|times|sqrt|mathrm|text)\b|\\\(|\\\[/;
 const BAD_OPTION = /\b(all of the above|none of the above|both [a-d] and [a-d]|a and b|b and c)\b/i;
 const CODE = /^[A-Za-z0-9][A-Za-z0-9._-]{1,39}$/;
 const words = (text: string) => new Set((text.toLowerCase().match(/\p{L}{4,}/gu) ?? []));
@@ -64,6 +68,7 @@ export function checkRows(input: LoadRow[], scope: LoadScope, fileRows: number[]
     if (scope === "CURRICULUM" && META_REFERENCE.test(r.question_text)) warn("QL_META_REFERENCE", "question_text");
     for (const field of ["question_text", "option_a", "option_b", "option_c", "option_d", "explanation"] as const)
       if (HTML.test(r[field])) err("QL_UNSAFE_CONTENT", field); else if (/[<>]/.test(r[field])) warn("QL_ANGLE_BRACKET", field);
+    for (const field of ["question_text", "option_a", "option_b", "option_c", "option_d", "explanation"] as const) if (LATEX.test(r[field])) warn("QL_LATEX", field);
     if (!r.explanation) err("QL_EXPLANATION_REQUIRED", "explanation"); else if (r.explanation.length < 40) warn("QL_THIN_EXPLANATION", "explanation");
     if (r.source_reference.length < 3 || r.source_reference.length > 300) err("QL_PROVENANCE_REQUIRED", "source_reference");
     const options = [r.option_a, r.option_b, r.option_c, r.option_d];
@@ -72,6 +77,8 @@ export function checkRows(input: LoadRow[], scope: LoadScope, fileRows: number[]
       else if (new Set(options.map(normalize)).size !== 4) err("QL_DUPLICATE_OPTIONS");
       if (!["A", "B", "C", "D"].includes(r.correct_answer)) err("QL_ANSWER_FORMAT", "correct_answer");
       if (options.some((o) => BAD_OPTION.test(o))) warn("QL_ALL_NONE_OF_THE_ABOVE");
+      const right = options["ABCD".indexOf(r.correct_answer)];
+      if (right !== undefined && !HYPERBOLE.test(right) && options.filter((o) => o !== right && HYPERBOLE.test(o)).length >= 2) warn("QL_IMPLAUSIBLE_OPTIONS");
     } else if (r.answer_type === "TRUE_FALSE") {
       if (normalize(r.option_a) !== "true" || normalize(r.option_b) !== "false") err("QL_TRUE_FALSE_OPTIONS");
       if (!["A", "B"].includes(r.correct_answer)) err("QL_ANSWER_FORMAT", "correct_answer");
@@ -110,7 +117,10 @@ export function checkRows(input: LoadRow[], scope: LoadScope, fileRows: number[]
   const mcq = rows.filter((r) => r.answer_type === "SINGLE_CHOICE");
   if (mcq.length >= 20) { const top = Math.max(...["A", "B", "C", "D"].map((l) => mcq.filter((r) => r.correct_answer === l).length)) / mcq.length; if (top > 0.4) batchFlags.push({ code: "QL_ANSWER_KEY_SKEW", severity: "warning", share: Math.round(top * 100) / 100, detail: "one letter is correct in over 40% of multiple-choice questions" }); }
   const longest = mcq.filter((r) => { const o = [r.option_a, r.option_b, r.option_c, r.option_d]; const k = "ABCD".indexOf(r.correct_answer); return k >= 0 && o[k].length >= Math.max(...o.map((x) => x.length)); }).length;
-  if (mcq.length >= 20 && longest / mcq.length > 0.5) batchFlags.push({ code: "QL_LONGEST_OPTION_CORRECT", severity: "warning", share: Math.round(longest / mcq.length * 100) / 100, detail: "the correct option is the longest in over half of the multiple-choice questions (a guessing cue)" });
+  // At 75% or more, picking the longest option beats guessing, so the batch is blocked until the options are rewritten.
+  if (mcq.length >= 20 && longest / mcq.length > 0.5) batchFlags.push({ code: "QL_LONGEST_OPTION_CORRECT", severity: longest / mcq.length >= 0.75 ? "error" : "warning", share: Math.round(longest / mcq.length * 100) / 100, detail: `the correct option is the longest in ${longest} of ${mcq.length} multiple-choice questions, so a learner can guess by picking the longest option` });
+  const implausible = issues.filter((x) => x.code === "QL_IMPLAUSIBLE_OPTIONS").length;
+  if (mcq.length >= 20 && implausible / mcq.length >= 0.25) batchFlags.push({ code: "QL_MANY_IMPLAUSIBLE_OPTIONS", severity: "warning", share: Math.round(implausible / mcq.length * 100) / 100, detail: `${implausible} of ${mcq.length} multiple-choice questions have two or more wrong options built on extreme wording (permanently, eliminates, forces...), which a learner can rule out without knowing the topic` });
 
   // Topic blocks: teachers assign by topic, so each topic needs a full block spread over the difficulty levels and its concepts.
   const byTopic = new Map<string, LoadRow[]>();

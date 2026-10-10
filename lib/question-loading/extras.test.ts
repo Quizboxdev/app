@@ -82,6 +82,13 @@ describe("source verification", () => {
     expect(summary.pageOffset).toBe(2);
     expect(issues.filter((i) => i.code === "QL_PAGE_MISMATCH").map((i) => i.row)).toEqual([8]);
   });
+  it("accepts a page claim when the same wording also appears on an earlier page", () => {
+    const repeated = [{ n: 3, text: "Overview: identify components of maps, including north arrow, scale, map key allowing representation of physical features." }, ...pages];
+    const claims = Array.from({ length: 6 }, () => row({ source_reference: "Page 23" }));
+    const { issues, summary } = verifySource(claims, repeated, "CURRICULUM");
+    expect(summary.pageOffset).toBe(2);
+    expect(issues.filter((i) => i.code === "QL_PAGE_MISMATCH")).toEqual([]);
+  });
   it("checks indicator codes exist in a curriculum source, and ignores them for sponsor documents", () => {
     const withUnknown = [row(), row({ indicator_code: "B7.9.9.9.9" })];
     const checked = verifySource(withUnknown, pages, "CURRICULUM");
@@ -121,5 +128,27 @@ describe("topic blocks (teachers assign by topic)", () => {
   it("spots the same topic written two ways under one indicator", () => {
     const rows = [...block("Components of maps").slice(0, 25), ...block("Map components").slice(0, 25).map((r) => ({ ...r, question_text: r.question_text + " today" }))];
     expect(checkRows(rows, "CURRICULUM").batchFlags.map((f) => f.code)).toContain("QL_TOPIC_NAME_VARIANTS");
+  });
+});
+
+describe("guessing cues and silly options", () => {
+  const many = (n: number, make: (i: number) => Partial<LoadRow>) => Array.from({ length: n }, (_, i) => row({ question_text: `Question ${i} about the use of maps for finding places in a district?`, ...make(i) }));
+  it("blocks a batch where the correct option is almost always the longest, and only warns for a moderate cue", () => {
+    const longRight = (i: number) => ({ option_b: "The north arrow shows the direction of North on every map clearly", option_a: "Map key", option_c: "Scale bar", option_d: "Title", correct_answer: "B", explanation: `Reason ${i}: the north arrow points to North so the map can be turned correctly; the others do other jobs.` });
+    const blocked = checkRows(many(24, longRight), "CURRICULUM");
+    expect(blocked.batchFlags.find((f) => f.code === "QL_LONGEST_OPTION_CORRECT")).toMatchObject({ severity: "error" });
+    expect(blocked.canLoad).toBe(false);
+    const moderate = checkRows(many(24, (i) => (i < 15 ? longRight(i) : { option_a: "Map key", option_b: "The north arrow shows the direction of North on every map clearly", option_c: "Scale bar", option_d: "Title", correct_answer: "A", explanation: `Reason ${i}: the key lists what each symbol on this map means for the reader.` })), "CURRICULUM");
+    expect(moderate.batchFlags.find((f) => f.code === "QL_LONGEST_OPTION_CORRECT")).toMatchObject({ severity: "warning" });
+  });
+  it("flags wrong options built on extreme wording, and a batch where it is common", () => {
+    const silly = row({ option_a: "It permanently stops the sun from shining on farms", option_b: "It creates breeding sites for mosquitoes", option_c: "It forces schools to close national borders", option_d: "It eliminates all transport costs completely", correct_answer: "B" });
+    expect(checkRows([silly], "CURRICULUM").issues.map((i) => i.code)).toContain("QL_IMPLAUSIBLE_OPTIONS");
+    expect(checkRows([row()], "CURRICULUM").issues.map((i) => i.code)).not.toContain("QL_IMPLAUSIBLE_OPTIONS");
+    expect(checkRows(many(24, () => ({ option_a: silly.option_a, option_b: silly.option_b, option_c: silly.option_c, option_d: silly.option_d, correct_answer: "B" })), "CURRICULUM").batchFlags.map((f) => f.code)).toContain("QL_MANY_IMPLAUSIBLE_OPTIONS");
+  });
+  it("warns about LaTeX and dollar-sign formulas", () => {
+    expect(checkRows([row({ explanation: "Power is lost as heat ($I^2R$ loss) in cables, so the line warms up." })], "CURRICULUM").issues.map((i) => i.code)).toContain("QL_LATEX");
+    expect(checkRows([row({ explanation: "It costs $5 and $10 in the shops, which is a normal price range for the item." })], "CURRICULUM").issues.map((i) => i.code)).toContain("QL_LATEX");
   });
 });

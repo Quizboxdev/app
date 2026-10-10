@@ -114,11 +114,21 @@ QUESTION QUALITY
    understanding. They stay on the SAME topic and match the right answer in grammar, length and detail.
    No absurd options, no giveaway wording, no overlapping options, no "All of the above",
    "None of the above" or "A and B".
- - The longest option must not usually be the correct one: make the wrong options as detailed as the right one.
+ - LENGTH RULE (a common failure): all four options must be nearly the same length, within 3 words of each other.
+   Count the words of each option before you finish a question. In a batch, the correct option must be the longest
+   in no more than 1 question out of 3. If your right answer is the longest, shorten it or lengthen the wrong ones
+   with a realistic detail. A batch where the right answer is nearly always the longest will be rejected.
  - Every wrong option must be wrong in the real world, not just absent from the document. If another option is
    also true in reality (for example another desert that is also hot), rewrite the question.
- - Wrong options must not be absurd or from a different kind of thing (for example three politicians as options
-   when the answer is a soldier). Use realistic alternatives of the same kind.
+ - PLAUSIBILITY RULE (a common failure): a learner who has NOT learned the topic must not be able to find the right
+   answer by common sense. Every wrong option must be something a learner who half understood the topic could
+   believe: a real misconception, a nearby idea from the same topic, a mixed-up term, a wrong step. Never write wrong
+   options about an unrelated subject (geology, telecommunications, gold) or built on extreme wording such as
+   "permanently", "completely", "eliminates all", "forces", "instantly", "automatically", "zero". Test each wrong
+   option by asking "would a clever learner who skipped the lesson rule this out?" If yes, rewrite it. Hard
+   questions especially need wrong options as believable as the right one.
+ - Stay inside this grade's content and subject. No physics formulas, no LaTeX or dollar signs, no law, economics or
+   science beyond what the topic's indicator and exemplars describe.
  - Test the knowledge itself. Do not ask what the document "lists" or "says" ("according to the curriculum", "listed in
    the syllabus", "named in the text"): the learner will not have the document. For a book, product or company
    source, refer to the document only where the fact is specific to it.
@@ -190,6 +200,10 @@ Check for:
  9. TRUE_FALSE rows: option_a True, option_b False, C and D empty.
 10. Personal or confidential details; questions that need a picture, outside knowledge, or another question.
 11. Questions that ask what the document "lists" instead of testing the knowledge.
+12. The correct option being the longest: rewrite the options so all four are within 3 words of each other.
+13. Wrong options a learner could rule out by common sense (unrelated subject, silly, or extreme wording like
+    "permanently" or "eliminates all"): replace them with believable misconceptions from the same topic.
+14. Content outside the grade or subject, formulas, LaTeX or dollar signs.
 ```
 
 ---
