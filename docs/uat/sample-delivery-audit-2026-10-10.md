@@ -21,3 +21,24 @@ The workbook's own VALIDATION_LOG, ANSWER_KEY_AUDIT and DISTRACTOR_QUALITY_AUDIT
 
 ## Consequence
 Import must run its own checks and SME sampling, independent of the workbook (tracker H3, H4).
+
+## Whole Science folder (added same day)
+`E:\App - QuizBox Solution Files\Curriculum\JHS\Science` holds six delivery workbooks (B7, B8, B9, deliveries 003 and 004: 3,000 questions), the NaCCA Science curriculum PDF, and one Computing workbook used as the template.
+
+| Workbook | Rows | Indicators | Most common explanation opening (rows) | Most common stem opening (rows) |
+|---|---|---|---|---|
+| B7 Delivery003 | 500 | 44 | 489 | 98 |
+| B7 Delivery004 | 500 | 44 | 125 | 125 |
+| B8 Delivery003 | 500 | 33 | **500** | 100 |
+| B8 Delivery004 | 500 | 33 | 104 | 104 |
+| B9 Delivery003 | 500 | 38 | 487 | 99 |
+| B9 Delivery004 | 500 | 38 | 111 | 111 |
+| Computing B9 Batch008 (template) | 20 | 1 | 1 | 1 |
+
+All 3,020 rows are marked `DRAFT_VALIDATED`.
+
+**How they were made:** `Curriculum/JHS/build_science_deliveries.mjs` (365 lines) is a template program, not an AI model. Question stems are fill-in-the-blank frames (`A ${grade} science class is investigating ${topic} in ${context}...`), knowledge-item distractors are drawn from a pool of statements about other indicators, and explanations are fixed sentences (`The correct response ${demand} the accepted scientific idea required by ${indicator}...`). The calculation items (efficiency, Ohm's law) are computed properly and carry real worked explanations; those are sound. The audit sheets inside each workbook are produced by the same program.
+
+**The Computing B9 batch (20 rows) is the quality model:** 20 distinct stems and 20 distinct explanations, i.e. written item by item.
+
+**`QB-SCIENCE-SOURCE-RUNTIME-VERIFICATION.md` (2026-08-07)** also records unresolved blockers: no authoritative Science subject-registry row (subject code, learning-area identity) and no Apps Script importer found in the tree.
