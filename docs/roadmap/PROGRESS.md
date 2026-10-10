@@ -18,8 +18,8 @@ Created 2026-10-10. Last updated 2026-10-10.
 
 ## Gates
 
-- **Gate 1, core ready for a pilot:** every A, B, C, D row DONE, E1–E5 DONE, H1–H6 DONE, G1–G6 DONE.
-- **Gate 2, Stage 1 complete:** Gate 1, plus every F row DONE (or F8 explicitly DEFERRED by the owner), plus G7 (pilot) passed with no P0/P1 defects.
+- **Gate 1, core ready for a pilot:** every A, B, C, D row DONE, L1–L7 and L9 DONE, G1–G6 DONE.
+- **Gate 2, Stage 1 complete:** Gate 1, plus every S row DONE, every F row DONE or DEFERRED by decision, plus G7 (pilot) passed with no P0/P1 defects.
 - **Stage 2 starts at Gate 2.** Exceptions that touch no existing behaviour may start at Gate 1: X0 (documents) and X1 (design-system components, new files only).
 
 ---
@@ -84,25 +84,25 @@ Contract (docs/content-factory.md): `POST {kind:"curriculum", prompt, spec}` →
 | ID | Item | Status | Who | Depends on | Evidence / notes |
 |---|---|---|---|---|---|
 | E1 | Adapter service: same-app server route, provider chosen by env. Google Gemini built first | DONE | Claude | | `app/api/generation/curriculum`, lib/generation/adapter.ts; 17 tests; setup in docs/ai-question-engine-setup.md |
-| E1b | Anthropic Claude backend behind the same route | TODO | Claude | E1 | Optional second provider; owner decision D-1 |
-| E2 | Source-grounded prompt, schema validation, exact-count enforcement, evidence kept on every candidate | IN PROGRESS | Claude | E1 | Done: authorised-source prompt, response schema, exact count, no tools/web grounding, ingest validation. Remaining: store a source-evidence quote per question (blueprint 7.4) |
+| E1b | Anthropic Claude backend behind the same route | DEFERRED | Claude | E1 | Owner decision 2026-10-10: questions are loaded from files (track L); API generation is optional and off |
+| E2 | Source-grounded prompt, schema validation, exact-count enforcement, evidence kept on every candidate | DEFERRED | Claude | E1 | Owner decision 2026-10-10: questions are loaded from files (track L); API generation is optional and off |
 | E3 | Tests: mocked provider, contract test against `configuredFactoryProvider` / `generateQuestions`, failure and timeout paths | DONE | Claude | E1 | lib/generation/adapter.test.ts (17 tests incl. end-to-end contract and 401 path) |
-| E4 | Preview run: small campaign (one indicator, ~5 questions) from generation → review → publish | BLOCKED | Both | E3, C7 | Owner: Gemini key + env vars in Preview (docs/ai-question-engine-setup.md) |
-| E5 | Production enablement: key in Vercel, small controlled campaign, human review | BLOCKED | Owner | E4, D6 | Owner provides the key and spend limit |
-| E6 | Cost and rate controls (`tokens_per_question`, per-campaign caps, kill switch) | TODO | Claude | E1 | |
+| E4 | Preview run: small campaign (one indicator, ~5 questions) from generation → review → publish | DEFERRED | Both | E3, C7 | Optional: only if API generation is wanted later. Setup in docs/ai-question-engine-setup.md |
+| E5 | Production enablement: key in Vercel, small controlled campaign, human review | DEFERRED | Owner | E4, D6 | Owner decision 2026-10-10: questions are loaded from files (track L); API generation is optional and off |
+| E6 | Cost and rate controls (`tokens_per_question`, per-campaign caps, kill switch) | DEFERRED | Claude | E1 | Owner decision 2026-10-10: questions are loaded from files (track L); API generation is optional and off |
 
 ## F. Sponsor competition engine (built, gated off)
 Status per docs/sponsor-competition-activation.md: built and tested on local fixtures; not release-ready.
 | ID | Item | Status | Who | Depends on | Evidence / notes |
 |---|---|---|---|---|---|
 | F1 | Domain model, migrations, workspace, upload/extract, candidates, review bridge, snapshots, delivery, results (fixtures) | DONE | Claude | | lib/competition/*, 6 sponsor migrations |
-| F2 | Generation for sponsors uses the same adapter (sponsor contract `{input, chunks}`) | TODO | Claude | E1 | |
-| F3 | Browser acceptance of the full flow on a Preview branch | TODO | Claude | E4 | Create → generate → review → publish → participate → results |
-| F4 | Background scheduling for extraction and generation | TODO | Claude | E1 | |
+| F2 | Generation for sponsors uses the same adapter (sponsor contract `{input, chunks}`) | DEFERRED | Claude | E1 | Not needed: sponsor pools are loaded by admin from files (track S) |
+| F3 | Browser acceptance of the full flow on a Preview branch | TODO | Claude | E4 | Now for admin-driven competition setup (S5). Create → load pool → publish → participate → results |
+| F4 | Background scheduling for extraction and generation | DEFERRED | Claude | E1 | Not needed without sponsor-side generation |
 | F5 | Aggregate analytics across competitions | TODO | Claude | F3 | |
 | F6 | Leaderboard display names (privacy rules for minors) | TODO | Claude | F3 | |
 | F7 | Balanced publication (difficulty/topic) and oversight UI completed | TODO | Claude | F3 | |
-| F8 | Production enablement: decision + change to the gate that forbids the production project | BLOCKED | Owner | F3–F7, C2 | `lib/competition/local-gate.ts` never enables the engine on production |
+| F8 | Sponsor self-service workspace stays off; competitions are set up by admins only | DEFERRED | Owner |  | Decision 2026-10-10. `local-gate.ts` keeps forbidding it on production |
 | F9 | Sponsor onboarding verified | DONE | Owner | | Hover Farms 2026-10-10 |
 
 ## G. Learner, school and pilot readiness
@@ -118,19 +118,31 @@ Status per docs/sponsor-competition-activation.md: built and tested on local fix
 | G8 | Teacher-managed learner accounts for under-13s (no email; teacher resets passwords; consent rules) | TODO | Both | G1 | Needs owner decision D-3; design first |
 | G9 | Support and incident basics: error monitoring, contact route, runbook | TODO | Claude | | |
 
-## H. Bulk question-bank loading (template → Gemini chat → SME verification → import)
-Owner proposal 2026-10-10: avoid API cost by having AI agents fill a structured delivery template offline, an SME verifies, then the bank is imported (17,000 questions already sit in Google Sheets). The existing import screen takes CSV/JSON, 14 columns, 500 rows per batch, and sends everything to review. Audit of the first sample: docs/uat/sample-delivery-audit-2026-10-10.md.
+## L. Question loading engine (one system, admin only)
+Design: docs/question-loading/DESIGN.md. Template and prompts: docs/question-loading/. Audit of the first sample files: docs/uat/sample-delivery-audit-2026-10-10.md.
 | ID | Item | Status | Who | Depends on | Evidence / notes |
 |---|---|---|---|---|---|
-| H1 | Delivery template and directional prompt kit for Gemini: breakdown by subject → strand → sub-strand → standard → indicator, difficulty mix, strict rules for distractors and explanations | TODO | Claude | | Based on the 34-column QUESTION_BANK sheet; usable in the Gemini chat |
-| H2 | Import v2: read .xlsx and .csv deliveries, map to the import contract, allow bank loads over 500 rows in tracked batches | TODO | Claude | H1 | Today: CSV/JSON only, 500 rows max |
-| H3 | Preflight quality checks at import, independent of the workbook's own audit sheets: templated explanations, off-topic distractors, duplicates, answer-key balance, several-defensible-answers risk; per-batch report | TODO | Claude | H2 | Sample: 489/500 identical explanation openings, marked PASS by its own audit |
-| H4 | SME sample-audit workflow: random sample per batch, pass threshold, batch accepted or returned | TODO | Both | H3, D7 | Uses the existing review queue and SME events |
-| H5 | Truthful provenance labels: internal "AI-assisted, SME-verified"; learner-facing "Reviewed by subject experts" | TODO | Claude | | Provenance types today: IMPORTED, HUMAN_AUTHOR, AI_GENERATED. Decision D-7 |
-| H6 | Curriculum nodes (strand → indicator) for each delivered grade/subject exist in production, and delivery indicator codes match them | TODO | Both | D5, D6 | e.g. B7–B9 Science, 44 B7 indicators |
-| H7 | Triage of the 17,000 questions in Google Sheets: who made them and under what rights, sample quality audit, then staged import | TODO | Owner | H3, H4 | docs/IP_PROVENANCE.md |
-| H8 | Import from a Google Sheets link | DEFERRED | Claude | H2 | Upload first; link import needs sharing/OAuth design |
+| L1 | Template (xlsx + csv) and Gemini prompts A (curriculum), B (sponsor document), C (batch check) | DONE | Claude | | docs/question-loading/ (19 columns; written to match the database import rules) |
+| L2 | Trial: run Prompt A on one real grade/subject in Gemini, check by hand, refine the prompts | IN PROGRESS | Both | L1 | Owner is running Prompt A on a sample curriculum and will send the output |
+| L3 | Loader core (pure code): read .xlsx/.csv, validate against the template and database rules, quality flags (templated or repeated explanations, repeated stems, off-topic options, duplicates, answer-letter balance), counts and downloadable problem list | TODO | Claude | L1 | No database needed |
+| L4 | Admin screen "Load questions": scope picker (approved curriculum or approved sponsor source), upload, check report, load in tracked batches (replaces the old CSV box) | TODO | Claude | L3, D6 | Reuses `qb_content_factory_import` |
+| L5 | Batch tracking: file hash, who, when, counts, report, status; same file can't be loaded twice | TODO | Claude | L4 | |
+| L6 | Batch acceptance: SME sample audit (random sample, pass threshold) then bulk accept or return; per-question review stays available | TODO | Both | L5, D7 | Decision D-10 |
+| L7 | Truthful provenance labels: internal "AI-assisted, SME-verified"; learners see "Reviewed by subject experts" | TODO | Claude | L5 | Decision D-7 |
+| L8 | Triage of the 17,000 questions in Google Sheets: who made them and under what rights, sample audit, convert to the template, staged load | TODO | Owner | L3, L6 | docs/IP_PROVENANCE.md |
+| L9 | One clean subject and grade code list for the pickers (e.g. `Mathematics` vs `COMPUTING`, B10 vs SHS1) | TODO | Claude | D6 | |
+| L10 | Import from a Google Sheets link | DEFERRED | Claude | L4 | Upload first |
 
+## S. Sponsor process (admin-controlled; sponsors never load or create directly)
+| ID | Item | Status | Who | Depends on | Evidence / notes |
+|---|---|---|---|---|---|
+| S1 | Sponsor request form (who, goals, audience, dates, document) and status page | TODO | Claude | A9 | States: SUBMITTED → IN_REVIEW → SOURCE_APPROVED → POOL_LOADING → POOL_VERIFIED → COMPETITION_CONFIGURED → SIGNED_OFF → LIVE → COMPLETED (+ REJECTED, CANCELLED) |
+| S2 | Admin requests queue: verify sponsor, confirm content rights, register and approve the document as a source | TODO | Claude | S1 | Reuses source registry approval |
+| S3 | Sponsor-scope loading through the same loader (SPONSOR_DOCUMENT origin; document approved first) | TODO | Claude | L4, S2 | `questions.content_origin` already supports it |
+| S4 | Pool verification (same acceptance as L6) → request moves to POOL_VERIFIED | TODO | Both | S3, L6 | |
+| S5 | Admin sets up the competition from a verified pool (rules, dates, eligibility), reusing the competition engine and snapshots | TODO | Claude | S4, F3, F7 | No admin competition setup exists today |
+| S6 | Notifications to the sponsor at each stage (incl. sign-off request) and queue alerts to admins | TODO | Claude | S1 | Existing notifications table and bell |
+| S7 | Sponsor sign-off, then admin publishes; sponsor sees status and results | TODO | Claude | S5, S6, F5 | Decision D-9 |
 ---
 
 # STAGE 2: New features (Extension Blueprint v1.0 + 19-artboard design)
@@ -142,10 +154,10 @@ Design canvas: https://claude.ai/artifact/8JyB9ENBGKYpV1ZfGmke7n (5 pages, 19 ar
 | X0 | Reconnaissance documents: CURRENT_ARCHITECTURE, DOMAIN_MAP, ROUTE_MAP, DATA_FLOW, ADR-001, MIGRATION_PLAN, TEST_MATRIX (blueprint §20.2) + ADRs for roles, tenancy, "campaign" naming clash | | TODO | Claude | Gate 1 (docs only) | No behaviour change |
 | X1 | Design-system components as React components in the app (AppShell variants, ChallengeCard, StatePanel, Leaderboard, Stepper, DataTable, StatStrip, Switch, SearchField, Tabs, AlertBanner…) | all (shared) | TODO | Claude | Gate 1 (new files only) | Also upgrades the education screens |
 | X2 | Composable roles: Participant capability without an education role; migration backward-compatible with `profiles.role` | ChJoin (sign-up path) | TODO | Both | Gate 2, X0, C7 | Highest-risk change: routing and RLS |
-| X3 | Campaign domain: Campaign, ContentAsset/Version, Progression, Participation, versioned question pools, state machine, on the sponsor engine's tables | (backend for all) | TODO | Claude | X2, F3–F7, E | Separate schema; reuses scoring engine |
+| X3 | Campaign domain: Campaign, ContentAsset/Version, Progression, Participation, versioned question pools, state machine, on the sponsor engine's tables | (backend for all) | TODO | Claude | X2, F3–F7, S5 | Separate schema; reuses scoring engine |
 | X4 | Public Challenges: Discover, campaign landing, join + auth return + eligibility, share/QR, noindex rules | ChHome, ChHome390, ChCampaign, ChCampaign390, ChJoin (5) | TODO | Claude | X2, X3, A1 | Anonymous browsing before sign-up |
 | X5 | Participant: challenge hub, reader and practice, round result with source evidence | PtHub, PtHub390, PtReader, PtReview (4) | TODO | Claude | X3 | Signed expiring reader links; server-timed rounds |
-| X6 | Campaign Studio: campaigns list, 13-step create, structure review, stages/rounds, question pool review, visibility/publish, analytics | StHome, StCreate, StStructure, StRounds, StQuestions, StPublish, StAnalytics (7) | TODO | Claude | X3, E1 | MVP template order: Book → Public policy → Faith |
+| X6 | Campaign Studio: campaigns list, 13-step create, structure review, stages/rounds, question pool review, visibility/publish, analytics | StHome, StCreate, StStructure, StRounds, StQuestions, StPublish, StAnalytics (7) | TODO | Claude | X3, L4 | MVP template order: Book → Public policy → Faith |
 | X7 | Admin campaign governance: approval, rights, takedowns, integrity flags | AdCampaigns (1) | TODO | Claude | X3 | |
 | X8 | Education bridge: "Public challenges" panel, workspace switch, "Just join a challenge" sign-up | EdBridge (1) | TODO | Claude | X2, X4 | Education layout stays unchanged otherwise |
 | X9 | Tenancy and white-label: tenant scoping, branding, domain, policies | TnBranding (1) | DEFERRED | Both | X3, a paying customer | Last, per blueprint |
@@ -164,11 +176,13 @@ Design canvas: https://claude.ai/artifact/8JyB9ENBGKYpV1ZfGmke7n (5 pages, 19 ar
 | D-4 | Pilot school and start date | G7 | Choose one school with a willing teacher |
 | D-5 | Payment/entry-fee models (jurisdiction and provider) | X12 | Defer until campaigns have users |
 | D-6 | SHS2/SHS3 curricula: which source documents | D4 | After D5–D6 are working |
-| D-7 | How AI-drafted questions are labelled | H5 | Keep true provenance internally; show learners "Reviewed by subject experts". Do not record AI-drafted items as human-authored |
-| D-8 | How Gemini is used for bulk drafting: chat on one Pro account within its limits, or the paid API | H1 | Chat for drafting, within the terms of service; API only where automation is needed |
+| D-7 | How AI-drafted questions are labelled | L7 | Keep true provenance internally; show learners "Reviewed by subject experts". Do not record AI-drafted items as human-authored |
+| D-9 | Sponsor signs off the finished competition before go-live | S7 | Yes: protects both sides |
+| D-10 | Batch acceptance by SME sample audit, or review of every question | L6 | Sample audit with a pass threshold; full review for sponsor pools shown publicly |
+| D-8 | How Gemini is used for bulk drafting: chat on one Pro account within its limits, or the paid API | L2 | Chat for drafting, within the terms of service; API only where automation is needed |
 
 # Change log
-- 2026-10-10: track H (bulk bank loading) added after the owner's proposal and the sample audit; Gate 1 now includes H1–H6.
+- 2026-10-10: one admin-only loading engine (track L) and an admin-controlled sponsor process (track S) replace the earlier bulk-loading and sponsor self-service plans; API generation (E4–E6, E1b) and sponsor generation (F2, F4, F8) deferred; L1 DONE (template and prompts); L2 in progress.
 - 2026-10-10: E1 and E3 DONE (Gemini adapter, 742 tests pass); E2 in progress; E4 now waits on the owner's Gemini key and env vars.
 - 2026-10-10: D-1 and E1 reworded: provider-agnostic adapter, owner chooses Google or Anthropic.
 - 2026-10-10: tracker created. Baseline status taken from the repo, the live site and owner confirmations up to this date.
