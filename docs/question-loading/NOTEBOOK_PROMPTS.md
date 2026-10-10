@@ -1,105 +1,81 @@
-# NotebookLM prompts: extract the curriculum structure
+# NotebookLM prompts: extract the curriculum structure, in small steps
 
-Use these in your two notebooks (JHS and SHS), which hold the official NaCCA curriculum documents. NotebookLM answers only from the sources in the notebook and cites them, so it is the right tool for **exact extraction**. The extract it produces becomes the verified curriculum structure and the **topic map** for question writing (`PROMPTS.md`).
+NotebookLM answers only from the sources in the notebook and cites them, so it is the right tool for **exact extraction**. It does badly at two things: questions about the notebook itself ("list every source", "count them") and long answers with many columns. So these prompts are **short, one document at a time, and about content**.
 
-**The flow**
-1. **N0**: check that every source really loaded with curriculum text. Run once per notebook.
-2. **N1**: list what the notebook contains (subjects, grades, indicator counts). Run once per notebook.
-3. **N2**: extract one subject and one grade at a time, strand by strand. This is the main prompt.
-4. Save each reply to a text file (copy the CSV block into a `.txt`) and send me the file names. I check the extract against the original PDF, so what reaches the system is verified, not trusted.
-5. **N3** (optional): fact sheets per topic, when a source holds real content (a textbook or teacher guide), not only the curriculum.
+**The one rule that makes it work.** In the Sources panel, **tick only the one document you are working on** and untick all the others. Then ask the short questions below. Use the document's own grade wording (for example "Basic 7" for JHS, "SHS 1" for SHS).
 
-Two cautions: NotebookLM can import a web page's text but may not read a PDF behind a link, so N0 matters. And its answers are limited in length, so N2 works in small pieces and says when to continue.
+**Save each reply** into a text file (copy the reply, paste into a `.txt`), named like `SS_B7_strand1_structure.txt`, and send me the file names. I check the output against the original PDF before anything enters the system.
+
+If a step says "can't answer", make it smaller: one strand, then one indicator, then one sentence.
 
 ---
 
-## N0: source health check (run first)
+## Step 1: is this document readable? (per document, two quick questions)
 
+**1a. What is it?**
 ```
-List every source in this notebook, one per row, as a CSV code block with these columns:
-source_title,source_type,subject,grades_covered,issuing_body,year_or_version,looks_like_full_curriculum_text,approx_pages,problem
-
-Rules:
-- Use only what you can actually see in each source. Do not guess.
-- looks_like_full_curriculum_text = YES only if the source contains the curriculum's strands, content
-  standards and learning indicators as text. Write NO for a menu page, a landing page, a list of links, or an
-  empty or image-only source.
-- problem: write NONE, or say what is wrong (for example "only a web page with links", "no indicator codes",
-  "scanned images, no text", "duplicate of another source").
-- After the table, list the sources that could not be read.
+What is this document? Give its title, the organisation that issued it, the subject, the grades it covers and the year, in two sentences.
 ```
 
-## N1: inventory of subjects, grades and indicator codes
+**1b. Does it contain the indicators as text?**
+```
+Show the first learning indicator listed for Basic 7: its exact code, its exact wording, and the page it is on.
+```
+If 1b gives a code and wording, the document loaded properly. If it says it cannot find one, the source did not import as curriculum text (for example it is only a web page with links, or scanned images). Note which documents fail and send me the list; I will fetch those PDFs directly.
+
+---
+
+## Step 2: the strands (one short list)
 
 ```
-For every source that contains a curriculum, give a CSV code block with one row per subject and grade:
-subject,grade,source_title,strands_count,sub_strands_count,content_standards_count,indicator_count,first_indicator_code,last_indicator_code
-
-Rules:
-- Count only items printed in the source. Use the codes exactly as printed (for example B7.1.1.1.1; for SHS
-  they may look different, such as SHS 1.1.1.1 or B10.1.1.1.1).
-- If a count is uncertain, write the number you can verify and add "(partial)" in the last column's note.
-- Add a final column "note" for anything unusual (for example a grade missing from a document).
-Do not invent any row. If a subject appears in two sources, list both.
-```
-
-## N2: structure extract (one subject and one grade at a time)
-
-Change the three values in the first line, then paste. For a long subject say "strands 1 to 2 first" and ask it to continue.
-
-```
-SUBJECT: <e.g. Social Studies>   GRADE: <e.g. B7 or SHS1>   LEVEL: <JHS or SHS>   PART: <all strands, or "strands 1 to 2">
-
-Extract the learning structure for this subject and grade from the notebook's sources. Output ONE CSV code block
-per strand (every field in double quotes; a double quote inside a field is written twice) with exactly these columns:
-
-source_file,level,grade,subject,strand_no,strand,sub_strand_no,sub_strand,content_standard_code,content_standard,indicator_code,indicator,exemplars,page,proposed_topic,proposed_concepts
-
-RULES (extraction, not interpretation)
-1. One row per LEARNING INDICATOR. Copy codes and wording EXACTLY as printed. Do not summarise, correct, merge or
-   reword anything. Keep the source's spelling and punctuation.
-2. exemplars = every exemplar or suggested activity listed under that indicator, copied word for word, numbered as
-   in the source and joined with " || " (for example: 1) Explain: i. environment ii. sanitation || 2) Discuss the
-   types of environment). Never leave out an exemplar.
-3. page = the printed page number where the indicator appears; if the source has no page numbers, the section
-   heading instead. source_file = the exact source title.
-4. Use only this subject and this grade. Ignore other grades and other subjects in the same document.
-5. If something is not in the source, write NOT_FOUND. Never fill a gap from memory.
-6. proposed_topic and proposed_concepts are the ONLY fields that are your judgement:
-   - proposed_topic: the unit a teacher would teach in one to three lessons, in plain teacher language. It may be the
-     indicator itself or part of it (a very broad indicator may be split into two rows with the same indicator
-     fields and different proposed_topic).
-   - proposed_concepts: 3 to 8 separate ideas a learner must grasp for that topic, separated by semicolons, taken
-     from the exemplars.
-7. Sort by indicator code.
-
-AFTER THE LAST TABLE write these control lines:
- - INDICATORS EXTRACTED: <number>
- - INDICATOR CODES IN ORDER: <all codes, comma-separated>
- - ANYTHING THAT MAY BE MISSING OR UNCLEAR: <list, or NONE>
- - CONTINUE FROM: <next strand or indicator code, or DONE>
-```
-
-## N3: fact sheet per topic (optional, when a source holds real content)
-
-Use this only if the notebook also contains a textbook, teacher's guide or notes. The curriculum itself says what to teach, not the facts.
-
-```
-TOPIC: <proposed_topic>   INDICATOR: <code>   GRADE: <grade>   SUBJECT: <subject>
-
-List the facts, definitions, examples and key steps a learner at this grade needs for this topic, taken ONLY from
-the notebook's sources. One fact per line as a CSV code block with columns:
-concept,fact,source_title,page_or_section,verbatim_phrase
-
-Rules: every fact must have a citation. verbatim_phrase is a short phrase (under 200 characters) copied exactly
-from the source that supports the fact. Group by concept. If the notebook has no content source for this topic
-beyond the curriculum itself, write exactly: NO CONTENT SOURCE, and list only what the exemplars themselves state.
-Do not add anything from outside the sources.
+List the names of the strands for Basic 7 in this document, in order, with the page where each one starts.
 ```
 
 ---
 
-## What I do with the output
-- Check every row against the original PDF: codes exist, wording is verbatim, exemplars are complete, indicator counts match.
-- Turn the verified extract into the curriculum structure and the **topic registry** (tracker T1), so teachers see topics named in plain language and each topic links to its curriculum indicator.
-- Feed the topic map to the question prompt, so the AI no longer guesses topics. Because NotebookLM cites its sources, I can also adapt the question prompt for it, so question rows carry quotes it has verified.
+## Step 3: the structure of one strand (a small table)
+
+Repeat for each strand, changing the number.
+
+```
+For Strand 1 of Basic 7, make a table with one row per learning indicator and these columns: indicator code, indicator wording, content standard code, content standard wording, sub-strand name, page. Copy the codes and wording exactly as printed. Do not summarise or change any word.
+```
+
+Then ask for the control check:
+
+```
+How many learning indicators are in Strand 1 of Basic 7? List all their codes in order, separated by commas.
+```
+
+---
+
+## Step 4: the exemplars of that strand (plain lines, easy for me to read)
+
+```
+For each learning indicator in Strand 1 of Basic 7, list ALL the exemplars exactly as written in the document. Use one line per indicator in this layout:
+INDICATOR <code> | page <number> | 1) <first exemplar> || 2) <second exemplar> || 3) <third exemplar>
+Copy the wording word for word. Do not shorten, merge or reword. Do not leave any exemplar out.
+```
+
+---
+
+## Step 5 (optional): facts from a textbook or teacher's guide
+
+Use this only when you have added a textbook, teacher's guide or notes. Tick that source (and, if you like, the curriculum too).
+
+```
+Using only this source, list the key facts a Basic 7 learner needs about "<topic name>". Give one fact per line, and after each fact give the page it comes from and a short phrase copied word for word from the source.
+```
+If the source has nothing on the topic it should say so; do not accept answers without page numbers.
+
+---
+
+## What I do with the files
+- Check every row against the original PDF: codes exist, wording is verbatim, exemplars are complete, counts match.
+- Build the verified curriculum structure and the **topic registry** (tracker T1), and group the indicators into topics with concepts myself, so NotebookLM does only the exact extraction.
+- Feed the topic map into the question prompt.
+
+## Order of work
+1. Steps 1a and 1b for the **Social Studies Basic 7** document, as a test (I already have that PDF to check against).
+2. Step 2, then Steps 3 and 4 for **Strand 1**.
+3. Send me those files. I will tell you whether the format is right before you do the other strands and subjects.
