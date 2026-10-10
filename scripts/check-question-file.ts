@@ -5,14 +5,17 @@ import { balanceAnswerKey } from "../lib/question-loading/balance";
 import { verifySource, type SourcePage } from "../lib/question-loading/source";
 import { LOAD_COLUMNS } from "../lib/question-loading/template";
 import { readQuestionFile } from "../lib/question-loading/read";
+import { buildPlan, describePlan } from "../lib/question-loading/plan";
+import { buildIndex, parseVerifiedCsv } from "../lib/curriculum/verified";
 
 // Usage: npx tsx scripts/check-question-file.ts <file.xlsx|file.csv|file.txt> [more files: batches are merged] [--scope curriculum|sponsor] [--problems problems.csv]
 //        [--source document.pdf|document.txt]  verify quotes, pages and indicator codes against the source
 //        [--topic-block 50]                    questions expected per topic (default 50)
+//        [--curriculum verified.csv]           place every question on a verified indicator and print the loading plan
 //        [--rebalance balanced.csv]            write a copy with the correct-answer letters evened out
 // Read-only: checks a question-loading file against the template rules and prints a report. Nothing is sent anywhere.
 const args = process.argv.slice(2);
-const VALUE_OPTIONS = ["--scope", "--problems", "--source", "--rebalance", "--topic-block"];
+const VALUE_OPTIONS = ["--scope", "--problems", "--source", "--rebalance", "--topic-block", "--curriculum"];
 const files = args.filter((a, i) => !a.startsWith("--") && !VALUE_OPTIONS.includes(args[i - 1]));
 const option = (name: string) => { const i = args.indexOf(name); return i >= 0 ? args[i + 1] : undefined; };
 if (!files.length) { console.error("Usage: tsx scripts/check-question-file.ts <file.xlsx|file.csv|file.txt> [more files...] [--scope curriculum|sponsor] [--problems out.csv] [--source doc.pdf] [--rebalance out.csv]"); process.exit(2); }
@@ -61,6 +64,18 @@ Topics: ${report.topics.length}   complete blocks of ${topicBlock}: ${complete}`
   if (report.batchFlags.length) { console.log("\nBatch flags:"); for (const f of report.batchFlags) console.log(`  [${f.severity.toUpperCase()}] ${f.code}: ${f.detail}`); }
   const byCode = report.issues.reduce<Record<string, number>>((acc, i) => { const k = `${i.severity === "error" ? "ERROR" : "warn "} ${i.code}`; acc[k] = (acc[k] ?? 0) + 1; return acc; }, {});
   if (Object.keys(byCode).length) { console.log("\nProblems by type:"); for (const [k, v] of Object.entries(byCode).sort((a, b) => b[1] - a[1])) console.log(`  ${String(v).padStart(5)}  ${k}`); }
+  const curriculumPath = option("--curriculum");
+  if (curriculumPath || scope === "SPONSOR") {
+    const index = curriculumPath ? buildIndex(parseVerifiedCsv(await readFile(curriculumPath, "utf8"))) : undefined;
+    const bytes = Buffer.concat(await Promise.all(files.map((f) => readFile(f))));
+    const plan = buildPlan({ rows: parsed.rows, fileRows: parsed.fileRows, fileBytes: bytes, scope, index, topicBlock });
+    console.log(String.fromCharCode(10) + "Loading plan (file " + plan.fileSha256.slice(0, 12) + "):");
+    for (const line of describePlan(plan)) console.log("  " + line);
+    for (const u of plan.unresolved.slice(0, 8)) console.log("  row " + u.fileRow + ": " + u.status + " (" + u.subject + " " + u.grade + " " + u.indicator_code + ")" + (u.candidates.length ? " candidates: " + u.candidates.join("; ") : ""));
+    if (plan.unresolved.length > 8) console.log("  ... and " + (plan.unresolved.length - 8) + " more");
+    console.log("  Placement: " + (plan.canLoad ? "READY" : "BLOCKED"));
+    if (!plan.canLoad) report.canLoad = false;
+  }
   console.log(`\nCan load: ${report.canLoad ? "YES" : "NO (fix the errors and batch flags marked ERROR first)"}`);
   const problems = option("--problems");
   if (problems) {

@@ -5,13 +5,13 @@ Last updated 2026-10-10. Datasets live in `QuizBox/curriculum_verified/` (JHS_in
 ## Verified
 | Level | Indicators | Subjects | Wording verified |
 |---|---|---|---|
-| JHS (B7 to B9) | 1,248 | 10 | all; 31 Mathematics B9 rows read directly from the PDF |
+| JHS (B7 to B9) | 1,302 | 11 | all; 31 Mathematics B9 and 54 Social Studies rows read directly from the PDFs |
 | SHS (SHS 1 to 3) | 2,585 | 32 | 2,576; 9 flagged |
 
 ## Missing or open (each is a tracker row)
 | ID | Item | Detail | Who |
 |---|---|---|---|
-| C-1 | JHS Social Studies | Not in the NaCCA notebook. The GES edition (B7 to B10) is at `E:\App - QuizBox Solution Files\Curriculum\JHS\SOCIAL-STUDIES-CCP-CURRICULUM-B7-B10.pdf`; B7 slices are in `QuizBox\BS7 Social Studies\sources`. Extract B7 to B9 the same way as Mathematics B9 | Claude |
+| C-1 | JHS Social Studies | CLOSED 2026-10-10: extracted directly from the GES edition PDF (B7 to B10); B7 16, B8 19, B9 19 indicators, all codes in the text parsed; 34 of 54 rows have content-standard wording, 48 have exemplars. Flag `added_from_pdf_directly`. Note: the NaCCA website has no Social Studies JHS document | Claude |
 | C-2 | SHS completeness | Wording is accurate, but the number of indicators printed per SHS PDF has not been compared with the extract (JHS was). SHS codes (`1.1.1.LI.1`) repeat within a grade, so the check needs strand and sub-strand | Claude |
 | C-3 | 9 SHS rows not verbatim | Listed in the SHS file with flag `wording_not_verbatim` | Claude |
 | C-4 | Non-standard printed codes | JHS 174, SHS 297 printed codes differ from the standard form (`B7 1.1.1.1`, `1.3.1.L1.1`, `1.3.3LI.1`). The standard key is derived from position; printed code is kept | Claude |
