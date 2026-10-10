@@ -34,6 +34,7 @@ describe("verified curriculum lookup", () => {
     expect(standardCode("B7. 2.1.1.1.")).toBe("B7.2.1.1.1");
     expect(standardCode("B 7.1.1.1.3")).toBe("B7.1.1.1.3");
     expect(standardCode("9.1.2.1.2")).toBe("B9.1.2.1.2");
+    expect(["1.1.1.LI.1", "1.3.1.L1.1", "1.3.3LI.1", "2.3.1.Ll.2"].map(standardCode)).toEqual(["1.1.1.LI.1", "1.3.1.LI.1", "1.3.3.LI.1", "2.3.1.LI.2"]);
   });
   it("resolves a question to one indicator, or says exactly why not", () => {
     expect(resolveIndicator(index, { subject: "Science", grade: "B7", indicator_code: "B7.4.1.1.1" })).toMatchObject({ status: "RESOLVED" });

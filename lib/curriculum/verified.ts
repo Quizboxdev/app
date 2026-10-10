@@ -17,7 +17,7 @@ export function parseVerifiedCsv(text: string): VerifiedIndicator[] {
   if (missing.length) throw new Error(`CURRICULUM_FILE_HEADER_INVALID: missing ${missing.join(", ")}`);
   return body.filter((cells) => cells.some((c) => c.trim())).map((cells) => {
     const row = Object.fromEntries(COLUMNS.map((c) => [c, (cells[keys.indexOf(c)] ?? "").trim()])) as Omit<VerifiedIndicator, "level">;
-    return { ...row, level: row.grade.toUpperCase().startsWith("SHS") ? "SHS" : /^B\d/i.test(row.grade) ? "JHS" : "OTHER" } as VerifiedIndicator;
+    return { ...row, level: gradeKey(row.grade).startsWith("shs") ? "SHS" : /^B([789])$/i.test(row.grade.trim()) ? "JHS" : "OTHER" } as VerifiedIndicator;
   });
 }
 
@@ -37,7 +37,9 @@ export function subjectMatches(fileSubject: string, curriculumSubject: string): 
 // Printed codes are inconsistent ("B7 1.1.1.1", "B7. 2.1.1.1.", "B 7.1.1.1.3"); the standard form drops spaces and trailing dots.
 export function standardCode(code: string): string {
   let c = (code ?? "").trim().replace(/\s+/g, "").replace(/\.+$/, "");
-  c = c.replace(/^B\.?(\d)/i, "B$1").replace(/^(\d)\./, "B$1.").replace(/^B(\d)(?=\d\.)/, "B$1.");
+  // SHS codes read a.b.c.LI.n; the printed copies have "L1" for "LI" and sometimes lose the dot before it.
+  if (/L[I1l]\.?\d+$/i.test(c)) return c.replace(/(\d)(L[I1l])/i, "$1.$2").replace(/\.L[1l]\./i, ".LI.").replace(/\.li\./, ".LI.").replace(/\.{2,}/g, ".");
+  c = c.replace(/^B\.?(\d)/i, "B$1").replace(/^([789])\./, "B$1.").replace(/^B(\d)(?=\d\.)/, "B$1.");
   return c.replace(/^B(\d)\.?(?=\d)/, "B$1.").replace(/\.{2,}/g, ".");
 }
 

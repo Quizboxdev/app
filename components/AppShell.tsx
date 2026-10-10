@@ -138,7 +138,7 @@ export default function AppShell({
       add("Content & curriculum", [
         ["/admin/content", "Content Operations"],
         ...when(sme?.super_admin || sme?.content_admin, [["/admin/content-factory", "Content Factory"]]),
-        ...when(sme?.super_admin, [["/admin/curriculum-sources", "Curriculum Sources"]]),
+        ...when(sme?.super_admin, [["/admin/curriculum-sources", "Curriculum Sources"], ["/admin/curriculum-structure", "Curriculum Structure"]]),
         ["/admin/quality", "Content Quality"],
         ["/admin/marketplace", "Marketplace Governance"],
       ]);
