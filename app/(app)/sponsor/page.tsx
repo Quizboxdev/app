@@ -2,6 +2,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { bootstrapUser } from "@/lib/auth";
 import CompetitionContentScope from "@/components/CompetitionContentScope";
 import StatCard from "@/components/StatCard";
@@ -153,7 +154,11 @@ export default function SponsorPage() {
         </section>
       </div>
 
-      <CompetitionContentScope/>
+      {sponsorEngine ? <CompetitionContentScope/> : <section className="qb-card">
+        <h2>Create a sponsored competition</h2>
+        <p className="qb-muted">Self-service competition creation for sponsors is being prepared and is not open yet. To run a sponsored competition now, contact the QuizBox team and we will set it up with you.</p>
+        <Link className="qb-btn ghost" href="/contact">Contact QuizBox</Link>
+      </section>}
 
       <section className="qb-card">
         <h2>Linked competitions</h2>

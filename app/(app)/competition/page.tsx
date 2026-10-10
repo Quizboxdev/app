@@ -7,9 +7,10 @@ import { listCompetitions } from "@/lib/api/competition";
 export default function CompetitionPage() {
   const [rows, setRows] = useState<any[]>([]);
   const [error, setError] = useState("");
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    listCompetitions().then(setRows).catch((e) => setError(e.message));
+    listCompetitions().then(setRows).catch((e) => setError(e.message)).finally(() => setLoaded(true));
   }, []);
 
   return (
@@ -22,6 +23,7 @@ export default function CompetitionPage() {
       </div>
 
       {error && <div className="qb-card qb-error">{error}</div>}
+      {loaded && !error && !rows.length && <div className="qb-card"><div className="qb-empty"><strong>No competitions are open yet</strong>New competitions appear here when they are announced.</div></div>}
 
       <div className="qb-grid cols-3">
         {rows.map((row) => (
