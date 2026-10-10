@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { bootstrapUser } from "@/lib/auth";
 import { listTeacherAssignments, listTeacherClasses, publishAssignment } from "@/lib/api/teacher";
@@ -101,7 +102,7 @@ export default function TeacherAssignmentsPage() {
   ];
 
   return <>
-    <div className="qb-page-head"><div><h1>Assignments</h1><p>Publish work from approved curriculum-aligned questions.</p></div></div>
+    <div className="qb-page-head"><div><h1>Assignments</h1><p>Publish work from approved curriculum-aligned questions. <Link href="/teacher/assignments/by-topic">Assign by topic</Link> shares questions evenly across the topics you taught.</p></div></div>
     {error && <div className="qb-card qb-error" role="alert">{error}</div>}{notice && <div className="qb-card" role="status">{notice}</div>}
     <WorkflowStepper key={run} steps={steps} onComplete={() => void publish()} completeLabel="Publish assignment" busy={publishing} />
     <section className="qb-card" style={{ marginTop: 16 }} aria-labelledby="asg-existing"><h2 id="asg-existing">Existing assignments</h2>
