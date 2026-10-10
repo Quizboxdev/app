@@ -18,7 +18,7 @@ Created 2026-10-10. Last updated 2026-10-10.
 
 ## Gates
 
-- **Gate 1, core ready for a pilot:** every A, B, C, D row DONE, E1–E5 DONE, G1–G6 DONE.
+- **Gate 1, core ready for a pilot:** every A, B, C, D row DONE, E1–E5 DONE, H1–H6 DONE, G1–G6 DONE.
 - **Gate 2, Stage 1 complete:** Gate 1, plus every F row DONE (or F8 explicitly DEFERRED by the owner), plus G7 (pilot) passed with no P0/P1 defects.
 - **Stage 2 starts at Gate 2.** Exceptions that touch no existing behaviour may start at Gate 1: X0 (documents) and X1 (design-system components, new files only).
 
@@ -118,6 +118,19 @@ Status per docs/sponsor-competition-activation.md: built and tested on local fix
 | G8 | Teacher-managed learner accounts for under-13s (no email; teacher resets passwords; consent rules) | TODO | Both | G1 | Needs owner decision D-3; design first |
 | G9 | Support and incident basics: error monitoring, contact route, runbook | TODO | Claude | | |
 
+## H. Bulk question-bank loading (template → Gemini chat → SME verification → import)
+Owner proposal 2026-10-10: avoid API cost by having AI agents fill a structured delivery template offline, an SME verifies, then the bank is imported (17,000 questions already sit in Google Sheets). The existing import screen takes CSV/JSON, 14 columns, 500 rows per batch, and sends everything to review. Audit of the first sample: docs/uat/sample-delivery-audit-2026-10-10.md.
+| ID | Item | Status | Who | Depends on | Evidence / notes |
+|---|---|---|---|---|---|
+| H1 | Delivery template and directional prompt kit for Gemini: breakdown by subject → strand → sub-strand → standard → indicator, difficulty mix, strict rules for distractors and explanations | TODO | Claude | | Based on the 34-column QUESTION_BANK sheet; usable in the Gemini chat |
+| H2 | Import v2: read .xlsx and .csv deliveries, map to the import contract, allow bank loads over 500 rows in tracked batches | TODO | Claude | H1 | Today: CSV/JSON only, 500 rows max |
+| H3 | Preflight quality checks at import, independent of the workbook's own audit sheets: templated explanations, off-topic distractors, duplicates, answer-key balance, several-defensible-answers risk; per-batch report | TODO | Claude | H2 | Sample: 489/500 identical explanation openings, marked PASS by its own audit |
+| H4 | SME sample-audit workflow: random sample per batch, pass threshold, batch accepted or returned | TODO | Both | H3, D7 | Uses the existing review queue and SME events |
+| H5 | Truthful provenance labels: internal "AI-assisted, SME-verified"; learner-facing "Reviewed by subject experts" | TODO | Claude | | Provenance types today: IMPORTED, HUMAN_AUTHOR, AI_GENERATED. Decision D-7 |
+| H6 | Curriculum nodes (strand → indicator) for each delivered grade/subject exist in production, and delivery indicator codes match them | TODO | Both | D5, D6 | e.g. B7–B9 Science, 44 B7 indicators |
+| H7 | Triage of the 17,000 questions in Google Sheets: who made them and under what rights, sample quality audit, then staged import | TODO | Owner | H3, H4 | docs/IP_PROVENANCE.md |
+| H8 | Import from a Google Sheets link | DEFERRED | Claude | H2 | Upload first; link import needs sharing/OAuth design |
+
 ---
 
 # STAGE 2: New features (Extension Blueprint v1.0 + 19-artboard design)
@@ -151,8 +164,11 @@ Design canvas: https://claude.ai/artifact/8JyB9ENBGKYpV1ZfGmke7n (5 pages, 19 ar
 | D-4 | Pilot school and start date | G7 | Choose one school with a willing teacher |
 | D-5 | Payment/entry-fee models (jurisdiction and provider) | X12 | Defer until campaigns have users |
 | D-6 | SHS2/SHS3 curricula: which source documents | D4 | After D5–D6 are working |
+| D-7 | How AI-drafted questions are labelled | H5 | Keep true provenance internally; show learners "Reviewed by subject experts". Do not record AI-drafted items as human-authored |
+| D-8 | How Gemini is used for bulk drafting: chat on one Pro account within its limits, or the paid API | H1 | Chat for drafting, within the terms of service; API only where automation is needed |
 
 # Change log
+- 2026-10-10: track H (bulk bank loading) added after the owner's proposal and the sample audit; Gate 1 now includes H1–H6.
 - 2026-10-10: E1 and E3 DONE (Gemini adapter, 742 tests pass); E2 in progress; E4 now waits on the owner's Gemini key and env vars.
 - 2026-10-10: D-1 and E1 reworded: provider-agnostic adapter, owner chooses Google or Anthropic.
 - 2026-10-10: tracker created. Baseline status taken from the repo, the live site and owner confirmations up to this date.
