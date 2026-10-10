@@ -83,7 +83,7 @@ Created 2026-10-10. Last updated 2026-10-10.
 Contract (docs/content-factory.md): `POST {kind:"curriculum", prompt, spec}` → a JSON array of exactly `spec.count` candidates. Env: `QUIZBOX_GENERATION_PROVIDER`, `_MODEL`, `_ENDPOINT`, optional `_API_KEY`. Candidates enter human review; nothing auto-approves. No provider exists today.
 | ID | Item | Status | Who | Depends on | Evidence / notes |
 |---|---|---|---|---|---|
-| E1 | Adapter service: same-app server route calling Claude (uses the claude-api skill). No new infrastructure | TODO | Claude | | Reads the contract above; key stays server-side |
+| E1 | Adapter service: same-app server route; provider selected by env (Anthropic Claude and Google Gemini both supported). No new infrastructure | TODO | Claude | | Reads the contract above; key stays server-side |
 | E2 | Source-grounded prompt, schema validation, exact-count enforcement, evidence kept on every candidate | TODO | Claude | E1 | Reuses existing ingest validation and duplicate checks |
 | E3 | Tests: mocked provider, contract test against `configuredFactoryProvider` / `generateQuestions`, failure and timeout paths | TODO | Claude | E1, E2 | |
 | E4 | Preview run: small campaign (one indicator, ~5 questions) from generation → review → publish | TODO | Both | E3, C7 | Needs Anthropic key in the Preview environment |
@@ -144,7 +144,7 @@ Design canvas: https://claude.ai/artifact/8JyB9ENBGKYpV1ZfGmke7n (5 pages, 19 ar
 # Owner decisions needed
 | ID | Decision | Needed by | Recommendation |
 |---|---|---|---|
-| D-1 | AI provider key and monthly spend cap for question generation | E4/E5 | Claude via the Anthropic API; key held only in Vercel/Preview env; small cap first |
+| D-1 | AI provider (Google Gemini or Anthropic Claude, or both) and monthly spend cap for question generation | E4/E5 | Build the adapter provider-agnostic (provider and model are env settings), compare both on the same sources; separate Preview and Production keys held only in Vercel; spend cap set first |
 | D-2 | Sponsor competitions: enable on production, and the approval rules for sponsors | F8 | Keep "contact us" until F3–F7 pass |
 | D-3 | Teacher-managed learner accounts for under-13s | G8 | Yes: it removes the email barrier and the reset problem |
 | D-4 | Pilot school and start date | G7 | Choose one school with a willing teacher |
@@ -152,4 +152,5 @@ Design canvas: https://claude.ai/artifact/8JyB9ENBGKYpV1ZfGmke7n (5 pages, 19 ar
 | D-6 | SHS2/SHS3 curricula: which source documents | D4 | After D5–D6 are working |
 
 # Change log
+- 2026-10-10: D-1 and E1 reworded: provider-agnostic adapter, owner chooses Google or Anthropic.
 - 2026-10-10: tracker created. Baseline status taken from the repo, the live site and owner confirmations up to this date.
