@@ -21,3 +21,6 @@ Last updated 2026-10-10. Datasets live in `QuizBox/curriculum_verified/` (JHS_in
 | C-8 | Social Studies SHS and other subjects outside the two notebooks | Anything not in the 10 JHS or 32 SHS documents (for example Arabic, History at JHS) | Owner |
 | C-9 | Exemplar completeness | English exemplars 88% verbatim, Career Technology 94%; exemplars not checked for being complete per indicator | Claude |
 | C-10 | Which subjects are launch subjects | Not every subject is needed first | Owner decision |
+| C-11 | SHS edition year | Read from the covers on 2026-10-11 (Computing, Geography, Social Studies): "Curriculum for Secondary Education (SHS 1 - 3), September 2023". The folder name in the URL says 2025 and decision D-16 used "SHS 2025". The curriculum code and version must follow the document, so GH-SHS-2025 is NOT registered until the owner decides (D-17) | Owner decision |
+| C-12 | Subjects with a source PDF but no indicators | SHS Mathematics (core) and JHS Arabic are in the NaCCA source pack but absent from the extracted indicator files. They can be approved as sources; questions cannot be placed until extracted | Claude |
+| C-13 | Index rows in the source pack | "Official CCP index" and "Official SHS index" are web pages, not documents. They stay pending and cannot be fetched or approved; ignore them in pending counts | Owner |

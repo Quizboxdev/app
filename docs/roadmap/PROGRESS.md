@@ -74,7 +74,7 @@ Created 2026-10-10. Last updated 2026-10-10 (slice B).
 | D2 | Development-era questions retired | DONE | Owner | | 86 archived 2026-10-07 |
 | D3 | Ghana market configuration and Primary curriculum (B4–B6) applied | DONE | Owner | | 2026-10-07 (by hand) |
 | D4 | SHS2 / SHS3 curricula and content | TODO | Both | | No curriculum beyond B10 (= SHS1) |
-| D5 | 47 curriculum sources: set official domains → fetch → approve → activate | TODO | Owner | | /admin/curriculum-sources. Sources sit in "pending" |
+| D5 | 47 curriculum sources: set official domains → fetch → approve → activate | TODO | Owner | 2026-10-11: domain saved (nacca.gov.gh); 45 PDFs fetchable (10 JHS + 33 SHS), 2 index pages are not documents; JHS Social Studies and Arabic direct addresses recorded. BLOCKED on re-pointing the 13 JHS and 34 SHS sources from GH-CCP-2020 (SQL on production needs the owner's Supabase login) and on D-17 for SHS. Do not Fetch before re-pointing |
 | D6 | Curriculum activated; Ghana market readiness = Ready | TODO | Owner | D5 | Readiness shows "approved source missing, curriculum source missing, SME coverage 0" |
 | D7 | SME reviewers onboarded; workload and compensation policies set | TODO | Owner | | SME coverage is 0 today |
 | D8 | Coverage targets set per curriculum | TODO | Owner | D6 | Now has a curriculum dropdown and format hints |
@@ -209,12 +209,17 @@ Design canvas: https://claude.ai/artifact/8JyB9ENBGKYpV1ZfGmke7n (5 pages, 19 ar
 | D-11 | Fee per question reviewed and its currency (an admin setting; the figures here are examples only). "10 per 100 reviews" is 0.10 each (10 per day at 100 a day); 1.00 each would be 100 per day | R5 | Owner to confirm the figure; currency code GHS |
 | D-13 | What "understanding above 50% of a topic" means | T5 | A concept counts as understood after the student answers at least two of its questions correctly, including one medium or hard; topic understanding = understood concepts divided by the topic's concepts, target more than 50% after one pass |
 | D-14 | When a chosen topic can't supply its share of an assignment | T3 | Block the assignment and tell the teacher which topic is short (no silent redistribution) |
+| D-17 | SHS curriculum code and version. The SHS documents say "September 2023" on their covers, not 2025 (upload folder name only says 2025). Options: GH-SHS-2023 with version 2023, or keep the code GH-SHS-2025 with version "2023" (the code then names a year the documents do not carry) | L13, D5 | OPEN: owner to decide. GH-SHS-2025 is not registered |
 | D-16 | Curriculum identity for the extracted documents: JHS Common Core 2020 (B7 to B9) and SHS 2025 curricula as new curricula, and whether SHS year 1 is `SHS 1` or the existing `B10` | L13 | DECIDED 2026-10-10 (owner): both are new curricula (GH-CCP-JHS and GH-SHS-2025), `SHS 1` is the grade, and B10 stays as an alias for the existing 2020 data |
 | D-15 | Questions per topic block and the minimum approved before a topic is offered | T2 | 50 per block; both are admin settings |
 | D-12 | Daily review cap per SME, hours before an unfinished pick returns to the pool, pick size (admin settings, not fixed in code) | R2, R7 | Cap 100 a day, release after 24 hours, pick 25 at a time, plus QA sampling |
 | D-8 | How Gemini is used for bulk drafting: chat on one Pro account within its limits, or the paid API | L2 | Chat for drafting, within the terms of service; API only where automation is needed |
 
 # Change log
+- 2026-10-11: Social Studies B7 pilot batches repaired (65 questions' wrong options rewritten, every quote and page grounded in the approved NaCCA PDF, answer letters balanced 24/24/24/24, correct option longest in 25%): checker reports 100 clean, Can load YES. Originals kept; revised copies in QuizBox/BS7 Social Studies/revised/.
+- 2026-10-11: GH-CCP-JHS registered (inactive) and its structure loaded (2,516 nodes, 1,302 indicators); NaCCA publishing domain saved as nacca.gov.gh; direct PDF addresses recorded for JHS Social Studies and Arabic; both PDFs read and verified (September 2020).
+- 2026-10-11: defect fixed and deployed: the structure and load screens could not list inactive curricula (market access policy); now read through qb_market_setup. Checker learns the NaCCA code print form (B7/JHS1.1.1.1.1.).
+- 2026-10-11: BLOCKED: re-pointing the 13 JHS sources needs SQL on production; the Chrome session's Supabase account only has two paused projects. SHS: documents are dated September 2023, not 2025 (C-11, D-17).
 - 2026-10-11: engine migrations 20261012100000 to 20261012140000 applied to production by the owner and verified (14 functions, all tables, pool limits 25/100/50/24); main fast-forwarded to 4b7f57a.
 - 2026-10-11: pool migration made standalone (own settings table and RPC, no dependency on 20261007100000); release step files and copy commands in docs/release/engine/.
 - 2026-10-10: engine slice 4: assignment by topic with even spread (T3 done in code; migration 20261012140000 not applied anywhere); teacher page /teacher/assignments/by-topic.

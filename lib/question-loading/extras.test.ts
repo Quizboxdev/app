@@ -89,6 +89,12 @@ describe("source verification", () => {
     expect(summary.pageOffset).toBe(2);
     expect(issues.filter((i) => i.code === "QL_PAGE_MISMATCH")).toEqual([]);
   });
+  it("recognises the NaCCA Common Core Programme print forms of an indicator code", () => {
+    const printedPages = [{ n: 36, text: "B7/JHS1.1.1.1.1. Examine ways of dealing with sanitation challenges in the environment Exemplars" },
+      { n: 38, text: "B7/JHS1 1.1.2.1. Examine the sources of energy." }];
+    const rows = [row({ indicator_code: "B7.1.1.1.1" }), row({ indicator_code: "B7.1.1.2.1" }), row({ indicator_code: "B7.9.9.9.9" })];
+    expect(verifySource(rows, printedPages, "CURRICULUM").summary).toMatchObject({ indicatorsChecked: 3, indicatorsMissing: ["B7.9.9.9.9"] });
+  });
   it("checks indicator codes exist in a curriculum source, and ignores them for sponsor documents", () => {
     const withUnknown = [row(), row({ indicator_code: "B7.9.9.9.9" })];
     const checked = verifySource(withUnknown, pages, "CURRICULUM");

@@ -51,10 +51,12 @@ export function verifySource(input: LoadRow[], pages: SourcePage[], scope: "CURR
 
   const missing: string[] = []; let checked = 0;
   if (scope === "CURRICULUM") {
-    const raw = pages.map((p) => p.text).join("\n").toLowerCase();
+    // NaCCA prints codes as "B7/JHS1.1.1.1.1." or "B7/JHS1 1.1.2.1."; both are the code B7.1.1.1.1 / B7.1.1.2.1.
+    const printed = (t: string) => t.toLowerCase().replace(/\bb(\d{1,2})\s*\/\s*jhs\s*\d\b/g, "b$1").replace(/\bb\s*(\d{1,2})[\s.]+(?=\d)/g, "b$1.");
+    const raw = printed(pages.map((p) => p.text).join("\n"));
     for (const code of new Set(input.map((r) => r.indicator_code.trim()).filter(Boolean))) {
       checked++;
-      if (!raw.includes(code.toLowerCase())) { missing.push(code); input.forEach((r, i) => { if (r.indicator_code.trim() === code) add(i, "QL_INDICATOR_NOT_IN_SOURCE", "warning", "indicator_code"); }); }
+      if (!raw.includes(printed(code))) { missing.push(code); input.forEach((r, i) => { if (r.indicator_code.trim() === code) add(i, "QL_INDICATOR_NOT_IN_SOURCE", "warning", "indicator_code"); }); }
     }
   }
   return { issues, summary: { ...s, pageOffset, pageMismatch, indicatorsChecked: checked, indicatorsMissing: missing } };
