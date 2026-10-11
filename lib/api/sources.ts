@@ -25,6 +25,17 @@ export const factorySources = (market: string, curriculum: string) =>
   call<Array<{ id: string; title: string; level: string | null; subject: string | null; registry_status: string | null }>>("qb_content_factory_sources", { p_market: market, p_curriculum: curriculum });
 
 // Bounded server-side fetch (at most 5 official PDFs per click).
+// A Super Admin supplies the official PDF for one source row when the server cannot reach the official host (4 MB limit). The file is
+// recorded exactly like a fetched one and lands in NEEDS_REVIEW; review, rights attestation and activation are unchanged.
+export async function supplySourceFile(registryId: string, file: File) {
+  const supabase = getSupabaseBrowserClient(); const token = (await supabase.auth.getSession()).data.session?.access_token;
+  if (!token) throw new Error(userFacingError(new Error("AUTH_REQUIRED")));
+  const response = await fetch("/api/admin/curriculum-sources/upload", { method: "POST", headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/pdf", "x-registry-id": registryId }, body: file });
+  const body = await readJson(response, "curriculum source upload");
+  if (!response.ok) throw new Error(userFacingError(new Error(body.error ?? "FETCH_FAILED")));
+  return body as { id: string; title: string; status: string; sha256: string; pages: number };
+}
+
 export async function fetchSources(filter: { market_id?: string; job_id?: string; limit?: number }) {
   const supabase = getSupabaseBrowserClient(); const token = (await supabase.auth.getSession()).data.session?.access_token;
   if (!token) throw new Error(userFacingError(new Error("AUTH_REQUIRED")));

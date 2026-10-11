@@ -1,6 +1,7 @@
 import { LOADER_MESSAGES } from "./question-loading/messages";
 import { POOL_MESSAGES } from "./sme/pool-messages";
 import { TOPIC_ASSIGNMENT_MESSAGES } from "./teacher/topic-messages";
+import { SOURCE_MESSAGES } from "./content/sources/messages";
 const messages: Record<string, string> = {
   INVALID_SCHOOL_ACTION: "This school report is not available yet.",
   QB_CONTENT_MARKET_REQUIRED: "Your account needs an assigned content market. Contact your administrator.",
@@ -109,6 +110,7 @@ const messages: Record<string, string> = {
   QB_INSUFFICIENT_APPROVED_QUESTIONS: "There are not enough approved questions for this objective.",
 };
 Object.assign(messages, LOADER_MESSAGES, POOL_MESSAGES, TOPIC_ASSIGNMENT_MESSAGES);
+for (const [code, text] of Object.entries(SOURCE_MESSAGES)) messages[code] ??= text;
 // Readable text for a status/blocker code; unknown codes are shown as-is rather than hidden.
 export function describeCode(code: string): string { return messages[code] ?? code; }
 

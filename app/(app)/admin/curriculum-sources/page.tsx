@@ -1,6 +1,6 @@
 "use client";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { fetchSources, importPackage, previewPackage, sourceRegistry, type PreviewGroup, type RegistryRow, type SourceMarket } from "@/lib/api/sources";
+import { fetchSources, importPackage, previewPackage, sourceRegistry, supplySourceFile, type PreviewGroup, type RegistryRow, type SourceMarket } from "@/lib/api/sources";
 import { parsePackage, type ParsedPackage } from "@/lib/content/sources/package";
 import { describeErrorMessage } from "@/lib/errors";
 
@@ -16,6 +16,7 @@ export default function CurriculumSourcesPage() {
   const [rows, setRows] = useState<RegistryRow[]>([]), [byStatus, setByStatus] = useState<Record<string, number>>({}), [packages, setPackages] = useState<any[]>([]), [readiness, setReadiness] = useState<Readiness[]>([]);
   const [filters, setFilters] = useState({ country_id: "", market_id: "", authority_id: "", curriculum_id: "", level: "", subject: "", status: "" });
   const [notes, setNotes] = useState<Record<string, string>>({}), [rights, setRights] = useState<Record<string, boolean>>({}), [urls, setUrls] = useState<Record<string, string>>({}), [domains, setDomains] = useState<Record<string, string>>({});
+  const [picked, setPicked] = useState<Record<string, File | undefined>>({});
   const [busy, setBusy] = useState(false), [error, setError] = useState(""), [notice, setNotice] = useState("");
   const act = useCallback(async (work: () => Promise<unknown>, message?: string) => { setBusy(true); setError(""); setNotice(""); try { await work(); if (message) setNotice(message); } catch (cause) { setError(describeErrorMessage((cause as Error).message)); } finally { setBusy(false); } }, []);
   const loadRegistry = useCallback(async () => {
@@ -104,6 +105,9 @@ export default function CurriculumSourcesPage() {
               <label className="qb-small"><input type="checkbox" checked={rights[r.id] ?? false} onChange={(e) => setRights({ ...rights, [r.id]: e.target.checked })}/>Official publication; QuizBox may use it as a curriculum source</label>
               <button className="qb-btn" disabled={busy} onClick={() => rowAction("review", r, { decision: "approve", note: notes[r.id] ?? "", rights_confirmed: rights[r.id] ?? false })}>Approve</button>
               <button className="qb-btn secondary" disabled={busy} onClick={() => rowAction("review", r, { decision: "reject", note: notes[r.id] ?? "" })}>Reject</button></div>}
+            {r.status === "IMPORTED" && r.verification_status === "VERIFIED" && !r.sha256 && <div className="qb-content-filters">
+              <label className="qb-small">Supply the official PDF yourself (up to 4 MB)<input type="file" accept="application/pdf" onChange={(e) => setPicked({ ...picked, [r.id]: e.target.files?.[0] })}/></label>
+              <button className="qb-btn secondary" disabled={busy || !picked[r.id]} onClick={() => act(async () => { await supplySourceFile(r.id, picked[r.id] as File); setPicked({ ...picked, [r.id]: undefined }); await loadRegistry(); await loadReadiness(markets); }, `${r.title}: file recorded. It now needs review.`)}>Upload PDF</button></div>}
             {r.status === "APPROVED" && <button className="qb-btn" disabled={busy} onClick={() => rowAction("activate", r)}>Activate</button>}
             {r.status === "DIRECT_PDF_PENDING" && <div className="qb-content-filters">
               <label className="qb-small">Direct official PDF URL<input value={urls[r.id] ?? ""} onChange={(e) => setUrls({ ...urls, [r.id]: e.target.value })}/></label>
