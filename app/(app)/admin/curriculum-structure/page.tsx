@@ -47,7 +47,7 @@ export default function CurriculumStructurePage() {
     {error && <p className="qb-error" role="alert">{error}</p>}{notice && <p role="status">{notice}</p>}
     <section className="qb-card"><h2>1. Choose the curriculum</h2>
       <label>Curriculum<select value={curriculum} onChange={(e) => setCurriculum(e.target.value)}><option value="">Select a curriculum</option>
-        {curricula.map((c) => <option key={c.id} value={c.id}>{c.code} · {c.name} ({c.version}) · {c.country}</option>)}</select></label>
+        {curricula.map((c) => <option key={c.id} value={c.id}>{c.code} · {c.name} ({c.version}){c.active ? "" : " · inactive"} · {c.nodes} nodes</option>)}</select></label>
       <label title="Edition printed on the document, for example 2020 or 2025.">Source version<input value={version} onChange={(e) => setVersion(e.target.value)} placeholder="e.g. 2020"/></label>
     </section>
     <section className="qb-card"><h2>2. Choose the verified file</h2>
