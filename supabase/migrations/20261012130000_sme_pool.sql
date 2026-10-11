@@ -3,23 +3,27 @@ begin;
 -- SME review pool (tracker R1-R3). Loaded questions wait in 'review'. A verified SME opens the pool, sees what their domains cover and the fee
 -- per review, and clicks Pick: the existing review assignment is created for them, so one SME holds a question at a time. Nothing here
 -- widens authorization: the same domain_matches rule as admin assignment applies, plus the SPONSOR specialization for sponsor-origin questions.
--- Pick size, daily cap, open-queue cap and release hours are admin settings (platform_settings), never fixed in code.
+-- Pick size, daily cap, open-queue cap and release hours are admin settings (quizbox_sme.pool_settings, changed through qb_sme_pool_settings),
+-- never fixed in code. This migration depends only on the SME foundation, the content factory and the topic registry.
 
 alter table public.sme_review_assignments add column if not exists picked_from_pool boolean not null default false;
 create index if not exists sme_assignments_pool_open on public.sme_review_assignments(assigned_at) where picked_from_pool and review_completed_at is null;
 
-insert into public.platform_settings(key,value,description)
-select v.key,v.value,v.description from (values
- ('sme_pool.pick_size','25'::jsonb,'Most questions an SME can pick in one click'),
- ('sme_pool.daily_cap','100'::jsonb,'Most questions an SME can pick in one day'),
- ('sme_pool.max_open','50'::jsonb,'Most picked questions an SME can hold unfinished at once'),
- ('sme_pool.release_hours','24'::jsonb,'Hours before a picked, unfinished question returns to the pool (no pay)')
-) v(key,value,description)
-where not exists(select 1 from public.platform_settings s where s.key=v.key and s.scope_type='global');
+create table quizbox_sme.pool_settings (
+ key text primary key check (key in ('pick_size','daily_cap','max_open','release_hours')),
+ value integer not null check (value between 1 and 100000),
+ description text not null default '',
+ updated_by uuid references public.profiles(id), updated_at timestamptz not null default now()
+);
+revoke all on quizbox_sme.pool_settings from public, anon, authenticated;
+insert into quizbox_sme.pool_settings(key,value,description) values
+ ('pick_size',25,'Most questions an SME can pick in one click'),
+ ('daily_cap',100,'Most questions an SME can pick in one day'),
+ ('max_open',50,'Most picked questions an SME can hold unfinished at once'),
+ ('release_hours',24,'Hours before a picked, unfinished question returns to the pool (no pay)');
 
 create function quizbox_sme.pool_number(p_key text,p_default integer) returns integer language sql stable security definer set search_path='' as $$
- select coalesce((select (s.v #>> '{}')::numeric::integer from (select quizbox_core.setting(p_key) as v) s
-  where jsonb_typeof(s.v)='number' and (s.v #>> '{}')::numeric between 1 and 100000),p_default);
+ select coalesce((select v.value from quizbox_sme.pool_settings v where v.key=replace(p_key,'sme_pool.','')),p_default);
 $$;
 
 -- Start of the reviewer's day in their market's time zone (UTC when they have no market).
@@ -167,6 +171,25 @@ begin
  return jsonb_build_object('released',quizbox_sme.pool_release_stale());
 end $$;
 
+-- Read (content admin) or change (super admin) the four pool limits. Changes are partial: send only the keys to change, for example {"daily_cap":150}.
+create function public.qb_sme_pool_settings(p_changes jsonb default null) returns jsonb language plpgsql security definer set search_path='' as $$
+declare k text; n numeric;
+begin
+ if not quizbox_sme.has_capability('content_admin') then raise exception 'QB_SME_ASSIGNMENT_DENIED' using errcode='42501'; end if;
+ if p_changes is not null then
+  if not quizbox_sme.has_capability('super_admin') then raise exception 'QB_SME_CONFIGURATION_DENIED' using errcode='42501'; end if;
+  if jsonb_typeof(p_changes)<>'object' or p_changes='{}'::jsonb then raise exception 'QB_INVALID_CONFIG'; end if;
+  for k in select jsonb_object_keys(p_changes) loop
+   if k not in ('pick_size','daily_cap','max_open','release_hours') then raise exception 'QB_INVALID_CONFIG_FIELD'; end if;
+   if jsonb_typeof(p_changes->k)<>'number' then raise exception 'QB_INVALID_CONFIG'; end if;
+   n:=(p_changes->>k)::numeric;
+   if n<>trunc(n) or n<1 or n>100000 then raise exception 'QB_INVALID_CONFIG'; end if;
+   update quizbox_sme.pool_settings set value=n::integer,updated_by=auth.uid(),updated_at=now() where key=k;
+  end loop;
+ end if;
+ return (select jsonb_object_agg(key,value) from quizbox_sme.pool_settings);
+end $$;
+
 -- A self-pick is not news to the SME who just clicked it: do not send one "Review assigned" notification per picked question.
 do $do$
 begin
@@ -183,7 +206,7 @@ end $do$;
 
 revoke all on function quizbox_sme.pool_number(text,integer),quizbox_sme.pool_day_start(uuid),quizbox_sme.safe_policy(uuid,uuid,text,text,text),
  quizbox_sme.pool_candidates(uuid,text,text,integer,boolean),quizbox_sme.pool_release_stale(),quizbox_sme.pool_require_reviewer() from public,anon,authenticated;
-revoke all on function public.qb_sme_pool(),public.qb_sme_pick(integer,text,text),public.qb_sme_release(uuid,text),public.qb_sme_pool_sweep() from public,anon;
-grant execute on function public.qb_sme_pool(),public.qb_sme_pick(integer,text,text),public.qb_sme_release(uuid,text),public.qb_sme_pool_sweep() to authenticated;
+revoke all on function public.qb_sme_pool(),public.qb_sme_pick(integer,text,text),public.qb_sme_release(uuid,text),public.qb_sme_pool_sweep(),public.qb_sme_pool_settings(jsonb) from public,anon;
+grant execute on function public.qb_sme_pool(),public.qb_sme_pick(integer,text,text),public.qb_sme_release(uuid,text),public.qb_sme_pool_sweep(),public.qb_sme_pool_settings(jsonb) to authenticated;
 
 commit;

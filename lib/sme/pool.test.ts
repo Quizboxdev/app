@@ -29,10 +29,6 @@ beforeAll(async () => {
   const f = await createFactoryFixture();
   ({ db, market, curriculum, source, ind, mathInd } = f);
   await db.exec("reset role");
-  // Core platform settings (the pool reads its limits through quizbox_core.setting).
-  const core = read("../../supabase/migrations/20261007100000_core_platform_foundation.sql");
-  await db.exec("create schema if not exists quizbox_core;");
-  await db.exec(core.slice(core.indexOf("create table public.platform_settings ("), core.indexOf("create function quizbox_core.flag(")));
   await db.exec("alter table public.questions add column if not exists content_origin text not null default 'CURRICULUM'");
   await db.exec(read("../../supabase/migrations/20261012100000_topic_registry.sql"));
   await db.exec(read("../../supabase/migrations/20261012120000_question_load.sql"));
@@ -118,16 +114,16 @@ describe("R2: Pick claims questions", () => {
     await as(A);
     for (const m of (await pool()).mine) await call("select public.qb_sme_release($1,'cap test') v", [m.assignment_id]);
     await db.exec("reset role");
-    await db.exec("update public.platform_settings set value='1'::jsonb where key='sme_pool.max_open'");
+    await db.exec("update quizbox_sme.pool_settings set value=1 where key='max_open'");
     await as(B);
     expect(await pick(5)).toMatchObject({ picked: 0, reason: "OPEN_QUEUE_FULL" });
     await db.exec("reset role");
-    await db.exec("update public.platform_settings set value='50'::jsonb where key='sme_pool.max_open'");
-    await db.exec("update public.platform_settings set value='6'::jsonb where key='sme_pool.daily_cap'");
+    await db.exec("update quizbox_sme.pool_settings set value=50 where key='max_open'");
+    await db.exec("update quizbox_sme.pool_settings set value=6 where key='daily_cap'");
     await as(B);
     expect(await pick(5)).toMatchObject({ picked: 0, reason: "DAILY_CAP_REACHED" });
     await db.exec("reset role");
-    await db.exec("update public.platform_settings set value='100'::jsonb where key='sme_pool.daily_cap'");
+    await db.exec("update quizbox_sme.pool_settings set value=100 where key='daily_cap'");
   });
 });
 
@@ -227,5 +223,30 @@ describe("sponsor-origin questions", () => {
     const withTag = await pool();
     expect(withTag.available.total).toBe(9);
     expect(withTag.available.groups.find((g: any) => g.sponsor)).toMatchObject({ count: 1, subject: "Computing" });
+  });
+});
+
+describe("pool settings", () => {
+  const SUPER = id(15);
+  it("lets a content admin read, only a super admin change, and keeps every value a whole number in range", async () => {
+    await db.exec("reset role");
+    await db.query("insert into profiles(id,role,status,country,default_market_id,full_name) values($1,'ADMIN','active','Ghana',$2,'Super Admin')", [SUPER, market]);
+    await db.query("insert into auth.users(id,email,email_confirmed_at) values($1,'super@example.invalid',now())", [SUPER]);
+    await db.query("insert into user_capabilities(user_id,capability,active) values($1,'super_admin',true)", [SUPER]);
+    const settings = (changes: unknown) => call("select public.qb_sme_pool_settings($1::jsonb) v", [changes === null ? null : JSON.stringify(changes)]);
+    await as(ADMIN);
+    expect(await settings(null)).toEqual({ pick_size: 25, daily_cap: 100, max_open: 50, release_hours: 24 });
+    await expect(settings({ daily_cap: 150 })).rejects.toThrow(/QB_SME_CONFIGURATION_DENIED/);
+    await as(A);
+    await expect(settings(null)).rejects.toThrow(/QB_SME_ASSIGNMENT_DENIED/);
+    await as(SUPER);
+    expect(await settings({ daily_cap: 150, pick_size: 10 })).toEqual({ pick_size: 10, daily_cap: 150, max_open: 50, release_hours: 24 });
+    await expect(settings({ daily_cap: 0 })).rejects.toThrow(/QB_INVALID_CONFIG/);
+    await expect(settings({ daily_cap: 1.5 })).rejects.toThrow(/QB_INVALID_CONFIG/);
+    await expect(settings({ price_per_review: 5 })).rejects.toThrow(/QB_INVALID_CONFIG_FIELD/);
+    await expect(settings({})).rejects.toThrow(/QB_INVALID_CONFIG/);
+    // The pool reads the new limits straight away.
+    await as(A);
+    expect((await pool()).settings).toEqual({ pick_size: 10, daily_cap: 150, max_open: 50, release_hours: 24 });
   });
 });
