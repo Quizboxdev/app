@@ -106,8 +106,8 @@ export default function CurriculumSourcesPage() {
               <button className="qb-btn" disabled={busy} onClick={() => rowAction("review", r, { decision: "approve", note: notes[r.id] ?? "", rights_confirmed: rights[r.id] ?? false })}>Approve</button>
               <button className="qb-btn secondary" disabled={busy} onClick={() => rowAction("review", r, { decision: "reject", note: notes[r.id] ?? "" })}>Reject</button></div>}
             {r.status === "IMPORTED" && r.verification_status === "VERIFIED" && !r.sha256 && <div className="qb-content-filters">
-              <label className="qb-small">Supply the official PDF yourself (up to 4 MB)<input type="file" accept="application/pdf" onChange={(e) => setPicked({ ...picked, [r.id]: e.target.files?.[0] })}/></label>
-              <button className="qb-btn secondary" disabled={busy || !picked[r.id]} onClick={() => act(async () => { await supplySourceFile(r.id, picked[r.id] as File); setPicked({ ...picked, [r.id]: undefined }); await loadRegistry(); await loadReadiness(markets); }, `${r.title}: file recorded. It now needs review.`)}>Upload PDF</button></div>}
+              <label className="qb-small">Supply the official PDF yourself (up to 50 MB)<input type="file" accept="application/pdf" onChange={(e) => { const f = e.target.files?.[0]; setPicked((p) => ({ ...p, [r.id]: f })); }}/></label>
+              <button className="qb-btn secondary" disabled={busy || !picked[r.id]} onClick={() => act(async () => { await supplySourceFile(r.id, picked[r.id] as File, r.market_id); setPicked((p) => ({ ...p, [r.id]: undefined })); await loadRegistry(); await loadReadiness(markets); }, `${r.title}: file recorded. It now needs review.`)}>Upload PDF</button></div>}
             {r.status === "APPROVED" && <button className="qb-btn" disabled={busy} onClick={() => rowAction("activate", r)}>Activate</button>}
             {r.status === "DIRECT_PDF_PENDING" && <div className="qb-content-filters">
               <label className="qb-small">Direct official PDF URL<input value={urls[r.id] ?? ""} onChange={(e) => setUrls({ ...urls, [r.id]: e.target.value })}/></label>

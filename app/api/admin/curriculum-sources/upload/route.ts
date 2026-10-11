@@ -20,12 +20,21 @@ export async function POST(request: Request) {
     if (error || !data.user) throw new Error("AUTH_REQUIRED");
     const id = request.headers.get("x-registry-id") ?? "";
     if (!/^[0-9a-f-]{36}$/i.test(id)) throw new Error("QB_SOURCE_NOT_FOUND");
-    const bytes = await boundedRequest(request, MAX_UPLOAD_BYTES);
     const rpc: SourceRpc = async (name, args) => { const result = await client.rpc(name, args); if (result.error) throw new Error(result.error.message); return result.data as never; };
     const store = async (path: string, file: Buffer) => {
       const { error: upload } = await client.storage.from("curriculum-sources").upload(path, file, { contentType: "application/pdf", upsert: false });
       if (upload) throw new Error("SOURCE_STORAGE_FAILED");
     };
+    // Large files are placed in the bucket by the browser and named here; the body is then only {"path": "..."}.
+    if ((request.headers.get("content-type") ?? "").startsWith("application/json")) {
+      const body = JSON.parse((await boundedRequest(request, 2_048)).toString("utf8")) as { path?: unknown };
+      const path = typeof body.path === "string" ? body.path : "";
+      if (!/^[0-9a-f-]{36}\/[0-9a-f-]{36}\.pdf$/i.test(path)) throw new Error("QB_SOURCE_FETCH_RESULT_INVALID");
+      const { data: blob, error: read } = await client.storage.from("curriculum-sources").download(path);
+      if (read || !blob) throw new Error("SOURCE_STORAGE_FAILED");
+      return Response.json(await acceptSuppliedPdf(rpc, store, id, Buffer.from(await blob.arrayBuffer()), undefined, { storedPath: path }));
+    }
+    const bytes = await boundedRequest(request, MAX_UPLOAD_BYTES);
     return Response.json(await acceptSuppliedPdf(rpc, store, id, bytes));
   } catch (error) {
     return sponsorError(error);

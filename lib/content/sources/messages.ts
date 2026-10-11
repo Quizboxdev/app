@@ -7,7 +7,7 @@ export const SOURCE_MESSAGES: Record<string, string> = {
   NOT_A_PDF: "That file is not a PDF.",
   EXTRACTION_EMPTY: "The PDF has no readable text, so it cannot be used as a source.",
   SOURCE_TOO_LARGE: "The file is too large.",
-  REQUEST_TOO_LARGE: "The file is larger than the 4 MB upload limit.",
+  REQUEST_TOO_LARGE: "The file is larger than the upload limit.",
   EMPTY_REQUEST: "No file was received.",
   SOURCE_STORAGE_FAILED: "The file could not be stored. Try again.",
 };

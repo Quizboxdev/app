@@ -30,6 +30,15 @@ describe("administrator-supplied source file", () => {
     expect(h.stored).toEqual([finish.storage_path]);
   });
 
+  it("records a file the browser already placed in the bucket under that same path, without storing it again", async () => {
+    const h = harness();
+    const path = `${claim.market_id}/33333333-3333-4333-8333-333333333333.pdf`;
+    const out = await acceptSuppliedPdf(h.rpc, h.store, claim.id, pdf, async () => ({ text, pages: 259 }), { storedPath: path });
+    expect(out).toMatchObject({ status: "NEEDS_REVIEW", pages: 259 });
+    expect(h.stored).toEqual([]);
+    expect(h.calls[1].args.p_data.storage_path).toBe(path);
+  });
+
   it("rejects anything that is not a readable PDF before the registry is touched", async () => {
     for (const [bytes, extract, code] of [
       [Buffer.from("<html>not a pdf</html>"), async () => ({ text, pages: 1 }), "NOT_A_PDF"],

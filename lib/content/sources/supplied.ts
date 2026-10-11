@@ -7,7 +7,9 @@ import { extractPdfText, SOURCE_FETCH_MAX_BYTES, type SourceRpc, type SourceStor
 export type SuppliedOutcome = { id: string; title: string; status: string; sha256: string; pages: number };
 type Extract = (bytes: Buffer) => Promise<{ text: string; pages: number }>;
 
-export async function acceptSuppliedPdf(rpc: SourceRpc, store: SourceStore, registryId: string, bytes: Buffer, extract: Extract = extractPdfText): Promise<SuppliedOutcome> {
+// storedPath: the file was already placed in the bucket by the browser (files over the request limit); it is read back and verified here,
+// and recorded under that same path. The SQL step checks the path belongs to the row's market.
+export async function acceptSuppliedPdf(rpc: SourceRpc, store: SourceStore, registryId: string, bytes: Buffer, extract: Extract = extractPdfText, options: { storedPath?: string } = {}): Promise<SuppliedOutcome> {
   if (bytes.length === 0) throw new Error("EMPTY_REQUEST");
   if (bytes.length > SOURCE_FETCH_MAX_BYTES) throw new Error("SOURCE_TOO_LARGE");
   if (!bytes.subarray(0, 5).equals(Buffer.from("%PDF-"))) throw new Error("NOT_A_PDF");
@@ -18,8 +20,8 @@ export async function acceptSuppliedPdf(rpc: SourceRpc, store: SourceStore, regi
 
   const claim = await rpc<{ id: string; token: string; title: string; market_id: string }>("qb_source_claim_file", { p_id: registryId });
   try {
-    const path = `${claim.market_id}/${randomUUID()}.pdf`;
-    await store(path, bytes);
+    const path = options.storedPath ?? `${claim.market_id}/${randomUUID()}.pdf`;
+    if (!options.storedPath) await store(path, bytes);
     const done = await rpc<{ status: string }>("qb_curriculum_sources", { p_action: "finish_fetch", p_data: { id: claim.id, token: claim.token, sha256, bytes: bytes.length, pages, storage_path: path, text } });
     return { id: claim.id, title: claim.title, status: done.status, sha256, pages };
   } catch (error) {

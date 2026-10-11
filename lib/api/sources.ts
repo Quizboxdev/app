@@ -14,7 +14,7 @@ export type PreviewRow = { level: string; subject: string; subject_code: string 
 export type PreviewGroup = { country: string; country_id: string | null; market_id: string | null; market: string | null; warnings: string[]; levels: string[]; curricula: Array<{ id: string; code: string; authority: string }>;
   totals: { sources: number; importable: number; verified_pdfs: number; index_only: number; pending: number; duplicates: number; warnings: number };
   summary: Array<{ authority: string | null; curriculum: string | null; level: string; subject: string; sources: number; verified_pdfs: number; index_only: number; pending: number; duplicates: number; warnings: string[] }> | null; rows: PreviewRow[] };
-export type RegistryRow = { id: string; market: string; country: string; source_country: string | null; authority: string; curriculum: string; education_level: string; subject_code: string; title: string; canonical_url: string; source_type: string; verification_status: string; status: string; sha256: string | null; pages: number | null; last_error: string | null; review_note: string | null; package: string; updated_at: string };
+export type RegistryRow = { id: string; market_id?: string; market: string; country: string; source_country: string | null; authority: string; curriculum: string; education_level: string; subject_code: string; title: string; canonical_url: string; source_type: string; verification_status: string; status: string; sha256: string | null; pages: number | null; last_error: string | null; review_note: string | null; package: string; updated_at: string };
 
 export const sourceRegistry = <T = unknown>(action: string, data: Record<string, unknown> = {}) => call<T>("qb_curriculum_sources", { p_action: action, p_data: data });
 export const previewPackage = (pkg: ParsedPackage, target: string | null, mapping: Record<string, Record<string, string>>) =>
@@ -27,10 +27,22 @@ export const factorySources = (market: string, curriculum: string) =>
 // Bounded server-side fetch (at most 5 official PDFs per click).
 // A Super Admin supplies the official PDF for one source row when the server cannot reach the official host (4 MB limit). The file is
 // recorded exactly like a fetched one and lands in NEEDS_REVIEW; review, rights attestation and activation are unchanged.
-export async function supplySourceFile(registryId: string, file: File) {
+const DIRECT_LIMIT = 4_000_000;
+export async function supplySourceFile(registryId: string, file: File, marketId?: string) {
   const supabase = getSupabaseBrowserClient(); const token = (await supabase.auth.getSession()).data.session?.access_token;
   if (!token) throw new Error(userFacingError(new Error("AUTH_REQUIRED")));
-  const response = await fetch("/api/admin/curriculum-sources/upload", { method: "POST", headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/pdf", "x-registry-id": registryId }, body: file });
+  // Over the request limit: place the file in the bucket from the browser (50 MB allowed), then name it to the server, which reads it back.
+  let init: RequestInit;
+  if (file.size > DIRECT_LIMIT) {
+    if (!marketId) throw new Error(userFacingError(new Error("QB_SOURCE_NOT_FOUND")));
+    const path = `${marketId}/${crypto.randomUUID()}.pdf`;
+    const { error: stored } = await supabase.storage.from("curriculum-sources").upload(path, file, { contentType: "application/pdf", upsert: false });
+    if (stored) throw new Error(userFacingError(new Error("SOURCE_STORAGE_FAILED")));
+    init = { method: "POST", headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json", "x-registry-id": registryId }, body: JSON.stringify({ path }) };
+  } else {
+    init = { method: "POST", headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/pdf", "x-registry-id": registryId }, body: file };
+  }
+  const response = await fetch("/api/admin/curriculum-sources/upload", init);
   const body = await readJson(response, "curriculum source upload");
   if (!response.ok) throw new Error(userFacingError(new Error(body.error ?? "FETCH_FAILED")));
   return body as { id: string; title: string; status: string; sha256: string; pages: number };
