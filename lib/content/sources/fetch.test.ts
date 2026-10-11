@@ -25,6 +25,23 @@ describe("official curriculum fetch guard", () => {
     await expect(fetchOfficialPdf("https://nacca.gov.gh/x.pdf", ["nacca.gov.gh"], (async () => reply(200, pdf, { "content-length": String(60 * 1024 * 1024) })) as typeof fetch)).rejects.toThrow("SOURCE_TOO_LARGE");
   });
 
+  it("retries a slow or refused connection, but never an HTTP answer or another error", async () => {
+    const timeout = () => Object.assign(new TypeError("fetch failed"), { cause: { code: "UND_ERR_CONNECT_TIMEOUT" } });
+    let calls = 0;
+    const slowThenOk = async () => { if (++calls < 3) throw timeout(); return reply(200, pdf); };
+    expect((await fetchOfficialPdf("https://nacca.gov.gh/x.pdf", ["nacca.gov.gh"], slowThenOk as typeof fetch)).subarray(0, 5).toString()).toBe("%PDF-");
+    expect(calls).toBe(3);
+    let always = 0;
+    await expect(fetchOfficialPdf("https://nacca.gov.gh/x.pdf", ["nacca.gov.gh"], (async () => { always++; throw timeout(); }) as typeof fetch)).rejects.toThrow("SOURCE_HOST_UNREACHABLE");
+    expect(always).toBe(3);
+    let http = 0;
+    await expect(fetchOfficialPdf("https://nacca.gov.gh/x.pdf", ["nacca.gov.gh"], (async () => { http++; return reply(503); }) as typeof fetch)).rejects.toThrow("FETCH_FAILED");
+    expect(http).toBe(1);
+    let other = 0;
+    await expect(fetchOfficialPdf("https://nacca.gov.gh/x.pdf", ["nacca.gov.gh"], (async () => { other++; throw new Error("boom"); }) as typeof fetch)).rejects.toThrow("boom");
+    expect(other).toBe(1);
+  }, 30_000);
+
   it("reports failures back to the registry without storing or approving anything", async () => {
     const calls: Array<{ action: string; data: any }> = []; const stored: string[] = [];
     const rpc = (async (_name: string, args: any) => { calls.push({ action: args.p_action, data: args.p_data }); return args.p_action === "claim_fetch" ? [{ id: "r1", token: "t1", url: "https://evil.example.com/x.pdf", title: "x", market_id: "m1", official_domains: ["nacca.gov.gh"] }] : {}; }) as any;

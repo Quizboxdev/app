@@ -15,11 +15,26 @@ export function officialHost(url: string, domains: string[]) {
   return domains.some((d) => host === d || host.endsWith(`.${d}`));
 }
 
+// Official hosts (a government site, in the first real use) can be slow to accept a connection. A connection-level failure is retried
+// a few times with a short pause; HTTP answers and every other error are never retried.
+const TRANSIENT_NETWORK = new Set(["UND_ERR_CONNECT_TIMEOUT", "UND_ERR_SOCKET", "ECONNRESET", "ETIMEDOUT", "ECONNREFUSED", "EAI_AGAIN"]);
+const isTransient = (error: unknown) => { const e = error as { cause?: { code?: string }; code?: string }; const c = e?.cause?.code ?? e?.code; return typeof c === "string" && TRANSIENT_NETWORK.has(c); };
+async function requestWithRetry(request: typeof fetch, url: string, tries = 3, pauseMs = 1500): Promise<Response> {
+  for (let attempt = 1; ; attempt++) {
+    try {
+      return await request(url, { redirect: "manual", signal: AbortSignal.timeout(60_000), headers: { "User-Agent": "QuizBox-CurriculumSources/1.0", Accept: "application/pdf" } });
+    } catch (error) {
+      if (attempt >= tries || !isTransient(error)) throw isTransient(error) ? new Error("SOURCE_HOST_UNREACHABLE") : error;
+      await new Promise((resolve) => setTimeout(resolve, pauseMs * attempt));
+    }
+  }
+}
+
 export async function fetchOfficialPdf(url: string, domains: string[], request: typeof fetch = fetch): Promise<Buffer> {
   let current = url;
   for (let hop = 0; hop < 4; hop++) {
     if (!officialHost(current, domains)) throw new Error("HOST_NOT_OFFICIAL");
-    const response = await request(current, { redirect: "manual", signal: AbortSignal.timeout(60_000), headers: { "User-Agent": "QuizBox-CurriculumSources/1.0", Accept: "application/pdf" } });
+    const response = await requestWithRetry(request, current);
     if (response.status >= 300 && response.status < 400) { const next = response.headers.get("location"); if (!next) throw new Error("FETCH_REDIRECT_INVALID"); current = new URL(next, current).toString(); continue; }
     if (response.status === 404) throw new Error("PDF_NOT_FOUND");
     if (!response.ok) throw new Error("FETCH_FAILED");
