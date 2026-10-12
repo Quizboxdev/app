@@ -131,6 +131,8 @@ The Primary curriculum already exists and is active (`GH-SBC-2019`, version 2019
 4. **Verify (read only):** `12_primary_verify.sql` (expected counts are in its header).
 5. **Sources:** `/admin/curriculum-sources`, import `Codes\Curriculum\curriculum_sources_primary.csv` as a package for Ghana, map level `Primary` to `GH-SBC-2019`; then upload each official PDF from `QuizBox\sources\NaCCA\Primary\` and approve each with your rights attestation. Nothing here approves a source for you.
 
+**Load only `Primary_indicators_reconciled.csv`.** The file `curriculum_verified\Primary_indicators_verified.csv` still carries the printed typos and heading variants; loading it adds 59 duplicate nodes (found 2026-10-12, GH-SBC-2019 at 2,025 nodes and 1,016 indicators). `13_primary_remove_unreconciled_nodes.sql` removes exactly those 59, with guards.
+
 Pilot after that: Computing B4 strand 2 (2 indicators, 100 questions). Full plan and exception ledger: `QuizBox\staging\README.md` (Primary section).
 
 ## Rollback (reverse order, same paste method)
