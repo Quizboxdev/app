@@ -150,9 +150,11 @@ the same file twice is blocked by hash; do not re-export a loaded batch under th
   files last; they cannot be loaded until D-17 is decided by the owner.
 - **Primary pilot**: Computing B4 strand 2, 100 questions, loaded into SME review.
 - **SME review pool** exists (R1-R3): reviewers need granted domains (subject exactly as in the CSV, grade `B4`...) and a compensation
-  policy; coverage was 0 reviewers at last check. New dropdown pool + `sme_support` capability, live front-page counts and the
-  simple learner practice builder are built; migrations `20261012180000`, `190000`, `200000` await the owner
-  (`docs/release/engine/15_apply_support_stats_practice.sql`). Production `main` = `946b505`.
+  policy; the owner has registered the Computing domain. Verified working by the owner on 2026-10-12 (all applied and deployed,
+  production `main` = `946b505`): reviewer-domain dropdown pool and `sme_support` capability (`20261012180000`), live front-page
+  counts (`20261012190000`), simple learner practice builder "Build your own practice" (`20261012200000`), plus level guard
+  (`20261012170000`) and source-file release (`20261012160000`). The quick-practice RPC was proven only on stand-in schemas in tests; if
+  a learner run fails, fix it in `supabase/migrations/20261012200000_quick_practice.sql` with a NEW migration, never by editing applied ones.
 - Tests: 905 passing, `next build` compiles. Keep both green on every commit.
 
 ## 9. Remaining modules to build and integrate (continue after, or interleave with, generation)
