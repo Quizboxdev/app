@@ -51,7 +51,7 @@ export default function CurriculumStructurePage() {
       <label title="Edition printed on the document, for example 2020 or 2025.">Source version<input value={version} onChange={(e) => setVersion(e.target.value)} placeholder="e.g. 2020"/></label>
     </section>
     <section className="qb-card"><h2>2. Choose the verified file</h2>
-      <p className="qb-muted">The JHS or SHS file from the verified curriculum extract (JHS_indicators_verified.csv or SHS_indicators_verified.csv).</p>
+      <p className="qb-muted">The Primary, JHS or SHS file from the verified curriculum extract (Primary_indicators_reconciled.csv, JHS_indicators_verified.csv or SHS_indicators_verified.csv). Each level goes into its own curriculum: the server refuses Primary content in a JHS or SHS curriculum and the reverse.</p>
       <label>File<input type="file" accept=".csv,text/csv" onChange={async (e) => { const f = e.target.files?.[0]; if (f) { setFileName(f.name); setText(await f.text()); setSubject(""); setGrade(""); } }}/></label>
       {parsed?.error && <p className="qb-error" role="alert">{parsed.error}</p>}
       {parsed && !parsed.error && <div className="qb-content-filters">
@@ -60,6 +60,7 @@ export default function CurriculumStructurePage() {
       </div>}
     </section>
     {plan && <section className="qb-card"><h2>3. Check and load</h2>
+      <p className="qb-muted">File level: {[...new Set(plan.nodes.map((n) => n.education_level))].join(", ")} · grades {[...new Set(plan.nodes.filter((n) => n.node_type === "grade").map((n) => n.canonical_grade_code))].join(", ")}</p>
       <dl className="qb-stat-list">{Object.entries(plan.counts).map(([k, v]) => <div key={k}><dt>{k.replaceAll("_", " ")}</dt><dd>{v}</dd></div>)}</dl>
       {plan.collisions.length > 0 && <p className="qb-muted">{plan.collisions.length} codes repeat in the source and were made unique by position, so no indicator is lost.</p>}
       {plan.problems.length > 0 && <p className="qb-error" role="alert">{plan.problems.length} rows cannot be placed (missing fields or unknown level): {plan.problems.slice(0, 3).join("; ")}</p>}

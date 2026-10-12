@@ -81,7 +81,7 @@ export function buildStructure(rows: VerifiedIndicator[], opts: { sourceFile: st
     const unique = clash ? `${code}@${place(r)}` : code;
     if (clash) collisions.push(`indicator ${scope(r)} ${code}`);
     put({ ...common, node_type: "learning_indicator", code: unique, title: r.indicator, source_terminology: "Learning Indicator", parent_key: csKey,
-      metadata: { printed_code: r.indicator_code, standard_code: code, exemplars: r.exemplars, page: r.page, wording_verified: r.wording_verified, flags: r.flags, source_file: opts.sourceFile } });
+      metadata: { printed_code: r.printed_code || r.indicator_code, standard_code: code, exemplars: r.exemplars, page: r.page, wording_verified: r.wording_verified, flags: r.flags, source_file: opts.sourceFile } });
   }
 
   const list = [...nodes.values()];

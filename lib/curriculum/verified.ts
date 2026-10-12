@@ -5,6 +5,7 @@ import { parseCsv } from "../content/factory/import";
 export type VerifiedIndicator = {
   subject: string; grade: string; strand_no: string; strand: string; sub_strand: string; content_standard_code: string; content_standard: string;
   indicator_code: string; indicator: string; exemplars: string; page: string; wording_verified: string; flags: string; level: "Primary" | "JHS" | "SHS" | "OTHER";
+  printed_code?: string; // the code exactly as the source document prints it, when the file carries it (JHS, SHS and Primary extracts do)
   node_id?: string; // set when the row is a learning indicator already loaded into the database
 };
 
@@ -18,7 +19,8 @@ export function parseVerifiedCsv(text: string): VerifiedIndicator[] {
   if (missing.length) throw new Error(`CURRICULUM_FILE_HEADER_INVALID: missing ${missing.join(", ")}`);
   return body.filter((cells) => cells.some((c) => c.trim())).map((cells) => {
     const row = Object.fromEntries(COLUMNS.map((c) => [c, (cells[keys.indexOf(c)] ?? "").trim()])) as Omit<VerifiedIndicator, "level">;
-    return { ...row, level: gradeKey(row.grade).startsWith("shs") ? "SHS" : /^B([789])$/i.test(row.grade.trim()) ? "JHS" : /^B([456])$/i.test(row.grade.trim()) ? "Primary" : "OTHER" } as VerifiedIndicator;
+    const printed = keys.includes("printed_code") ? (cells[keys.indexOf("printed_code")] ?? "").trim() : "";
+    return { ...row, ...(printed ? { printed_code: printed } : {}), level: gradeKey(row.grade).startsWith("shs") ? "SHS" : /^B([789])$/i.test(row.grade.trim()) ? "JHS" : /^B([456])$/i.test(row.grade.trim()) ? "Primary" : "OTHER" } as VerifiedIndicator;
   });
 }
 
@@ -57,7 +59,10 @@ export function resolveIndicator(index: CurriculumIndex, q: { subject: string; g
   if (!bySubject.length) return { status: "UNKNOWN_SUBJECT", candidates: [] };
   const g = gradeKey(q.grade), byGrade = bySubject.filter((r) => gradeKey(r.grade) === g);
   if (!byGrade.length) return { status: "UNKNOWN_GRADE", candidates: [] };
-  const code = standardCode(q.indicator_code), byCode = byGrade.filter((r) => standardCode(r.indicator_code) === code);
+  const code = standardCode(q.indicator_code);
+  let byCode = byGrade.filter((r) => standardCode(r.indicator_code) === code);
+  // A question may cite the code exactly as the document prints it where the stored code was corrected (the printed typo is kept in printed_code).
+  if (!byCode.length) byCode = byGrade.filter((r) => r.printed_code && standardCode(r.printed_code) === code);
   if (!byCode.length) return { status: "UNKNOWN_INDICATOR", candidates: [] };
   const distinct = new Map(byCode.map((r) => [`${keyOf(r.strand)}|${keyOf(r.sub_strand)}|${keyOf(r.indicator)}`, r]));
   if (distinct.size === 1) return { status: "RESOLVED", indicator: [...distinct.values()][0] };

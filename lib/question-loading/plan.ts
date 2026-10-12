@@ -31,7 +31,7 @@ export function buildPlan(input: { rows: LoadRow[]; fileRows?: number[]; fileSha
   const blockers: string[] = [];
   if (!report.canLoad) blockers.push("QL_CHECK_FAILED");
 
-  const placements: RowPlacement[] = [], unresolved: LoadPlan["unresolved"] = [], groups = new Map<string, { rows: LoadRow[]; fileRows: number[]; indicator: VerifiedIndicator | null }>();
+  const levelMismatch: number[] = [], placements: RowPlacement[] = [], unresolved: LoadPlan["unresolved"] = [], groups = new Map<string, { rows: LoadRow[]; fileRows: number[]; indicator: VerifiedIndicator | null }>();
   rows.forEach((r, i) => {
     let indicator: VerifiedIndicator | null = null, status: RowPlacement["resolution"] = "RESOLVED";
     if (input.scope === "CURRICULUM") {
@@ -39,7 +39,7 @@ export function buildPlan(input: { rows: LoadRow[]; fileRows?: number[]; fileSha
       else {
         const res = resolveIndicator(input.index, r);
         status = res.status;
-        if (res.status === "RESOLVED") indicator = res.indicator;
+        if (res.status === "RESOLVED") { indicator = res.indicator; if (indicator.level !== "OTHER" && r.level && r.level.toUpperCase() !== indicator.level.toUpperCase()) levelMismatch.push(fileRows[i]); }
         else unresolved.push({ fileRow: fileRows[i], status: res.status, subject: r.subject, grade: r.grade, indicator_code: r.indicator_code, candidates: res.candidates.slice(0, 4).map((c) => `${c.strand} / ${c.sub_strand}`) });
       }
       if (!input.index) unresolved.push({ fileRow: fileRows[i], status, subject: r.subject, grade: r.grade, indicator_code: r.indicator_code, candidates: [] });
@@ -62,6 +62,8 @@ export function buildPlan(input: { rows: LoadRow[]; fileRows?: number[]; fileSha
   });
 
   if (unresolved.length) blockers.push(`QL_UNRESOLVED_INDICATORS:${unresolved.length}`);
+  // The level column is a label; the indicator code decides. A PRIMARY row that resolves to a JHS indicator (or the reverse) is refused, not loaded under the wrong level.
+  if (levelMismatch.length) blockers.push(`QL_LEVEL_MISMATCH:${levelMismatch.length}`);
   const noConcept = topics.filter((t) => t.concepts.length === 0);
   if (noConcept.length) blockers.push(`QL_TOPIC_WITHOUT_CONCEPTS:${noConcept.length}`);
   const tooMany = topics.filter((t) => t.concepts.length > 12);

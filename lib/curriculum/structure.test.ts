@@ -169,3 +169,89 @@ describe("Primary (B4-B6) structure", () => {
     expect(plan.nodes.find((n) => n.node_type === "education_level")).toMatchObject({ education_level: "Primary", title: "Primary" });
   });
 });
+
+// Primary, JHS and SHS keep their own curricula: the server refuses a structure that would mix them (20261012170000).
+const GUARD = readFileSync(new URL("../../supabase/migrations/20261012170000_structure_import_level_guard.sql", import.meta.url), "utf8");
+const GUARD_ROLLBACK = readFileSync(new URL("../../supabase/rollback/structure_import_level_guard.sql", import.meta.url), "utf8");
+const PRIMARY_ROWS = csv([
+  '"Mathematics","B4","1","NUMBER","Counting","B4.1.1.1","Understand place value","B4.1.1.1.1","Model number quantities","1) model","2","YES",""',
+  '"Physical Education","B5","2","MOVEMENT CONCEPTS","SPACE AWARENESS","B5.2.1.2","Demonstrate knowledge of movement concepts","B5.2.3.2.3","Compare throwing with the left and right hand","","62","YES","RECONCILED:STRAND_FILED_UNDER_PREVIOUS_STRAND"',
+]);
+describe("level guard on the structure import", () => {
+  const PRIMARY_CURRICULUM = "00000000-0000-4000-8000-0000000000c2", JHS_CURRICULUM = "00000000-0000-4000-8000-0000000000c3", LEGACY = "00000000-0000-4000-8000-0000000000c4";
+  let g: PGlite;
+  const run = (nodes: unknown[], curriculum: string) =>
+    g.query<{ v: { inserted: number; existing: number } }>("select public.qb_curriculum_nodes_import($1, $2::jsonb, 'NaCCA', '2019') v", [curriculum, JSON.stringify(nodes)]).then((r) => r.rows[0].v);
+  const primary = () => buildStructure(parseVerifiedCsv(PRIMARY_ROWS), { sourceFile: "NaCCA Primary" }).nodes;
+  const jhs = () => buildStructure(parseVerifiedCsv(JHS), { sourceFile: "NaCCA JHS" }).nodes;
+  const shs = () => buildStructure(parseVerifiedCsv(SHS), { sourceFile: "NaCCA SHS" }).nodes;
+
+  beforeAll(async () => {
+    g = new PGlite();
+    await g.exec(`
+      create role anon; create role authenticated; create schema auth;
+      create function auth.uid() returns uuid language sql stable as $$ select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid $$;
+      create schema quizbox_market;
+      create function quizbox_market.is_super() returns boolean language sql stable as $$ select auth.uid() = '${SUPER}'::uuid $$;
+      create table public.curricula (id uuid primary key);
+      create table public.curriculum_nodes (id uuid primary key default gen_random_uuid(), curriculum_id uuid not null references public.curricula(id),
+        parent_id uuid references public.curriculum_nodes(id), node_type text not null, code text not null, identity_key text not null, title text not null,
+        source_terminology text not null, education_level text, grade_code text, source_grade_code text, canonical_grade_code text, subject_code text,
+        sort_order integer not null default 0, source_file text, source_version text, metadata jsonb not null default '{}', is_active boolean not null default true,
+        unique (curriculum_id, identity_key));
+      insert into public.curricula values ('${PRIMARY_CURRICULUM}'), ('${JHS_CURRICULUM}'), ('${LEGACY}');
+      grant usage on schema auth, quizbox_market to authenticated, anon;
+      grant execute on all functions in schema auth, quizbox_market to authenticated, anon;
+      grant usage on schema public to authenticated, anon;`);
+    await g.exec(MIGRATION);
+    await g.exec(GUARD);
+    await g.exec("reset role");
+    await g.query("select set_config('request.jwt.claim.sub', $1, false)", [SUPER]);
+    await g.exec("set role authenticated");
+  }, 120_000);
+  afterAll(async () => { await g.close(); });
+
+  it("keeps the printed code and the corrected code of a reconciled Primary row", () => {
+    const row = parseVerifiedCsv(PRIMARY_ROWS)[1];
+    expect(row.level).toBe("Primary");
+    const ind = buildStructure([row], { sourceFile: "x" }).nodes.find((n) => n.node_type === "learning_indicator")!;
+    expect(ind.metadata).toMatchObject({ standard_code: "B5.2.3.2.3", flags: "RECONCILED:STRAND_FILED_UNDER_PREVIOUS_STRAND" });
+  });
+
+  it("loads Primary into its own curriculum and refuses JHS or SHS content there", async () => {
+    const p = primary();
+    expect(await run(p, PRIMARY_CURRICULUM)).toEqual({ inserted: p.length, existing: 0 });
+    await expect(run(jhs(), PRIMARY_CURRICULUM)).rejects.toThrow("QB_STRUCTURE_LEVEL_MISMATCH");
+    await expect(run(shs(), PRIMARY_CURRICULUM)).rejects.toThrow("QB_STRUCTURE_LEVEL_MISMATCH");
+    expect(await run(p, PRIMARY_CURRICULUM)).toEqual({ inserted: 0, existing: p.length });   // idempotent
+  });
+
+  it("refuses Primary content in a JHS curriculum and a call that mixes the levels", async () => {
+    expect(await run(jhs(), JHS_CURRICULUM)).toMatchObject({ existing: 0 });
+    await expect(run(primary(), JHS_CURRICULUM)).rejects.toThrow("QB_STRUCTURE_LEVEL_MISMATCH");
+    await expect(run([...primary(), ...jhs()], LEGACY)).rejects.toThrow("QB_STRUCTURE_MIXED_LEVELS");
+    await g.exec("reset role");
+    const count = await g.query<{ c: number }>("select count(*)::int c from public.curriculum_nodes where curriculum_id = $1", [LEGACY]);
+    expect(count.rows[0].c).toBe(0);   // nothing was written by the refused call
+    await g.exec("set role authenticated");
+  });
+
+  it("refuses a grade that contradicts the level", async () => {
+    const bad = primary().map((n) => (n.node_type === "grade" ? { ...n, grade_code: "B7", canonical_grade_code: "B7" } : n)).filter((n) => n.node_type === "education_level" || n.node_type === "grade");
+    await expect(run(bad, LEGACY)).rejects.toThrow("QB_STRUCTURE_GRADE_NOT_IN_LEVEL:B7");
+    const jhsAsPrimaryGrade = jhs().map((n) => ({ ...n, grade_code: "B5", canonical_grade_code: "B5" }));
+    await expect(run(jhsAsPrimaryGrade, LEGACY)).rejects.toThrow("QB_STRUCTURE_GRADE_NOT_IN_LEVEL:B5");
+  });
+
+  it("still lets JHS and SHS share a legacy curriculum", async () => {
+    expect(await run([...jhs(), ...shs()], LEGACY)).toMatchObject({ existing: 0 });
+  });
+
+  it("rolls back to the unguarded function", async () => {
+    await g.exec("reset role");
+    await g.exec(GUARD_ROLLBACK);
+    await g.query("select set_config('request.jwt.claim.sub', $1, false)", [SUPER]);
+    await g.exec("set role authenticated");
+    await expect(run(jhs(), PRIMARY_CURRICULUM)).resolves.toMatchObject({ inserted: expect.any(Number) });   // the old function accepted this
+  });
+});

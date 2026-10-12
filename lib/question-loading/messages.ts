@@ -5,7 +5,7 @@ export const LOADER_MESSAGES: Record<string, string> = {
   QL_TOO_MANY_ROWS: "The file has more than 5,000 questions. Split it.", QL_CHECK_FAILED: "The file did not pass the checks.",
   QL_UNRESOLVED_INDICATORS: "Some questions could not be placed on the curriculum.", QL_TOPIC_WITHOUT_CONCEPTS: "A topic has questions with no concept tag.",
   QL_TOPIC_TOO_MANY_CONCEPTS: "A topic has more than 12 concepts.",
-  QL_LEVEL: "Level must be PRIMARY, JHS, SHS or SPONSOR.", QL_LEVEL_SCOPE_MISMATCH: "The level does not match this kind of file.",
+  QL_LEVEL: "Level must be PRIMARY, JHS, SHS or SPONSOR.", QL_LEVEL_SCOPE_MISMATCH: "The level does not match this kind of file.", QL_LEVEL_MISMATCH: "The level column does not match the level of the indicator the code points to (the code decides).",
   QL_INDICATOR_REQUIRED: "Indicator code is missing.", QL_INDICATOR_FORMAT: "Indicator code is not in a valid form.", QL_GRADE_REQUIRED: "Grade is missing.", QL_SUBJECT_REQUIRED: "Subject is missing.",
   QL_TOPIC_REQUIRED: "Topic is missing.", QL_DIFFICULTY: "Difficulty must be easy, medium or hard.", QL_COGNITIVE_LEVEL: "Cognitive level must be Remember, Understand, Apply, Analyse or Evaluate.",
   QL_ANSWER_TYPE: "Answer type must be SINGLE_CHOICE or TRUE_FALSE.", QL_QUESTION_REQUIRED: "The question text is empty.", QL_ANSWER_LEAKAGE: "The question text gives the answer away.",

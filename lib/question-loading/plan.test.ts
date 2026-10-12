@@ -103,3 +103,34 @@ describe("loading plan", () => {
     expect(plan.topics[0]).toMatchObject({ title: "Zebra crossings", rows: 30, concepts: ["right of way", "signs"] });
   });
 });
+
+describe("Primary (B4-B6) placement", () => {
+  const PRIMARY_HEADER = "subject,grade,strand_no,strand,sub_strand,content_standard_code,content_standard,indicator_code,printed_code,indicator,exemplars,page,wording_verified,flags";
+  const PRIMARY = [PRIMARY_HEADER,
+    '"Mathematics","B6","4","Data","Data Collection","B6.4.1.2","Collect data","B6.4.1.2.2","B6.5.2.2","Design and administer a questionnaire","","155","YES","RECONCILED:STRAND_DIGIT_MISMATCH"',
+    '"Mathematics","B6","4","Data","Data Collection","B6.4.1.2","Collect data","B6.4.1.2.3","B6.4.1.2.3","Design a questionnaire to answer a question","","157","YES",""',
+  ].join("\r\n");
+  const primaryIndex = buildIndex(parseVerifiedCsv(PRIMARY));
+  const base = (over: Partial<LoadRow>) => row({ level: "PRIMARY", grade: "B6", subject: "Mathematics", strand: "Data", sub_strand: "Data Collection", indicator_code: "B6.4.1.2.2", topic: "Questionnaires", concept: "designing questions", ...over });
+
+  it("reads the level and the printed code", () => {
+    expect(primaryIndex.all.map((r) => r.level)).toEqual(["Primary", "Primary"]);
+    expect(primaryIndex.all[0].printed_code).toBe("B6.5.2.2");
+  });
+  it("places a question on the corrected code and also on the code as printed", () => {
+    expect(resolveIndicator(primaryIndex, { subject: "Mathematics", grade: "B6", indicator_code: "B6.4.1.2.2" })).toMatchObject({ status: "RESOLVED" });
+    expect(resolveIndicator(primaryIndex, { subject: "Mathematics", grade: "B6", indicator_code: "B6.5.2.2" })).toMatchObject({ status: "RESOLVED", indicator: { indicator_code: "B6.4.1.2.2" } });
+    expect(resolveIndicator(primaryIndex, { subject: "Mathematics", grade: "B5", indicator_code: "B6.4.1.2.2" }).status).toBe("UNKNOWN_GRADE");
+  });
+  it("refuses a PRIMARY row that resolves to a JHS indicator, and a JHS row that resolves to a Primary indicator", () => {
+    const mixed = buildIndex([...index.all, ...primaryIndex.all]);
+    const jhsAsPrimary = buildPlan({ rows: [row({ level: "PRIMARY" })], fileSha256: sha256("a"), scope: "CURRICULUM", index: mixed });
+    expect(jhsAsPrimary.blockers).toContain("QL_LEVEL_MISMATCH:1");
+    expect(jhsAsPrimary.canLoad).toBe(false);
+    const primaryAsJhs = buildPlan({ rows: [base({ level: "JHS" })], fileSha256: sha256("b"), scope: "CURRICULUM", index: mixed });
+    expect(primaryAsJhs.blockers).toContain("QL_LEVEL_MISMATCH:1");
+    const ok = buildPlan({ rows: [base({})], fileSha256: sha256("c"), scope: "CURRICULUM", index: mixed });
+    expect(ok.blockers.filter((b) => b.startsWith("QL_LEVEL_MISMATCH"))).toEqual([]);
+    expect(ok.topics[0].indicator).toMatchObject({ subject: "Mathematics", grade: "B6", indicator_code: "B6.4.1.2.2" });
+  });
+});

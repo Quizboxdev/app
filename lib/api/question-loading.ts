@@ -24,7 +24,7 @@ export async function loadCurriculumIndex(curriculumId: string): Promise<Curricu
     const grade = n.canonical_grade_code ?? n.grade_code ?? "";
     rows.push({ subject: n.subject_code ?? "", grade, strand_no: strand?.code.replace(/^STRAND:/, "") ?? "", strand: strand?.title ?? "", sub_strand: sub?.title ?? "",
       content_standard_code: cs?.code.split("@")[0] ?? "", content_standard: cs?.title ?? "",
-      indicator_code: standardCode(String(n.metadata?.standard_code ?? n.code.split("@")[0].split("~")[0])), indicator: n.title,
+      indicator_code: standardCode(String(n.metadata?.standard_code ?? n.code.split("@")[0].split("~")[0])), indicator: n.title, printed_code: String(n.metadata?.printed_code ?? ""),
       exemplars: String(n.metadata?.exemplars ?? ""), page: String(n.metadata?.page ?? ""), wording_verified: String(n.metadata?.wording_verified ?? ""), flags: "",
       level: n.education_level === "SHS" ? "SHS" : n.education_level === "JHS" ? "JHS" : n.education_level === "Primary" ? "Primary" : "OTHER", node_id: n.id });
   }

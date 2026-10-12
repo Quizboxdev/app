@@ -121,8 +121,21 @@ Paste in the Supabase SQL editor of the production project and run. Then deploy 
 
 Primary check (read only): `docs/release/engine/11_primary_diagnostic.sql`. Rollback: `supabase/rollback/source_file_release.sql`.
 
+## 11. Primary (B4-B6): curriculum GH-SBC-2019 (added 2026-10-12, decision D-18)
+
+The Primary curriculum already exists and is active (`GH-SBC-2019`, version 2019, 34 skeleton nodes). It has no structure and no source yet.
+
+1. **Database (once):** apply `supabase\migrations\20261012170000_structure_import_level_guard.sql` the same way as step 3. It makes the server refuse Primary content in a JHS/SHS curriculum and the reverse. Rollback: `supabase\rollback\structure_import_level_guard.sql`.
+2. **Deploy** the release branch (step 4) so the Curriculum structure screen knows the Primary level.
+3. **App:** `/admin/curriculum-structure`, curriculum `GH-SBC-2019`, source version `2019`, file `QuizBox\staging\primary\Primary_indicators_reconciled.csv`, Load. Expect **1,954 nodes in the file; 22 already exist (level, grades, 18 subjects), so 1,932 are created**. Running it again changes nothing.
+4. **Verify (read only):** `12_primary_verify.sql` (expected counts are in its header).
+5. **Sources:** `/admin/curriculum-sources`, import `Codes\Curriculum\curriculum_sources_primary.csv` as a package for Ghana, map level `Primary` to `GH-SBC-2019`; then upload each official PDF from `QuizBox\sources\NaCCA\Primary\` and approve each with your rights attestation. Nothing here approves a source for you.
+
+Pilot after that: Computing B4 strand 2 (2 indicators, 100 questions). Full plan and exception ledger: `QuizBox\staging\README.md` (Primary section).
+
 ## Rollback (reverse order, same paste method)
 ```powershell
+Get-Content -Raw -Encoding UTF8 .\supabase\rollback\structure_import_level_guard.sql | Set-Clipboard
 Get-Content -Raw -Encoding UTF8 .\supabase\rollback\topic_assignment.sql | Set-Clipboard
 Get-Content -Raw -Encoding UTF8 .\supabase\rollback\sme_pool.sql | Set-Clipboard
 Get-Content -Raw -Encoding UTF8 .\supabase\rollback\question_load.sql | Set-Clipboard
