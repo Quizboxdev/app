@@ -110,6 +110,17 @@ npx tsx scripts/check-question-file.ts "<batch 1 file>" "<batch 2 file>" --curri
 ```
 Only a file that prints `Can load: YES` goes to `/admin/question-loading`. The two existing Social Studies batches print `Can load: NO` (guessing cue: the correct option is the longest in 87 of 96 questions); regenerate them with Prompt 1.
 
+## 10. Release a wrong source file (added 2026-10-12)
+
+A source row that holds the wrong PDF and has not been approved (NEEDS_REVIEW or REJECTED) can be released, so the correct file can be supplied. Approved and active rows are never touched.
+
+```powershell
+Set-Clipboard -Value (Get-Content -Raw "supabase\migrations61012160000_source_file_release.sql")
+```
+Paste in the Supabase SQL editor of the production project and run. Then deploy the app (Curriculum Sources shows a "Release file" button on those rows).
+
+Primary check (read only): `docs/release/engine/11_primary_diagnostic.sql`. Rollback: `supabase/rollback/source_file_release.sql`.
+
 ## Rollback (reverse order, same paste method)
 ```powershell
 Get-Content -Raw -Encoding UTF8 .\supabase\rollback\topic_assignment.sql | Set-Clipboard

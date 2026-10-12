@@ -1,6 +1,6 @@
 "use client";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { fetchSources, importPackage, previewPackage, sourceRegistry, supplySourceFile, type PreviewGroup, type RegistryRow, type SourceMarket } from "@/lib/api/sources";
+import { fetchSources, importPackage, previewPackage, releaseSourceFile, sourceRegistry, supplySourceFile, type PreviewGroup, type RegistryRow, type SourceMarket } from "@/lib/api/sources";
 import { parsePackage, type ParsedPackage } from "@/lib/content/sources/package";
 import { describeErrorMessage } from "@/lib/errors";
 
@@ -104,7 +104,11 @@ export default function CurriculumSourcesPage() {
               <label className="qb-small">Review note<input value={notes[r.id] ?? ""} onChange={(e) => setNotes({ ...notes, [r.id]: e.target.value })}/></label>
               <label className="qb-small"><input type="checkbox" checked={rights[r.id] ?? false} onChange={(e) => setRights({ ...rights, [r.id]: e.target.checked })}/>Official publication; QuizBox may use it as a curriculum source</label>
               <button className="qb-btn" disabled={busy} onClick={() => rowAction("review", r, { decision: "approve", note: notes[r.id] ?? "", rights_confirmed: rights[r.id] ?? false })}>Approve</button>
-              <button className="qb-btn secondary" disabled={busy} onClick={() => rowAction("review", r, { decision: "reject", note: notes[r.id] ?? "" })}>Reject</button></div>}
+              <button className="qb-btn secondary" disabled={busy} onClick={() => rowAction("review", r, { decision: "reject", note: notes[r.id] ?? "" })}>Reject</button>
+              <button className="qb-btn secondary" disabled={busy || (notes[r.id] ?? "").trim().length < 3} title="The attached file is the wrong document: clear it so the correct PDF can be supplied" onClick={() => act(async () => { await releaseSourceFile(r.id, notes[r.id] ?? ""); await loadRegistry(); await loadReadiness(markets); }, `${r.title}: file released. Supply the correct PDF.`)}>Release file</button></div>}
+            {r.status === "REJECTED" && <div className="qb-content-filters">
+              <label className="qb-small">Why the file is released<input value={notes[r.id] ?? ""} onChange={(e) => setNotes({ ...notes, [r.id]: e.target.value })}/></label>
+              <button className="qb-btn secondary" disabled={busy || (notes[r.id] ?? "").trim().length < 3} onClick={() => act(async () => { await releaseSourceFile(r.id, notes[r.id] ?? ""); await loadRegistry(); await loadReadiness(markets); }, `${r.title}: file released. Supply the correct PDF.`)}>Release file</button></div>}
             {r.status === "IMPORTED" && r.verification_status === "VERIFIED" && !r.sha256 && <div className="qb-content-filters">
               <label className="qb-small">Supply the official PDF yourself (up to 50 MB)<input type="file" accept="application/pdf" onChange={(e) => { const f = e.target.files?.[0]; setPicked((p) => ({ ...p, [r.id]: f })); }}/></label>
               <button className="qb-btn secondary" disabled={busy || !picked[r.id]} onClick={() => act(async () => { await supplySourceFile(r.id, picked[r.id] as File, r.market_id); setPicked((p) => ({ ...p, [r.id]: undefined })); await loadRegistry(); await loadReadiness(markets); }, `${r.title}: file recorded. It now needs review.`)}>Upload PDF</button></div>}

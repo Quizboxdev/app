@@ -48,6 +48,9 @@ export async function supplySourceFile(registryId: string, file: File, marketId?
   return body as { id: string; title: string; status: string; sha256: string; pages: number };
 }
 
+// Returns an unapproved source row (needs review or rejected) to the state where a file can be supplied again, for a file that is the wrong document.
+export const releaseSourceFile = (registryId: string, note: string) => call<{ id: string; status: string }>("qb_source_release_file", { p_id: registryId, p_note: note });
+
 export async function fetchSources(filter: { market_id?: string; job_id?: string; limit?: number }) {
   const supabase = getSupabaseBrowserClient(); const token = (await supabase.auth.getSession()).data.session?.access_token;
   if (!token) throw new Error(userFacingError(new Error("AUTH_REQUIRED")));
