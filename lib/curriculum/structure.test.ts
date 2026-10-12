@@ -147,3 +147,25 @@ describe("qb_curriculum_nodes_import", () => {
     await db.exec(MIGRATION);
   });
 });
+
+describe("Primary (B4-B6) structure", () => {
+  const PRIMARY = csv([
+    '"Mathematics","B4","1","NUMBER","Counting","B4.1.1.1","Understand place value","B4.1.1.1.1","Model number quantities","1) model","2","YES",""',
+    '"FRENCH","B5","1","IDENTITE","Saluer","B5.1.1.1","Comprehension","B5.1.1.1.1","Ecouter et comprendre","","2","YES",""',
+    '"Our World Our People","B6","1","ALL ABOUT US","Myself","B6.1.1.1","Self-awareness","B6.1.1.1.1","Explain how special each individual is","","2","YES",""',
+  ]);
+  it("keeps the Primary level, grades and subjects on the identity keys of the loaded Primary skeleton", () => {
+    const rows = parseVerifiedCsv(PRIMARY);
+    expect(rows.map((r) => r.level)).toEqual(["Primary", "Primary", "Primary"]);
+    const plan = buildStructure(rows, { sourceFile: "NaCCA Primary" });
+    expect(plan.problems).toEqual([]);
+    const keys = plan.nodes.map((n) => n.identity_key);
+    // these are the keys written by 20261011110000_ghana_primary_curriculum.sql, so the import attaches to them instead of duplicating them
+    expect(keys).toContain("Primary|GLOBAL|GLOBAL|education_level|LEVEL:PRIMARY");
+    expect(keys).toContain("Primary|B4|GLOBAL|grade|GRADE:B4");
+    expect(keys).toContain("Primary|B4|Mathematics|subject|SUBJECT:B4:MATHEMATICS");
+    expect(keys).toContain("Primary|B5|FRENCH|subject|SUBJECT:B5:FRENCH");
+    expect(keys).toContain("Primary|B6|Our World Our People|subject|SUBJECT:B6:OUR_WORLD_OUR_PEOPLE");
+    expect(plan.nodes.find((n) => n.node_type === "education_level")).toMatchObject({ education_level: "Primary", title: "Primary" });
+  });
+});

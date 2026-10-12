@@ -4,7 +4,7 @@ import { parseCsv } from "../content/factory/import";
 // Pure code: the file is read by the caller. Used by the question loader to place every question on a real learning indicator.
 export type VerifiedIndicator = {
   subject: string; grade: string; strand_no: string; strand: string; sub_strand: string; content_standard_code: string; content_standard: string;
-  indicator_code: string; indicator: string; exemplars: string; page: string; wording_verified: string; flags: string; level: "JHS" | "SHS" | "OTHER";
+  indicator_code: string; indicator: string; exemplars: string; page: string; wording_verified: string; flags: string; level: "Primary" | "JHS" | "SHS" | "OTHER";
   node_id?: string; // set when the row is a learning indicator already loaded into the database
 };
 
@@ -18,7 +18,7 @@ export function parseVerifiedCsv(text: string): VerifiedIndicator[] {
   if (missing.length) throw new Error(`CURRICULUM_FILE_HEADER_INVALID: missing ${missing.join(", ")}`);
   return body.filter((cells) => cells.some((c) => c.trim())).map((cells) => {
     const row = Object.fromEntries(COLUMNS.map((c) => [c, (cells[keys.indexOf(c)] ?? "").trim()])) as Omit<VerifiedIndicator, "level">;
-    return { ...row, level: gradeKey(row.grade).startsWith("shs") ? "SHS" : /^B([789])$/i.test(row.grade.trim()) ? "JHS" : "OTHER" } as VerifiedIndicator;
+    return { ...row, level: gradeKey(row.grade).startsWith("shs") ? "SHS" : /^B([789])$/i.test(row.grade.trim()) ? "JHS" : /^B([456])$/i.test(row.grade.trim()) ? "Primary" : "OTHER" } as VerifiedIndicator;
   });
 }
 

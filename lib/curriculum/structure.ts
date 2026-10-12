@@ -56,14 +56,14 @@ export function buildStructure(rows: VerifiedIndicator[], opts: { sourceFile: st
 
   for (const r of rows) {
     if (!r.subject || !r.grade || !r.indicator_code || !r.indicator) { problems.push(`MISSING_FIELDS:${r.subject}|${r.grade}|${r.indicator_code}`); continue; }
-    const level = r.level === "SHS" ? "SHS" : r.level === "JHS" ? "JHS" : "";
+    const level = r.level === "SHS" ? "SHS" : r.level === "JHS" ? "JHS" : r.level === "Primary" ? "Primary" : "";
     if (!level) { problems.push(`UNKNOWN_LEVEL:${r.grade}`); continue; }
     const grade = canonicalGrade(r.grade), base = { education_level: level };
-    const lvlKey = put({ ...base, node_type: "education_level", code: `LEVEL:${level}`, title: level === "JHS" ? "Junior High School" : "Senior High School", source_terminology: "Education Level",
+    const lvlKey = put({ ...base, node_type: "education_level", code: `LEVEL:${level.toUpperCase()}`, title: level === "JHS" ? "Junior High School" : level === "SHS" ? "Senior High School" : "Primary", source_terminology: "Education Level",
       grade_code: null, source_grade_code: null, canonical_grade_code: null, subject_code: null, parent_key: null, metadata: { structure_only: true } });
     const gradeKeyNode = put({ ...base, node_type: "grade", code: `GRADE:${grade}`, title: r.grade, source_terminology: "Grade / Form", grade_code: grade, source_grade_code: r.grade,
       canonical_grade_code: grade, subject_code: null, parent_key: lvlKey, metadata: { structure_only: true } });
-    const subjKey = put({ ...base, node_type: "subject", code: `SUBJECT:${grade}:${slug(r.subject)}`, title: r.subject, source_terminology: "Subject", grade_code: grade, source_grade_code: r.grade,
+    const subjKey = put({ ...base, node_type: "subject", code: `SUBJECT:${grade}:${level === "Primary" ? slug(r.subject).toUpperCase().replace(/-/g, "_") : slug(r.subject)}`, title: r.subject, source_terminology: "Subject", grade_code: grade, source_grade_code: r.grade,
       canonical_grade_code: grade, subject_code: r.subject, parent_key: gradeKeyNode, metadata: { structure_only: true } });
     const common = { ...base, grade_code: grade, source_grade_code: r.grade, canonical_grade_code: grade, subject_code: r.subject };
     const strandKey = put({ ...common, node_type: "strand", code: `STRAND:${r.strand_no || slug(r.strand)}`, title: r.strand || `Strand ${r.strand_no}`, source_terminology: "Strand", parent_key: subjKey, metadata: {} });

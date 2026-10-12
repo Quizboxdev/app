@@ -26,7 +26,7 @@ export async function loadCurriculumIndex(curriculumId: string): Promise<Curricu
       content_standard_code: cs?.code.split("@")[0] ?? "", content_standard: cs?.title ?? "",
       indicator_code: standardCode(String(n.metadata?.standard_code ?? n.code.split("@")[0].split("~")[0])), indicator: n.title,
       exemplars: String(n.metadata?.exemplars ?? ""), page: String(n.metadata?.page ?? ""), wording_verified: String(n.metadata?.wording_verified ?? ""), flags: "",
-      level: n.education_level === "SHS" ? "SHS" : n.education_level === "JHS" ? "JHS" : "OTHER", node_id: n.id });
+      level: n.education_level === "SHS" ? "SHS" : n.education_level === "JHS" ? "JHS" : n.education_level === "Primary" ? "Primary" : "OTHER", node_id: n.id });
   }
   return buildIndex(rows);
 }
