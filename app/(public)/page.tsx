@@ -5,6 +5,7 @@ import { authCallbackHref, hasAuthLinkParams } from "@/lib/auth-links";
 import PublicHome from "@/components/public/PublicHome";
 import SessionGate from "@/components/public/SessionGate";
 import { getPublicMarkets } from "@/lib/public/signup-markets";
+import { getPublicPlatformStats } from "@/lib/public/platform-stats";
 
 export const metadata: Metadata = {
   title: "QuizBox — Learn, Practice & Compete",
@@ -26,8 +27,8 @@ const SESSION_COOKIE = /^sb-.+-auth-token(\.\d+)?$/;
 export default async function RootPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const params = await searchParams;
   if (hasAuthLinkParams(params)) redirect(authCallbackHref(params));
-  const [cookieStore, markets] = await Promise.all([cookies(), getPublicMarkets()]);
-  const home = <PublicHome markets={markets} />;
+  const [cookieStore, markets, stats] = await Promise.all([cookies(), getPublicMarkets(), getPublicPlatformStats()]);
+  const home = <PublicHome markets={markets} stats={stats} />;
   // Signed-out visitors get the server-rendered homepage. A session cookie hands off to the
   // existing bootstrapUser()/role routing without showing the homepage first.
   return cookieStore.getAll().some((c) => SESSION_COOKIE.test(c.name)) ? <SessionGate>{home}</SessionGate> : home;

@@ -4,7 +4,7 @@ import { INTENTIONAL_ANON_RPCS, isIntentionalAnonRpc, unexpectedAnonFunctions } 
 
 describe("anon RPC allowlist", () => {
   it("is exactly the two reviewed public contracts", () => {
-    expect(Object.keys(INTENTIONAL_ANON_RPCS).sort()).toEqual(["qb_marketplace_catalog", "qb_signup_markets"]);
+    expect(Object.keys(INTENTIONAL_ANON_RPCS).sort()).toEqual(["qb_marketplace_catalog", "qb_public_platform_stats", "qb_signup_markets"]);
   });
 
   it("matches names exactly, without prefixes, patterns or prototype keys", () => {

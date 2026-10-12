@@ -1,4 +1,5 @@
 import type { PublicMarkets } from "@/lib/public/signup-markets";
+import type { PublicPlatformStats } from "@/lib/public/platform-stats";
 import PublicShell from "./PublicShell";
 import HeroSection from "./HeroSection";
 import PlatformStats from "./PlatformStats";
@@ -14,11 +15,11 @@ import CompetitionSection from "./CompetitionSection";
 import CurriculumSubjects from "./CurriculumSubjects";
 import FinalCta from "./FinalCta";
 
-export default function PublicHome({ markets }: { markets: PublicMarkets | null }) {
+export default function PublicHome({ markets, stats = null }: { markets: PublicMarkets | null; stats?: PublicPlatformStats | null }) {
   return (
     <PublicShell>
       <HeroSection />
-      <PlatformStats />
+      <PlatformStats stats={stats} />
       <RoleEcosystem />
       <GovernanceSection />
       <StudentSection />

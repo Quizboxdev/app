@@ -10,6 +10,7 @@ import { getStudentDashboard } from "@/lib/api/student";
 import { studentInsights } from "@/lib/api/platform";
 import { sanitizeLabel, subjectLabel } from "@/lib/learning/labels";
 import { formatDate } from "@/lib/format";
+import QuickPractice from "@/components/QuickPractice";
 
 type PracticeSet = { id: string; assessment_type: string; subject_code: string | null; subject_name: string | null; grade: string | null; question_count: number | null; difficulty: string | null; time_limit_minutes: number | null };
 const isPractice = (row: PracticeSet) => String(row.assessment_type).toUpperCase() === "PRACTICE";
@@ -56,7 +57,9 @@ function PractiseInner() {
       <div className="qb-page-head"><div><h1>Practise</h1><p>Short practice sets with instant feedback. Practising builds mastery and earns XP.</p></div></div>
       {error && <div className="qb-card qb-error" role="alert">{error}</div>}
 
-      <section className="qb-card" aria-labelledby="pr-shortcuts">
+      <QuickPractice />
+
+      <section className="qb-card" aria-labelledby="pr-shortcuts" style={{ marginTop: 16 }}>
         <h2 id="pr-shortcuts">Jump back in</h2>
         <div className="qb-launch-grid">
           <div className="qb-launch">
@@ -111,7 +114,7 @@ function PractiseInner() {
           </div>)}
         </div>
         {sets && !visible.length && <div className="qb-empty"><strong>No practice sets match</strong>{sets.length ? "Try another subject or difficulty." : "Practice sets appear here once they are published for you."}</div>}
-        <p className="qb-gap-note" style={{ marginTop: 14 }}>Practice sets are published ahead of time, so strand, question count and difficulty cannot be chosen freely yet. Browse the curriculum in <Link className="qb-link" href="/learn">Learn</Link>.</p>
+        <p className="qb-gap-note" style={{ marginTop: 14 }}>Want to choose your own topics and number of questions? Use <strong>Build your own practice</strong> above. You can also browse the curriculum in <Link className="qb-link" href="/learn">Learn</Link>.</p>
       </section>
     </>
   );

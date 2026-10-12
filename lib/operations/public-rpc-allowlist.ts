@@ -2,6 +2,8 @@
 // contract; there are no patterns or wildcards. Any other anon-executable function is a P0 finding.
 //
 // - qb_marketplace_catalog: published/approved marketplace catalogue, read-only.
+// - qb_public_platform_stats: front-page figures, counts only (learners by level, teachers, verified reviewers, schools, sponsors,
+//   approved questions, curriculum indicators). No row-level value leaves the database (20261012190000_public_platform_stats.sql).
 // - qb_signup_markets: country-first signup market list (countries + ACTIVE non-test markets with
 //   display configuration). Granted to anon in 20261003100000_multi_market_platform.sql
 //   ("grant execute on function public.qb_signup_markets() to anon,authenticated") after an
@@ -12,6 +14,7 @@
 // only after docs/proposals/qb_auth_failure_hardening.sql (or equivalent) is applied.
 export const INTENTIONAL_ANON_RPCS: Readonly<Record<string, string>> = Object.freeze({
   qb_marketplace_catalog: "anon published catalogue; authenticated",
+  qb_public_platform_stats: "anon front-page platform counts (counts only); authenticated",
   qb_signup_markets: "anon country-first signup market list (read-only, display metadata); authenticated",
 });
 
