@@ -3,6 +3,8 @@ import { Fragment, FormEvent, useCallback, useEffect, useState } from "react";
 import { factory, workforce, type Campaign } from "@/lib/api/factory";
 import StatusBadge from "@/components/StatusBadge";
 import { humanize } from "@/lib/format";
+import { getCurriculumCatalogue } from "@/lib/api/sme";
+import { cascadeOptions, type Catalogue } from "@/lib/sme/catalogue";
 
 type Money = Record<string, string>;
 type Row = { reviewer_id: string; reviewer: string; status: string; market: string; subject: string; policy_id: string | null; mode: string | null; daily_limit: number | null; target_queue: number | null; max_queue: number | null;
@@ -18,6 +20,8 @@ const emptyPolicy = { reviewer_id: "", market_id: "", subject_code: "", grade_co
 // Assignment quota and compensation stay separate: this page controls workload only; earnings come from completed reviews.
 export default function SmeWorkforcePage() {
   const [managing, setManaging] = useState<string | null>(null);
+  const [catalogue, setCatalogue] = useState<Catalogue | null>(null);
+  useEffect(() => { getCurriculumCatalogue().then(setCatalogue).catch(() => setCatalogue(null)); }, []);
   const [rows, setRows] = useState<Row[]>([]), [reviewers, setReviewers] = useState<Reviewer[]>([]), [policies, setPolicies] = useState<Policy[]>([]), [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [filters, setFilters] = useState({ market_id: "", subject: "", campaign_id: "", reviewer_id: "", status: "" }), [run, setRun] = useState<RunResult | null>(null), [policy, setPolicy] = useState(emptyPolicy);
   const [allocation, setAllocation] = useState({ campaign_id: "", total: "" }), [reassignTo, setReassignTo] = useState<Record<string, string>>({}), [limits, setLimits] = useState<Record<string, { daily: string; target: string; max: string }>>({});
@@ -93,8 +97,10 @@ export default function SmeWorkforcePage() {
       <form className="qb-form" onSubmit={savePolicy}><div className="qb-content-filters">
         <label>Reviewer<select value={policy.reviewer_id} onChange={(e) => setPolicy({ ...policy, reviewer_id: e.target.value })} required><option value="">Select reviewer</option>{reviewers.map((r) => <option key={r.reviewer_id} value={r.reviewer_id}>{r.name} ({r.domains.map((d) => `${d.subject}/${d.market ?? "all"}`).join(", ")})</option>)}</select></label>
         <label>Market<select value={policy.market_id} onChange={(e) => setPolicy({ ...policy, market_id: e.target.value })}><option value="">Any authorized</option>{markets.map(([id, name]) => <option key={id} value={id}>{name}</option>)}</select></label>
-        <label>Subject<select value={policy.subject_code} onChange={(e) => setPolicy({ ...policy, subject_code: e.target.value })}><option value="">Any authorized</option>{subjects.map((s) => <option key={s}>{s}</option>)}</select></label>
-        <label>Grades (comma-separated)<input value={policy.grade_codes} onChange={(e) => setPolicy({ ...policy, grade_codes: e.target.value })}/></label>
+        <label>Subject<select value={policy.subject_code} onChange={(e) => setPolicy({ ...policy, subject_code: e.target.value })}><option value="">Any authorized</option>{(catalogue ? cascadeOptions(catalogue, { market: policy.market_id, grades: policy.grade_codes.split(",").map((g) => g.trim()).filter(Boolean) }).subjects : subjects).map((s) => <option key={s}>{s}</option>)}</select></label>
+        {catalogue ? <div role="group" aria-label="Grades"><span>Grades <em className="qb-muted">(none ticked = every grade)</em></span>
+          {cascadeOptions(catalogue, { market: policy.market_id }).grades.map((g) => { const ticked = policy.grade_codes.split(",").map((g) => g.trim()).filter(Boolean); return <label key={g} className="qb-small"><input type="checkbox" checked={ticked.includes(g)} onChange={(e) => setPolicy({ ...policy, subject_code: "", grade_codes: (e.target.checked ? [...ticked, g] : ticked.filter((x) => x !== g)).join(",") })}/> {g}</label>; })}</div>
+          : <label>Grades (comma-separated)<input value={policy.grade_codes} onChange={(e) => setPolicy({ ...policy, grade_codes: e.target.value })}/></label>}
         <label>Review kind<select value={policy.review_kind} onChange={(e) => setPolicy({ ...policy, review_kind: e.target.value })}><option value="primary">Primary</option><option value="senior">Senior</option></select></label>
         <label>Assignment mode<select value={policy.assignment_mode} onChange={(e) => setPolicy({ ...policy, assignment_mode: e.target.value })}><option value="TOP_UP_QUEUE">Top up queue (recommended)</option><option value="FIXED_DAILY">Fixed daily</option><option value="CAMPAIGN_ALLOCATION">Campaign allocation</option></select></label>
         <label>Daily limit<input type="number" min={0} value={policy.daily_limit} onChange={(e) => setPolicy({ ...policy, daily_limit: e.target.value })} required={policy.assignment_mode === "FIXED_DAILY"}/></label>

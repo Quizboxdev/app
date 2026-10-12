@@ -1,6 +1,6 @@
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
-export type SmeContext = { super_admin: boolean; finance_admin: boolean; content_admin: boolean; reviewer: boolean };
+export type SmeContext = { super_admin: boolean; finance_admin: boolean; content_admin: boolean; sme_support?: boolean; reviewer: boolean };
 export type RecordRow = Record<string, any>;
 export type ConfigEntity = "currencies" | "countries" | "markets" | "sme_profiles" | "sme_domain_assignments" | "compensation_policies" | "compensation_policy_versions" | "user_capabilities" | "curriculum_authorities" | "market_curricula" | "user_market_memberships" | "source_documents";
 export type ReadEntity = ConfigEntity | "sme_review_assignments" | "sme_review_queue" | "sme_review_events" | "sme_performance" | "sme_financial_performance" | "sme_earnings_current" | "sme_payout_batches" | "sme_payout_items" | "sme_payout_batch_summary" | "sme_payout_item_details";
@@ -11,6 +11,7 @@ async function call<T>(name: string, args: Record<string, unknown> = {}): Promis
   return data as T;
 }
 export const getSmeContext = () => call<SmeContext>("qb_sme_context");
+export const getCurriculumCatalogue = () => call<import("@/lib/sme/catalogue").Catalogue>("qb_curriculum_catalogue");
 export async function listSmeRecords(entity: ReadEntity, filters: Record<string, string> = {}, page = 1) {
   let query = getSupabaseBrowserClient().from(entity).select("*", { count: "exact" });
   for (const [key, value] of Object.entries(filters)) if (value) query = query.eq(key, value);

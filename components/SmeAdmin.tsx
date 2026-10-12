@@ -10,6 +10,9 @@ import { actOnSmePayout, ConfigEntity, createSmePayout, getSmeContext, listSmeRe
 import { configurationPayload, SME_CONFIG_FIELDS } from "@/lib/sme/configuration";
 import { userFacingError } from "@/lib/errors";
 import CompetitionContentScope from "@/components/CompetitionContentScope";
+import CurriculumCascade from "@/components/CurriculumCascade";
+import { getCurriculumCatalogue } from "@/lib/api/sme";
+import type { Catalogue } from "@/lib/sme/catalogue";
 
 type Area = "markets" | "reviewers" | "compensation" | "performance" | "payouts";
 const areas: Record<Area, { title: string; entities: ReadEntity[] }> = {
@@ -39,11 +42,15 @@ export default function SmeAdmin({ area }: { area: Area }) {
   const [rows, setRows] = useState<RecordRow[]>([]), [total, setTotal] = useState(0), [page, setPage] = useState(1);
   const [editing, setEditing] = useState<RecordRow | null>(null), [creating, setCreating] = useState(false);
   const [options, setOptions] = useState<Record<string, RecordRow[]>>({});
+  const [catalogue, setCatalogue] = useState<Catalogue | null>(null);
   const [busy, setBusy] = useState(false), [error, setError] = useState(""), [notice, setNotice] = useState("");
   const [selected, setSelected] = useState<string[]>([]);
   const [earningsStatus, setEarningsStatus] = useState("payable");
   const [note, setNote] = useState("");
-  const allowed = context && (area === "payouts" || area === "performance" ? context.finance_admin || context.super_admin : context.super_admin);
+  const supportEntities = ["sme_profiles", "sme_domain_assignments"];
+  // Reviewer support (capability sme_support, granted by a super admin) manages reviewer profiles and domains; everything else stays super admin.
+  const allowed = context && (area === "payouts" || area === "performance" ? context.finance_admin || context.super_admin : context.super_admin || (area === "reviewers" && context.sme_support));
+  const canWrite = Boolean(context && (context.super_admin || (context.sme_support && supportEntities.includes(entity))));
   const fields = SME_CONFIG_FIELDS[entity];
   const load = useCallback(async () => {
     if (!allowed) return;
@@ -55,6 +62,7 @@ export default function SmeAdmin({ area }: { area: Area }) {
     finally { setBusy(false); }
   }, [allowed, entity, page, earningsStatus]);
   useEffect(() => { getSmeContext().then(setContext).catch(cause => setError(userFacingError(cause))); }, []);
+  useEffect(() => { if (allowed && entity === "sme_domain_assignments" && !catalogue) getCurriculumCatalogue().then(setCatalogue).catch(cause => setError(userFacingError(cause))); }, [allowed, entity, catalogue]);
   useEffect(() => { void load(); }, [load]);
   useEffect(() => {
     if (!allowed) return;
@@ -82,13 +90,18 @@ export default function SmeAdmin({ area }: { area: Area }) {
   if (!allowed) return <p className="qb-error" role="alert">You do not have permission to manage this area.</p>;
   return <div className="qb-content-ops">
     <div className="qb-page-head"><h1>{areas[area].title}</h1><button title="Refresh" aria-label="Refresh" disabled={busy} onClick={() => void load()}><RefreshCw size={18}/></button></div>
-    <nav className="qb-content-tabs" aria-label="SME administration">{Object.entries({ markets: "Markets", reviewers: "SME Reviewers", compensation: "Compensation", "sme-performance": "Performance", payouts: "Payouts" }).filter(([path]) => context.super_admin || ["sme-performance", "payouts"].includes(path)).map(([path, label]) => <Link key={path} href={`/admin/${path}`}>{label}</Link>)}</nav>
-    <nav className="qb-content-tabs" aria-label="Administration views">{areas[area].entities.map(item => <button key={item} disabled={busy} aria-current={entity === item ? "page" : undefined} onClick={() => { setEntity(item); setRows([]); setPage(1); setCreating(false); setEditing(null); setSelected([]); }}>{titles[item]}</button>)}</nav>
+    <nav className="qb-content-tabs" aria-label="SME administration">{Object.entries({ markets: "Markets", reviewers: "SME Reviewers", compensation: "Compensation", "sme-performance": "Performance", payouts: "Payouts" }).filter(([path]) => context.super_admin || ["sme-performance", "payouts"].includes(path) || (context.sme_support && path === "reviewers")).map(([path, label]) => <Link key={path} href={`/admin/${path}`}>{label}</Link>)}</nav>
+    <nav className="qb-content-tabs" aria-label="Administration views">{areas[area].entities.filter(item => context.super_admin || !(area === "reviewers" && !supportEntities.includes(item))).map(item => <button key={item} disabled={busy} aria-current={entity === item ? "page" : undefined} onClick={() => { setEntity(item); setRows([]); setPage(1); setCreating(false); setEditing(null); setSelected([]); }}>{titles[item]}</button>)}</nav>
     {error && <p role="alert" className="qb-error">{error}</p>}{notice && <p role="status">{notice}</p>}
-    {fields && context.super_admin && entity!=="source_documents" && <button disabled={busy} onClick={() => { setCreating(true); setEditing(null); }}><Plus size={16}/> {entity === "compensation_policy_versions" ? "New Version" : "Create"}</button>}
+    {fields && canWrite && entity!=="source_documents" && <button disabled={busy} onClick={() => { setCreating(true); setEditing(null); }}><Plus size={16}/> {entity === "compensation_policy_versions" ? "New Version" : "Create"}</button>}
     {fields && (creating || editing) && <section className="qb-content-review"><div className="qb-page-head"><h2>{editing ? "Edit" : "Create"} {titles[entity]}</h2><button title="Close" aria-label="Close" onClick={() => { setCreating(false); setEditing(null); }}><X size={18}/></button></div>
       <form key={editing?.id ?? editing?.user_id ?? editing?.code ?? `${entity}-new`} className="qb-content-filters" onSubmit={save}>
         {fields.map(f => {
+          if (entity === "sme_domain_assignments" && catalogue) {
+            if (f.name === "subject_code") return <CurriculumCascade key="cascade" catalogue={catalogue} disabled={busy}
+              initial={{ market: editing?.market_id, level: editing?.education_level, grades: editing?.grade_codes, subject: editing?.subject_code }}/>;
+            if (["market_id", "education_level", "grade_codes"].includes(f.name)) return null;
+          }
           const initial = f.name === "require_senior_qa" ? editing?.configuration?.require_senior_qa : editing?.[f.name];
           const value = Array.isArray(initial) ? initial.join(", ") : f.type === "datetime-local" && initial ? new Date(initial).toISOString().slice(0, 16) : initial ?? "";
           return <label key={f.name}>{f.label}{f.type === "checkbox" ? <input type="checkbox" name={f.name} defaultChecked={Boolean(initial)} disabled={busy}/> : f.type === "textarea" ? <textarea name={f.name} defaultValue={value} required={!f.optional} disabled={busy}/>
