@@ -1,0 +1,66 @@
+{
+  "version": "1.0.0",
+  "status": "PROPOSED",
+  "updated": "2026-10-13",
+  "owner": "Ransford Mensah",
+  "how_to_revise": "Edit this file (config/reviewer-policy.json), raise the version, set status to APPROVED when the owner signs it off, commit and deploy. The page at /review/policy reads it; nothing else needs changing. Numbers marked owner_set are decisions of the owner and are shown as 'not set' until a value is entered.",
+  "sections": [
+    {
+      "id": "eligibility",
+      "title": "Who can review",
+      "summary": "A reviewer must be verified and active and hold a granted domain for the subject, grade and market of each question.",
+      "rules": [
+        { "id": "verified", "text": "Reviewer status is verified and the profile is active." },
+        { "id": "domain", "text": "A domain is granted for the question's subject, grade and market (subject spelled exactly as in the curriculum, for example Computing, FRENCH)." },
+        { "id": "independence", "text": "Nobody reviews a question they wrote or one from their own school.", "status": "proposed" },
+        { "id": "senior", "text": "Senior QA reviews are done by a different person from the primary reviewer of the same question." }
+      ]
+    },
+    {
+      "id": "workload",
+      "title": "Workload",
+      "summary": "Limits are admin settings, not fixed in code (decision D-12).",
+      "rules": [
+        { "id": "daily_cap", "text": "Maximum reviews per reviewer per day.", "value": 100, "unit": "reviews", "status": "default" },
+        { "id": "pick_size", "text": "Questions taken in one pick.", "value": 25, "unit": "questions", "status": "default" },
+        { "id": "release_hours", "text": "An unfinished pick returns to the pool after this time, with no pay.", "value": 24, "unit": "hours", "status": "default" },
+        { "id": "target_queue", "text": "Target open queue per reviewer.", "value": 50, "unit": "questions", "status": "default" },
+        { "id": "max_queue", "text": "Maximum open queue per reviewer.", "value": 60, "unit": "questions", "status": "default" }
+      ]
+    },
+    {
+      "id": "pay",
+      "title": "Pay",
+      "summary": "Fees come from the compensation policy and are pinned when a question is picked (decision D-11).",
+      "rules": [
+        { "id": "currency", "text": "Currency.", "value": "GHS", "status": "default" },
+        { "id": "base_fee", "text": "Base fee per completed review.", "value": null, "unit": "GHS", "status": "owner_set" },
+        { "id": "approve_fee", "text": "Additional fee when the review approves the question.", "value": null, "unit": "GHS", "status": "owner_set" },
+        { "id": "reversed", "text": "A review reversed by senior QA earns nothing." },
+        { "id": "states", "text": "Earnings move through pending QA, payable and paid; payouts are approved in batches." }
+      ]
+    },
+    {
+      "id": "quality",
+      "title": "Quality control",
+      "summary": "Paid work is sampled so that speed never replaces care.",
+      "rules": [
+        { "id": "sample_rate", "text": "Share of each reviewer's completed reviews sampled by senior QA.", "value": null, "unit": "percent", "status": "owner_set" },
+        { "id": "min_seconds", "text": "Minimum time on a question before a decision counts.", "value": null, "unit": "seconds", "status": "owner_set" },
+        { "id": "seeded", "text": "Known-faulty questions are mixed in; approving one is a quality flag.", "status": "proposed" },
+        { "id": "reversal_pause", "text": "A reviewer whose reversal rate passes the set threshold is paused until a senior reviews their work.", "status": "proposed" },
+        { "id": "feedback", "text": "Rejected or revised questions carry a written reason the author can act on." }
+      ]
+    },
+    {
+      "id": "support",
+      "title": "Support and administration",
+      "summary": "Who manages reviewers.",
+      "rules": [
+        { "id": "super_admin", "text": "Super admins manage markets, currencies, compensation and capabilities." },
+        { "id": "sme_support", "text": "Reviewer support (capability sme_support) onboards reviewers and grants domains only; it cannot change pay, markets or capabilities." },
+        { "id": "audit", "text": "Every grant, pick, decision and payout step is recorded with who and when." }
+      ]
+    }
+  ]
+}

@@ -149,6 +149,7 @@ export default function AppShell({
       ]);
       add("SME & payments", [
         ...when(reviewer, [["/review", "SME Reviews"]]),
+        ...when(reviewer || sme?.content_admin || sme?.super_admin, [["/review/policy", "Reviewer Policy"]]),
         ...when(sme?.super_admin, [["/admin/reviewers", "Reviewers"]]),
         ...when(sme?.super_admin || sme?.finance_admin, [["/admin/sme-performance", "SME Performance"]]),
         ...when(sme?.super_admin || sme?.content_admin, [["/admin/sme-workforce", "SME Workforce"]]),
