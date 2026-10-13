@@ -11,6 +11,7 @@ import { studentInsights } from "@/lib/api/platform";
 import { sanitizeLabel, subjectLabel } from "@/lib/learning/labels";
 import { formatDate } from "@/lib/format";
 import QuickPractice from "@/components/QuickPractice";
+import { gradeVariants, studentGrade } from "@/lib/learning/student-scope";
 
 type PracticeSet = { id: string; assessment_type: string; subject_code: string | null; subject_name: string | null; grade: string | null; question_count: number | null; difficulty: string | null; time_limit_minutes: number | null };
 const isPractice = (row: PracticeSet) => String(row.assessment_type).toUpperCase() === "PRACTICE";
@@ -29,7 +30,12 @@ function PractiseInner() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    listAvailableAssessments().then((rows) => setSets((rows as PracticeSet[]).filter(isPractice))).catch((e) => { setError(e.message); setSets([]); });
+    // A learner is offered only practice sets of their own grade (sets with no grade are open to all).
+    Promise.all([listAvailableAssessments(), bootstrapUser().catch(() => null)]).then(([rows, ctx]) => {
+      const mine = gradeVariants(studentGrade(ctx?.studentProfile as Record<string, unknown> | null | undefined)).map((g) => g.toUpperCase().replace(/\s+/g, ""));
+      const fits = (row: PracticeSet) => !mine.length || !row.grade || mine.includes(String(row.grade).toUpperCase().replace(/\s+/g, ""));
+      setSets((rows as PracticeSet[]).filter(isPractice).filter(fits));
+    }).catch((e) => { setError(e.message); setSets([]); });
     getMyAttemptsPage(1).then((r) => setAttempts(r.rows)).catch(() => setAttempts([]));
     studentInsights().then((d) => {
       const worst = [...(d.by_subject ?? [])].filter((s: any) => s.subject).sort((a: any, b: any) => Number(a.mastery) - Number(b.mastery))[0];

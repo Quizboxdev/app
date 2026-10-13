@@ -37,3 +37,22 @@ export async function listApprovedQuestionsForNode(nodeId: string, grade?: strin
   return data ?? [];
 }
 
+
+// The grade node(s) a learner belongs to, across the curricula they may read. Legacy umbrella curricula come last so the dedicated
+// curriculum of their level wins when both carry the grade.
+const LEGACY_CODES = new Set(["GH-CCP-2020", "GH-SOURCE"]);
+export async function findLearnerGradeRoot(variants: string[]) {
+  if (!variants.length) return null;
+  const supabase = getSupabaseBrowserClient();
+  const list = variants.map((v) => `"${v.replace(/"/g, "")}"`).join(",");
+  const [{ data: nodes, error }, curricula] = await Promise.all([
+    supabase.from("curriculum_nodes").select("id,curriculum_id,parent_id,node_type,code,title,source_terminology,education_level,grade_code,subject_code")
+      .eq("node_type", "grade").eq("is_active", true).or(`canonical_grade_code.in.(${list}),grade_code.in.(${list})`).limit(20),
+    listCurricula(),
+  ]);
+  if (error) throw new Error(userFacingError(error));
+  const codeOf = new Map((curricula as Array<{ id: string; code: string }>).map((c) => [c.id, c.code]));
+  const usable = (nodes ?? []).filter((n: any) => codeOf.has(n.curriculum_id));
+  usable.sort((a: any, b: any) => Number(LEGACY_CODES.has(codeOf.get(a.curriculum_id) ?? "")) - Number(LEGACY_CODES.has(codeOf.get(b.curriculum_id) ?? "")));
+  return (usable[0] as any) ?? null;
+}

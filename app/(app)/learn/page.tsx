@@ -3,7 +3,9 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Dumbbell } from "lucide-react";
-import { listCurricula } from "@/lib/api/curriculum";
+import { findLearnerGradeRoot, listCurricula } from "@/lib/api/curriculum";
+import { bootstrapUser } from "@/lib/auth";
+import { gradeVariants, studentGrade } from "@/lib/learning/student-scope";
 import { practiseHref } from "@/lib/learning/labels";
 import CurriculumBrowser, { nodeLevelName, type CurriculumBrowserNode } from "@/components/CurriculumBrowser";
 
@@ -15,9 +17,21 @@ export default function LearnPage() {
   const [curriculumId, setCurriculumId] = useState("");
   const [path, setPath] = useState<CurriculumBrowserNode[]>([]);
   const [error, setError] = useState("");
+  // A learner sees only their own grade: the browser starts inside the grade node of their profile and cannot climb out of it.
+  const [learnerRoot, setLearnerRoot] = useState<CurriculumBrowserNode | null>(null), [scoped, setScoped] = useState<"loading" | "learner" | "none" | "open">("loading");
 
   useEffect(() => {
-    listCurricula().then((rows) => { setCurricula(rows); setCurriculumId(rows[0]?.id ?? ""); }).catch((e) => setError(e.message));
+    (async () => {
+      const ctx = await bootstrapUser().catch(() => null);
+      const profile = ctx?.studentProfile as Record<string, unknown> | null | undefined;
+      if (ctx?.role === "STUDENT" && profile) {
+        const root = await findLearnerGradeRoot(gradeVariants(studentGrade(profile)));
+        if (root) { setLearnerRoot(root as CurriculumBrowserNode); setCurriculumId((root as any).curriculum_id); setScoped("learner"); } else setScoped("none");
+        return;
+      }
+      const rows = await listCurricula();
+      setCurricula(rows); setCurriculumId(rows[0]?.id ?? ""); setScoped("open");
+    })().catch((e) => { setError(e.message); setScoped("open"); });
   }, []);
 
   const subject = path.find((n) => n.node_type === "subject");
@@ -26,14 +40,15 @@ export default function LearnPage() {
     <>
       <div className="qb-page-head">
         <div><h1>Learn</h1><p>Follow the curriculum from subject to learning indicator, then practise what you learned.</p></div>
-        {curricula.length > 1 && <label className="qb-field"><span className="qb-sr-only">Curriculum</span>
+        {scoped === "open" && curricula.length > 1 && <label className="qb-field"><span className="qb-sr-only">Curriculum</span>
           <select value={curriculumId} onChange={(e) => setCurriculumId(e.target.value)}>{curricula.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}</select></label>}
       </div>
 
       {error && <div className="qb-card qb-error" role="alert">{error}</div>}
 
       <section className="qb-card">
-        {curriculumId ? <CurriculumBrowser curriculumId={curriculumId} onPathChange={setPath} renderLeaf={(leaf, { available }) => (
+        {scoped === "none" ? <div className="qb-empty"><strong>Your grade is not published yet</strong>Questions for your class are being added. Check back soon.</div>
+        : curriculumId ? <CurriculumBrowser curriculumId={curriculumId} root={learnerRoot} onPathChange={setPath} renderLeaf={(leaf, { available }) => (
           <div className="qb-launch-grid" style={{ gridTemplateColumns: "minmax(0, 1fr)" }}>
             <div className="qb-launch">
               <p className="qb-overline">{nodeLevelName(leaf)}{leaf.code ? ` · ${leaf.code}` : ""}</p>
