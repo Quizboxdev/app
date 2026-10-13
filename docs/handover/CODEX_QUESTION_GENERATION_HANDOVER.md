@@ -76,6 +76,37 @@ Rules that come with the data:
 three reconciled Primary files, add Creative Arts slices, regenerate `load_queue_primary.csv`, and re-run `validate_primary.py`. Expected:
 1,825 indicators, 91,250 questions. Do the same for JHS/SHS after their gaps are filled.
 
+## SHS verified-file gaps, measured 2026-10-13 (GH-SHS-2023)
+
+Method: every `year.strand.sub.LI.n` code printed in each official SHS PDF compared with `SHS_indicators_verified.csv` (printed forms
+normalised). "Missing" = printed in the PDF, absent from the file. Counts are indicators, not questions (x 50 each).
+
+| Subject | In file | Printed in PDF | Missing | Where |
+|---|---:|---:|---:|---|
+| Mathematics (core) | 0 | 69 | 69 | all 12 strands; no indicators at all |
+| Additional Mathematics | 63 | 123 | 60 | SHS2 s1-4 (25), SHS3 s1-4 (35) |
+| Arabic | 75 | 116 | 44 | SHS2 s4 (9), SHS3 s1-4 (35) |
+| French | 96 | 131 | 35 | SHS3 s1-4 |
+| Government | 49 | 44 | 35 | all strands: code forms differ, INSPECT first (the file has more rows than the PDF prints) |
+| Physics | 87 | 103 | 30 | SHS1 s3 (1), SHS3 s1-4 (29) |
+| Literature in English | 87 | 88 | 4 | SHS3 s4 |
+| Agriculture | 77 | 79 | 4 | SHS1 s1 (1), SHS2 s5 (3) |
+| Performing Arts | 63 | 56 | 3 | SHS2 s3 (1), SHS3 s1 (2); inspect (forms) |
+| General Science | 44 | 44 | 1 | SHS3 s2 |
+| every other subject | | | 0 | complete |
+
+Total to extract: about 285 indicators (about 14,000 questions) before SHS is complete. The SHS layout differs from Primary and JHS: a
+learning outcome (`1.2.1.LO.1`) with learning indicators (`1.2.1.LI.1`) under a "Subject / Strand / Sub-Strand" table heading. The Primary
+extractor (`staging/tools/extract_primary_pdf.py`) does not read it and needs an SHS variant. Reconcile with a ledger as for Primary.
+
+## Source rows holding the wrong PDF (C-15 / C-20) and how to clear them
+
+- "Agricultural Science" holds the Agriculture PDF (212 pages) and "Physical Education & Health (Core)" holds the Elective PDF (126 pages).
+  The correct files are in `QuizBox\sources\NaCCA\SHS\` (Agricultural Science.pdf, 98 pages; Physical Education and Health (Core).pdf, 88 pages).
+- The rows are approved, so the file cannot be released and the document is locked. Clear them without an override: register new rows
+  under a new level label (as `QuizBox\staging\primary\curriculum_sources_shs_2023_import.csv` does for all SHS), supply the correct PDF,
+  approve with the rights attestation, and activate. Do not generate questions for these two subjects against the wrong rows.
+
 ## 4. The generation unit and volume
 
 - **One topic per learning indicator; 50 questions per topic** (decision D-15/D-18): 15 easy / 20 medium / 15 hard; cognitive
@@ -146,8 +177,8 @@ the same file twice is blocked by hash; do not re-export a loaded batch under th
 - **Primary** curriculum `GH-SBC-2019` v2019 is registered and active; structure loaded: 3,429 nodes, 1,825 indicators (8 verified
   subjects + English + Ghanaian Language + Creative Arts). 11 Primary sources ACTIVE (approved with rights attestation by the owner).
 - **JHS** `GH-CCP-JHS`: 1,302 indicators loaded, 12 sources active. Pilot: Social Studies B7, 100 questions in review.
-- **SHS**: documents are dated September 2023; code/version decision **D-17 is open**; SHS structure is not loaded. Generate SHS
-  files last; they cannot be loaded until D-17 is decided by the owner.
+- **SHS**: curriculum `GH-SHS-2023` v2023 (decision D-17, 2026-10-13) is registered, structure loaded (2,585 indicators, 4,686 nodes) and
+  the 32 approved sources are attached to it. Generate SHS last; see the gap table before section 4.
 - **Primary pilot**: Computing B4 strand 2, 100 questions, loaded into SME review.
 - **SME review pool** exists (R1-R3): reviewers need granted domains (subject exactly as in the CSV, grade `B4`...) and a compensation
   policy; the owner has registered the Computing domain. Verified working by the owner on 2026-10-12 (all applied and deployed,
