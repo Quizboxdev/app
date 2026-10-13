@@ -6,7 +6,7 @@ Production `main` = `cb5d439`. Tests 908 pass, build compiles.
 ## A. Owner actions (nothing to build; they unblock everything else)
 | # | Action | Blocks |
 |---|---|---|
-| 1 | Activate GH-SHS-2023 (structure loaded: 4,686 nodes, inactive) and register/approve the SHS sources against it (the 32 SHS sources are parked on GH-CCP-2020) | SHS question loading |
+| 1 | Activate GH-SHS-2023 if not yet (4,686 nodes; 32 sources attached). Clear C-20: register Agricultural Science and PE&H Core again with the correct PDFs | SHS question loading for those two subjects |
 | 2 | Enter reviewer fees, sample rate and minimum review time (`config/reviewer-policy.json`, Compensation screen); set status APPROVED | Reviewer pay (D-11) |
 | 3 | Grant reviewer domains (Reviewers > Domains, now dropdowns) and workload policies; onboard reviewers (coverage was 0) | SME review of the 100 Social Studies + 100 Computing pilot questions |
 | 4 | Load the Primary English/Ghanaian/Creative Arts content later through `/admin/question-loading` as batches arrive | Learner content |
@@ -37,3 +37,6 @@ Targets at 50 per indicator: Primary 91,250 (1,825 indicators), JHS 65,100 (1,30
 3. Reviewer operations R4-R8 and L6/L7 (so loaded questions reach reviewers and pay works).
 4. Learner/teacher T4-T6, G8; release gates C-track and G2-G6.
 5. Sponsor process S1-S7; pilot G7; then the extension X-track.
+
+## F. SHS extraction gaps (measured 2026-10-13)
+About 285 indicators missing: core Mathematics 69, Additional Mathematics 60, Arabic 44, French 35, Government 35 (inspect, code forms differ), Physics 30, Literature 4, Agriculture 4, Performing Arts 3, General Science 1. Detail and method: Codex handover, section before 4.
