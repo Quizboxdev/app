@@ -83,9 +83,9 @@ export default function AppShell({
 
     const role = String(ctx.role).toUpperCase();
     const allowedPrefixes = ["ADMIN", "OWNER"].includes(role)
-      ? ["/admin", "/teacher", "/competition", "/marketplace"]
+      ? ["/admin", "/teacher", "/practise", "/student/attempt", "/competition", "/marketplace"]
       : role === "TEACHER"
-        ? ["/teacher", "/competition", "/marketplace"]
+        ? ["/teacher", "/practise", "/student/attempt", "/competition", "/marketplace"]
         : role === "SPONSOR"
           ? ["/sponsor", "/competition", "/marketplace"]
           : ["/student", "/learn", "/practise", "/competition", "/marketplace"];
@@ -183,6 +183,7 @@ export default function AppShell({
         ["/teacher/assignments", "Assignments"],
         ["/teacher/gradebook", "Gradebook"],
         ["/teacher/question-banks", "Question Banks"],
+        ["/practise", "Practise questions"],
       ]);
       add("Explore", [["/competition", "Competitions"], ["/marketplace", "Marketplace"], ...seller]);
       add("SME", when(reviewer, [["/review", "SME Reviews"]]));
@@ -193,7 +194,6 @@ export default function AppShell({
     // Learn → Practise → Assignments (delivery, not a mode) → Compete; secondary destinations follow.
     add("", [
       ["/student", "Home"],
-      ["/learn", "Learn"],
       ["/practise", "Practise"],
       ["/student/classroom", "Assignments"],
       ["/competition", "Compete"],

@@ -1,5 +1,6 @@
 import type { PublicMarkets } from "@/lib/public/signup-markets";
 import type { PublicPlatformStats } from "@/lib/public/platform-stats";
+import { showPublic } from "@/lib/public/visibility";
 import PublicShell from "./PublicShell";
 import HeroSection from "./HeroSection";
 import PlatformStats from "./PlatformStats";
@@ -19,18 +20,18 @@ export default function PublicHome({ markets, stats = null }: { markets: PublicM
   return (
     <PublicShell>
       <HeroSection />
-      <PlatformStats stats={stats} />
-      <RoleEcosystem />
-      <GovernanceSection />
-      <StudentSection />
-      <TeacherSection />
-      <SponsorSection />
-      <SmeSection />
-      <SchoolsSection />
-      <ContentPipeline />
-      <CompetitionSection />
-      <CurriculumSubjects markets={markets} />
-      <FinalCta />
+      {showPublic("platform_stats") && <PlatformStats stats={stats} />}
+      {showPublic("role_ecosystem") && <RoleEcosystem />}
+      {showPublic("governance") && <GovernanceSection />}
+      {showPublic("students") && <StudentSection />}
+      {showPublic("teachers") && <TeacherSection />}
+      {showPublic("sponsors") && <SponsorSection />}
+      {showPublic("reviewers") && <SmeSection />}
+      {showPublic("schools") && <SchoolsSection />}
+      {showPublic("content_pipeline") && <ContentPipeline />}
+      {showPublic("competitions") && <CompetitionSection />}
+      {showPublic("curriculum_subjects") && <CurriculumSubjects markets={markets} />}
+      {showPublic("final_cta") && <FinalCta />}
     </PublicShell>
   );
 }

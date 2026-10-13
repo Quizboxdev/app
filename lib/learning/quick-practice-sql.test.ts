@@ -4,6 +4,8 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 const MIGRATION = readFileSync(new URL("../../supabase/migrations/20261012200000_quick_practice.sql", import.meta.url), "utf8");
 const ROLLBACK = readFileSync(new URL("../../supabase/rollback/quick_practice.sql", import.meta.url), "utf8");
+const STAFF = readFileSync(new URL("../../supabase/migrations/20261012210000_practice_for_staff.sql", import.meta.url), "utf8");
+const STAFF_ROLLBACK = readFileSync(new URL("../../supabase/rollback/practice_for_staff.sql", import.meta.url), "utf8");
 const id = (n: number) => `00000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
 let db: PGlite;
 const as = (n: number | null) => db.query("select set_config('request.jwt.claim.sub',$1,false)", [n === null ? "" : id(n)]);
@@ -20,7 +22,7 @@ describe("quick practice RPCs (isolated PostgreSQL; production triggers are not 
       grant usage on schema auth to authenticated; grant execute on function auth.uid() to authenticated;
       create type public.qb_grade as enum ('B7','B8','B9');
       create type public.qb_role as enum ('student','teacher','admin','sponsor');
-      create table public.profiles(id uuid primary key, default_market_id uuid);
+      create table public.profiles(id uuid primary key, default_market_id uuid, role text);
       create table public.student_profiles(id uuid primary key default gen_random_uuid(), user_id uuid unique, grade text, grade_code text);
       create table public.curriculum_nodes(id uuid primary key, curriculum_id uuid, parent_id uuid, node_type text, title text, subject_code text, grade_code text,
         canonical_grade_code text, sort_order integer default 0, is_active boolean default true);
@@ -36,7 +38,7 @@ describe("quick practice RPCs (isolated PostgreSQL; production triggers are not 
       create table public.assessment_questions(assessment_id uuid, question_id uuid, question_order integer, question_text_snapshot text, option_a_snapshot text,
         option_b_snapshot text, option_c_snapshot text, option_d_snapshot text, correct_answer_snapshot text, marks_snapshot integer, question_content_snapshot jsonb,
         answer_type_snapshot text, answer_spec_snapshot jsonb);
-      insert into public.profiles values('${id(1)}','${id(100)}'),('${id(2)}','${id(100)}'),('${id(3)}','${id(100)}');
+      insert into public.profiles values('${id(1)}','${id(100)}','STUDENT'),('${id(2)}','${id(100)}','STUDENT'),('${id(3)}','${id(100)}','TEACHER'),('${id(4)}','${id(100)}','SPONSOR');
       insert into public.student_profiles(user_id,grade,grade_code) values('${id(1)}','B4','B4'),('${id(2)}','B7','B7');
       insert into public.market_curricula values('${id(200)}','${id(100)}',true),('${id(201)}','${id(101)}',true);
       -- Computing B4: strand 1 > sub-strand A (indicator i1) and sub-strand B (indicator i2)
@@ -62,6 +64,7 @@ describe("quick practice RPCs (isolated PostgreSQL; production triggers are not 
     await db.exec(`insert into public.questions(curriculum_node_id,question_text,validation_status) values('${id(304)}','Draft one','review'),('${id(307)}','Archived','approved')`);
     await db.exec(`update public.questions set status='archived' where question_text='Archived'`);
     await db.exec(MIGRATION);
+    await db.exec(STAFF);
     await db.exec("grant select on all tables in schema public to authenticated");
   }, 60_000);
   afterAll(async () => { await db.close(); });
@@ -103,7 +106,7 @@ describe("quick practice RPCs (isolated PostgreSQL; production triggers are not 
     await expect(one("select public.qb_start_quick_practice($1::uuid[], 5) v", [[id(321)]])).rejects.toThrow("QB_PRACTICE_NO_QUESTIONS");   // other market
     await expect(one("select public.qb_start_quick_practice($1::uuid[], 2) v", [[id(302)]])).rejects.toThrow("QB_PRACTICE_COUNT_INVALID");
     await expect(one("select public.qb_start_quick_practice('{}'::uuid[], 5) v")).rejects.toThrow("QB_PRACTICE_TOPICS_REQUIRED");
-    await as(3);
+    await as(4);
     await expect(one("select public.qb_practice_menu() v")).rejects.toThrow("QB_STUDENT_REQUIRED");
     await as(null);
     await expect(one("select public.qb_practice_menu() v")).rejects.toThrow("QB_AUTHENTICATION_REQUIRED");
@@ -112,10 +115,26 @@ describe("quick practice RPCs (isolated PostgreSQL; production triggers are not 
     expect(menu.subjects.map((s: any) => s.name)).toEqual(["Mathematics"]);   // the B7 learner sees only the B7 subject
   });
 
+  it("gives a teacher the same builder for a grade they choose, and no grade means a list of grades", async () => {
+    await as(3);
+    const grades = (await one("select public.qb_practice_menu() v")).v;
+    expect(grades.grade).toBeNull();
+    expect(grades.grades).toEqual(["B4", "B7"]);                                  // grades of the market's active curricula (not the other market's)
+    const menu = (await one("select public.qb_practice_menu('b4') v")).v;
+    expect(menu).toMatchObject({ grade: "B4" });
+    expect(menu.subjects.map((s: any) => s.name)).toEqual(["Computing"]);
+    const topics = menu.subjects[0].topics.map((t: any) => t.id);
+    await expect(one("select public.qb_start_quick_practice($1::uuid[], 5) v", [topics])).rejects.toThrow("QB_PRACTICE_GRADE_REQUIRED");
+    const r = (await one("select public.qb_start_quick_practice($1::uuid[], 6, 'B4') v", [topics])).v;
+    expect(r).toMatchObject({ subject: "Computing", question_count: 6 });
+    expect(await one("select owner_role::text r, grade_code from public.assessments where id=$1", [r.assessment_id])).toEqual({ r: "teacher", grade_code: "B4" });
+  });
+
   it("is not executable by anon and rolls back cleanly", async () => {
     await db.exec("set role anon");
     await expect(one("select public.qb_practice_menu() v")).rejects.toThrow();
     await db.exec("reset role");
+    await db.exec(STAFF_ROLLBACK);
     await db.exec(ROLLBACK);
     expect((await db.query("select to_regprocedure('public.qb_practice_menu()') f")).rows[0]).toEqual({ f: null });
   });

@@ -3,18 +3,18 @@ import { userFacingError } from "@/lib/errors";
 
 export type PracticeTopic = { id: string; title: string; strand: string; available: number };
 export type PracticeSubject = { id: string; name: string; subject_code: string | null; available: number; topics: PracticeTopic[] };
-export type PracticeMenu = { grade: string; subjects: PracticeSubject[] };
+export type PracticeMenu = { grade: string; subjects: PracticeSubject[]; grades?: string[] };
 
 // What the learner can practise: subjects of their own grade with topic names and counts. The curriculum hierarchy stays in the database.
-export async function getPracticeMenu(): Promise<PracticeMenu> {
-  const { data, error } = await getSupabaseBrowserClient().rpc("qb_practice_menu");
+export async function getPracticeMenu(grade?: string): Promise<PracticeMenu> {
+  const { data, error } = await getSupabaseBrowserClient().rpc("qb_practice_menu", grade ? { p_grade: grade } : {});
   if (error) throw new Error(userFacingError(error));
   const menu = data as PracticeMenu;
-  return { grade: String(menu?.grade ?? ""), subjects: Array.isArray(menu?.subjects) ? menu.subjects : [] };
+  return { grade: String(menu?.grade ?? ""), subjects: Array.isArray(menu?.subjects) ? menu.subjects : [], grades: Array.isArray(menu?.grades) ? menu.grades : undefined };
 }
 
-export async function buildQuickPractice(topicIds: string[], count: number) {
-  const { data, error } = await getSupabaseBrowserClient().rpc("qb_start_quick_practice", { p_topic_ids: topicIds, p_count: count });
+export async function buildQuickPractice(topicIds: string[], count: number, grade?: string) {
+  const { data, error } = await getSupabaseBrowserClient().rpc("qb_start_quick_practice", { p_topic_ids: topicIds, p_count: count, ...(grade ? { p_grade: grade } : {}) });
   if (error) throw new Error(userFacingError(error));
   return data as { assessment_id: string; subject: string; question_count: number; requested: number; short: boolean };
 }

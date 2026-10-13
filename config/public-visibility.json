@@ -1,0 +1,17 @@
+{
+  "how_to_revise": "Sections of the public home page. Set a section to false to hide it from visitors; no code change is needed. Hidden sections describe internal mechanics (how content is reviewed and governed, reviewer operations) and stay available inside the signed-in product.",
+  "home_sections": {
+    "platform_stats": true,
+    "role_ecosystem": true,
+    "governance": false,
+    "students": true,
+    "teachers": true,
+    "sponsors": true,
+    "reviewers": false,
+    "schools": true,
+    "content_pipeline": false,
+    "competitions": true,
+    "curriculum_subjects": true,
+    "final_cta": true
+  }
+}
