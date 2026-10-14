@@ -1,0 +1,16 @@
+{
+  "version": "0.1.0",
+  "status": "PROPOSED",
+  "updated": "2026-10-14",
+  "owner": "Ransford Mensah",
+  "how_to_revise": "Edit this file, raise the version, set status to APPROVED when the owner signs it off, commit and deploy. A price of null shows as 'Price to be announced'. The free allowance itself is a platform setting (access.free_practice_sessions), not this file; the gate stays OFF until that number is set.",
+  "currency": "GHS",
+  "plans": [
+    { "id": "learner_monthly", "name": "Learner Monthly", "audience": "Learners", "period": "month", "price": null,
+      "includes": ["Unlimited self-built practice sessions", "All subjects for your grade", "Progress and mastery tracking"] },
+    { "id": "learner_term", "name": "Learner Term", "audience": "Learners", "period": "term", "price": null,
+      "includes": ["Everything in Monthly", "Best value for a full school term"] },
+    { "id": "school", "name": "School", "audience": "Schools", "period": "year", "price": null,
+      "includes": ["All learners in the school", "Teacher assignments and class reports", "Contact us for a quote"] }
+  ]
+}

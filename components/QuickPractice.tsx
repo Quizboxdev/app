@@ -6,6 +6,8 @@ import { Play, Shuffle, ListChecks } from "lucide-react";
 import { buildQuickPractice, countChoices, getPracticeMenu, type PracticeMenu } from "@/lib/api/practice";
 import { startAttempt } from "@/lib/api/assessment";
 import { gradeSort } from "@/lib/sme/catalogue";
+import { getMyAccess, isAllowanceExhausted, SUBSCRIBE_PATH, type MyAccess } from "@/lib/api/access";
+import SubjectIcon from "@/components/SubjectIcon";
 
 // One short screen for learners and teachers alike: subject, then either a random mix or ticked topics, then how many questions, Start.
 // No strands, sub-strands, levels or codes are shown; topics are plain sub-strand names with their question counts. Teachers and admins
@@ -16,6 +18,8 @@ export default function QuickPractice() {
   const [mode, setMode] = useState<"random" | "topics">("random"), [ticked, setTicked] = useState<string[]>([]), [count, setCount] = useState(10);
   const [busy, setBusy] = useState(false), [error, setError] = useState(""), [note, setNote] = useState("");
 
+  const [access, setAccess] = useState<MyAccess | null>(null);
+  useEffect(() => { getMyAccess().then(setAccess); }, []);
   const load = (g?: string) => { setMenu(null); getPracticeMenu(g).then(setMenu).catch((e) => { setError(e.message); setMenu({ grade: "", subjects: [] }); }); };
   useEffect(() => { load(); }, []);
   const subject = menu?.subjects.find((s) => s.id === subjectId);
@@ -27,13 +31,18 @@ export default function QuickPractice() {
   const pick = (id: string) => { setSubjectId(id); setTicked([]); setMode("random"); setNote(""); setError(""); };
   async function start() {
     if (!subject || !effective.length || busy) return;
+    // Free allowance used up: the attempt goes to the subscription page instead of starting.
+    if (access?.exhausted) { router.push(SUBSCRIBE_PATH); return; }
     setBusy(true); setError(""); setNote("");
     try {
       const built = await buildQuickPractice(effective, count, grade || undefined);
       if (built.short) setNote(`Only ${built.question_count} questions are available for this choice, so that is what you get.`);
       const attempt = await startAttempt({ assessmentId: built.assessment_id }) as { attempt_id: string };
       router.push(`/student/attempt/${attempt.attempt_id}`);
-    } catch (e: any) { setError(e?.message ?? "Could not start practice."); setBusy(false); }
+    } catch (e: any) {
+      if (isAllowanceExhausted(e)) { router.push(SUBSCRIBE_PATH); return; }
+      setError(e?.message ?? "Could not start practice."); setBusy(false);
+    }
   }
 
   if (menu === null) return <section className="qb-card qb-skeleton" aria-busy="true" style={{ minHeight: 120 }} />;
@@ -48,10 +57,11 @@ export default function QuickPractice() {
   return <section className="qb-card" aria-labelledby="qp-title">
     <h2 id="qp-title">Build your practice{menu.grade ? ` · ${menu.grade}` : ""}</h2>
     {error && <p className="qb-error" role="alert">{error}</p>}{note && <p role="status">{note}</p>}
+    {access?.gated && !access.subscribed && <p className="qb-small qb-muted" role="status">{access.exhausted ? "Your free practice is used up. Starting will take you to subscribe." : `${access.remaining} free practice ${access.remaining === 1 ? "session" : "sessions"} left.`}</p>}
 
     <h3>1. Subject</h3>
     <div className="qb-chip-row" role="group" aria-label="Subject">
-      {menu.subjects.map((s) => <button type="button" key={s.id} className="qb-chip" aria-pressed={subjectId === s.id} onClick={() => pick(s.id)}>{s.name} <span className="qb-muted">({s.available})</span></button>)}
+      {menu.subjects.map((s) => <button type="button" key={s.id} className="qb-chip" aria-pressed={subjectId === s.id} onClick={() => pick(s.id)}><SubjectIcon name={s.name} size={22} />&nbsp;{s.name} <span className="qb-muted">&nbsp;({s.available})</span></button>)}
     </div>
 
     {subject && <>

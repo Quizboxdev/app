@@ -1,0 +1,334 @@
+[
+  {
+    "slug": "mathematics",
+    "label": "Mathematics",
+    "aliases": [
+      "Mathematics"
+    ],
+    "motif": "a set square, a compass and a simple angle arc",
+    "levels": "P JHS SHS"
+  },
+  {
+    "slug": "additional-mathematics",
+    "label": "Additional Mathematics",
+    "aliases": [
+      "Additional Mathematics"
+    ],
+    "motif": "an integral sign beside a rising curve on a small graph",
+    "levels": "SHS"
+  },
+  {
+    "slug": "english-language",
+    "label": "English Language",
+    "aliases": [
+      "English",
+      "English Language"
+    ],
+    "motif": "an open book with a pencil and a speech bubble",
+    "levels": "P JHS SHS"
+  },
+  {
+    "slug": "literature-in-english",
+    "label": "Literature in English",
+    "aliases": [
+      "Literature-In-English"
+    ],
+    "motif": "a quill pen over an open book with a bookmark ribbon",
+    "levels": "SHS"
+  },
+  {
+    "slug": "ghanaian-language",
+    "label": "Ghanaian Language",
+    "aliases": [
+      "Ghanaian Language"
+    ],
+    "motif": "two speech bubbles joined by an Adinkra-style Gye Nyame-inspired geometric pattern",
+    "levels": "P JHS"
+  },
+  {
+    "slug": "french",
+    "label": "French",
+    "aliases": [
+      "French",
+      "FRENCH"
+    ],
+    "motif": "a speech bubble containing the letters Fr and a small beret",
+    "levels": "P JHS SHS"
+  },
+  {
+    "slug": "spanish",
+    "label": "Spanish",
+    "aliases": [
+      "Spanish"
+    ],
+    "motif": "a speech bubble containing the letters Es with a small fan",
+    "levels": "SHS"
+  },
+  {
+    "slug": "arabic",
+    "label": "Arabic",
+    "aliases": [
+      "Arabic"
+    ],
+    "motif": "a speech bubble with a flowing calligraphic stroke and a crescent",
+    "levels": "SHS"
+  },
+  {
+    "slug": "science",
+    "label": "Science",
+    "aliases": [
+      "Science",
+      "General Science"
+    ],
+    "motif": "a conical flask, an atom orbit and a small leaf",
+    "levels": "P JHS SHS"
+  },
+  {
+    "slug": "biology",
+    "label": "Biology",
+    "aliases": [
+      "Biology"
+    ],
+    "motif": "a leaf, a DNA double helix and a small cell",
+    "levels": "SHS"
+  },
+  {
+    "slug": "chemistry",
+    "label": "Chemistry",
+    "aliases": [
+      "Chemistry"
+    ],
+    "motif": "a test tube, a beaker and a hexagon molecule ring",
+    "levels": "SHS"
+  },
+  {
+    "slug": "physics",
+    "label": "Physics",
+    "aliases": [
+      "Physics"
+    ],
+    "motif": "an atom with three orbits and a lightning bolt",
+    "levels": "SHS"
+  },
+  {
+    "slug": "computing",
+    "label": "Computing",
+    "aliases": [
+      "Computing"
+    ],
+    "motif": "a laptop showing angle brackets and a small circuit line",
+    "levels": "P JHS SHS"
+  },
+  {
+    "slug": "ict",
+    "label": "Information and Communications Technology",
+    "aliases": [
+      "Information And Communications Technology"
+    ],
+    "motif": "a monitor, a wifi arc and a mouse cursor",
+    "levels": "SHS"
+  },
+  {
+    "slug": "social-studies",
+    "label": "Social Studies",
+    "aliases": [
+      "Social Studies"
+    ],
+    "motif": "a globe with a map pin and two small figures",
+    "levels": "JHS SHS"
+  },
+  {
+    "slug": "our-world-our-people",
+    "label": "Our World Our People",
+    "aliases": [
+      "Our World Our People"
+    ],
+    "motif": "a rising sun over a village of three simple houses and a tree",
+    "levels": "P"
+  },
+  {
+    "slug": "history",
+    "label": "History",
+    "aliases": [
+      "History"
+    ],
+    "motif": "a scroll, an hourglass and a column",
+    "levels": "P SHS"
+  },
+  {
+    "slug": "geography",
+    "label": "Geography",
+    "aliases": [
+      "Geography"
+    ],
+    "motif": "a compass rose over a folded map and a mountain",
+    "levels": "SHS"
+  },
+  {
+    "slug": "government",
+    "label": "Government",
+    "aliases": [
+      "Government"
+    ],
+    "motif": "a columned building with a small flag",
+    "levels": "SHS"
+  },
+  {
+    "slug": "economics",
+    "label": "Economics",
+    "aliases": [
+      "Economics"
+    ],
+    "motif": "a rising bar chart with a coin",
+    "levels": "SHS"
+  },
+  {
+    "slug": "religious-and-moral-education",
+    "label": "Religious and Moral Education",
+    "aliases": [
+      "Religious and Moral Education",
+      "Religious And Moral Education"
+    ],
+    "motif": "an open book with a heart and a small star of light",
+    "levels": "P JHS SHS"
+  },
+  {
+    "slug": "creative-arts",
+    "label": "Creative Arts",
+    "aliases": [
+      "Creative Arts",
+      "Creative Arts and Design"
+    ],
+    "motif": "a paintbrush, a palette and a splash of colour",
+    "levels": "P JHS"
+  },
+  {
+    "slug": "art-and-design-foundation",
+    "label": "Art and Design Foundation",
+    "aliases": [
+      "Art And Design Foundation"
+    ],
+    "motif": "a pencil, a ruler and a simple still-life shape of a bowl",
+    "levels": "SHS"
+  },
+  {
+    "slug": "art-and-design-studio",
+    "label": "Art and Design Studio",
+    "aliases": [
+      "Art And Design Studio"
+    ],
+    "motif": "a paintbrush, a clay vessel and an easel",
+    "levels": "SHS"
+  },
+  {
+    "slug": "performing-arts",
+    "label": "Performing Arts",
+    "aliases": [
+      "Performing Arts"
+    ],
+    "motif": "a drum, a theatre mask and a musical note",
+    "levels": "SHS"
+  },
+  {
+    "slug": "physical-education",
+    "label": "Physical Education and Health",
+    "aliases": [
+      "Physical Education",
+      "Physical Education and Health",
+      "Physical Education & Health (Core)",
+      "Elective Physical Education and Health"
+    ],
+    "motif": "a running figure, a whistle and a small heart",
+    "levels": "P JHS SHS"
+  },
+  {
+    "slug": "career-technology",
+    "label": "Career Technology",
+    "aliases": [
+      "Career Technology"
+    ],
+    "motif": "a spanner, a hammer and a gear",
+    "levels": "JHS"
+  },
+  {
+    "slug": "agricultural-science",
+    "label": "Agricultural Science",
+    "aliases": [
+      "Agricultural Science"
+    ],
+    "motif": "a maize cob, a seedling and a small tractor wheel",
+    "levels": "SHS"
+  },
+  {
+    "slug": "agriculture",
+    "label": "Agriculture",
+    "aliases": [
+      "Agriculture"
+    ],
+    "motif": "a hoe, a seedling and a rising sun over a field row",
+    "levels": "SHS"
+  },
+  {
+    "slug": "applied-technology",
+    "label": "Applied Technology",
+    "aliases": [
+      "Applied Technology"
+    ],
+    "motif": "a gear, a pair of pliers and a small circuit board",
+    "levels": "SHS"
+  },
+  {
+    "slug": "design-and-communication-technology",
+    "label": "Design and Communication Technology",
+    "aliases": [
+      "Design And Communication Technology"
+    ],
+    "motif": "a drafting pencil, a T-square and a light bulb",
+    "levels": "SHS"
+  },
+  {
+    "slug": "engineering",
+    "label": "Engineering",
+    "aliases": [
+      "Engineering"
+    ],
+    "motif": "a hard hat, a gear and a blueprint roll",
+    "levels": "SHS"
+  },
+  {
+    "slug": "manufacturing-engineering",
+    "label": "Manufacturing Engineering",
+    "aliases": [
+      "Manufacturing Engineering"
+    ],
+    "motif": "a robotic arm, a conveyor belt and a gear",
+    "levels": "SHS"
+  },
+  {
+    "slug": "aviation-and-aerospace-engineering",
+    "label": "Aviation and Aerospace Engineering",
+    "aliases": [
+      "Aviation and Aerospace Engineering"
+    ],
+    "motif": "a small aircraft with a swoosh and a gear",
+    "levels": "SHS"
+  },
+  {
+    "slug": "biomedical-science",
+    "label": "Biomedical Science",
+    "aliases": [
+      "Biomedical Science"
+    ],
+    "motif": "a microscope, a heartbeat line and a test tube",
+    "levels": "SHS"
+  },
+  {
+    "slug": "robotics",
+    "label": "Robotics",
+    "aliases": [
+      "Robotics"
+    ],
+    "motif": "a friendly robot head with an antenna and a gear",
+    "levels": "SHS"
+  }
+]

@@ -11,6 +11,8 @@ import { studentInsights } from "@/lib/api/platform";
 import { sanitizeLabel, subjectLabel } from "@/lib/learning/labels";
 import { formatDate } from "@/lib/format";
 import QuickPractice from "@/components/QuickPractice";
+import BrandBanner from "@/components/BrandBanner";
+import { getMyAccess, isAllowanceExhausted, SUBSCRIBE_PATH } from "@/lib/api/access";
 import { gradeVariants, studentGrade } from "@/lib/learning/student-scope";
 
 type PracticeSet = { id: string; assessment_type: string; subject_code: string | null; subject_name: string | null; grade: string | null; question_count: number | null; difficulty: string | null; time_limit_minutes: number | null };
@@ -54,12 +56,15 @@ function PractiseInner() {
 
   async function begin(args: { assessmentId: string; assignmentId?: string; classId?: string }, key: string) {
     setStarting(key); setError("");
+    // Free allowance used up: go to subscribe instead of starting (the quick builder enforces the same limit on the server).
+    if ((await getMyAccess()).exhausted) { router.push(SUBSCRIBE_PATH); return; }
     try { router.push(`/student/attempt/${((await startAttempt(args)) as any).attempt_id}`); }
-    catch (e: any) { setError(e.message); setStarting(""); }
+    catch (e: any) { if (isAllowanceExhausted(e)) { router.push(SUBSCRIBE_PATH); return; } setError(e.message); setStarting(""); }
   }
 
   return (
     <>
+      <BrandBanner src="/brand/pages/practise-banner.webp" />
       <div className="qb-page-head"><div><h1>Practise</h1><p>Short practice sets with instant feedback. Practising builds mastery and earns XP.</p></div></div>
       {error && <div className="qb-card qb-error" role="alert">{error}</div>}
 

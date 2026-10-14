@@ -83,12 +83,12 @@ export default function AppShell({
 
     const role = String(ctx.role).toUpperCase();
     const allowedPrefixes = ["ADMIN", "OWNER"].includes(role)
-      ? ["/admin", "/teacher", "/practise", "/student/attempt", "/competition", "/marketplace"]
+      ? ["/admin", "/teacher", "/practise", "/student/attempt", "/competition", "/marketplace", "/subscribe"]
       : role === "TEACHER"
-        ? ["/teacher", "/practise", "/student/attempt", "/competition", "/marketplace"]
+        ? ["/teacher", "/practise", "/student/attempt", "/competition", "/marketplace", "/subscribe"]
         : role === "SPONSOR"
           ? ["/sponsor", "/competition", "/marketplace"]
-          : ["/student", "/learn", "/practise", "/competition", "/marketplace"];
+          : ["/student", "/learn", "/practise", "/competition", "/marketplace", "/subscribe"];
 
     if (isSeller && ["TEACHER", "ADMIN", "OWNER"].includes(role)) {
       allowedPrefixes.push("/seller");

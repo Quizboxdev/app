@@ -258,3 +258,4 @@ Design canvas: https://claude.ai/artifact/8JyB9ENBGKYpV1ZfGmke7n (5 pages, 19 ar
 - 2026-10-10: E1 and E3 DONE (Gemini adapter, 742 tests pass); E2 in progress; E4 now waits on the owner's Gemini key and env vars.
 - 2026-10-10: D-1 and E1 reworded: provider-agnostic adapter, owner chooses Google or Anthropic.
 - 2026-10-10: tracker created. Baseline status taken from the repo, the live site and owner confirmations up to this date.
+- 2026-10-14: free-allowance gate (migration 20261014100000, OFF until setting access.free_practice_sessions is set; exhausted learners go to /subscribe), /subscribe page with config/subscription-plans.json (PROPOSED, prices unset), subject logo component with letter-tile fallback, docs/brand/IMAGE_PROMPT_BANK.md (36 subject logos + 15 page images). 923 tests pass.
