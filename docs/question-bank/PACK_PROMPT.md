@@ -66,7 +66,9 @@ How to fill the columns, copied from the pack sheet exactly (never retype or inv
  indicator_code = INDICATOR CODE | topic = TOPIC NAME | concept = one of your concepts for the topic
  difficulty = easy, medium or hard | cognitive_level = Remember, Understand, Apply, Analyse or Evaluate
  answer_type = SINGLE_CHOICE or TRUE_FALSE | correct_answer = A, B, C or D
- source_reference = "p" + PAGE | source_quote = one continuous passage copied word for word from that topic's INDICATOR or EXEMPLARS lines (max 200 characters)
+ source_reference = "p" + PAGE | source_quote = one continuous passage copied word for word from that topic's EXEMPLARS line (use the INDICATOR line only if no
+   exemplars are printed), max 200 characters, chosen to be the exemplar that the question is built on. Never use the topic name as the quote.
+   The checker rejects a quote that is not found word for word in the pack sheet.
 
 Format rules (a row that breaks one is rejected):
  1. Every field in double quotes; a double quote inside a field is written as two double quotes. One row per line, no line breaks inside a field.
@@ -105,6 +107,15 @@ FOR EACH PACK
  5. Read Questions Bank/_work/reports/<Grade>_<Subject>_report.txt and _gaps.csv. If any topic is short or any rows were rejected,
     write ONLY the missing questions (the top-up rule above), save as returns/<pack_id>_topup.csv, run assemble again. Repeat up to 3 times.
  6. Set the pack's status in WORK_QUEUE.csv to DONE (or NEEDS_REVIEW with a one-line note if still short) and go to the next pack.
+
+WORK IN TOPIC CYCLES. The unit of work is ONE topic (50 questions), not the whole pack. For each topic: (1) write a plan of 50 rows first: concept, difficulty,
+cognitive level and a one-line scenario for each, so no two share an angle; (2) write the 50 rows; (3) run assemble; (4) move to the next topic. Finishing
+a topic is a checkpoint. You may never end the session because the pack is large. "Quality stop" is not an allowed reason to stop. If you doubt your
+quality, slow down on the current topic, re-read its exemplars, and fix the rows the checker or your own review flags. Stop only for the conditions at the
+end of this brief.
+
+SELF-REVIEW BEFORE EACH assemble (30 seconds): for 5 random rows check (a) the right answer is certain, (b) each wrong option is a real misconception,
+(c) the question would still make sense to a learner who never saw the curriculum, (d) the difficulty label matches how many steps it takes.
 
 NEVER: invent indicator codes, edit existing rows in the final files, delete anything in Questions Bank, use outside question banks or past
 papers, ask a curriculum-header question, or skip the checker. Stop and report if the checker rejects more than 20 percent of a pack twice in a row.
