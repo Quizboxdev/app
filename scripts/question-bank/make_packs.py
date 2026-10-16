@@ -57,7 +57,7 @@ def main():
                           f"PAGE: {r.get('page', '')}", ""]
             (d / f"{pid}.txt").write_text("\n".join(lines), encoding="utf-8")
             queue.append({"pack_id": pid, "level": level, "grade": grade, "subject": subject, "pack": f"{n + 1}/{total}",
-                          "topics": len(chunk), "questions": len(chunk) * PER_TOPIC, "sheet": str((d / f"{pid}.txt").relative_to(out)),
+                          "topics": len(chunk), "questions": len(chunk) * PER_TOPIC, "sheet": str((d / f"{pid}.txt").relative_to(out).as_posix()),
                           "account": "", "status": "TODO", "returned_file": "", "notes": ""})
     # Balance the accounts: keep a unit's packs together where possible (same subject reads best in one chat series), biggest units first.
     by_unit = defaultdict(list)

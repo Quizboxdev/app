@@ -71,7 +71,7 @@ def main():
             import io
             buf = io.StringIO(); w = csv.DictWriter(buf, fieldnames=list(mine[0].keys())); w.writeheader(); w.writerows(mine)
             zf.writestr("Questions Bank/_work/WORK_QUEUE.csv", "﻿" + buf.getvalue())
-            for r in mine: zf.write(WORK / r["sheet"], f"Questions Bank/_work/{r['sheet'].replace(chr(92), '/')}")
+            for r in mine: zf.write(WORK / r["sheet"], f"Questions Bank/_work/{r['sheet']}")
         print(f"{z.name}: {len(mine)} packs, {sum(int(r['questions']) for r in mine):,} questions, {z.stat().st_size // 1024} KB")
 
 if __name__ == "__main__":
