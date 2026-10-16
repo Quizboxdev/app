@@ -70,6 +70,17 @@ def row_errors(r, allowed_codes):
 
 def unit_of(r): return (LEVELS.get(r["level"].upper(), r["level"]), r["grade"], r["subject"])
 
+def sheet_text_for(unit):
+    """indicator_code -> normalised INDICATOR + EXEMPLARS text from that unit's pack sheets (what source_quote must be copied from)."""
+    d = WORK / "packs" / unit[0] / f"{safe(unit[1])}_{safe(unit[2])}"
+    out = {}
+    if not d.exists(): return out
+    for p in d.glob("*.txt"):
+        for block in p.read_text(encoding="utf-8").split("=== TOPIC ")[1:]:
+            m = re.search(r"^INDICATOR CODE: (\S+)", block, re.M)
+            if m: out[m.group(1)] = norm(" ".join(re.findall(r"^(?:INDICATOR|EXEMPLARS): (.*)$", block, re.M)))
+    return out
+
 def allowed_codes_for(unit):
     d = WORK / "packs" / unit[0] / f"{safe(unit[1])}_{safe(unit[2])}"
     if not d.exists(): return None
@@ -78,12 +89,19 @@ def allowed_codes_for(unit):
 def process(unit, rows, existing):
     """rows: candidate rows in arrival order. existing: rows already accepted. Returns accepted, rejects, warnings, gaps."""
     codes = allowed_codes_for(unit)
+    sheets = sheet_text_for(unit)
     accepted, rejects, warn = list(existing), [], []
     seen_stem = {norm(r["question_text"]) for r in accepted}
     by_ind = defaultdict(list)
     for r in accepted: by_ind[r["indicator_code"]].append(r)
     for r in rows:
         why = row_errors(r, codes)
+        src = sheets.get(r["indicator_code"])
+        q = norm(r["source_quote"])
+        if src is not None and not why:
+            if not q: why.append("source_quote missing")
+            elif q != norm(r["topic"]) and not all(part and part in src for part in [norm(x) for x in re.split(r"\s*\.\.\.\s*", r["source_quote"])]): why.append("source_quote is not copied word for word from this topic's indicator or exemplars")
+            elif q == norm(r["topic"]) and len(src) > len(q) + 40: warn.append(f"{r['indicator_code']}: source_quote is only the topic name; quote an exemplar passage")
         s = norm(r["question_text"])
         if not why and s in seen_stem: why.append("duplicate question (same wording already in the bank)")
         if not why:
