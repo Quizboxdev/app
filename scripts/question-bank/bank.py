@@ -125,7 +125,7 @@ def assemble(files, write=True):
         for r in rows: incoming[unit_of(r)].append(r)
         print(f"read {Path(f).name}: {len(rows)} rows" + (f", {bad} unreadable lines skipped" if bad else ""))
     for unit, rows in sorted(incoming.items()):
-        old, old_files = existing_final(unit)
+        old, old_files = existing_final(unit) if write else ([], [])   # a report-only check judges the file on its own, not against the bank
         acc, rej, warn, gaps = process(unit, rows, old)
         new = len(acc) - len(old)
         lines = [f"UNIT {unit[0]} {unit[1]} {unit[2]}", f"previously accepted: {len(old)}", f"submitted: {len(rows)}", f"newly accepted: {new}", f"rejected: {len(rej)}", f"total now: {len(acc)}", f"topics still short of 50 or of the 15/20/15 mix: {len(gaps)}", ""]
