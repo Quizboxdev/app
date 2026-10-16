@@ -28,7 +28,7 @@ alter table public.question_batch_approvals enable row level security;
 revoke all on public.question_batch_approvals from public, anon, authenticated;
 create policy question_batch_approvals_admin_read on public.question_batch_approvals for select to authenticated using (quizbox_sme.has_capability('content_admin') or quizbox_market.is_super());
 
-create or replace function quizbox_sme.managed_review_guard() returns trigger language plpgsql security definer set search_path='' as $$
+create or replace function quizbox_sme.managed_review_guard() returns trigger language plpgsql security definer set search_path='' as $guard$
 begin
  -- Owner-approved batch (20261014110000): only qb_owner_approve_batch sets this flag, after verifying a super admin, for its own transaction.
  if current_setting('quizbox.owner_batch', true) = 'on' and quizbox_market.is_super() then return new; end if;
@@ -50,7 +50,7 @@ begin
    and e.review_completed_at>=coalesce((select max(a.review_completed_at) from public.sme_review_assignments a where a.question_id=new.id and a.question_version=new.version and a.review_kind='primary'),'-infinity'::timestamptz)) then raise exception 'QB_SENIOR_QA_REQUIRED'; end if;
  end if;
  return new;
-end $$;
+end $guard$;
 
 create or replace function public.qb_owner_batch_preview(p_batch uuid) returns jsonb
 language plpgsql stable security definer set search_path = '' as $fn$

@@ -4,7 +4,7 @@ begin;
 drop function if exists public.qb_owner_revoke_batch_approval(uuid, text);
 drop function if exists public.qb_owner_approve_batch(uuid, text, integer, boolean);
 drop function if exists public.qb_owner_batch_preview(uuid);
-create or replace function quizbox_sme.managed_review_guard() returns trigger language plpgsql security definer set search_path='' as $$
+create or replace function quizbox_sme.managed_review_guard() returns trigger language plpgsql security definer set search_path='' as $guard$
 begin
  -- Admin role alone never confers subject-review permission. Legacy history is untouched.
  if new.version=old.version and new.validation_status is distinct from old.validation_status and new.validation_status in ('approved','rejected','needs_revision')
@@ -24,6 +24,6 @@ begin
    and e.review_completed_at>=coalesce((select max(a.review_completed_at) from public.sme_review_assignments a where a.question_id=new.id and a.question_version=new.version and a.review_kind='primary'),'-infinity'::timestamptz)) then raise exception 'QB_SENIOR_QA_REQUIRED'; end if;
  end if;
  return new;
-end $$;
+end $guard$;
 drop table if exists public.question_batch_approvals;
 commit;
