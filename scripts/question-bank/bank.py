@@ -99,6 +99,29 @@ def shuffle_options(r):
     new = [vals[i] for i in order]
     return {**r, **{"option_" + k: v for k, v in zip(keys, new)}, "correct_answer": "ABCD"[new.index(right)]}
 
+def assign_letters(rows):
+    """Give a topic's SINGLE_CHOICE rows a balanced, patternless sequence of correct letters, moving the options to match.
+    Target counts differ by at most one; the sequence has no run of 3 equal letters and no A-B-C-D cycle (seeded, so re-running is stable).
+    Rows that name a letter in the question or explanation are left alone."""
+    idx = [i for i, r in enumerate(rows) if r["answer_type"] == "SINGLE_CHOICE" and r["correct_answer"] in "ABCD" and all(r["option_" + k] for k in "abcd")
+           and not LETTER_REF.search(r["question_text"] + " " + r["explanation"])]
+    n = len(idx)
+    if n < 4: return rows
+    seed = int(hashlib.sha256(("|".join(norm(rows[i]["question_text"]) for i in idx[:3])).encode()).hexdigest()[:12], 16)
+    rng = random.Random(seed); base = list("ABCD" * (n // 4 + 1))[:n]
+    for _ in range(400):
+        seq = base[:]; rng.shuffle(seq)
+        runs = any(seq[j] == seq[j + 1] == seq[j + 2] for j in range(n - 2))
+        cyc = sum(1 for a, b in zip(seq, seq[1:]) if ord(b) - ord(a) in (1, -3)) / max(n - 1, 1)
+        if not runs and cyc <= 0.3: break
+    out = list(rows)
+    for i, want in zip(idx, seq):
+        r = rows[i]; vals = [r["option_" + k] for k in "abcd"]; right = vals["ABCD".index(r["correct_answer"])]
+        others = [v for j, v in enumerate(vals) if j != "ABCD".index(r["correct_answer"])]
+        rng.shuffle(others); put = "ABCD".index(want); new = others[:put] + [right] + others[put:]
+        out[i] = {**r, **{"option_" + k: v for k, v in zip("abcd", new)}, "correct_answer": want}
+    return out
+
 def cyclic_share(rs):
     s = [x["correct_answer"] for x in rs]
     return sum(1 for a, b in zip(s, s[1:]) if ord(b) - ord(a) in (1, -3)) / max(len(s) - 1, 1)
@@ -125,8 +148,14 @@ def process(unit, rows, existing):
             near = next((o for o in by_ind[r["indicator_code"]] if jac(toks(r["question_text"]), toks(o["question_text"])) >= 0.85), None)
             if near: why.append("near-duplicate of another question in this topic")
         if why: rejects.append({**r, "reject_reason": "; ".join(why)}); continue
-        r = shuffle_options(r)
         accepted.append(r); by_ind[r["indicator_code"]].append(r); seen_stem.add(s)
+    # letters: assign per topic for the rows added in this run (earlier accepted rows keep theirs)
+    fresh = defaultdict(list)
+    for k in range(len(existing), len(accepted)): fresh[accepted[k]["indicator_code"]].append(k)
+    for code, ks in fresh.items():
+        for k, nr in zip(ks, assign_letters([accepted[k] for k in ks])): accepted[k] = nr
+    by_ind = defaultdict(list)
+    for r in accepted: by_ind[r["indicator_code"]].append(r)
     gaps = []
     for code, rs in sorted(by_ind.items()):
         n = len(rs); diff = Counter(x["difficulty"] for x in rs); letters = Counter(x["correct_answer"] for x in rs)
@@ -183,7 +212,11 @@ def main(argv):
     if len(argv) < 2 or argv[1] not in ("assemble", "check", "reshuffle"): print(__doc__); return 2
     if argv[1] == "reshuffle":
         for f in argv[2:]:
-            rows, _ = read_rows(f); new = [shuffle_options(r) for r in rows]
+            rows, _ = read_rows(f); groups = defaultdict(list)
+            for k, r in enumerate(rows): groups[r["indicator_code"]].append(k)
+            new = list(rows)
+            for ks in groups.values():
+                for k, nr in zip(ks, assign_letters([rows[k] for k in ks])): new[k] = nr
             write_csv(Path(f), new, COLS); print(f"{Path(f).name}: {sum(1 for a, b in zip(rows, new) if a['correct_answer'] != b['correct_answer'])} of {len(rows)} correct letters moved; cycle now {cyclic_share(new):.0%}")
         return 0
     if argv[1] == "check": assemble(argv[2:], write=False); return 0
