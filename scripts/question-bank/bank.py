@@ -3,13 +3,14 @@
 
   python scripts/question-bank/bank.py assemble            # process every file in Questions Bank/_work/returns/
   python scripts/question-bank/bank.py check FILE [FILE]   # report only, writes nothing
+  python scripts/question-bank/bank.py reshuffle FILE      # re-randomise option order in a finished file (fixes patterned correct letters)
 
 Final files:  Questions Bank/<Level>/<Grade>_<Subject>_<count>.csv   (count = accepted questions; rebuilt on every run)
 Also writes:  _work/reports/<Grade>_<Subject>_report.txt, _work/rejects/<unit>_rejects.csv, _work/reports/<unit>_gaps.csv (what a top-up pack must add).
 This is the pre-load gate. The source-quote check against the PDF is still done by scripts/check-question-file.ts before loading.
 Standard library only.
 """
-import csv, io, re, shutil, sys
+import csv, hashlib, io, random, re, shutil, sys
 from collections import Counter, defaultdict
 from pathlib import Path
 
@@ -86,6 +87,22 @@ def allowed_codes_for(unit):
     if not d.exists(): return None
     return set(re.findall(r"^INDICATOR CODE: (\S+)", "\n".join(p.read_text(encoding="utf-8") for p in d.glob("*.txt")), re.M))
 
+LETTER_REF = re.compile(r"(option|choice|answer)s?\s+[A-D]|[A-D]\s*(and|or|,)\s*[A-D]|\(\s*[A-D]\s*\)", re.I)
+def shuffle_options(r):
+    """Deterministically permute the four options of a SINGLE_CHOICE row (seeded by its wording) so the correct letter is not patterned.
+    Skips rows whose question or explanation refers to a letter. Idempotent for a given question text."""
+    if r["answer_type"] != "SINGLE_CHOICE" or LETTER_REF.search(r["question_text"] + " " + r["explanation"]): return r
+    keys = "abcd"; vals = [r["option_" + k] for k in keys]
+    if any(not v for v in vals) or r["correct_answer"] not in "ABCD": return r
+    right = vals["ABCD".index(r["correct_answer"])]
+    order = list(range(4)); random.Random(int(hashlib.sha256(norm(r["question_text"]).encode()).hexdigest()[:12], 16)).shuffle(order)
+    new = [vals[i] for i in order]
+    return {**r, **{"option_" + k: v for k, v in zip(keys, new)}, "correct_answer": "ABCD"[new.index(right)]}
+
+def cyclic_share(rs):
+    s = [x["correct_answer"] for x in rs]
+    return sum(1 for a, b in zip(s, s[1:]) if ord(b) - ord(a) in (1, -3)) / max(len(s) - 1, 1)
+
 def process(unit, rows, existing):
     """rows: candidate rows in arrival order. existing: rows already accepted. Returns accepted, rejects, warnings, gaps."""
     codes = allowed_codes_for(unit)
@@ -108,12 +125,14 @@ def process(unit, rows, existing):
             near = next((o for o in by_ind[r["indicator_code"]] if jac(toks(r["question_text"]), toks(o["question_text"])) >= 0.85), None)
             if near: why.append("near-duplicate of another question in this topic")
         if why: rejects.append({**r, "reject_reason": "; ".join(why)}); continue
+        r = shuffle_options(r)
         accepted.append(r); by_ind[r["indicator_code"]].append(r); seen_stem.add(s)
     gaps = []
     for code, rs in sorted(by_ind.items()):
         n = len(rs); diff = Counter(x["difficulty"] for x in rs); letters = Counter(x["correct_answer"] for x in rs)
         longest = sum(1 for x in rs if x["answer_type"] == "SINGLE_CHOICE" and len(x["option_" + x["correct_answer"].lower()]) > max(len(x["option_" + k]) for k in "abcd" if k != x["correct_answer"].lower()))
         sc = sum(1 for x in rs if x["answer_type"] == "SINGLE_CHOICE")
+        if n >= 12 and cyclic_share(rs) > 0.6: warn.append(f"{code}: the correct letter follows an A-B-C-D cycle ({cyclic_share(rs):.0%} of steps): guessable")
         if sc >= 10 and longest / sc > 0.5: warn.append(f"{code}: the correct option is the longest in {longest} of {sc} questions (guessable)")
         if n >= 10 and max(letters.values()) / n > 0.4: warn.append(f"{code}: correct letter {letters.most_common(1)[0][0]} is {max(letters.values())} of {n}")
         if sum(1 for x in rs if x["answer_type"] == "TRUE_FALSE") > 5: warn.append(f"{code}: more than 5 TRUE_FALSE questions")
@@ -161,7 +180,12 @@ def assemble(files, write=True):
     return incoming
 
 def main(argv):
-    if len(argv) < 2 or argv[1] not in ("assemble", "check"): print(__doc__); return 2
+    if len(argv) < 2 or argv[1] not in ("assemble", "check", "reshuffle"): print(__doc__); return 2
+    if argv[1] == "reshuffle":
+        for f in argv[2:]:
+            rows, _ = read_rows(f); new = [shuffle_options(r) for r in rows]
+            write_csv(Path(f), new, COLS); print(f"{Path(f).name}: {sum(1 for a, b in zip(rows, new) if a['correct_answer'] != b['correct_answer'])} of {len(rows)} correct letters moved; cycle now {cyclic_share(new):.0%}")
+        return 0
     if argv[1] == "check": assemble(argv[2:], write=False); return 0
     inbox = WORK / "returns"; inbox.mkdir(parents=True, exist_ok=True)
     files = sorted(p for p in inbox.iterdir() if p.is_file() and p.suffix.lower() in (".csv", ".txt"))
