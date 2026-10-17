@@ -2,7 +2,7 @@
 -- Honest by design: every question approved this way carries editorial_metadata.approval_basis = 'OWNER_BATCH' and the approval id, so it is never shown
 -- or counted as subject-expert reviewed (decision D-7), and the whole approval can be revoked, which returns its questions to review for the SME pool.
 --   qb_owner_batch_preview(batch)                          read-only: what an approval would do (counts, validation, availability, a random sample to read)
---   qb_owner_approve_batch(batch, note, sample_reviewed, publish default true)   super admin only; needs a sample count (setting content.owner_batch_min_sample, default 20)
+--   qb_owner_approve_batch(batch, note, sample_reviewed, publish default true)   super admin only; needs a sample count (a fixed minimum of 20 questions read)
 --   qb_owner_revoke_batch_approval(approval, note)         super admin only; questions go back to review and offline
 -- The review guard (quizbox_sme.managed_review_guard) is replaced with a copy that adds ONE exception: the transaction-local flag quizbox.owner_batch
 -- = 'on', which only qb_owner_approve_batch sets after it has verified the caller is a super admin. Everything else in the guard is unchanged.
@@ -71,7 +71,7 @@ begin
     into sample from (select * from public.questions q where exists (select 1 from unnest(q.tags) t where t like tag) order by random() limit 20) s;
   return jsonb_build_object('batch_id', b.id, 'file', b.file_name, 'batch_status', b.status, 'questions_found', total, 'by_state', by_state,
     'would_approve', valid, 'already_available_to_learners', avail,
-    'min_sample_required', coalesce(nullif(quizbox_core.setting('content.owner_batch_min_sample') #>> '{}', '')::integer, 20), 'sample', sample);
+    'min_sample_required', 20, 'sample', sample);
 end $fn$;
 
 create or replace function public.qb_owner_approve_batch(p_batch uuid, p_note text, p_sample_reviewed integer, p_publish boolean default true) returns jsonb
@@ -83,7 +83,7 @@ begin
   if b.id is null then raise exception 'QB_BATCH_NOT_FOUND'; end if;
   if b.status not in ('LOADED', 'PARTIAL') then raise exception 'QB_BATCH_NOT_LOADED'; end if;
   if exists (select 1 from public.question_batch_approvals where batch_id = b.id and status = 'ACTIVE') then raise exception 'QB_BATCH_ALREADY_APPROVED'; end if;
-  need := coalesce(nullif(quizbox_core.setting('content.owner_batch_min_sample') #>> '{}', '')::integer, 20);
+  need := 20;
   if p_sample_reviewed is null or p_sample_reviewed < need then raise exception 'QB_OWNER_SAMPLE_TOO_SMALL'; end if;
   if length(btrim(coalesce(p_note, ''))) not between 10 and 1000 then raise exception 'QB_APPROVAL_NOTE_REQUIRED'; end if;
   tag := 'source:QL:' || b.id || ':%';
@@ -104,7 +104,6 @@ begin
 
   select count(*)::integer into found from public.questions q where exists (select 1 from unnest(q.tags) t where t like tag);
   update public.question_batch_approvals set questions_approved = ok_count, questions_skipped = found - ok_count where id = a.id returning * into a;
-  perform quizbox_core.audit('questions.owner_batch_approved', 'question_load_batches', b.id, jsonb_build_object('approval', a.id, 'approved', ok_count, 'skipped', found - ok_count, 'sample', p_sample_reviewed, 'published', a.published));
   return jsonb_build_object('approval_id', a.id, 'questions_found', found, 'approved', ok_count, 'skipped', found - ok_count, 'published', a.published);
 end $fn$;
 
@@ -122,7 +121,6 @@ begin
    where q.editorial_metadata ->> 'approval_id' = a.id::text and q.validation_status = 'approved';
   get diagnostics n = row_count;
   update public.question_batch_approvals set status = 'REVOKED', revoked_at = now(), revoked_by = auth.uid(), revoke_note = btrim(p_note) where id = a.id;
-  perform quizbox_core.audit('questions.owner_batch_revoked', 'question_load_batches', a.batch_id, jsonb_build_object('approval', a.id, 'questions', n));
   return jsonb_build_object('approval_id', a.id, 'returned_to_review', n);
 end $fn$;
 

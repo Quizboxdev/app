@@ -20,14 +20,10 @@ describe("owner-approved batch (isolated PostgreSQL; the production guard functi
   beforeAll(async () => {
     db = new PGlite();
     await db.exec(`
-      create role anon; create role authenticated; create schema auth; create schema quizbox_sme; create schema quizbox_market; create schema quizbox_core;
+      create role anon; create role authenticated; create schema auth; create schema quizbox_sme; create schema quizbox_market;   -- NOTE: no quizbox_core schema, as in production
       create function auth.uid() returns uuid language sql stable as $$ select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid $$;
       create function quizbox_sme.has_capability(p text) returns boolean language sql stable as $$ select position(p in coalesce(current_setting('test.caps',true),'')) > 0 $$;
       create function quizbox_market.is_super() returns boolean language sql stable as $$ select quizbox_sme.has_capability('super_admin') $$;
-      create table public.platform_settings(key text, value jsonb);
-      create function quizbox_core.setting(p_key text, p_scope_type text default 'global', p_scope uuid default null) returns jsonb language sql stable as $$ select value from public.platform_settings where key = p_key $$;
-      create table public.audit_stub(action text, entity uuid, details jsonb);
-      create function quizbox_core.audit(p_action text, p_entity_type text, p_entity uuid, p_details jsonb default '{}') returns void language sql as $$ insert into public.audit_stub values (p_action, p_entity, p_details) $$;
       create table public.profiles(id uuid primary key);
       create table public.question_load_batches(id uuid primary key, file_name text, status text);
       create table public.questions(id uuid primary key default gen_random_uuid(), version integer default 1, validation_status text default 'review', status text default 'inactive',
@@ -97,7 +93,6 @@ describe("owner-approved batch (isolated PostgreSQL; the production guard functi
     expect(by["Other batch"]).toMatchObject({ validation_status: "review", status: "inactive" });       // another batch: untouched
     expect((await one("select count(*)::int n from public.questions q where public.qb_question_is_available(q)")).n).toBe(4);
     expect((await one("select current_setting('quizbox.owner_batch', true) f")).f).not.toBe("on");   // transaction-local: gone after the call
-    expect((await one("select count(*)::int n from public.audit_stub where action='questions.owner_batch_approved'")).n).toBe(1);
     // outside the function the guard is back: a super admin still cannot approve by hand
     await expect(db.exec(`update public.questions set validation_status='approved', reviewed_by='${id(1)}', reviewed_at=now(), editorial_metadata='{"human_reviewed":true}' where question_text='Other batch'`)).rejects.toThrow("QB_REVIEW_DOMAIN_DENIED");
     await expect(approve()).rejects.toThrow("QB_BATCH_ALREADY_APPROVED");
