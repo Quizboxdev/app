@@ -1,5 +1,6 @@
 import type { NextConfig } from "next";
 import { validatePublicEnvironment } from "./lib/env";
+import { SECURITY_HEADERS } from "./lib/security/headers";
 
 // The Vercel-Supabase integration may provide the public key as NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY; every call site reads
 // NEXT_PUBLIC_SUPABASE_ANON_KEY, so it is normalised here and inlined into client and server bundles through `env` below.
@@ -18,6 +19,10 @@ const nextConfig: NextConfig = {
   // pdf-parse v2 ships pdfjs-dist, which fails when webpack bundles it into server routes.
   serverExternalPackages: ["pdf-parse", "pdfjs-dist"],
   ...(publicKey ? { env: { NEXT_PUBLIC_SUPABASE_ANON_KEY: publicKey } } : {}),
+  poweredByHeader: false,
+  async headers() {
+    return [{ source: "/:path*", headers: SECURITY_HEADERS }];
+  },
 };
 
 export default nextConfig;

@@ -290,4 +290,24 @@ Gates 1–6 ─► Phase 7 evolution
 8. **Phone-width audit:** check every learner and teacher screen and fix layouts.
 9. **Phase 0 tooling:** prepare the fingerprint scripts so Phase 0 runs the day O1 is cleared.
 
-Each item is committed on the release branch with tests and goes live only when you say "deploy".
+Each item is committed on the release branch with tests. Since 18 October the owner has authorised automatic deploys: each delivery goes live as soon as its tests and the build pass.
+
+---
+
+## 14. Delivery log
+
+Status per item of section 13. **Live** means the code is deployed. A database migration is in effect only after you apply it; see `docs/release/APPLY_2026-10-18.md`.
+
+| # | Item | Status | Evidence |
+|---|---|---|---|
+| 1 | Owner batch approval works on production | **Delivered (live)**, migration step 1 to apply | New screen **Approve Batches** (`/admin/question-batches`): read the sample, tick 20, approve, or revoke. No SQL needed. The functions no longer use the missing `quizbox_core` schema; 6 tests run without it. |
+| 2 | Delta load files | **Delivered** | `bank.py export-new` writes `Questions Bank/_load/<Grade>_<Subject>_new_<n>.csv` with only questions never loaded, in whole topics. `mark-loaded` records past loads. The B5 English 1,000 already loaded are recorded; `B5_English-Language_new_100.csv` is ready. |
+| 3 | Free-allowance gate without the missing schema | **Delivered (live)**, migration step 2 to apply | `20261018100000_access_gate_standalone.sql`: own settings and subscription tables, manual grants that stack, and revoke. New screen **Access & Subscriptions** (`/admin/access`). 6 tests, built without `quizbox_core`. |
+| 4 | Security headers | **Delivered (live)** | HSTS, X-Frame-Options DENY, nosniff, referrer and permissions policies, COOP and no `X-Powered-By`, all enforced. Content-Security-Policy runs in report-only mode first (`lib/security/headers.ts`, one line to enforce). 2 tests. |
+| 5 | Dependency findings | **Delivered (live)** | `npm audit --omit=dev`: 6 findings, now **0**. Next.js 15.5.28; KaTeX 0.19.0; mammoth's unused CLI parser pinned to a safe version. |
+| 6 | Grant hardening (C6, part 1) | **Delivered**, migration step 4 to apply | `20261018120000`: TRUNCATE, REFERENCES and TRIGGER removed from client roles on every app table, and for future tables; read and write untouched. 3 tests. Part 2 (narrowing anon grants) waits for the production grant list. |
+| 7 | Readable topic names | **Delivered**, migration step 3 to apply | `20261018110000`: a topic whose title is a code or placeholder shows its first indicator's wording; code-like strand names are hidden. 4 tests, including the B9 case you reported. |
+| 8 | Phone-width audit | Next | |
+| 9 | Phase 0 tooling | **Delivered** | `scripts/release/expected_objects.py` produces `docs/release/engine/17_production_missing_objects.sql`, a read-only query listing which of the 404 objects the repository creates are missing in production. Validated on an empty database. |
+
+**Totals after this delivery:** 944 tests pass, type-check clean, production build passes.

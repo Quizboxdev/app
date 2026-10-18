@@ -140,6 +140,7 @@ export default function AppShell({
         ...when(sme?.super_admin || sme?.content_admin, [["/admin/content-factory", "Content Factory"]]),
         ...when(sme?.super_admin, [["/admin/curriculum-sources", "Curriculum Sources"], ["/admin/curriculum-structure", "Curriculum Structure"]]),
         ...when(sme?.super_admin || sme?.content_admin, [["/admin/question-loading", "Load Questions"]]),
+        ...when(sme?.super_admin, [["/admin/question-batches", "Approve Batches"]]),
         ["/admin/quality", "Content Quality"],
         ["/admin/marketplace", "Marketplace Governance"],
       ]);
@@ -159,6 +160,7 @@ export default function AppShell({
       add("Operations", [
         ["/admin/operations", "Platform Operations"],
         ["/admin/support", "Support"],
+        ...when(sme?.super_admin, [["/admin/access", "Access & Subscriptions"]]),
       ]);
       add("Marketplace", [["/marketplace", "Catalogue"], ...seller]);
       return groups;

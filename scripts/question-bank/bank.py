@@ -4,6 +4,8 @@
   python scripts/question-bank/bank.py assemble            # process every file in Questions Bank/_work/returns/
   python scripts/question-bank/bank.py check FILE [FILE]   # report only, writes nothing
   python scripts/question-bank/bank.py reshuffle FILE      # re-randomise option order in a finished file (fixes patterned correct letters)
+  python scripts/question-bank/bank.py mark-loaded FILE    # record a file's questions as already loaded into QuizBox (once, for files loaded before this command existed)
+  python scripts/question-bank/bank.py export-new          # write Questions Bank/_load/<Grade>_<Subject>_new_<n>.csv with ONLY questions not loaded before, per unit
 
 Final files:  Questions Bank/<Level>/<Grade>_<Subject>_<count>.csv   (count = accepted questions; rebuilt on every run)
 Also writes:  _work/reports/<Grade>_<Subject>_report.txt, _work/rejects/<unit>_rejects.csv, _work/reports/<unit>_gaps.csv (what a top-up pack must add).
@@ -208,8 +210,50 @@ def assemble(files, write=True):
             print(f"-> {final_path(unit, len(acc)).relative_to(REPO)}")
     return incoming
 
+LEDGER = WORK / "loaded"
+def ledger_path(unit): return LEDGER / f"{safe(unit[1])}_{safe(unit[2])}.txt"
+def ledger_read(unit):
+    p = ledger_path(unit); return set(p.read_text(encoding="utf-8").splitlines()) - {""} if p.exists() else set()
+def ledger_add(unit, stems):
+    LEDGER.mkdir(parents=True, exist_ok=True)
+    with open(ledger_path(unit), "a", encoding="utf-8") as f:
+        f.writelines(s + chr(10) for s in stems)
+
+def mark_loaded(files):
+    for f in files:
+        rows, _ = read_rows(f); by = defaultdict(list)
+        for r in rows: by[unit_of(r)].append(norm(r["question_text"]))
+        for unit, stems in by.items():
+            have = ledger_read(unit); new = [s for s in stems if s not in have]
+            ledger_add(unit, new); print(f"{Path(f).name}: {len(new)} questions recorded as loaded for {unit[1]} {unit[2]}")
+
+def export_new():
+    out_dir = BANK / "_load"; out_dir.mkdir(parents=True, exist_ok=True); made = 0
+    for lvl in ("Primary", "JHS", "SHS"):
+        for f in sorted((BANK / lvl).glob("*_*_*.csv")) if (BANK / lvl).exists() else []:
+            rows, _ = read_rows(f)
+            if not rows: continue
+            unit = unit_of(rows[0]); have = ledger_read(unit)
+            # whole topics only, so every load keeps the 15/20/15 blocks the loader checks
+            by = defaultdict(list)
+            for r in rows:
+                if norm(r["question_text"]) not in have: by[r["indicator_code"]].append(r)
+            fresh = [r for code, rs in by.items() if len(rs) == PER_TOPIC for r in rs]
+            held = sum(len(rs) for rs in by.values()) - len(fresh)
+            if not fresh:
+                print(f"{f.name}: nothing new to load" + (f" ({held} questions in unfinished topics held back)" if held else "")); continue
+            tag = f"{safe(unit[1])}_{safe(unit[2])}"
+            for old in out_dir.glob(f"{tag}_new_*.csv"): old.unlink()
+            path = out_dir / f"{tag}_new_{len(fresh)}.csv"; write_csv(path, fresh, COLS); made += 1
+            ledger_add(unit, [norm(r["question_text"]) for r in fresh])
+            print(f"-> {path.relative_to(REPO)}: {len(fresh)} new questions in {len(fresh) // PER_TOPIC} topics" + (f"; {held} held back (unfinished topics)" if held else ""))
+    if not made: print("No new questions to load.")
+    print("Load each file on Load Questions, then approve it on Approve Batches. Exported questions are recorded as loaded; if a load fails, delete the file's lines from _work/loaded/ and export again.")
+
 def main(argv):
-    if len(argv) < 2 or argv[1] not in ("assemble", "check", "reshuffle"): print(__doc__); return 2
+    if len(argv) < 2 or argv[1] not in ("assemble", "check", "reshuffle", "mark-loaded", "export-new"): print(__doc__); return 2
+    if argv[1] == "mark-loaded": mark_loaded(argv[2:]); return 0
+    if argv[1] == "export-new": export_new(); return 0
     if argv[1] == "reshuffle":
         for f in argv[2:]:
             rows, _ = read_rows(f); groups = defaultdict(list)

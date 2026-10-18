@@ -13,3 +13,5 @@ _work\rejects\       rows the checker refused, with the reason.
 
 Prompt and instructions: docs\question-bank\PACK_PROMPT.md
 Rebuild the packs after the curriculum files change: python scripts/question-bank/make_packs.py
+
+_load\                load-ready files with ONLY questions never loaded before: python scripts/question-bank/bank.py export-new
