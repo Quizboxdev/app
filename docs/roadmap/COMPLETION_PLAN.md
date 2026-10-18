@@ -320,4 +320,6 @@ Status per item of section 13. **Live** means the code is deployed. A database m
 | Teacher practice (audit finding: "starting an attempt as a teacher not verified") | **Delivered (live)**, apply pack step 6 | Confirmed in the repository that attempts require a learner profile, so a teacher's set could not open. Teachers and admins now open their set at `/practise/preview/<id>`: every question, reveal or hide answers and explanations, print. Read-only; records nothing. 2 tests (own set only; learners and other staff refused). |
 | Mobile API contract (Phase 4 step 3) | **Delivered** | `docs/api/MOBILE_API_CONTRACT.md`, generated from the code by `scripts/release/api_contract.py`: 129 database functions by role, 39 table operations under row-level security, 8 server routes, the public allow-list, and a versioning rule (never change a function in place; add `_v2`). |
 
+| Generation progress across 8 accounts (Phase 1 step 3) | **Delivered** | `python scripts/question-bank/bank.py status` prints and saves `_work/reports/STATUS.txt`: accepted against target per account and per level, units in progress, packs done. Today: 1,100 of 285,600 (0.39%); only account A1 has started. |
+
 **Totals:** 946 tests pass, production build passes.

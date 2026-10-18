@@ -6,6 +6,7 @@
   python scripts/question-bank/bank.py reshuffle FILE      # re-randomise option order in a finished file (fixes patterned correct letters)
   python scripts/question-bank/bank.py mark-loaded FILE    # record a file's questions as already loaded into QuizBox (once, for files loaded before this command existed)
   python scripts/question-bank/bank.py export-new          # write Questions Bank/_load/<Grade>_<Subject>_new_<n>.csv with ONLY questions not loaded before, per unit
+  python scripts/question-bank/bank.py status              # progress report: per account and per level, accepted vs target, loaded, waiting to load
 
 Final files:  Questions Bank/<Level>/<Grade>_<Subject>_<count>.csv   (count = accepted questions; rebuilt on every run)
 Also writes:  _work/reports/<Grade>_<Subject>_report.txt, _work/rejects/<unit>_rejects.csv, _work/reports/<unit>_gaps.csv (what a top-up pack must add).
@@ -250,10 +251,41 @@ def export_new():
     if not made: print("No new questions to load.")
     print("Load each file on Load Questions, then approve it on Approve Batches. Exported questions are recorded as loaded; if a load fails, delete the file's lines from _work/loaded/ and export again.")
 
+def status():
+    q = list(csv.DictReader(open(WORK / "WORK_QUEUE.csv", encoding="utf-8-sig"))) if (WORK / "WORK_QUEUE.csv").exists() else []
+    target = defaultdict(int); acct_target = defaultdict(int); unit_acct = {}
+    for r in q:
+        u = (r["level"], r["grade"], r["subject"]); target[u] += int(r["questions"]); acct_target[r["account"]] += int(r["questions"]); unit_acct[u] = r["account"]
+    have = {}; loaded = {}
+    for lvl in ("Primary", "JHS", "SHS"):
+        for f in sorted((BANK / lvl).glob("*_*_*.csv")) if (BANK / lvl).exists() else []:
+            rows, _ = read_rows(f)
+            if rows:
+                u = unit_of(rows[0]); have[u] = len(rows); led = ledger_read(u)
+                loaded[u] = sum(1 for r in rows if norm(r["question_text"]) in led)
+    lines = ["QUESTION BANK STATUS", ""]
+    tot_t, tot_h, tot_l = sum(target.values()), sum(have.values()), sum(loaded.values())
+    lines.append(f"All accounts: {tot_h:,} accepted of {tot_t:,} target ({tot_h / tot_t:.2%}); {tot_l:,} exported for loading; {tot_h - tot_l:,} not yet exported" if tot_t else "No work queue.")
+    lines += ["", "By account:"]
+    for a in sorted(acct_target):
+        h = sum(v for u, v in have.items() if unit_acct.get(u) == a)
+        lines.append(f"  {a}: {h:,} of {acct_target[a]:,}" + ("   (not started)" if not h else ""))
+    lines += ["", "By level:"]
+    for lvl in ("Primary", "JHS", "SHS"):
+        t = sum(v for u, v in target.items() if u[0] == lvl); h = sum(v for u, v in have.items() if u[0] == lvl)
+        lines.append(f"  {lvl}: {h:,} of {t:,}")
+    lines += ["", "Units with questions:"]
+    for u in sorted(have): lines.append(f"  {u[0]} {u[1]} {u[2]}: {have[u]:,} of {target.get(u, 0):,}; exported for loading {loaded[u]:,}")
+    if q:
+        done = sum(1 for r in q if r["status"] == "DONE"); review = sum(1 for r in q if r["status"] == "NEEDS_REVIEW")
+        lines += ["", f"Packs: {done} done, {review} need review, {len(q) - done - review} to do (of {len(q)})."]
+    text = chr(10).join(lines); (WORK / "reports").mkdir(parents=True, exist_ok=True); (WORK / "reports" / "STATUS.txt").write_text(text, encoding="utf-8"); print(text)
+
 def main(argv):
-    if len(argv) < 2 or argv[1] not in ("assemble", "check", "reshuffle", "mark-loaded", "export-new"): print(__doc__); return 2
+    if len(argv) < 2 or argv[1] not in ("assemble", "check", "reshuffle", "mark-loaded", "export-new", "status"): print(__doc__); return 2
     if argv[1] == "mark-loaded": mark_loaded(argv[2:]); return 0
     if argv[1] == "export-new": export_new(); return 0
+    if argv[1] == "status": status(); return 0
     if argv[1] == "reshuffle":
         for f in argv[2:]:
             rows, _ = read_rows(f); groups = defaultdict(list)
