@@ -18,7 +18,8 @@ export const CONTENT_SECURITY_POLICY = [
   "base-uri 'self'",
   "form-action 'self'",
   "object-src 'none'",
-  "upgrade-insecure-requests",
+  // Browsers ignore this directive in report-only mode (and log a console notice), so it is added only when enforcing.
+  ...(CSP_MODE === "enforce" ? ["upgrade-insecure-requests"] : []),
 ].join("; ");
 
 export const SECURITY_HEADERS: { key: string; value: string }[] = [

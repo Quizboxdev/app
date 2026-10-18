@@ -1,6 +1,6 @@
 import "katex/dist/katex.min.css";
 import "./globals.css";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import { RECOVERY_REDIRECT_SCRIPT } from "@/lib/recovery-redirect";
 import { SITE_URL } from "@/lib/site";
@@ -11,7 +11,11 @@ export const metadata: Metadata = {
   title: "QuizBox",
   description: "Learn. Practice. Compete.",
   icons: { icon: "/brand/quizbox-icon-96.png", apple: "/brand/quizbox-apple-icon.png" },
+  appleWebApp: { capable: true, title: "QuizBox", statusBarStyle: "default" },
 };
+
+// Phones: full width, pinch-zoom allowed (accessibility), browser bar coloured to match the app.
+export const viewport: Viewport = { width: "device-width", initialScale: 1, themeColor: "#0f172a" };
 
 export default function RootLayout({
   children,

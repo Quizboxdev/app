@@ -307,7 +307,9 @@ Status per item of section 13. **Live** means the code is deployed. A database m
 | 5 | Dependency findings | **Delivered (live)** | `npm audit --omit=dev`: 6 findings, now **0**. Next.js 15.5.28; KaTeX 0.19.0; mammoth's unused CLI parser pinned to a safe version. |
 | 6 | Grant hardening (C6, part 1) | **Delivered**, migration step 4 to apply | `20261018120000`: TRUNCATE, REFERENCES and TRIGGER removed from client roles on every app table, and for future tables; read and write untouched. 3 tests. Part 2 (narrowing anon grants) waits for the production grant list. |
 | 7 | Readable topic names | **Delivered**, migration step 3 to apply | `20261018110000`: a topic whose title is a code or placeholder shows its first indicator's wording; code-like strand names are hidden. 4 tests, including the B9 case you reported. |
-| 8 | Phone-width audit | Next | |
+| 8 | Phone-width audit | **Delivered in part (live)** | Live check at 390 px of all 10 public pages (home, login, register, contact, three join pages, privacy, terms, forgot password): **no sideways scrolling** on any of them. Touch screens now get 44 px chips and table buttons. **Installable app:** web manifest, 192/512 icons, theme colour and home-screen support (Phase 4 step 2, no service worker yet). The signed-in screens follow the same CSS (tables become cards under 768 px), but they were not rendered: that needs a test account on a Preview database (Phase 0). |
 | 9 | Phase 0 tooling | **Delivered** | `scripts/release/expected_objects.py` produces `docs/release/engine/17_production_missing_objects.sql`, a read-only query listing which of the 404 objects the repository creates are missing in production. Validated on an empty database. |
 
 **Totals after this delivery:** 944 tests pass, type-check clean, production build passes.
+
+**Verified on production after deploy:** every response now carries HSTS, X-Frame-Options DENY, nosniff, referrer and permissions policies, and the report-only Content-Security-Policy. Ten public pages produced no policy violations, so the policy can be enforced after a short observation period.

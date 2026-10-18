@@ -733,6 +733,8 @@ summary.qb-link { display: flex; align-items: center; min-height: 44px; cursor: 
 @media (pointer: coarse) {
   .qb-btn, .qb-shell button:not([class]), .qb-shell :is(input:not([type=checkbox]):not([type=radio]):not([type=file]), select) { min-height: var(--control-h-touch); }
   .qb-nav a { min-height: 44px; }
+  .qb-shell .qb-chip { min-height: 44px; }
+  .qb-shell td .qb-btn, .qb-card-actions .qb-btn, .qb-topbar-user .qb-btn { min-height: 44px; }
 }
 
 /* Tables become labelled record cards on phones (labels come from the column headers; see AppShell). */
