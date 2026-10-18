@@ -25,3 +25,13 @@ export function countChoices(available: number): number[] {
   const steps = [5, 10, 15, 20, 30].filter((n) => n <= available);
   return steps.length ? steps : [Math.max(3, available)];
 }
+
+export type StaffPreviewQuestion = { n: number; question: string; a: string | null; b: string | null; c: string | null; d: string | null; correct: string;
+  answer_type: string | null; content: { blocks?: any[] } | null; explanation: string | null };
+export type StaffPreview = { assessment_id: string; subject: string; grade: string; question_count: number; questions: StaffPreviewQuestion[] };
+// A teacher's or admin's own practice set with answers (attempts are for learners; staff read and teach from the set).
+export async function getStaffPracticePreview(assessmentId: string): Promise<StaffPreview> {
+  const { data, error } = await getSupabaseBrowserClient().rpc("qb_staff_practice_preview", { p_assessment: assessmentId });
+  if (error) throw new Error(userFacingError(error));
+  return data as StaffPreview;
+}

@@ -313,3 +313,11 @@ Status per item of section 13. **Live** means the code is deployed. A database m
 **Totals after this delivery:** 944 tests pass, type-check clean, production build passes.
 
 **Verified on production after deploy:** every response now carries HSTS, X-Frame-Options DENY, nosniff, referrer and permissions policies, and the report-only Content-Security-Policy. Ten public pages produced no policy violations, so the policy can be enforced after a short observation period.
+
+### Delivery 3 (18 October)
+| Item | Status | Evidence |
+|---|---|---|
+| Teacher practice (audit finding: "starting an attempt as a teacher not verified") | **Delivered (live)**, apply pack step 6 | Confirmed in the repository that attempts require a learner profile, so a teacher's set could not open. Teachers and admins now open their set at `/practise/preview/<id>`: every question, reveal or hide answers and explanations, print. Read-only; records nothing. 2 tests (own set only; learners and other staff refused). |
+| Mobile API contract (Phase 4 step 3) | **Delivered** | `docs/api/MOBILE_API_CONTRACT.md`, generated from the code by `scripts/release/api_contract.py`: 129 database functions by role, 39 table operations under row-level security, 8 server routes, the public allow-list, and a versioning rule (never change a function in place; add `_v2`). |
+
+**Totals:** 946 tests pass, production build passes.

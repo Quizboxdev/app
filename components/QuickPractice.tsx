@@ -37,6 +37,8 @@ export default function QuickPractice() {
     try {
       const built = await buildQuickPractice(effective, count, grade || undefined);
       if (built.short) setNote(`Only ${built.question_count} questions are available for this choice, so that is what you get.`);
+      // Teachers and admins read their set with answers (attempts are for learners).
+      if (menu?.grades) { router.push(`/practise/preview/${built.assessment_id}`); return; }
       const attempt = await startAttempt({ assessmentId: built.assessment_id }) as { attempt_id: string };
       router.push(`/student/attempt/${attempt.attempt_id}`);
     } catch (e: any) {
