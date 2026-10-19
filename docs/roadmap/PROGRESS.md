@@ -290,3 +290,4 @@ Design canvas: https://claude.ai/artifact/8JyB9ENBGKYpV1ZfGmke7n (5 pages, 19 ar
 - 2026-10-21: delivery 20: stuck Preview run muwgfw4eef6a explained (immutable attribution rows from an old fixture) and recorded as known residue; live acceptance 119/119, stuck [].
 - 2026-10-21: delivery 21: native app shell decision document (docs/mobile/NATIVE_SHELL_DECISION.md): PWA upgrades now, Capacitor on Google Play first, no native rebuild; API contract regenerated to include Challenges. Awaiting owner approval.
 - 2026-10-21: delivery 22: web upgrades (service worker + offline page, install card, web push) built and deployed; push needs migration 20261025100000, VAPID keys and a scheduler (docs/release/APPLY_PUSH.md). 1112 tests, build passes.
+- 2026-10-21: delivery 23: clearing notifications (dismiss one, clear read, clear all; phone tray kept in step); migration 20261026100000 to apply (docs/release/notifications/dismiss1.sql). Push confirmed working on owner phone.

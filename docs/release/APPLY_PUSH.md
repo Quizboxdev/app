@@ -51,3 +51,10 @@ To stop it later: `select cron.unschedule('qb-push');`. (On a paid Vercel plan y
 - On iPhone it works only after the learner adds QuizBox to the Home Screen (iOS 16.4 or later).
 - Turning it off removes that phone. Phones that stop responding are removed automatically.
 - Rollback: `supabase/rollback/push_notifications.sql`.
+
+## Clearing notifications (migration 20261026100000)
+Lets people clear notifications: one at a time ("Clear"), "Clear read", or "Clear all", on the Notifications page. Anything read or cleared in the app is also removed from the phone's notification tray. Cleared items are kept in the database as history, not deleted.
+```
+Get-Content "C:\Users\USER\OneDrive\Documents\QuizBox\Codes\QuizBox_Batch1_Student_Teacher_Assessment\docs\release\notifications\dismiss1.sql" -Raw | Set-Clipboard
+```
+Paste into a new Supabase query and Run ("Success"). Until it is applied, the new buttons show an error and the rest works as before. Verify: `select column_name from information_schema.columns where table_name='notifications' and column_name='dismissed_at';` returns one row. Rollback: `supabase/rollback/notification_dismiss.sql`.

@@ -18,6 +18,8 @@ export const getHome = () => call<Home>("qb_home");
 export const listNotifications = (unreadOnly = false) => call<{ unread: number; live: Notice[]; items: Notice[] }>("qb_notifications", { p_action: "list", p_data: { unread_only: unreadOnly } });
 export const markNotificationRead = (id: string) => call("qb_notifications", { p_action: "mark_read", p_data: { id } });
 export const markAllNotificationsRead = () => call("qb_notifications", { p_action: "mark_all_read", p_data: {} });
+export const dismissNotification = (id: string) => call("qb_notifications", { p_action: "dismiss", p_data: { id } });
+export const clearNotifications = (readOnly: boolean) => call<{ ok: true; cleared: number }>("qb_notifications", { p_action: readOnly ? "clear_read" : "clear_all", p_data: {} });
 export const search = (query: string) => call<SearchHit[]>("qb_search", { p_query: query, p_limit: 8 });
 export const contentQuality = <T>(action: string, data: Record<string, unknown> = {}) => call<T>("qb_content_quality", { p_action: action, p_data: data });
 export const reportQuestion = (question: string, reason: string) => call("qb_report_question", { p_question: question, p_reason: reason });

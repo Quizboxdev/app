@@ -45,3 +45,15 @@ export async function disablePush(): Promise<boolean> {
     return true;
   } catch { return false; }
 }
+
+// Keeps the phone's notification tray in step with the app: anything that was read or cleared in the app is removed from the tray, so it never fills up with old messages.
+// Push messages carry their notification id as the tag. Safe to call anywhere; it does nothing where push is not set up.
+export async function syncTray(unreadIds: string[]): Promise<void> {
+  try {
+    if (typeof window === "undefined" || !("serviceWorker" in navigator)) return;
+    const reg = await navigator.serviceWorker.getRegistration("/");
+    if (!reg || typeof reg.getNotifications !== "function") return;
+    const keep = new Set(unreadIds);
+    for (const n of await reg.getNotifications()) if (n.tag && !keep.has(n.tag)) n.close();
+  } catch { /* the tray is a nicety, never an error */ }
+}
