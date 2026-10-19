@@ -13,6 +13,7 @@ import { getSmeContext, type SmeContext } from "@/lib/api/sme";
 import MarketContextControl from "@/components/MarketContextControl";
 import BrandLockup from "@/components/BrandLockup";
 import WorkspaceProvider from "@/components/WorkspaceProvider";
+import { loginHrefFor } from "@/lib/auth/next-path";
 import WorkspaceChip from "@/components/WorkspaceChip";
 import { SponsorEngineProvider } from "@/components/SponsorEngineFlag";
 
@@ -26,7 +27,7 @@ function navigationIcon(href: string): LucideIcon {
   if (/notifications/.test(href)) return Bell;
   if (/^\/account/.test(href)) return CircleUser;
   if (/student\/classroom/.test(href)) return FileText;
-  if (/competition/.test(href)) return Trophy;
+  if (/competition|creator|challenges/.test(href)) return Trophy;
   if (/marketplace|seller/.test(href)) return ShoppingBag;
   if (/classes|classroom|tenants|school/.test(href)) return Users;
   if (/markets|market-setup/.test(href)) return Globe;
@@ -75,7 +76,7 @@ export default function AppShell({
           setSellerChecked(true);
         }
       })
-      .catch((error) => router.replace(error instanceof Error && error.message === "ONBOARDING_REQUIRED" ? "/onboarding" : error instanceof Error && error.message === "ACCOUNT_SUSPENDED" ? "/login?suspended=1" : "/login"));
+      .catch((error) => router.replace(error instanceof Error && error.message === "ONBOARDING_REQUIRED" ? "/onboarding" : error instanceof Error && error.message === "ACCOUNT_SUSPENDED" ? "/login?suspended=1" : loginHrefFor(window.location.pathname)));
   }, [router]);
 
   useEffect(() => {
@@ -83,17 +84,17 @@ export default function AppShell({
 
     const role = String(ctx.role).toUpperCase();
     const allowedPrefixes = ["ADMIN", "OWNER"].includes(role)
-      ? ["/admin", "/teacher", "/practise", "/student/attempt", "/competition", "/marketplace", "/subscribe"]
+      ? ["/admin", "/teacher", "/practise", "/student/attempt", "/competition", "/marketplace", "/subscribe", "/creator"]
       : role === "TEACHER"
-        ? ["/teacher", "/practise", "/student/attempt", "/competition", "/marketplace", "/subscribe"]
+        ? ["/teacher", "/practise", "/student/attempt", "/competition", "/marketplace", "/subscribe", "/creator"]
         : role === "SPONSOR"
-          ? ["/sponsor", "/competition", "/marketplace"]
+          ? ["/sponsor", "/competition", "/marketplace", "/creator"]
           : ["/student", "/learn", "/practise", "/competition", "/marketplace", "/subscribe"];
 
     if (isSeller && ["TEACHER", "ADMIN", "OWNER"].includes(role)) {
       allowedPrefixes.push("/seller");
     }
-    allowedPrefixes.push("/account", "/notifications", "/school");
+    allowedPrefixes.push("/account", "/notifications", "/school", "/play");
     if (sme?.reviewer || sme?.content_admin || sme?.super_admin) allowedPrefixes.push("/review");
     if (sme?.super_admin) allowedPrefixes.push("/admin/markets", "/admin/reviewers", "/admin/compensation");
     if (sme?.super_admin || sme?.sme_support) allowedPrefixes.push("/admin/inbox", "/admin/reviewer-applications");
@@ -147,6 +148,7 @@ export default function AppShell({
         ["/admin/marketplace", "Marketplace Governance"],
       ]);
       add("Competitions", [
+        ["/creator", "Challenges"],
         ["/admin/competitions", "Competition Operations"],
         ...when(sponsorEngine, [["/admin/competitions/assignments", "Assignments"], ["/admin/competitions/oversight", "Oversight"]]),
       ]);
@@ -175,6 +177,7 @@ export default function AppShell({
       add("", [
         ["/sponsor", "Dashboard"],
         ...when(sponsorEngine, [["/sponsor/workspace", "Workspace"]]),
+        ["/creator", "Challenges"],
         ["/competition", "Competitions"],
         ["/marketplace", "Marketplace"],
       ]);
@@ -193,7 +196,7 @@ export default function AppShell({
         ["/teacher/question-banks", "Question Banks"],
         ["/practise", "Practise questions"],
       ]);
-      add("Explore", [["/competition", "Competitions"], ["/marketplace", "Marketplace"], ...seller]);
+      add("Explore", [["/creator", "Challenges"], ["/competition", "Competitions"], ["/marketplace", "Marketplace"], ...seller]);
       add("SME", when(reviewer, [["/review", "SME Reviews"]]));
       add("Administration", administration);
       return groups;
@@ -205,6 +208,7 @@ export default function AppShell({
       ["/practise", "Practise"],
       ["/student/classroom", "Assignments"],
       ["/competition", "Compete"],
+      ["/challenges", "Challenges"],
     ]);
     add("My learning", [
       ["/student/results", "Progress"],

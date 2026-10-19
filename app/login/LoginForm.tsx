@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { usernameToEmail } from "@/lib/managed/username";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { bootstrapUser, getHomeRouteForRole } from "@/lib/auth";
+import { safeNextPath } from "@/lib/auth/next-path";
 import { userFacingError } from "@/lib/errors";
 import { authErrorMessage } from "@/lib/auth-errors";
 import { AUTH_CALLBACK_PATH, RESET_SUCCESS_MESSAGE } from "@/lib/auth-recovery";
@@ -57,7 +58,7 @@ export default function LoginForm({ initial }: { initial: RegistrationParams }) 
   async function routeAfterAuth() {
     try {
       const ctx = await bootstrapUser();
-      router.replace(getHomeRouteForRole(String(ctx.role)));
+      router.replace(safeNextPath(new URLSearchParams(window.location.search).get("next")) ?? getHomeRouteForRole(String(ctx.role)));
     } catch (error) {
       const code = error instanceof Error ? error.message : "";
       if (code === "ONBOARDING_REQUIRED") { router.replace("/onboarding"); return; }
