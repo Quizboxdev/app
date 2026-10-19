@@ -44,12 +44,12 @@ export async function applyVerifiedPaymentEvent(admin: SupabaseClient, event: Ve
 }
 
 // Webhook entry point for a route handler: raw body in, safe HTTP status out. Unverifiable calls change nothing.
-export async function handlePaymentWebhook(admin: SupabaseClient, providerCode: string, rawBody: string, headers: Headers): Promise<{ status: number; outcome?: string }> {
+export async function handlePaymentWebhook(admin: SupabaseClient, providerCode: string, rawBody: string, headers: Headers): Promise<{ status: number; outcome?: string; reference?: string }> {
   const provider = getPaymentProvider(providerCode);
   if (!provider) return { status: 404 };
   const event = await provider.verifyWebhook(rawBody, headers).catch(() => null);
   if (!event || event.provider !== providerCode) return { status: 400 };
-  return { status: 200, outcome: (await applyVerifiedPaymentEvent(admin, event)).outcome };
+  return { status: 200, outcome: (await applyVerifiedPaymentEvent(admin, event)).outcome, reference: event.reference };
 }
 
 // Server-only Coin spend primitive (service-role client). The caller supplies the price and the order reference;

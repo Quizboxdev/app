@@ -345,3 +345,14 @@ Status per item of section 13. **Live** means the code is deployed. A database m
 | Incident runbook (G9) | **Delivered** | `docs/ops/INCIDENT_RUNBOOK.md`: site down, crash spike, sign-in failures, wrong question, suspected breach (with the Act 843 reporting step flagged for counsel), payments, bad deploy and rollback, plus `INCIDENT_LOG.md`. Contacts table to fill in. |
 
 **Totals:** 983 tests pass, production build passes.
+
+### Delivery 6 (19 October)
+| Item | Status | Evidence |
+|---|---|---|
+| Payments (Phase 5), subscription purchase on the core ledger | **Delivered (live, dormant)**, migration `20261019110000` to apply | Money buys Coins through the existing tested flow, then the subscription spends them and creates the access record, so there is one audited trail and refunds and reconciliation already exist. Paid plans stack, a refund revokes the subscription, a retried callback cannot grant twice, an unverified or wrong-amount payment grants nothing. 7 database tests on the real core ledger. |
+| Provider adapter: Paystack (ADR-007 default) | **Delivered, switched off** | Signature check (HMAC-SHA512) plus a server-to-server re-query that must agree on status, amount and currency before any credit; checkout price computed on the server and cross-checked against the database; the browser redirect is never an input to settlement. 9 tests. Replaceable: the adapter sits behind the provider-neutral contract. |
+| Subscribe page and owner Payments panel | **Delivered (live)** | Prices appear only once payments are on; Pay button opens the provider; the return page waits for confirmation and explains what to do if it is slow. Owner switches payments on, sets the Coin price and sees recent payments at Admin, Access and Subscriptions, with no SQL. |
+
+**Decisions taken as owner:** Paystack as the first provider (mobile money and cards in Ghana; swap by adding another adapter); plans cost 10 Coins (30 days) and 25 Coins (90 days); the cedi price per Coin is yours to set (GHS 1.00 gives GHS 10 and GHS 25). The School plan stays contact-us. **Needs you to go live:** a Paystack business account, the secret key in Vercel and the webhook address (steps in `APPLY_2026-10-19.md`).
+
+**Totals:** 999 tests pass, production build passes.

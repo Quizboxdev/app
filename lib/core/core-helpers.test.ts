@@ -50,7 +50,7 @@ describe("payment webhook boundary", () => {
   });
   it("forwards only verified events to the ledger RPC", async () => {
     registerPaymentProvider(provider({ provider: "p1", eventId: "e1", reference: "QB-1", status: "successful", amountMinor: 1000, currency: "GHS" }));
-    expect(await handlePaymentWebhook(admin, "p1", "{}", new Headers())).toEqual({ status: 200, outcome: "credited" });
+    expect(await handlePaymentWebhook(admin, "p1", "{}", new Headers())).toEqual({ status: 200, outcome: "credited", reference: "QB-1" });
     expect(admin.rpc).toHaveBeenCalledWith("qb_payment_apply_event", expect.objectContaining({ p_verified: true, p_reference: "QB-1" }));
   });
   it("rejects non-integer or non-positive coin maths", () => {

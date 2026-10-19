@@ -1,14 +1,14 @@
 {
-  "version": "0.1.0",
+  "version": "0.2.0",
   "status": "PROPOSED",
-  "updated": "2026-10-14",
+  "updated": "2026-10-19",
   "owner": "Ransford Mensah",
-  "how_to_revise": "Edit this file, raise the version, set status to APPROVED when the owner signs it off, commit and deploy. A price of null shows as 'Price to be announced'. The free allowance itself is a platform setting (access.free_practice_sessions), not this file; the gate stays OFF until that number is set.",
+  "how_to_revise": "Edit this file, raise the version, set status to APPROVED when the owner signs it off, commit and deploy. A price of null shows as 'Price to be announced'. The free allowance itself is a platform setting (Admin, Access and Subscriptions), not this file; the gate stays OFF until that number is set. 'coins' is what a plan costs in Coins and 'days' how long it lasts; the price in cedis is coins times the unit price set on Admin, Access and Subscriptions (Payments). A plan with no 'coins' is not sold online.",
   "currency": "GHS",
   "plans": [
-    { "id": "learner_monthly", "name": "Learner Monthly", "audience": "Learners", "period": "month", "price": null,
+    { "id": "learner_monthly", "name": "Learner Monthly", "audience": "Learners", "period": "month", "price": null, "coins": 10, "days": 30,
       "includes": ["Unlimited self-built practice sessions", "All subjects for your grade", "Progress and mastery tracking"] },
-    { "id": "learner_term", "name": "Learner Term", "audience": "Learners", "period": "term", "price": null,
+    { "id": "learner_term", "name": "Learner Term", "audience": "Learners", "period": "term", "price": null, "coins": 25, "days": 90,
       "includes": ["Everything in Monthly", "Best value for a full school term"] },
     { "id": "school", "name": "School", "audience": "Schools", "period": "year", "price": null,
       "includes": ["All learners in the school", "Teacher assignments and class reports", "Contact us for a quote"] }

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { getAccessOverview, grantSubscription, revokeSubscription, setFreeAllowance, type AccessOverview, type Subscription } from "@/lib/api/owner";
 import { formatDate } from "@/lib/format";
+import { getCatalog, listPayments, setCoinUnitPrice, setPaymentsOpen, type Catalog, type PaymentRow } from "@/lib/api/payments";
 import plansFile from "../../../../config/subscription-plans.json";
 
 // Owner screen for the free allowance and subscriptions. Until online payment is live, the owner grants a subscription here after a payment is
@@ -11,10 +12,12 @@ export default function AccessPage() {
   const [data, setData] = useState<AccessOverview | null>(null);
   const [limit, setLimit] = useState("");
   const [email, setEmail] = useState(""), [days, setDays] = useState("30"), [plan, setPlan] = useState(plansFile.plans[0]?.id ?? "learner"), [note, setNote] = useState("");
+  const [catalog, setCatalog] = useState<Catalog | null>(null), [payments, setPayments] = useState<PaymentRow[]>([]), [unit, setUnit] = useState("");
   const [busy, setBusy] = useState(false), [error, setError] = useState(""), [done, setDone] = useState("");
 
   const load = () => getAccessOverview().then((d) => { setData(d); setLimit(d.free_limit === null ? "" : String(d.free_limit)); }).catch((e) => setError(e.message));
-  useEffect(() => { void load(); }, []);
+  const loadPayments = () => { void getCatalog().then((c) => { setCatalog(c); setUnit(c?.unit_price_minor ? String(c.unit_price_minor / 100) : ""); }); listPayments(20).then(setPayments).catch(() => setPayments([])); };
+  useEffect(() => { void load(); loadPayments(); }, []);
   const act = async (fn: () => Promise<unknown>, message: string) => {
     setBusy(true); setError(""); setDone("");
     try { await fn(); setDone(message); await load(); } catch (e: any) { setError(e.message); }
@@ -57,6 +60,21 @@ export default function AccessPage() {
             onClick={() => void act(() => grantSubscription(email.trim(), Number(days), plan, note.trim()), `Subscription granted to ${email.trim()}.`)}>Grant</button>
         </section>
 
+
+        <section className="qb-card" style={{ marginTop: 16 }}>
+          <h2>Online payments</h2>
+          <p className="qb-muted">Learners pay with mobile money or card (Paystack). Payments are {catalog?.payments_enabled ? "ON" : "OFF"}. The price of a plan is its Coins times the price of one Coin.
+            Before switching on: add the Paystack secret key in Vercel as PAYSTACK_SECRET_KEY, and set the callback address in Paystack to https://www.quizbox.io/api/payments/webhook/paystack.</p>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "end" }}>
+            <label>Price of one Coin (cedis)<input className="qb-input" type="number" min={0.1} step={0.1} value={unit} onChange={(e) => setUnit(e.target.value)} style={{ width: 140 }} /></label>
+            <button className="qb-btn secondary" disabled={busy || !(Number(unit) > 0)} onClick={() => void act(async () => { await setCoinUnitPrice(Math.round(Number(unit) * 100)); loadPayments(); }, `Coin price set to GHS ${Number(unit).toFixed(2)}.`)}>Save price</button>
+            <button className="qb-btn" disabled={busy || !catalog?.unit_price_minor || !!catalog?.payments_enabled} onClick={() => void act(async () => { await setPaymentsOpen(true); loadPayments(); }, "Online payments switched ON.")}>Switch payments on</button>
+            <button className="qb-btn secondary" disabled={busy || !catalog?.payments_enabled} onClick={() => void act(async () => { await setPaymentsOpen(false); loadPayments(); }, "Online payments switched OFF.")}>Switch off</button>
+          </div>
+          {payments.length > 0 && <div className="qb-table-wrap" style={{ marginTop: 12 }}><table className="qb-table"><thead><tr><th>When</th><th>Learner</th><th>Plan</th><th>Amount</th><th>Status</th><th>Check</th></tr></thead><tbody>
+            {payments.map((p) => <tr key={p.reference}><td>{formatDate(p.created_at)}</td><td>{p.learner}</td><td>{p.plan ?? "Coins"}</td><td>{p.currency} {(p.amount_minor / 100).toFixed(2)}</td><td>{p.status}</td><td>{p.reconciliation}</td></tr>)}
+          </tbody></table></div>}
+        </section>
         <section className="qb-card" style={{ marginTop: 16 }}>
           <h2>Recent subscriptions</h2>
           {!data.subscriptions.length ? <p className="qb-muted">None yet.</p> :

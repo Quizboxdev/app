@@ -1,6 +1,6 @@
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
-export type MyAccess = { gated: boolean; free_limit: number | null; used: number; remaining: number | null; subscribed: boolean; exhausted: boolean };
+export type MyAccess = { gated: boolean; free_limit: number | null; used: number; remaining: number | null; subscribed: boolean; exhausted: boolean; subscription_until?: string | null };
 const OPEN: MyAccess = { gated: false, free_limit: null, used: 0, remaining: null, subscribed: false, exhausted: false };
 
 // Where a learner stands on the free allowance. A failed lookup never blocks practice (the server still enforces the real limit).
