@@ -96,6 +96,7 @@ export default function AppShell({
     allowedPrefixes.push("/account", "/notifications", "/school");
     if (sme?.reviewer || sme?.content_admin || sme?.super_admin) allowedPrefixes.push("/review");
     if (sme?.super_admin) allowedPrefixes.push("/admin/markets", "/admin/reviewers", "/admin/compensation");
+    if (sme?.super_admin || sme?.sme_support) allowedPrefixes.push("/admin/inbox");
     if (sme?.super_admin || sme?.finance_admin) allowedPrefixes.push("/admin/sme-performance", "/admin/payouts");
 
     const isAllowed = allowedPrefixes.some(
@@ -122,6 +123,7 @@ export default function AppShell({
     const administration: NavItem[] = [
       ...when(sme?.super_admin, [["/admin/markets", "Markets"], ["/admin/curriculum-sources", "Curriculum Sources"], ["/admin/reviewers", "Reviewers"], ["/admin/compensation", "Compensation"]]),
       ...when(sme?.super_admin || sme?.finance_admin, [["/admin/sme-performance", "SME Performance"], ["/admin/payouts", "Payouts"]]),
+      ...when(sme?.sme_support && !sme?.super_admin, [["/admin/inbox", "Enquiry Inbox"]]),
     ];
 
     if (inSchool) {
@@ -160,6 +162,7 @@ export default function AppShell({
       add("Operations", [
         ["/admin/operations", "Platform Operations"],
         ["/admin/support", "Support"],
+        ...when(sme?.super_admin || sme?.sme_support, [["/admin/inbox", "Enquiry Inbox"]]),
         ...when(sme?.super_admin, [["/admin/access", "Access & Subscriptions"]]),
       ]);
       add("Marketplace", [["/marketplace", "Catalogue"], ...seller]);
