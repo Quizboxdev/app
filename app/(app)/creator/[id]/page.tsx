@@ -51,6 +51,7 @@ export default function CreatorEditPage({ params }: { params: Promise<{ id: stri
     <>
       <div className="qb-page-head"><div><h1>{campaign.title}</h1><p>{campaign.status}{campaign.visibility === "PRIVATE" ? ` · access code ${campaign.access_code}` : ""}{missing > 0 && draft ? ` · ${missing} more question${missing === 1 ? "" : "s"} needed` : ""}</p></div>
         <div><Link className="qb-link" href="/creator">All challenges</Link>{campaign.status !== "DRAFT" && <> · <Link className="qb-link" href={`/challenges/${campaign.slug}`}>Public page</Link></>}</div></div>
+      {campaign.moderation_state && campaign.moderation_state !== "OK" && <div className="qb-card qb-error" role="alert"><strong>{campaign.moderation_state === "TAKEN_DOWN" ? "This challenge was taken down." : "This challenge is hidden while reports are reviewed."}</strong>{campaign.moderation_note ? ` ${campaign.moderation_note}` : ""} Players cannot see it.</div>}
       {error && <div className="qb-card qb-error" role="alert">{error}</div>}
       {notice && <div className="qb-card" role="status">{notice}</div>}
 

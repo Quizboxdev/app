@@ -149,6 +149,7 @@ export default function AppShell({
       ]);
       add("Competitions", [
         ["/creator", "Challenges"],
+        ["/admin/challenge-reports", "Challenge Reports"],
         ["/admin/competitions", "Competition Operations"],
         ...when(sponsorEngine, [["/admin/competitions/assignments", "Assignments"], ["/admin/competitions/oversight", "Oversight"]]),
       ]);

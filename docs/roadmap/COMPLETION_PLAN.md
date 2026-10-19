@@ -418,3 +418,11 @@ Status per item of section 13. **Live** means the code is deployed. A database m
 | challenge.quizbox.io routing | **Delivered** | Domain already attached to the project in Vercel. `middleware.ts` redirects the host to the same page on www.quizbox.io (one canonical URL, sign-in cookies keep working). Only that host is touched. |
 | Live Preview test | **Written, not yet run** | `npm run acceptance:challenges` (`lib/challenges/challenges.live.test.ts`); needs both migrations applied on Preview first. The Preview teardown now removes challenge rows. |
 | Still open | | Logos and custom domains per organiser, team/institution tenancy for campaigns, push/email notifications to winners, tie-break rules beyond time, moderation of public challenge content (reporting a challenge). |
+
+### Delivery 16 (21 October): Challenge moderation and winner notifications
+| Item | Status | Evidence |
+|---|---|---|
+| Reporting and moderation | **Delivered, migration `20261023100000` to apply** | Report button on public challenge pages (signed-in, 10 a day, not your own, public only); three different reporters hide a challenge for review; admin queue at Admin, Challenge Reports (dismiss, take down with a note, restore); a taken-down challenge is not listed, not playable, its page is hidden from the public and it cannot be republished. 6 database tests. |
+| Winner and organiser notifications | **Delivered** | In-app notifications when winners are worked out, when delivery is marked contacted or delivered, and when a challenge is hidden, taken down or restored. Failure to notify never blocks the action. |
+| Apply guide | **Updated** | `docs/release/APPLY_CHALLENGES.md` now covers `mod1` to `mod3`. |
+| Earlier fix | **Owner action** | Re-run `ext3` and `ext6` (three functions were missing in production after the first apply). |

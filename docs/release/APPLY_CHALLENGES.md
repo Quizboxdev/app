@@ -16,3 +16,17 @@ select count(*) as tables from pg_tables where schemaname='public' and tablename
 ```
 Rollback: `supabase/rollback/challenges_extensions.sql` (then re-run part1 to part5), or `supabase/rollback/challenges_foundation.sql` to remove everything. Both delete campaign data.
 Parts were produced by `python scripts/release/split_migration.py <migration> docs/release/challenges <prefix>`.
+
+## Moderation and notifications (third migration, three more parts)
+Apply after the eleven parts above. Same method: run each line, paste into a new query, Run, expect "Success".
+```
+Get-Content "C:\Users\USER\OneDrive\Documents\QuizBox\Codes\QuizBox_Batch1_Student_Teacher_Assessment\docs\release\challenges\mod1.sql" -Raw | Set-Clipboard
+Get-Content "C:\Users\USER\OneDrive\Documents\QuizBox\Codes\QuizBox_Batch1_Student_Teacher_Assessment\docs\release\challenges\mod2.sql" -Raw | Set-Clipboard
+Get-Content "C:\Users\USER\OneDrive\Documents\QuizBox\Codes\QuizBox_Batch1_Student_Teacher_Assessment\docs\release\challenges\mod3.sql" -Raw | Set-Clipboard
+```
+Verify (expect 42 functions and 12 tables):
+```sql
+select (select count(*) from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='public' and proname like '%challenge%') as functions,
+       (select count(*) from pg_tables where schemaname='public' and tablename like 'challenge%') as tables;
+```
+Rollback: `supabase/rollback/challenges_moderation.sql`, then re-run part1 to part5 and ext1 to ext6.

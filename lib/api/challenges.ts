@@ -10,7 +10,8 @@ const CODES: Record<string, string> = {
   INVALID_TRANSITION: "That change is not allowed from the current status.", INVALID_QUESTIONS: "Every question needs 2 to 4 options and a correct answer.", ENDS_IN_THE_PAST: "The end date has already passed.",
   STAGE_LOCKED: "Reach the pass mark in the previous round to unlock this one.", STAGE_NOT_OPEN: "This round has not opened yet.", STAGE_CLOSED: "This round has closed.",
   QUOTE_NOT_IN_SOURCE: "A source quote is not word for word in the passage you chose.", INVALID_SOURCE: "A question points to a passage that is not in this challenge.", NOT_GROUNDED: "Every question in a book challenge needs a passage and a quote from it.",
-  RIGHTS_NOT_CONFIRMED: "Please confirm you have the right to use this material.", INVALID_STAGES: "Add between 1 and 6 rounds.", INVALID_PRIZES: "Check the prize ranks and names.", INVALID_BRAND: "Check the colour (like #1a7f5a) and the lengths of the texts.",
+  RIGHTS_NOT_CONFIRMED: "Please confirm you have the right to use this material.", INVALID_STAGES: "Add between 1 and 6 rounds.", INVALID_PRIZES: "Check the prize ranks and names.", TAKEN_DOWN: "This challenge was taken down after a review and cannot be published.", NOT_FOUND: "That challenge could not be found.",
+  INVALID_BRAND: "Check the colour (like #1a7f5a) and the lengths of the texts.",
 };
 async function call<T>(fn: string, args: Record<string, unknown> = {}): Promise<T> {
   const { data, error } = await getSupabaseBrowserClient().rpc(fn, args);
@@ -57,3 +58,9 @@ export async function uploadContent(a: { campaignId: string; title: string; kind
   if (!res.ok || !out?.ok) throw new Error(typeof out?.error === "string" ? out.error : "The upload failed. Please try again.");
   return out;
 }
+
+export type ReportReason = "inappropriate" | "misleading" | "copyright" | "spam" | "wrong_answers" | "other";
+export const reportChallenge = (slug: string, reason: ReportReason, details?: string) => call<{ ok: true }>("challenge_report", { p_slug: slug, p_reason: reason, p_details: details || null });
+export type ChallengeReport = { id: string; reason: ReportReason; details: string | null; status: string; created_at: string; handled_note: string | null; campaign_id: string; slug: string; title: string; campaign_status: string; moderation_state: "OK" | "UNDER_REVIEW" | "TAKEN_DOWN"; owner_name: string | null; open_reports: number };
+export const listReports = (status = "OPEN") => call<ChallengeReport[]>("challenge_reports_list", { p_status: status });
+export const resolveReport = (report: string, action: "DISMISS" | "TAKE_DOWN" | "RESTORE", note?: string) => call<{ ok: true }>("challenge_report_resolve", { p_report: report, p_action: action, p_note: note || null });

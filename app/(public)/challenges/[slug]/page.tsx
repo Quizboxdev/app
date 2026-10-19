@@ -7,6 +7,7 @@ import { getPublicChallenge, getPublicLeaderboard } from "@/lib/challenges/serve
 import { CHALLENGE_CATEGORIES, formatDuration } from "@/lib/challenges/types";
 import { SITE_URL } from "@/lib/site";
 import ViewBeacon from "@/components/challenges/ViewBeacon";
+import ReportChallenge from "@/components/challenges/ReportChallenge";
 import { readableText } from "@/lib/challenges/types";
 
 export const revalidate = 30;
@@ -73,6 +74,7 @@ export default async function ChallengePage({ params }: Props) {
             )}
           </div>
         )}
+        {!c.private && c.visibility !== "PRIVATE" && <div style={{ maxWidth: 820 }}><ReportChallenge slug={c.slug} /></div>}
       </section>
     </PublicShell>
   );
