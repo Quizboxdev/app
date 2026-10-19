@@ -434,3 +434,10 @@ Status per item of section 13. **Live** means the code is deployed. A database m
 | Teacher leaves | **Delivered** | Owner moves a teacher's managed learners (and optionally classes) to another teacher by email; audited. |
 | Scheduled 12-month erasure | **Delivered, off by default** | Weekly Vercel cron (`vercel.json`) calls `/api/cron/managed-erasure`; needs `CRON_SECRET` and the owner's switch; retention months is a setting (6 to 36); counts only in the answer; shared erase helper with the owner's erase route. 4 new database tests and 3 route tests. |
 | Still open | | School administrators' own view, family linking, counsel sign-off on the retention rule. |
+
+### Delivery 18 (21 October): Phone-width checks on Challenges
+| Item | Status | Evidence |
+|---|---|---|
+| Phone and tablet check of every Challenges screen | **Done at 360, 390 and 768 px** | New QA fixture `scripts/qa/fixtures/challenges.ts` (`npx tsx scripts/qa/visual-qa.ts --role challenges --widths 360,390,768`): console, editor (all six tabs), player (start and question), my challenges, public list and detail, admin reports. All pass: no sideways scroll, no overlap, touch targets at least 32 px. Screenshots in `reports/qa/challenges/`. |
+| Found and fixed | **Fixed** | Answer buttons in the player did not wrap, so long options pushed the page 200 px wider than a 360 px phone. Small "Remove" and "Use this passage" links were below the touch size. The checker now also recognises public pages as loaded. |
+| Not covered | **Open** | Real-device and Lighthouse runs, and the signed-in pages for the other roles on the test database (the older role fixtures already cover student, teacher, school and admin). |

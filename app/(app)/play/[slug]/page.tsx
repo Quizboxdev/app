@@ -73,7 +73,7 @@ export default function PlayPage({ params }: { params: Promise<{ slug: string }>
           <h2 style={{ fontSize: 18 }}>{q.question_text}</h2>
           <div role="radiogroup" aria-label="Answer options" style={{ display: "grid", gap: 10, marginTop: 12 }}>
             {q.options.map((o, i) => (
-              <button key={i} role="radio" aria-checked={answers[q.id] === i} className={`qb-btn ${answers[q.id] === i ? "" : "qb-btn-secondary"}`} style={{ textAlign: "left", minHeight: 48, ...(answers[q.id] === i ? brandBtn : {}) }} onClick={() => setAnswers((a) => ({ ...a, [q.id]: i }))}>
+              <button key={i} role="radio" aria-checked={answers[q.id] === i} className={`qb-btn ${answers[q.id] === i ? "" : "qb-btn-secondary"}`} style={{ textAlign: "left", minHeight: 48, height: "auto", width: "100%", whiteSpace: "normal", overflowWrap: "anywhere", padding: "10px 14px", justifyContent: "flex-start", ...(answers[q.id] === i ? brandBtn : {}) }} onClick={() => setAnswers((a) => ({ ...a, [q.id]: i }))}>
                 <strong>{String.fromCharCode(65 + i)}.</strong> {o}
               </button>
             ))}

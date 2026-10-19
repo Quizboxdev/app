@@ -284,3 +284,5 @@ Design canvas: https://claude.ai/artifact/8JyB9ENBGKYpV1ZfGmke7n (5 pages, 19 ar
 - 2026-10-21: delivery 16: challenge moderation (reports, auto-hide at 3, admin queue, take-down/restore) and in-app winner/organiser notifications; migration 20261023100000 to apply (mod1-mod3); 1087 tests, build passes.
 - 2026-10-21: Challenges migrations (foundation, extensions, moderation) confirmed applied in production: 42 functions, 12 tables.
 - 2026-10-21: delivery 17: young learners lifecycle (school-wide overview, teacher reassignment, scheduled erasure off by default, retention setting); migration 20261024100000 to apply; weekly cron added.
+- 2026-10-21: young learners lifecycle migration 20261024100000 confirmed applied in production (6 functions).
+- 2026-10-21: delivery 18: phone-width checks for Challenges (360/390/768): fixed answer buttons overflowing on phones and small touch targets.

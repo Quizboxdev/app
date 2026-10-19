@@ -98,7 +98,7 @@ async function main() {
       await cdp.send("Emulation.setDeviceMetricsOverride", { width, height, deviceScaleFactor: 1, mobile: width < 600 });
       await cdp.send("Page.navigate", { url: ORIGIN + route.path });
       let ready = false;
-      for (let i = 0; i < 90 && !ready; i++) { await sleep(500); try { ready = await cdp.eval<boolean>(`!!document.querySelector('.qb-content h1, .qb-content h2, .qb-content .qb-player') && !document.querySelector('.qb-skeleton, [aria-busy="true"]')`); } catch { /* navigating */ } }
+      for (let i = 0; i < 90 && !ready; i++) { await sleep(500); try { ready = await cdp.eval<boolean>(`!!document.querySelector('.qb-content h1, .qb-content h2, .qb-content .qb-player, main#main h1') && !document.querySelector('.qb-skeleton, [aria-busy="true"]')`); } catch { /* navigating */ } }
       let stepError = ""; try { for (const step of route.steps ?? []) await runStep(cdp, step); } catch (e) { stepError = (e as Error).message; }
       await cdp.eval(`(() => { const s = document.createElement('style'); s.textContent = '*,*::before,*::after{animation:none!important;transition:none!important;caret-color:transparent!important}'; document.head.appendChild(s); })()`);
       await sleep(400);
