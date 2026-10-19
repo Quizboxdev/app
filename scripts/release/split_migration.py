@@ -6,7 +6,8 @@ import pathlib, re, sys
 LIMIT = 8500
 src, out = pathlib.Path(sys.argv[1]), pathlib.Path(sys.argv[2])
 prefix = sys.argv[3] if len(sys.argv) > 3 else "part"
-lines = src.read_text(encoding="utf-8").split("\n")
+# Parts are pasted one at a time, so a begin; in one part and a commit; in another would roll the first part back: drop both.
+lines = [l for l in src.read_text(encoding="utf-8").split("\n") if l.strip().lower() not in ("begin;", "commit;")]
 starts = [i for i, l in enumerate(lines) if re.match(r"^(create or replace function|create table|create index|drop function|revoke all|grant execute|alter table|do \$do\$|-- \d+\.)", l)]
 chunks, prev = [], 0
 for s in starts[1:] + [len(lines)]:

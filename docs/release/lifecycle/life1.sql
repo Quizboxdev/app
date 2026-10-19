@@ -6,7 +6,6 @@
 --   qb_managed_erasure_queue()       replaced: honours the retention months setting instead of a fixed 12
 -- Settings (platform_settings, global): safety.managed_auto_erase (false), safety.managed_retention_months (12, allowed 6 to 36).
 -- Additive and idempotent. Rollback: supabase/rollback/managed_learner_lifecycle.sql.
-begin;
 
 insert into public.platform_settings(key, scope_type, value, description)
 select 'safety.managed_auto_erase', 'global', 'false'::jsonb, 'When true, a scheduled job erases ended managed learner accounts after the retention period. Switch on only after counsel confirms the rule.'
