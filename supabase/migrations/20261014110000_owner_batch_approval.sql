@@ -26,6 +26,7 @@ create table if not exists public.question_batch_approvals (
 create unique index if not exists question_batch_approvals_one_active on public.question_batch_approvals(batch_id) where status = 'ACTIVE';
 alter table public.question_batch_approvals enable row level security;
 revoke all on public.question_batch_approvals from public, anon, authenticated;
+drop policy if exists question_batch_approvals_admin_read on public.question_batch_approvals;
 create policy question_batch_approvals_admin_read on public.question_batch_approvals for select to authenticated using (quizbox_sme.has_capability('content_admin') or quizbox_market.is_super());
 
 create or replace function quizbox_sme.managed_review_guard() returns trigger language plpgsql security definer set search_path='' as $guard$
