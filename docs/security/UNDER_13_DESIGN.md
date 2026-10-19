@@ -40,11 +40,11 @@ Every creation, reset and end is written to the audit log with the teacher's id.
 ## Retention and deletion (proposed; counsel to confirm)
 - Active accounts: kept while the school uses QuizBox.
 - Ended accounts: personal data (name, username) removed after **12 months**; learning records kept only in a form that cannot identify the child.
-- On a written request from a guardian or the school, the owner deletes the account and its personal data within **30 days**. (A deletion tool for the owner is not built yet; until it is, support handles requests by hand through the Enquiry Inbox.)
+- On a written request from a guardian or the school, the owner erases the child's personal data within **30 days**: **Admin, Young learners (privacy)** finds the learner by username and erases. Erasing removes the first name, username and school and scrambles the sign-in; learning records stay in a form that no longer identifies the child. The same screen lists ended accounts older than 12 months so they can be erased in one pass (the owner presses the button; it is not automatic yet). Every erasure is recorded in the audit log with the reason, never the child's name.
 
 ## Known limits and open items
 1. Counsel must confirm: the consent model (school-attested), the retention periods, the privacy notice wording and the breach-notification duty.
-2. The retention clean-up (anonymising ended accounts after 12 months) is not automated yet.
+2. The 12-month clean-up is a queue the owner works through (button per learner); a scheduled automatic erase is not built.
 3. A school-wide view of managed learners across classes is not built; the roster is per class.
 4. Siblings or families cannot be linked to a managed learner yet; parent access is through the school.
 5. A teacher who leaves a school: their learners stay in the class; reassigning the class to another teacher also needs reassigning `managed_by`. Handle through support until a tool exists.

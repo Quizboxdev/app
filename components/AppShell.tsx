@@ -164,6 +164,7 @@ export default function AppShell({
         ["/admin/operations", "Platform Operations"],
         ["/admin/support", "Support"],
         ...when(sme?.super_admin || sme?.sme_support, [["/admin/inbox", "Enquiry Inbox"]]),
+        ...when(sme?.super_admin, [["/admin/young-learners", "Young learners (privacy)"]]),
         ...when(sme?.super_admin, [["/admin/access", "Access & Subscriptions"]]),
       ]);
       add("Marketplace", [["/marketplace", "Catalogue"], ...seller]);
