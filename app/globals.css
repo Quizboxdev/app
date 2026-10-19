@@ -969,3 +969,9 @@ summary.qb-link { display: flex; align-items: center; min-height: 44px; cursor: 
 @keyframes qb-spin { to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) { .qb-spinner { animation-duration: 2s; } .qb-segmented button, .qb-auth-v2 .qb-field :is(input, select) { transition: none; } }
 @media (max-width: 480px) { .qb-auth-v2 .qb-auth-card { padding: 24px 18px 20px; border-radius: 16px; } .qb-auth-main { padding: 16px 12px; align-content: start; } }
+
+/* Student Home: the "today" strip (goal, streak, free practice, coins, points). Cards wrap to one column on phones. */
+.qb-sh-strip { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr)); margin: 16px 0; }
+.qb-sh-stat { display: grid; gap: 6px; align-content: start; padding: 14px 16px; }
+.qb-sh-stat strong { font-size: 20px; line-height: 1.2; }
+.qb-content .qb-sh-stat .qb-overline { display: flex; align-items: center; gap: 6px; margin: 0; }

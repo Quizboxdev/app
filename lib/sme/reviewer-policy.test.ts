@@ -7,10 +7,18 @@ describe("reviewer policy file", () => {
     expect(p.sections.map((s) => s.id)).toEqual(["eligibility", "workload", "pay", "quality", "support"]);
     expect(p.sections.find((s) => s.id === "workload")!.rules.find((r) => r.id === "daily_cap")).toMatchObject({ value: 100 });
   });
-  it("never shows a made-up fee: owner-set values stay empty until entered", () => {
+  it("shows an unset value as 'not set', and labels every development placeholder fee as such", () => {
     const pay = reviewerPolicy().sections.find((s) => s.id === "pay")!;
-    expect(displayValue(pay.rules.find((r) => r.id === "base_fee")!)).toBe("Not set (owner decision)");
+    expect(displayValue({ id: "x", text: "t", value: null, unit: "GHS", status: "owner_set" })).toBe("Not set (owner decision)");
     expect(displayValue({ id: "x", text: "t", value: 100, unit: "reviews" })).toBe("100 reviews");
+    // The owner set placeholder values on 19 October 2026 so development can proceed; they must stay visibly marked until the policy is APPROVED.
+    for (const id of ["base_fee", "approve_fee"]) {
+      const rule = pay.rules.find((r) => r.id === id)!;
+      expect(typeof rule.value).toBe("number");
+      expect(rule.status).toBe("default");
+      expect(rule.text).toMatch(/placeholder/i);
+    }
+    expect(reviewerPolicy().status).toBe("PROPOSED");
   });
   it("rejects a malformed revision", () => {
     expect(() => parseReviewerPolicy(null)).toThrow("REVIEWER_POLICY_INVALID");

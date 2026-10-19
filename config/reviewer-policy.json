@@ -1,7 +1,7 @@
 {
-  "version": "1.0.0",
+  "version": "1.1.0",
   "status": "PROPOSED",
-  "updated": "2026-10-13",
+  "updated": "2026-10-19",
   "owner": "Ransford Mensah",
   "how_to_revise": "Edit this file (config/reviewer-policy.json), raise the version, set status to APPROVED when the owner signs it off, commit and deploy. The page at /review/policy reads it; nothing else needs changing. Numbers marked owner_set are decisions of the owner and are shown as 'not set' until a value is entered.",
   "sections": [
@@ -34,8 +34,8 @@
       "summary": "Fees come from the compensation policy and are pinned when a question is picked (decision D-11).",
       "rules": [
         { "id": "currency", "text": "Currency.", "value": "GHS", "status": "default" },
-        { "id": "base_fee", "text": "Base fee per completed review.", "value": null, "unit": "GHS", "status": "owner_set" },
-        { "id": "approve_fee", "text": "Additional fee when the review approves the question.", "value": null, "unit": "GHS", "status": "owner_set" },
+        { "id": "base_fee", "text": "Base fee per completed review. Development placeholder, set 19 October 2026; change before real payouts.", "value": 0.5, "unit": "GHS", "status": "default" },
+        { "id": "approve_fee", "text": "Additional fee when the review approves the question. Development placeholder, set 19 October 2026.", "value": 0.1, "unit": "GHS", "status": "default" },
         { "id": "reversed", "text": "A review reversed by senior QA earns nothing." },
         { "id": "states", "text": "Earnings move through pending QA, payable and paid; payouts are approved in batches." }
       ]
@@ -45,8 +45,8 @@
       "title": "Quality control",
       "summary": "Paid work is sampled so that speed never replaces care.",
       "rules": [
-        { "id": "sample_rate", "text": "Share of each reviewer's completed reviews sampled by senior QA.", "value": null, "unit": "percent", "status": "owner_set" },
-        { "id": "min_seconds", "text": "Minimum time on a question before a decision counts.", "value": null, "unit": "seconds", "status": "owner_set" },
+        { "id": "sample_rate", "text": "Share of each reviewer's completed reviews sampled by senior QA. Development placeholder.", "value": 10, "unit": "percent", "status": "default" },
+        { "id": "min_seconds", "text": "Minimum time on a question before a decision counts. Development placeholder.", "value": 20, "unit": "seconds", "status": "default" },
         { "id": "seeded", "text": "Known-faulty questions are mixed in; approving one is a quality flag.", "status": "proposed" },
         { "id": "reversal_pause", "text": "A reviewer whose reversal rate passes the set threshold is paused until a senior reviews their work.", "status": "proposed" },
         { "id": "feedback", "text": "Rejected or revised questions carry a written reason the author can act on." }

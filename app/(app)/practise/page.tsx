@@ -125,7 +125,7 @@ function PractiseInner() {
           </div>)}
         </div>
         {sets && !visible.length && <div className="qb-empty"><strong>No practice sets match</strong>{sets.length ? "Try another subject or difficulty." : "Practice sets appear here once they are published for you."}</div>}
-        <p className="qb-gap-note" style={{ marginTop: 14 }}>Want to choose your own topics and number of questions? Use <strong>Build your own practice</strong> above. You can also browse the curriculum in <Link className="qb-link" href="/learn">Learn</Link>.</p>
+        <p className="qb-gap-note" style={{ marginTop: 14 }}>Want to choose your own topics and number of questions? Use <strong>Build your own practice</strong> above.</p>
       </section>
     </>
   );

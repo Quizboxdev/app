@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowRight, BookOpen, Dumbbell, FileText, Flag, Trophy } from "lucide-react";
+import { ArrowRight, BookOpen, Coins, Dumbbell, FileText, Flag, Flame, Star, Target, Trophy } from "lucide-react";
 import { bootstrapUser } from "@/lib/auth";
 import { getStudentDashboard, getStudentCompetitionAnalytics, getStudentAchievements } from "@/lib/api/student";
 import { listAvailableAssessments, startAttempt } from "@/lib/api/assessment";
@@ -13,6 +13,10 @@ import ProgressCard from "@/components/ProgressCard";
 import { formatDate, isUuid } from "@/lib/format";
 import { practiseHref, sanitizeLabel, subjectLabel } from "@/lib/learning/labels";
 import { XP_RULES } from "@/lib/learning/xp";
+import { dayStreak, todayGoal, upNext } from "@/lib/learning/home";
+import { getMyAccess, type MyAccess } from "@/lib/api/access";
+import { getMyQPoints, getMyWallet } from "@/lib/api/core";
+import SubjectIcon from "@/components/SubjectIcon";
 
 type Subject = { code: string; name: string; percentage: number; count: number; evidence: number };
 
@@ -25,6 +29,9 @@ export default function StudentHomePage() {
   const [name, setName] = useState("");
   const [error, setError] = useState("");
   const [starting, setStarting] = useState(false);
+  const [access, setAccess] = useState<MyAccess | null>(null);
+  const [coins, setCoins] = useState<number | null>(null);
+  const [qpoints, setQpoints] = useState<number | null>(null);
 
   useEffect(() => {
     bootstrapUser().then(async (ctx) => {
@@ -39,6 +46,9 @@ export default function StudentHomePage() {
       ]);
       setData(dash); setComp(c); setAchievements(a);
       setPractice((available as any[]).find((row) => String(row.assessment_type).toUpperCase() === "PRACTICE") ?? null);
+      void getMyAccess().then(setAccess);
+      void getMyWallet(ctx.userId).then((w) => setCoins(w ? Number(w.purchased_balance) + Number(w.promotional_balance) : 0)).catch(() => setCoins(null));
+      void getMyQPoints(ctx.userId).then(setQpoints).catch(() => setQpoints(null));
     }).catch((e) => setError(e.message));
   }, []);
 
@@ -68,6 +78,9 @@ export default function StudentHomePage() {
   const last = results[0];
   const levelPct = xp.next_level_xp ? Math.min(100, Math.round((Number(xp.current_level_xp) / Number(xp.next_level_xp)) * 100)) : 0;
   const rank = comp?.current_rank;
+  const goal = todayGoal(results);
+  const streak = dayStreak(results);
+  const nextStep = upNext(assignments, subjects.map((x) => ({ code: x.code, name: x.name, percentage: x.percentage })));
 
   const begin = async (args: { assessmentId: string; assignmentId?: string; classId?: string }) => {
     setStarting(true); setError("");
@@ -88,7 +101,7 @@ export default function StudentHomePage() {
             {next
               ? <button className="qb-btn" disabled={starting} onClick={() => void startAssignment(next)}>Start {sanitizeLabel(next.assignments?.title ?? "assignment")}<ArrowRight size={16} aria-hidden="true" /></button>
               : <Link className="qb-btn" href="/practise">Start practising<ArrowRight size={16} aria-hidden="true" /></Link>}
-            <Link className="qb-btn ghost" href="/learn">Explore Learn</Link>
+            {next && <Link className="qb-btn ghost" href="/practise">Practise instead</Link>}
           </div>
         </div>
         <div className="qb-sh-level" aria-label="Level and experience">
@@ -98,19 +111,53 @@ export default function StudentHomePage() {
         </div>
       </section>
 
+
+      <section className="qb-sh-strip" aria-label="Today at a glance">
+        <div className="qb-card qb-sh-stat" aria-labelledby="sh-goal">
+          <p className="qb-overline" id="sh-goal"><Target size={14} aria-hidden="true" /> Today&apos;s goal</p>
+          <strong>{goal.met ? "Goal met" : `${goal.done} of ${goal.goal} session${goal.goal === 1 ? "" : "s"}`}</strong>
+          <div className="qb-progress-track" role="progressbar" aria-valuenow={goal.pct} aria-valuemin={0} aria-valuemax={100} aria-label="Today's goal"><div className="qb-progress-fill" style={{ width: `${goal.pct}%` }} /></div>
+          <span className="qb-muted qb-small">{goal.met ? "Great work. Keep going if you like." : "Finish a practice or assessment today."}</span>
+        </div>
+        <div className="qb-card qb-sh-stat">
+          <p className="qb-overline"><Flame size={14} aria-hidden="true" /> Day streak</p>
+          <strong>{streak.days}{streak.capped ? "+" : ""} day{streak.days === 1 ? "" : "s"}</strong>
+          <span className="qb-muted qb-small">{streak.days ? "Practise every day to keep it going." : "Finish a session today to start a streak."}</span>
+        </div>
+        {access?.gated && !access.subscribed && <div className="qb-card qb-sh-stat">
+          <p className="qb-overline"><Star size={14} aria-hidden="true" /> Free practice</p>
+          <strong>{access.exhausted ? "Used up" : `${access.remaining} left`}</strong>
+          <span className="qb-muted qb-small"><Link className="qb-link" href="/subscribe">{access.exhausted ? "Subscribe to keep practising" : "See subscription plans"}</Link></span>
+        </div>}
+        {access?.subscribed && <div className="qb-card qb-sh-stat">
+          <p className="qb-overline"><Star size={14} aria-hidden="true" /> Subscription</p>
+          <strong>Active</strong>
+          <span className="qb-muted qb-small">Unlimited practice.</span>
+        </div>}
+        {coins !== null && coins > 0 && <div className="qb-card qb-sh-stat"><p className="qb-overline"><Coins size={14} aria-hidden="true" /> Coins</p><strong>{coins.toLocaleString()}</strong><span className="qb-muted qb-small">Your balance</span></div>}
+        {qpoints !== null && qpoints > 0 && <div className="qb-card qb-sh-stat"><p className="qb-overline"><Star size={14} aria-hidden="true" /> QPoints</p><strong>{qpoints.toLocaleString()}</strong><span className="qb-muted qb-small">Earned for mastery</span></div>}
+      </section>
       <div className="qb-sh-grid">
         <div className="qb-sh-main">
           <div className="qb-sh-pair">
             <section className="qb-card qb-sh-focus" aria-labelledby="sh-continue">
-              <p className="qb-overline"><BookOpen size={14} aria-hidden="true" /> Continue learning</p>
-              {last ? <>
+              <p className="qb-overline"><BookOpen size={14} aria-hidden="true" /> Up next</p>
+              {nextStep.kind === "assignment" ? <>
+                <h2 id="sh-continue">{sanitizeLabel(nextStep.title)}</h2>
+                <p className="qb-muted">{nextStep.overdue ? "This assignment is overdue." : nextStep.due ? `Due ${formatDate(nextStep.due)}.` : "From your teacher."}</p>
+                <button className="qb-btn" disabled={starting} onClick={() => void startAssignment(nextStep.row)}>{starting ? "Starting…" : "Start assignment"}</button>
+              </> : nextStep.kind === "weak" ? <>
+                <h2 id="sh-continue">Improve {nextStep.subjectName}</h2>
+                <p className="qb-muted">Your lowest subject is at {nextStep.percentage}%. A short practice will lift it.</p>
+                <Link className="qb-btn" href={practiseHref(nextStep.subjectCode)}>Practise {nextStep.subjectName}</Link>
+              </> : last ? <>
                 <h2 id="sh-continue">{subjectLabel(last.subject_code)}</h2>
                 <p className="qb-muted">Last result {Math.round(Number(last.percentage ?? 0))}%{last.submitted_at ? ` · ${formatDate(last.submitted_at)}` : ""}</p>
                 <Link className="qb-btn secondary" href={practiseHref(last.subject_code)}>Keep practising</Link>
               </> : <>
-                <h2 id="sh-continue">Start with a topic</h2>
-                <p className="qb-muted">Pick a subject and strand, then practise what you learned.</p>
-                <Link className="qb-btn secondary" href="/learn">Open Learn</Link>
+                <h2 id="sh-continue">Start with a subject</h2>
+                <p className="qb-muted">Pick a subject, choose random questions or tick topics, and go.</p>
+                <Link className="qb-btn" href="/practise">Start practising</Link>
               </>}
             </section>
             <section className="qb-card qb-sh-focus" aria-labelledby="sh-challenge">
@@ -141,7 +188,7 @@ export default function StudentHomePage() {
           <section className="qb-card" aria-labelledby="sh-subjects">
             <div className="qb-page-head"><h2 id="sh-subjects">Subject progress</h2><Link className="qb-link" href="/student/results">Full progress</Link></div>
             {subjects.length ? <div className="qb-subject-list">
-              {subjects.slice(0, 4).map((s) => <ProgressCard key={s.name} name={s.name} percentage={s.percentage} detail={`${s.count} result${s.count === 1 ? "" : "s"}`} evidence={s.evidence || s.count} href={practiseHref(s.code)} />)}
+              {subjects.slice(0, 6).map((s) => <ProgressCard key={s.name} name={s.name} percentage={s.percentage} detail={`${s.count} result${s.count === 1 ? "" : "s"}`} evidence={s.evidence || s.count} href={practiseHref(s.code)} icon={<SubjectIcon name={s.name} size={24} />} />)}
             </div> : <div className="qb-empty"><strong>No mastery data yet</strong>Complete a practice set or assessment to see progress by subject.</div>}
           </section>
 

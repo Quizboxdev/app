@@ -8,12 +8,12 @@ const FILL = { Mastered: "var(--green)", Proficient: "var(--chart-1)", Developin
 
 // One subject or class: score bar + level + the next step. Colour is never the only signal (the level is spelled out).
 // `badge` swaps the default mastery badge (e.g. a proficiency band for a class average); `children` adds role-specific detail below the bar.
-export default function ProgressCard({ name, percentage, detail, evidence, badge, children, href, action = "Practise" }: { name: string; percentage: number; detail?: string; evidence?: number; badge?: ReactNode; children?: ReactNode; href: string; action?: string }) {
+export default function ProgressCard({ name, percentage, detail, evidence, badge, children, href, action = "Practise", icon }: { icon?: ReactNode; name: string; percentage: number; detail?: string; evidence?: number; badge?: ReactNode; children?: ReactNode; href: string; action?: string }) {
   const pct = Math.max(0, Math.min(100, Math.round(percentage)));
   return (
     <article className="qb-subject">
       <div className="qb-subject-head">
-        <h3>{name}</h3>
+        <h3 style={icon ? { display: "flex", alignItems: "center", gap: 8 } : undefined}>{icon}{name}</h3>
         {badge ?? <MasteryBadge percentage={pct} evidence={evidence} />}
       </div>
       <div className="qb-subject-bar" role="img" aria-label={`${name} ${pct}%`}>

@@ -365,3 +365,11 @@ Status per item of section 13. **Live** means the code is deployed. A database m
 **Decisions taken as owner:** support staff may approve reviewers; approval and senior rights stay with the owner; a decline needs a written reason (10 characters or more) that the teacher sees; a declined teacher may re-apply after 90 days. Non-teacher experts who used the public form arrive in the Enquiry Inbox: reply and ask them to register as a teacher account, then apply from the dashboard.
 
 **Totals:** 1,005 tests pass, production build passes.
+
+### Delivery 8 (19 October)
+| Item | Status | Evidence |
+|---|---|---|
+| Placeholder reviewer pay (tracker R5 unblocked for development) | **Delivered** | Owner approved hypothetical values so development can proceed: base GHS 0.50, GHS 0.10 more on approval, 10 percent senior sampling, 20 seconds minimum. They appear on the policy page labelled as placeholders; the test now insists they stay labelled until the policy is APPROVED. `docs/release/seed_dev_compensation.sql` creates the matching database policy, named DEVELOPMENT PLACEHOLDER (not final). |
+| Student Home redesign (design gap, Phase 2) | **Delivered (live)** | New "today" strip: daily goal (one finished session, a hypothetical default), day streak, free practice left or subscription active, Coins and QPoints when there is a balance. A single "Up next" card picks the assignment due soonest (overdue first), else the weakest subject under 68 percent, else Start. Subject progress shows each subject's logo. Every link to the retired Learn page is gone. Streak and goal rules are pure functions with 10 tests. Not yet checked on a signed-in phone screen: that needs a test account on a Preview database. |
+
+**Totals:** 1,015 tests pass, production build passes.

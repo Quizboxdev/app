@@ -48,3 +48,10 @@ export async function loadProficiencyBands(curriculumId?: string): Promise<reado
   const match = rows.find((r) => r.scope_type === "curriculum" && r.scope_id === curriculumId) ?? rows.find((r) => r.scope_type === "global");
   return parseBands(match?.value);
 }
+
+// QPoints balance from the view over the points ledger (own rows only). Returns 0 when there is nothing yet.
+export async function getMyQPoints(userId: string): Promise<number> {
+  const { data, error } = await getSupabaseBrowserClient().from("qpoint_balances").select("balance").eq("user_id", userId).maybeSingle();
+  if (error) throw error;
+  return Number((data as { balance?: number } | null)?.balance ?? 0);
+}
