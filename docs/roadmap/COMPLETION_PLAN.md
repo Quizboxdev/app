@@ -336,3 +336,12 @@ Status per item of section 13. **Live** means the code is deployed. A database m
 **Decisions taken as owner (for your review):** approve the single-table contract; closed enquiries kept 24 months and spam 90 days; super admin plus support staff may review, only the owner may purge; no CAPTCHA for now (honeypot, timing and database limits instead); address hash keyed by the existing service-role key, so no new secret. **Privacy notice:** still a placeholder; the retention periods above must be stated in it once counsel drafts the text.
 
 **Totals:** 976 tests pass, production build passes.
+
+### Delivery 5 (19 October)
+| Item | Status | Evidence |
+|---|---|---|
+| Public intake applied in production | **Verified** | Migration applied; the two functions exist. The live route was exercised without storing anything: a too-fast submission is dropped silently (202), a bad email returns 400 with a plain message, a foreign origin returns 403. Security headers confirmed on `/contact`. |
+| Error monitoring (Phase 3 step 6, tracker G9) | **Delivered (live)**, migration `20261019100000_client_error_monitoring` to apply | Crashes and unhandled errors in any browser are reported (path only, ids and emails stripped, repeats counted, 600 an hour cap) and grouped on **Admin, Support** with crash counts and a red alert at 20 an hour. Friendly error pages replace the blank crash screen. In-house on purpose: no third party sees user data. 7 tests. |
+| Incident runbook (G9) | **Delivered** | `docs/ops/INCIDENT_RUNBOOK.md`: site down, crash spike, sign-in failures, wrong question, suspected breach (with the Act 843 reporting step flagged for counsel), payments, bad deploy and rollback, plus `INCIDENT_LOG.md`. Contacts table to fill in. |
+
+**Totals:** 983 tests pass, production build passes.

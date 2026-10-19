@@ -268,3 +268,4 @@ Design canvas: https://claude.ai/artifact/8JyB9ENBGKYpV1ZfGmke7n (5 pages, 19 ar
 - 2026-10-18: delivery 3: staff practice preview (teacher sets open with answers; attempts stay learner-only), mobile API contract generated (129 functions).
 - 2026-10-19: delivery 4: production parity verified and three missing migrations applied; migration history recorded; RLS on internal schemas; public enquiry intake (five forms live, staff inbox, retention); 976 tests.
 - 2026-10-19: delivery 4 documented; apply pack 19 October (RLS internal schemas, enquiry intake).
+- 2026-10-19: delivery 5: enquiry intake verified live; client error monitoring (migration 20261019100000), friendly crash pages, incident runbook; 983 tests.

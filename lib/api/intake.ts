@@ -16,3 +16,10 @@ export const listEnquiries = (filter: { category?: string; status?: string } = {
 export const enquiryCounts = () => call<{ new: number; in_review: number; total: number }>("counts");
 export const reviewEnquiry = (id: string, status: Exclude<InterestStatus, "NEW">, note: string) => call<{ ok: true }>("review", { id, status, note });
 export const purgeEnquiries = () => call<{ deleted: number }>("purge");
+
+export type ClientErrorSummary = { hours: number; total: number; last_hour: number; groups: { route: string; kind: string; message: string; digest: string; count: number; last_seen: string }[] };
+export async function getClientErrors(hours = 24): Promise<ClientErrorSummary> {
+  const { data, error } = await getSupabaseBrowserClient().rpc("qb_admin_client_errors", { p_hours: hours });
+  if (error) throw new Error(userFacingError(error));
+  return data as ClientErrorSummary;
+}
