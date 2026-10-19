@@ -448,3 +448,10 @@ Status per item of section 13. **Live** means the code is deployed. A database m
 | Preview database up to date | **Done** | Preview (`fngdtxayfoiffbcbmcum`) was 33 migrations behind (history ended at 20261010110000). `scripts/release/apply-to-preview.ts` applied all 33 in order, recording each in the migration history; it refuses any project except Preview. |
 | Challenges live test | **Passes** | `npm run acceptance:challenges`: 5 of 5 against Preview (creator-only creation, no direct table reads, server scoring and one submission, leaderboard, analytics to the owner only). Now part of `npm run acceptance:live`. |
 | Full live acceptance (tracker G2) | **PASS** | 114 of 114 tests on Preview, 0 failed, 0 skipped, teardown leaves zero rows. One older run (`muwgfw4eef6a`) is reported as "stuck" by the sweeper and needs a look. |
+
+### Delivery 20 (21 October): the "stuck" Preview run explained and closed
+| Item | Status | Evidence |
+|---|---|---|
+| Run `muwgfw4eef6a` | **Explained; accepted as documented residue** | Left by an earlier fixture version: 4 questions picked up 4 `legacy_content_attributions` rows. That table is immutable history (delete raises `QB_IMMUTABLE_HISTORY`), so the 4 questions, one market, one curriculum and one user cannot be removed, by design. It sits in its own QBRUN market and affects nothing. Current fixtures assert zero attributions before running, so no new residue can form. Left in place on purpose rather than bypassing the immutability trigger. |
+| Sweeper | **Changed** | `KNOWN_RESIDUE` (max 3, each with a reason, tested) is skipped and reported as `known`; `stuck` now means a genuinely new problem. |
+| Live acceptance | **PASS** | 119 of 119 on Preview (114 plus the 5 Challenges tests), `stuck: []`. |

@@ -337,20 +337,29 @@ export async function destroyFixtureWorld(worldOrRunId: FixtureWorld | string): 
   return countRunRows(runId);
 }
 
+/**
+ * Runs that can never be cleared, by design, and are left in place on purpose. Each entry must say why; the sweeper skips them instead of retrying and re-reporting them.
+ * muwgfw4eef6a (Preview, October 2026): an earlier fixture version inserted questions that picked up 4 legacy_content_attributions rows. That table is immutable
+ * history (quizbox_sme.immutable blocks update and delete), so the 4 questions, their market, curriculum and one user cannot be removed. They sit in their own
+ * QBRUN market and affect nothing. Current fixtures assert the count is zero before running (see createFixtureWorld), so no new residue can form.
+ */
+export const KNOWN_RESIDUE: Readonly<Record<string, string>> = { muwgfw4eef6a: "4 immutable legacy_content_attributions rows from an earlier fixture version (documented; harmless)" };
+
 /** Stale-run sweeper: finds only runs whose ids match the strict run pattern and are older than maxAgeMs. */
-export function sweepStaleRuns(options: { maxAgeMs?: number; exclude?: string[] } = {}): { swept: string[]; stuck: string[] } {
+export function sweepStaleRuns(options: { maxAgeMs?: number; exclude?: string[] } = {}): { swept: string[]; stuck: string[]; known: string[] } {
   const maxAge = options.maxAgeMs ?? 60 * 60 * 1000;
   const marketRuns = sqlJson<{ name: string }[]>(`select name from public.markets where name ~ '^${RUN_PREFIX}-[a-z0-9]{12}$'`).map((r) => r.name.slice(RUN_PREFIX.length + 1));
   const userRuns = sqlJson<{ email: string }[]>(`select email from auth.users where email ~ '^${RUN_PREFIX.toLowerCase()}-[a-z0-9]{12}-[a-z0-9]+@${FIXTURE_EMAIL_DOMAIN.replace(/\./g, "\\.")}$'`).map((r) => r.email.split("-")[1]);
-  const swept: string[] = [], stuck: string[] = [];
+  const swept: string[] = [], stuck: string[] = [], known: string[] = [];
   for (const runId of new Set([...marketRuns, ...userRuns])) {
     if (!RUN_ID.test(runId) || options.exclude?.includes(runId)) continue;
+    if (Object.hasOwn(KNOWN_RESIDUE, runId)) { known.push(runId); continue; }
     const started = runTimestamp(runId);
     if (!Number.isFinite(started) || started < Date.parse("2026-01-01") || started > Date.now() + 86_400_000 || Date.now() - started < maxAge) continue;
     // A run that cannot be cleared (for example one holding immutable history) is reported, never allowed to fail the suite.
     try { destroyFixtureWorldSync(runId); swept.push(runId); } catch { stuck.push(runId); }
   }
-  return { swept, stuck };
+  return { swept, stuck, known };
 }
 
 export async function withFixtureWorld<T>(options: CreateOptions, run: (world: FixtureWorld) => Promise<T>): Promise<T> {

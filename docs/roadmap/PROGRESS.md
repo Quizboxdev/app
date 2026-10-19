@@ -287,3 +287,4 @@ Design canvas: https://claude.ai/artifact/8JyB9ENBGKYpV1ZfGmke7n (5 pages, 19 ar
 - 2026-10-21: young learners lifecycle migration 20261024100000 confirmed applied in production (6 functions).
 - 2026-10-21: delivery 18: phone-width checks for Challenges (360/390/768): fixed answer buttons overflowing on phones and small touch targets.
 - 2026-10-21: delivery 19: Preview migrated to current (33 migrations) with scripts/release/apply-to-preview.ts; live acceptance 114/114 PASS including Challenges; one stuck old fixture run (muwgfw4eef6a) to clean.
+- 2026-10-21: delivery 20: stuck Preview run muwgfw4eef6a explained (immutable attribution rows from an old fixture) and recorded as known residue; live acceptance 119/119, stuck [].
