@@ -35,3 +35,17 @@ export async function getStaffPracticePreview(assessmentId: string): Promise<Sta
   if (error) throw new Error(userFacingError(error));
   return data as StaffPreview;
 }
+
+// Study mode: how much of each topic the learner has answered, and an ordered easy-to-hard session for one topic.
+export type TopicProgress = { topic_id: string; total: number; answered: number; correct: number };
+export async function getTopicProgress(topicIds: string[]): Promise<Record<string, TopicProgress>> {
+  if (!topicIds.length) return {};
+  const { data, error } = await getSupabaseBrowserClient().rpc("qb_topic_progress", { p_topic_ids: topicIds.slice(0, 80) });
+  if (error) return {};                                         // progress is a nicety: never block the screen on it
+  return Object.fromEntries(((data ?? []) as TopicProgress[]).map((t) => [t.topic_id, t]));
+}
+export async function buildStudySession(topicId: string, count: number, grade?: string) {
+  const { data, error } = await getSupabaseBrowserClient().rpc("qb_start_study_session", { p_topic: topicId, p_count: count, ...(grade ? { p_grade: grade } : {}) });
+  if (error) throw new Error(userFacingError(error));
+  return data as { assessment_id: string; subject: string; question_count: number; requested: number; short: boolean; new_questions: number };
+}

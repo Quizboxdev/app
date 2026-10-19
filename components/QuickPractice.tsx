@@ -2,8 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Play, Shuffle, ListChecks } from "lucide-react";
-import { buildQuickPractice, countChoices, getPracticeMenu, type PracticeMenu } from "@/lib/api/practice";
+import { Play, Shuffle, ListChecks, GraduationCap } from "lucide-react";
+import { buildQuickPractice, buildStudySession, countChoices, getPracticeMenu, getTopicProgress, type PracticeMenu, type TopicProgress } from "@/lib/api/practice";
 import { startAttempt } from "@/lib/api/assessment";
 import { gradeSort } from "@/lib/sme/catalogue";
 import { getMyAccess, isAllowanceExhausted, SUBSCRIBE_PATH, type MyAccess } from "@/lib/api/access";
@@ -15,27 +15,28 @@ import SubjectIcon from "@/components/SubjectIcon";
 export default function QuickPractice() {
   const router = useRouter();
   const [menu, setMenu] = useState<PracticeMenu | null>(null), [grade, setGrade] = useState(""), [subjectId, setSubjectId] = useState("");
-  const [mode, setMode] = useState<"random" | "topics">("random"), [ticked, setTicked] = useState<string[]>([]), [count, setCount] = useState(10);
+  const [mode, setMode] = useState<"random" | "topics" | "study">("random"), [ticked, setTicked] = useState<string[]>([]), [count, setCount] = useState(10);
   const [busy, setBusy] = useState(false), [error, setError] = useState(""), [note, setNote] = useState("");
 
   const [access, setAccess] = useState<MyAccess | null>(null);
+  const [studyTopic, setStudyTopic] = useState(""), [progress, setProgress] = useState<Record<string, TopicProgress>>({});
   useEffect(() => { getMyAccess().then(setAccess); }, []);
   const load = (g?: string) => { setMenu(null); getPracticeMenu(g).then(setMenu).catch((e) => { setError(e.message); setMenu({ grade: "", subjects: [] }); }); };
   useEffect(() => { load(); }, []);
   const subject = menu?.subjects.find((s) => s.id === subjectId);
-  const effective = useMemo(() => subject ? (mode === "random" ? subject.topics.map((t) => t.id) : ticked) : [], [subject, mode, ticked]);
+  const effective = useMemo(() => subject ? (mode === "random" ? subject.topics.map((t) => t.id) : mode === "study" ? (studyTopic ? [studyTopic] : []) : ticked) : [], [subject, mode, ticked, studyTopic]);
   const pool = useMemo(() => subject ? subject.topics.filter((t) => effective.includes(t.id)).reduce((n, t) => n + t.available, 0) : 0, [subject, effective]);
   const choices = countChoices(pool);
   useEffect(() => { if (choices.length && !choices.includes(count)) setCount(choices.includes(10) ? 10 : choices[choices.length - 1]); }, [choices, count]);
 
-  const pick = (id: string) => { setSubjectId(id); setTicked([]); setMode("random"); setNote(""); setError(""); };
+  const pick = (id: string) => { setSubjectId(id); setTicked([]); setStudyTopic(""); setMode("random"); setNote(""); setError(""); const s = menu?.subjects.find((x) => x.id === id); if (s) void getTopicProgress(s.topics.map((t) => t.id)).then(setProgress); };
   async function start() {
     if (!subject || !effective.length || busy) return;
     // Free allowance used up: the attempt goes to the subscription page instead of starting.
     if (access?.exhausted) { router.push(SUBSCRIBE_PATH); return; }
     setBusy(true); setError(""); setNote("");
     try {
-      const built = await buildQuickPractice(effective, count, grade || undefined);
+      const built = mode === "study" ? await buildStudySession(studyTopic, count, grade || undefined) : await buildQuickPractice(effective, count, grade || undefined);
       if (built.short) setNote(`Only ${built.question_count} questions are available for this choice, so that is what you get.`);
       // Teachers and admins read their set with answers (attempts are for learners).
       if (menu?.grades) { router.push(`/practise/preview/${built.assessment_id}`); return; }
@@ -71,6 +72,7 @@ export default function QuickPractice() {
       <div className="qb-chip-row" role="group" aria-label="Mode">
         <button type="button" className="qb-chip" aria-pressed={mode === "random"} onClick={() => setMode("random")}><Shuffle size={14} aria-hidden="true" /> Random mix</button>
         <button type="button" className="qb-chip" aria-pressed={mode === "topics"} onClick={() => { setMode("topics"); if (!ticked.length) setTicked(subject.topics.map((t) => t.id)); }}><ListChecks size={14} aria-hidden="true" /> Choose topics</button>
+        <button type="button" className="qb-chip" aria-pressed={mode === "study"} onClick={() => setMode("study")}><GraduationCap size={14} aria-hidden="true" /> Study a topic</button>
       </div>
       {mode === "topics" && <>
         <label className="qb-small" style={{ display: "block", margin: "10px 0 6px" }}><input type="checkbox" checked={ticked.length === subject.topics.length}
@@ -80,15 +82,27 @@ export default function QuickPractice() {
             onChange={(e) => setTicked(e.target.checked ? [...ticked, t.id] : ticked.filter((x) => x !== t.id))}/> {t.title} <span className="qb-muted">({t.available} questions)</span></label></li>)}
         </ul>
       </>}
+      {mode === "study" && <>
+        <p className="qb-small qb-muted" style={{ margin: "10px 0 6px" }}>Pick one topic. Questions go from easy to hard and you see the explanation after each answer. New questions come first.</p>
+        <ul className="qb-task-list">
+          {subject.topics.map((t) => { const pr = progress[t.id]; const pct = pr && pr.total ? Math.round((pr.answered / pr.total) * 100) : 0;
+            return <li key={t.id}><label style={{ display: "grid", gap: 4, width: "100%" }}>
+              <span><input type="radio" name="study-topic" checked={studyTopic === t.id} onChange={() => setStudyTopic(t.id)} /> {t.title} <span className="qb-muted">({t.available} questions)</span></span>
+              {pr && pr.answered > 0 && <span className="qb-small qb-muted" style={{ display: "grid", gap: 4 }}>
+                <span className="qb-progress-track" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100} aria-label={`${t.title} answered`}><span className="qb-progress-fill" style={{ width: `${pct}%`, display: "block", height: "100%" }} /></span>
+                {pr.answered} of {pr.total} answered, {pr.correct} correct</span>}
+            </label></li>; })}
+        </ul>
+      </>}
 
       <h3 style={{ marginTop: 14 }}>3. How many questions?</h3>
-      {choices.length === 0 ? <p className="qb-muted">Tick at least one topic that has questions.</p> :
+      {choices.length === 0 ? <p className="qb-muted">{mode === "study" ? "Pick a topic to study." : "Tick at least one topic that has questions."}</p> :
         <div className="qb-chip-row" role="group" aria-label="Number of questions">
           {choices.map((n) => <button type="button" key={n} className="qb-chip" aria-pressed={count === n} onClick={() => setCount(n)}>{n}</button>)}
         </div>}
 
       <div style={{ marginTop: 16 }}>
-        <button className="qb-btn" disabled={busy || !choices.length} onClick={() => void start()}><Play size={14} aria-hidden="true" /> {busy ? "Getting your questions…" : `Start ${choices.length ? count : ""} questions`}</button>
+        <button className="qb-btn" disabled={busy || !choices.length} onClick={() => void start()}><Play size={14} aria-hidden="true" /> {busy ? "Getting your questions…" : mode === "study" ? `Start studying ${choices.length ? count : ""} questions` : `Start ${choices.length ? count : ""} questions`}</button>
       </div>
     </>}
   </section>;
