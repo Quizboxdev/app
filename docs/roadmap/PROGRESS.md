@@ -286,3 +286,4 @@ Design canvas: https://claude.ai/artifact/8JyB9ENBGKYpV1ZfGmke7n (5 pages, 19 ar
 - 2026-10-21: delivery 17: young learners lifecycle (school-wide overview, teacher reassignment, scheduled erasure off by default, retention setting); migration 20261024100000 to apply; weekly cron added.
 - 2026-10-21: young learners lifecycle migration 20261024100000 confirmed applied in production (6 functions).
 - 2026-10-21: delivery 18: phone-width checks for Challenges (360/390/768): fixed answer buttons overflowing on phones and small touch targets.
+- 2026-10-21: delivery 19: Preview migrated to current (33 migrations) with scripts/release/apply-to-preview.ts; live acceptance 114/114 PASS including Challenges; one stuck old fixture run (muwgfw4eef6a) to clean.

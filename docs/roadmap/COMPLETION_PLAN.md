@@ -441,3 +441,10 @@ Status per item of section 13. **Live** means the code is deployed. A database m
 | Phone and tablet check of every Challenges screen | **Done at 360, 390 and 768 px** | New QA fixture `scripts/qa/fixtures/challenges.ts` (`npx tsx scripts/qa/visual-qa.ts --role challenges --widths 360,390,768`): console, editor (all six tabs), player (start and question), my challenges, public list and detail, admin reports. All pass: no sideways scroll, no overlap, touch targets at least 32 px. Screenshots in `reports/qa/challenges/`. |
 | Found and fixed | **Fixed** | Answer buttons in the player did not wrap, so long options pushed the page 200 px wider than a 360 px phone. Small "Remove" and "Use this passage" links were below the touch size. The checker now also recognises public pages as loaded. |
 | Not covered | **Open** | Real-device and Lighthouse runs, and the signed-in pages for the other roles on the test database (the older role fixtures already cover student, teacher, school and admin). |
+
+### Delivery 19 (21 October): Preview brought up to date; live acceptance green
+| Item | Status | Evidence |
+|---|---|---|
+| Preview database up to date | **Done** | Preview (`fngdtxayfoiffbcbmcum`) was 33 migrations behind (history ended at 20261010110000). `scripts/release/apply-to-preview.ts` applied all 33 in order, recording each in the migration history; it refuses any project except Preview. |
+| Challenges live test | **Passes** | `npm run acceptance:challenges`: 5 of 5 against Preview (creator-only creation, no direct table reads, server scoring and one submission, leaderboard, analytics to the owner only). Now part of `npm run acceptance:live`. |
+| Full live acceptance (tracker G2) | **PASS** | 114 of 114 tests on Preview, 0 failed, 0 skipped, teardown leaves zero rows. One older run (`muwgfw4eef6a`) is reported as "stuck" by the sweeper and needs a look. |

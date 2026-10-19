@@ -11,7 +11,7 @@ export async function runLiveAcceptance() {
   report.swept=sweepStaleRuns();
   await mkdir('.local-backups',{recursive:true});
   const output='.local-backups/authenticated-tests.json';
-  const files=['lib/content/factory/factory.live.test.ts','lib/learning/practice.live.test.ts','lib/operations/closure.live.test.ts','lib/operations/final-gates.live.test.ts','lib/operations/auth-failure.live.test.ts'];
+  const files=['lib/content/factory/factory.live.test.ts','lib/learning/practice.live.test.ts','lib/operations/closure.live.test.ts','lib/operations/final-gates.live.test.ts','lib/operations/auth-failure.live.test.ts','lib/challenges/challenges.live.test.ts'];
   const result=spawnSync(process.execPath,['node_modules/vitest/vitest.mjs','run',...files,'--reporter=default','--reporter=json',`--outputFile.json=${output}`],{stdio:'inherit',env:{...process.env,QB_LIVE_ACCEPTANCE:'1'}});
   const tests=JSON.parse(await readFile(output,'utf8'));
   report.passed=tests.numPassedTests;report.failed=tests.numFailedTests;report.skipped=tests.numPendingTests;report.executed=report.passed+report.failed;
