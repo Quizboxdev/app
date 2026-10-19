@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 
 // Web app manifest (completion plan, Phase 4 step 2): lets learners and teachers add QuizBox to their phone's home screen and open it full screen.
-// No service worker yet: offline answering needs a safe design first, so the app always loads fresh from the network.
+// A service worker (public/sw.js) keeps static files and shows an offline page; pages themselves always come from the network, and there is no offline answering.
 export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "QuizBox: Learn. Practise. Compete.",

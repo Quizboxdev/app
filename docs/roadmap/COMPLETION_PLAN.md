@@ -455,3 +455,12 @@ Status per item of section 13. **Live** means the code is deployed. A database m
 | Run `muwgfw4eef6a` | **Explained; accepted as documented residue** | Left by an earlier fixture version: 4 questions picked up 4 `legacy_content_attributions` rows. That table is immutable history (delete raises `QB_IMMUTABLE_HISTORY`), so the 4 questions, one market, one curriculum and one user cannot be removed, by design. It sits in its own QBRUN market and affects nothing. Current fixtures assert zero attributions before running, so no new residue can form. Left in place on purpose rather than bypassing the immutability trigger. |
 | Sweeper | **Changed** | `KNOWN_RESIDUE` (max 3, each with a reason, tested) is skipped and reported as `known`; `stuck` now means a genuinely new problem. |
 | Live acceptance | **PASS** | 119 of 119 on Preview (114 plus the 5 Challenges tests), `stuck: []`. |
+
+### Delivery 22 (21 October): Web upgrades for the app shell (option A)
+| Item | Status | Evidence |
+|---|---|---|
+| Service worker and offline page | **Delivered (live on deploy)** | `public/sw.js` caches only static files (build files, brand, fonts); pages, sign-in and data always come from the network; friendly `/offline.html`; served with no-cache headers; registered in production only. Checked on a production build: correct headers, offline page and manifest served. |
+| Install card | **Delivered** | Student Home shows "Install QuizBox": a real button on Chrome and Edge, Share then Add to Home Screen on iPhone Safari, hidden once installed and for 30 days after dismissal. 5 tests. |
+| Web push | **Delivered, needs owner setup** | Migration `20261025100000` (devices per person max 5, managed learners refused, unread notifications from the last 2 days, dead devices removed), sender route `/api/cron/push` (closed without `CRON_SECRET` and VAPID keys), "Notifications on this device" switch on Account. 6 database tests and 3 route tests. Steps in `docs/release/APPLY_PUSH.md`; the schedule uses Supabase pg_cron because Vercel's free plan allows one run a day. |
+| Dependencies | **Clean** | `web-push` added; `npm audit` shows 0 vulnerabilities in production dependencies. |
+| Next | **Open** | Google Play wrapper (Capacitor). Blocked on the owner: Play developer account, and the subscription-in-app decision (the wrapper will ship without the Subscribe page until decided). |

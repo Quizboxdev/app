@@ -21,7 +21,11 @@ const nextConfig: NextConfig = {
   ...(publicKey ? { env: { NEXT_PUBLIC_SUPABASE_ANON_KEY: publicKey } } : {}),
   poweredByHeader: false,
   async headers() {
-    return [{ source: "/:path*", headers: SECURITY_HEADERS }];
+    return [
+      { source: "/:path*", headers: SECURITY_HEADERS },
+      // The service worker must always be fetched fresh so an update reaches every phone within a day; it may control the whole site.
+      { source: "/sw.js", headers: [{ key: "Cache-Control", value: "no-cache, no-store, must-revalidate" }, { key: "Service-Worker-Allowed", value: "/" }, { key: "Content-Type", value: "application/javascript; charset=utf-8" }] },
+    ];
   },
 };
 

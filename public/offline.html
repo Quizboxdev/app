@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0f172a">
+  <title>You are offline | QuizBox</title>
+  <style>
+    :root { --bg: #ffffff; --fg: #0f172a; --muted: #475569; --brand: #1d4ed8; --card: #f1f5f9; }
+    @media (prefers-color-scheme: dark) { :root { --bg: #0f172a; --fg: #f8fafc; --muted: #cbd5e1; --brand: #60a5fa; --card: #1e293b; } }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 16px; background: var(--bg); color: var(--fg); font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+    main { max-width: 420px; width: 100%; background: var(--card); border-radius: 16px; padding: 24px; text-align: center; }
+    img { width: 72px; height: 72px; border-radius: 16px; }
+    h1 { font-size: 22px; margin: 16px 0 8px; }
+    p { margin: 0 0 12px; color: var(--muted); }
+    a.btn { display: inline-flex; align-items: center; min-height: 48px; padding: 0 24px; border-radius: 12px; background: var(--brand); color: #fff; font-weight: 600; text-decoration: none; }
+    .note { font-size: 14px; }
+  </style>
+</head>
+<body>
+  <main>
+    <img src="/brand/quizbox-icon-192.png" alt="QuizBox">
+    <h1>You are offline</h1>
+    <p>QuizBox needs an internet connection to load your questions and save your answers.</p>
+    <p class="note">If you were in the middle of a timed quiz, reconnect and open it again. Answers that were not sent are not saved.</p>
+    <a class="btn" href="/">Try again</a>
+  </main>
+</body>
+</html>

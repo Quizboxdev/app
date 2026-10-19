@@ -3,6 +3,7 @@
 import { FormEvent, useCallback, useEffect, useState } from "react";
 import { getMyAccount, listSignupCountries, requestMarketChange, type Account, type SignupCountry } from "@/lib/api/markets";
 import { userFacingError } from "@/lib/errors";
+import PushToggle from "@/components/PushToggle";
 
 export default function AccountPage() {
   const [account, setAccount] = useState<Account | null>(null), [countries, setCountries] = useState<SignupCountry[]>([]);
@@ -33,6 +34,8 @@ export default function AccountPage() {
         </div>
       </div>
       
+      <div style={{ marginBottom: '1.5rem' }}><PushToggle /></div>
+
       <div className="qb-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(20rem, 1fr))', alignItems: 'start', gap: '1.5rem', marginBottom: '2rem' }}>
         <div className="qb-card" style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
           <div style={{ paddingBottom: '1rem', borderBottom: '1px solid var(--qb-border)' }}>
