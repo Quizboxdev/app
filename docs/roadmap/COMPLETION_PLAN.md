@@ -323,3 +323,16 @@ Status per item of section 13. **Live** means the code is deployed. A database m
 | Generation progress across 8 accounts (Phase 1 step 3) | **Delivered** | `python scripts/question-bank/bank.py status` prints and saves `_work/reports/STATUS.txt`: accepted against target per account and per level, units in progress, packs done. Today: 1,100 of 285,600 (0.39%); only account A1 has started. |
 
 **Totals:** 946 tests pass, production build passes.
+
+### Delivery 4 (19 October)
+| Item | Status | Evidence |
+|---|---|---|
+| Production truth (Phase 0 steps 1 to 3) | **Done** | The missing-objects check found 41 objects missing (three migrations never applied: core platform, school performance, auth-failure hardening). All three were dry-run, then applied. Re-check: only the obsolete helper `merge_quizbox_question_import` remains. |
+| Production truth, deeper check | **Done** | Triggers, policies, row-level security and grants checked. The Data API exposes only `public`; classes and class_memberships have full policies (the four "missing" names were renamed); 13 internal tables had RLS off but were unreachable (no grants, no schema access, no client-callable function reads them). |
+| Migration history (tracker C3) | **Done** | The 26 hand-applied migrations are recorded. |
+| RLS on internal schemas (C6 part 2) | **Delivered**, apply pack 19 Oct step 1 | `20261018140000`: switches RLS on for internal tables and logs exactly which, so the rollback undoes only those. 3 tests. |
+| Public enquiry intake and staff inbox (Phase 2 support console) | **Delivered (live)**, apply pack 19 Oct step 2 | Owner-approved the standing proposal. The five public forms submit through a server route (same-origin, 8 KB limit, hidden-field and timing checks, strict validation, durable rate limits, hashed address only); staff triage at `/admin/inbox` (super admin and support staff); retention 24 months closed, 90 days spam. One design flaw in the proposal fixed: its write function sat in a schema the Data API does not serve, so a public wrapper callable by the server role only was added (no new anonymous function). 27 tests. |
+
+**Decisions taken as owner (for your review):** approve the single-table contract; closed enquiries kept 24 months and spam 90 days; super admin plus support staff may review, only the owner may purge; no CAPTCHA for now (honeypot, timing and database limits instead); address hash keyed by the existing service-role key, so no new secret. **Privacy notice:** still a placeholder; the retention periods above must be stated in it once counsel drafts the text.
+
+**Totals:** 976 tests pass, production build passes.
