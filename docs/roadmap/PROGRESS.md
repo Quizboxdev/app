@@ -274,3 +274,4 @@ Design canvas: https://claude.ai/artifact/8JyB9ENBGKYpV1ZfGmke7n (5 pages, 19 ar
 - 2026-10-19: delivery 8: placeholder reviewer pay values, Student Home redesign (goal, streak, up next, coins, points, logos); 1015 tests.
 - 2026-10-19: delivery 9: topic study mode (migration 20261019140000), chain replay harness and production-only objects query for the test database (C7); 1021 tests.
 - 2026-10-19: delivery 10: teacher-managed accounts for under-13s (migration 20261019150000, routes, Young learners page, username sign-in, minor restrictions); 1039 tests. Counsel review of docs/security/UNDER_13_DESIGN.md needed.
+- 2026-10-20: production-only objects export checked (129 objects; managed-learner migration confirmed live); chain rebuild blocked on hand-added columns, needs pg_dump.
