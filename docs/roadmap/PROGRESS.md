@@ -277,3 +277,4 @@ Design canvas: https://claude.ai/artifact/8JyB9ENBGKYpV1ZfGmke7n (5 pages, 19 ar
 - 2026-10-20: production-only objects export checked (129 objects; managed-learner migration confirmed live); chain rebuild blocked on hand-added columns, needs pg_dump.
 - 2026-10-20: delivery 12: erasure of a young learner's personal data (migration 20261020100000, owner screen, route); study mode and young learners verified live; question generation stalled at 1,100; 1046 tests.
 - 2026-10-20: delivery 13: per-agent inboxes (`bank.py assemble --inbox`) and `docs/question-bank/LOCAL_AGENT_PROMPT.txt`; Gemini web chat is read-only on Drive and cannot run the checker, so generator accounts need a file-capable local agent or chat Mode A.
+- 2026-10-20: erasure migration 20261020100000 confirmed live in production (3 functions verified by owner).
