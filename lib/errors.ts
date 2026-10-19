@@ -84,7 +84,7 @@ const messages: Record<string, string> = {
   QB_MARKET_NOT_AVAILABLE: "That market is not available.", QB_MARKET_UNCHANGED: "That is already your country.",
   QB_OVERRIDE_REASON_REQUIRED: "Enter a reason (at least 5 characters) for assigning outside the class grade.",
   QB_MARKET_CURRICULUM_SOURCE_REQUIRED: "Select an approved curriculum source for every selected market.",
-  INVALID_MARKET_TRANSITION: "That market status change is not allowed.", SUPER_ADMIN_REQUIRED: "Only a Super Admin can do this.",
+  INVALID_MARKET_TRANSITION: "That market status change is not allowed.", SUPER_ADMIN_REQUIRED: "Only a Super Admin can do this.", TEACHER_NOT_FOUND: "No teacher account was found for one of those emails.", SAME_TEACHER: "Choose two different teachers.",
   CURRICULUM_ACTIVATION_REQUIRES_AUTHORITY_AND_APPROVED_SOURCE: "Approve an official source and set the curriculum authority before activating this curriculum.",
   ACTIVE_ADMIN_REQUIRED: "Enter the email of an active QuizBox administrator.", SOURCE_NOT_FOUND: "That source document was not found for this market.",
   CURRENCY_REQUIRED: "Enter the currency name for a new currency.", REQUEST_NOT_PENDING: "This request has already been decided.",

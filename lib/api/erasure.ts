@@ -20,3 +20,9 @@ export async function eraseManagedLearner(learnerId: string, reason: string): Pr
   if (!res.ok) throw new Error(typeof out?.error === "string" ? out.error : "Could not erase. Please try again.");
   return out;
 }
+
+export type ClassOverview = { school: string; class_id: string; class_name: string; teacher_name: string | null; teacher_email: string | null; active: number; ended: number; erased: number; due: number };
+export type ManagedOverview = { auto_erase: boolean; retention_months: number; classes: ClassOverview[] };
+export const managedOverview = () => rpc<ManagedOverview>("qb_managed_overview");
+export const setAutoErase = (enabled: boolean) => rpc<{ auto_erase: boolean }>("qb_managed_set_auto_erase", { p_enabled: enabled });
+export const reassignManaged = (fromEmail: string, toEmail: string, moveClasses: boolean) => rpc<{ learners: number; classes: number }>("qb_managed_reassign", { p_from_email: fromEmail, p_to_email: toEmail, p_move_classes: moveClasses });

@@ -283,3 +283,4 @@ Design canvas: https://claude.ai/artifact/8JyB9ENBGKYpV1ZfGmke7n (5 pages, 19 ar
 - 2026-10-21: delivery 15: Challenges extensions (rounds, book upload with versioned passages and quotes, prizes and fulfilment, branding, analytics, challenge.quizbox.io redirect, live Preview test written); 1081 tests, build passes; migration 20261022100000 to apply (docs/release/APPLY_CHALLENGES.md).
 - 2026-10-21: delivery 16: challenge moderation (reports, auto-hide at 3, admin queue, take-down/restore) and in-app winner/organiser notifications; migration 20261023100000 to apply (mod1-mod3); 1087 tests, build passes.
 - 2026-10-21: Challenges migrations (foundation, extensions, moderation) confirmed applied in production: 42 functions, 12 tables.
+- 2026-10-21: delivery 17: young learners lifecycle (school-wide overview, teacher reassignment, scheduled erasure off by default, retention setting); migration 20261024100000 to apply; weekly cron added.

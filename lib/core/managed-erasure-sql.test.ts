@@ -9,6 +9,8 @@ const INTAKE = read("../../supabase/migrations/20261018150000_public_interest_in
 const MANAGED = read("../../supabase/migrations/20261019150000_managed_learners.sql");
 const ERASE = read("../../supabase/migrations/20261020100000_managed_learner_erasure.sql");
 const ERASE_ROLLBACK = read("../../supabase/rollback/managed_learner_erasure.sql");
+const LIFECYCLE = read("../../supabase/migrations/20261024100000_managed_learner_lifecycle.sql");
+const LIFECYCLE_ROLLBACK = read("../../supabase/rollback/managed_learner_lifecycle.sql");
 const id = (n: number) => `00000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
 const [ADMIN, FIN, GUARDIAN, WARD, SPONSOR, STRANGER, TEACHER] = [1, 2, 3, 4, 5, 6, 7].map(id);
 const OWNER = id(1), OTHER_TEACHER = id(8), CLASS = id(600), CHILD1 = id(801), CHILD2 = id(802);
@@ -77,6 +79,7 @@ beforeAll(async () => {
   await db.exec(MANAGED);
   await db.exec("alter table public.profiles add column phone text; create schema if not exists quizbox_market; create or replace function quizbox_market.is_super() returns boolean language sql stable as $$ select auth.uid() = '" + OWNER + "'::uuid $$");
   await db.exec(ERASE);
+  await db.exec(LIFECYCLE);
 });
 afterAll(async () => { await db.close(); });
 
@@ -113,6 +116,57 @@ describe("erasing a managed learner's personal data", () => {
     expect(await rpc("select public.qb_managed_erasure_queue()")).toEqual([expect.objectContaining({ user_id: CHILD2, first_name: "Kofi", username: "kofi.m3x9" })]);
     await db.exec(`update public.student_profiles set archived_at = now() - interval '3 months' where user_id = '${CHILD2}'`);
     expect(await rpc("select public.qb_managed_erasure_queue()")).toEqual([]);                                                     // ended, but inside the retention period
+  });
+
+  it("keeps a retention setting, lists a school-wide overview and only the owner can see it", async () => {
+    await db.exec(`update public.student_profiles set status = 'inactive', archived_at = now() - interval '8 months' where user_id = '${CHILD2}'`);
+    await as(TEACHER); await expect(q("select public.qb_managed_overview()")).rejects.toThrow("SUPER_ADMIN_REQUIRED");
+    await as(OWNER);
+    const o = await rpc("select public.qb_managed_overview()");
+    expect(o).toMatchObject({ auto_erase: false, retention_months: 12 });
+    expect(o.classes).toEqual([expect.objectContaining({ school: "St Mary's", class_name: "B4 Gold", teacher_name: "Teacher", active: 0, ended: 1, erased: 1, due: 0 })]);
+    await db.exec("update public.platform_settings set value = '6'::jsonb where key = 'safety.managed_retention_months'");
+    expect((await rpc("select public.qb_managed_overview()")).classes[0].due).toBe(1);                                    // 8 months old is now past a 6 month rule
+    expect((await rpc("select public.qb_managed_erasure_queue()")).map((l: any) => l.username)).toEqual(["kofi.m3x9"]);
+    await db.exec("update public.platform_settings set value = '1'::jsonb where key = 'safety.managed_retention_months'");
+    expect((await rpc("select public.qb_managed_overview()")).retention_months).toBe(6);                                   // never below 6 months
+    await db.exec("update public.platform_settings set value = '12'::jsonb where key = 'safety.managed_retention_months'");
+  });
+
+  it("scheduled erasure is off by default, owner-switchable, and the due list is for the server role only", async () => {
+    await db.exec(`update public.student_profiles set archived_at = now() - interval '13 months' where user_id = '${CHILD2}'`);
+    await db.exec("set role service_role");
+    expect(await rpc("select public.qb_managed_erasure_due()")).toEqual([]);                                                // switch is off
+    await db.exec("reset role"); await as(TEACHER); await expect(q("select public.qb_managed_set_auto_erase(true)")).rejects.toThrow("SUPER_ADMIN_REQUIRED");
+    await as(OWNER); expect(await rpc("select public.qb_managed_set_auto_erase(true)")).toEqual({ auto_erase: true });
+    await expect(q("select public.qb_managed_set_auto_erase(null)")).rejects.toThrow("INVALID_VALUE");
+    await db.exec("reset role"); await db.exec("set role service_role");
+    expect(await rpc("select public.qb_managed_erasure_due(10)")).toEqual([{ user_id: CHILD2, ended_at: expect.any(String), months: 12 }]);
+    for (const role of ["anon", "authenticated"]) { await db.exec("reset role"); await db.exec(`set role ${role}`); await expect(db.query("select public.qb_managed_erasure_due(10)")).rejects.toThrow(/permission denied/); }
+    await db.exec("reset role"); expect((await q("select count(*)::int n from public.audit_logs where action = 'QB_MANAGED_AUTO_ERASE_SET'")).n).toBe(1);
+    await as(OWNER); await rpc("select public.qb_managed_set_auto_erase(false)");
+  });
+
+  it("moves a leaving teacher's learners and classes to another teacher, owner only", async () => {
+    await db.exec("reset role");
+    await as(TEACHER); await expect(q("select public.qb_managed_reassign('teacher@example.com','t2@example.com')")).rejects.toThrow("SUPER_ADMIN_REQUIRED");
+    await as(OWNER);
+    await expect(q("select public.qb_managed_reassign('teacher@example.com','nobody@example.com')")).rejects.toThrow("TEACHER_NOT_FOUND");
+    await expect(q("select public.qb_managed_reassign('teacher@example.com','teacher@example.com')")).rejects.toThrow("SAME_TEACHER");
+    expect(await rpc("select public.qb_managed_reassign('teacher@example.com','t2@example.com', false)")).toEqual({ learners: 2, classes: 0 });   // learners only
+    expect((await q("select teacher_user_id from public.classes where id = $1", [CLASS])).teacher_user_id).toBe(TEACHER);
+    expect((await q("select count(*)::int n from public.student_profiles where managed_by = $1", [OTHER_TEACHER])).n).toBe(2);
+    expect(await rpc("select public.qb_managed_reassign('teacher@example.com','t2@example.com')")).toEqual({ learners: 0, classes: 1 });          // now the class follows
+    expect((await q("select teacher_user_id from public.classes where id = $1", [CLASS])).teacher_user_id).toBe(OTHER_TEACHER);
+    expect((await q("select details from public.audit_logs where action = 'QB_MANAGED_REASSIGNED' order by created_at desc limit 1")).details).toMatchObject({ learners: 0, classes: 1 });
+  });
+
+  it("rolls back the lifecycle functions and restores the fixed 12 month queue", async () => {
+    await db.exec(LIFECYCLE_ROLLBACK);
+    expect((await q("select to_regprocedure('public.qb_managed_overview()') f")).f).toBeNull();
+    expect((await q("select count(*)::int n from public.platform_settings where key like 'safety.managed_%retention%' or key = 'safety.managed_auto_erase'")).n).toBe(0);
+    await as(OWNER); expect(await rpc("select public.qb_managed_erasure_queue()")).toEqual([expect.objectContaining({ username: "kofi.m3x9" })]);
+    await db.exec("reset role"); await db.exec(LIFECYCLE);
   });
 
   it("rolls back the functions without restoring erased data", async () => {

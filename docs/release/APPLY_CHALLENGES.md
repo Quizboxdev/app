@@ -30,3 +30,15 @@ select (select count(*) from pg_proc p join pg_namespace n on n.oid=p.pronamespa
        (select count(*) from pg_tables where schemaname='public' and tablename like 'challenge%') as tables;
 ```
 Rollback: `supabase/rollback/challenges_moderation.sql`, then re-run part1 to part5 and ext1 to ext6.
+
+## Young learners lifecycle (separate migration 20261024100000)
+Overview of all schools, moving a leaving teacher's learners, and the (off by default) scheduled erasure switch.
+```
+Get-Content "C:\Users\USER\OneDrive\Documents\QuizBox\Codes\QuizBox_Batch1_Student_Teacher_Assessment\docs\release\lifecycle\life1.sql" -Raw | Set-Clipboard
+```
+(If a `life2.sql` exists, run it next the same way.) Verify (expect 6 rows):
+```sql
+select proname from pg_proc where pronamespace='public'::regnamespace and proname in
+ ('qb_managed_overview','qb_managed_reassign','qb_managed_set_auto_erase','qb_managed_erasure_due','qb_managed_auto_erase_on','qb_managed_retention_months') order by 1;
+```
+To use the scheduled erase later: add `CRON_SECRET` (a random string of 16 or more characters) to the Vercel project, then switch it on in Admin, Young learners. Rollback: `supabase/rollback/managed_learner_lifecycle.sql`.

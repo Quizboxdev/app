@@ -426,3 +426,11 @@ Status per item of section 13. **Live** means the code is deployed. A database m
 | Winner and organiser notifications | **Delivered** | In-app notifications when winners are worked out, when delivery is marked contacted or delivered, and when a challenge is hidden, taken down or restored. Failure to notify never blocks the action. |
 | Apply guide | **Updated** | `docs/release/APPLY_CHALLENGES.md` now covers `mod1` to `mod3`. |
 | Earlier fix | **Owner action** | Re-run `ext3` and `ext6` (three functions were missing in production after the first apply). |
+
+### Delivery 17 (21 October): Young learners lifecycle
+| Item | Status | Evidence |
+|---|---|---|
+| School-wide overview | **Delivered, migration `20261024100000` to apply** | Owner table of every school and class: active, ended, erased, past retention. |
+| Teacher leaves | **Delivered** | Owner moves a teacher's managed learners (and optionally classes) to another teacher by email; audited. |
+| Scheduled 12-month erasure | **Delivered, off by default** | Weekly Vercel cron (`vercel.json`) calls `/api/cron/managed-erasure`; needs `CRON_SECRET` and the owner's switch; retention months is a setting (6 to 36); counts only in the answer; shared erase helper with the owner's erase route. 4 new database tests and 3 route tests. |
+| Still open | | School administrators' own view, family linking, counsel sign-off on the retention rule. |

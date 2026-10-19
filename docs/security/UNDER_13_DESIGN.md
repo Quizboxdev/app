@@ -44,10 +44,10 @@ Every creation, reset and end is written to the audit log with the teacher's id.
 
 ## Known limits and open items
 1. Counsel must confirm: the consent model (school-attested), the retention periods, the privacy notice wording and the breach-notification duty.
-2. The 12-month clean-up is a queue the owner works through (button per learner); a scheduled automatic erase is not built.
-3. A school-wide view of managed learners across classes is not built; the roster is per class.
+2. The 12-month clean-up is a queue the owner works through, and a weekly scheduled erase now exists but is **off by default**: the owner switches it on (Admin, Young learners) only after counsel confirms the rule. It needs `CRON_SECRET` set in Vercel. The retention period is a setting (12 months, allowed 6 to 36).
+3. The owner now has a school-wide overview (every school and class with active, ended, erased and past-retention counts). School administrators do not yet have their own view.
 4. Siblings or families cannot be linked to a managed learner yet; parent access is through the school.
-5. A teacher who leaves a school: their learners stay in the class; reassigning the class to another teacher also needs reassigning `managed_by`. Handle through support until a tool exists.
+5. A teacher who leaves: the owner moves their young learners, and optionally their classes, to another teacher by email (Admin, Young learners, "A teacher is leaving"); it is recorded in the audit log.
 6. Not yet exercised end to end on production: create a test class and a test learner, sign in as the child, practise, then reset and end the account.
 
 ## Files
