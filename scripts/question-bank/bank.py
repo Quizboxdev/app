@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """QuizBox question bank gate: validate returned AI files, remove duplicates, enforce the difficulty rules, and write the final bank files.
 
-  python scripts/question-bank/bank.py assemble            # process every file in Questions Bank/_work/returns/
+  python scripts/question-bank/bank.py assemble            # process every file in Questions Bank/_work/returns/  (or --inbox DIR for one agent's own folder)
   python scripts/question-bank/bank.py check FILE [FILE]   # report only, writes nothing
   python scripts/question-bank/bank.py reshuffle FILE      # re-randomise option order in a finished file (fixes patterned correct letters)
   python scripts/question-bank/bank.py mark-loaded FILE    # record a file's questions as already loaded into QuizBox (once, for files loaded before this command existed)
@@ -296,7 +296,12 @@ def main(argv):
             write_csv(Path(f), new, COLS); print(f"{Path(f).name}: {sum(1 for a, b in zip(rows, new) if a['correct_answer'] != b['correct_answer'])} of {len(rows)} correct letters moved; cycle now {cyclic_share(new):.0%}")
         return 0
     if argv[1] == "check": assemble(argv[2:], write=False); return 0
-    inbox = WORK / "returns"; inbox.mkdir(parents=True, exist_ok=True)
+    # Several agents can run at once, each with its own inbox:  assemble --inbox "Questions Bank/_work/inbox/A3"   (units are never shared between accounts, so
+    # their final files, reports and gaps never clash). Without --inbox the shared _work/returns folder is used, as before.
+    inbox = WORK / "returns"
+    if "--inbox" in argv:
+        i = argv.index("--inbox"); inbox = Path(argv[i + 1]); inbox = inbox if inbox.is_absolute() else REPO / inbox
+    inbox.mkdir(parents=True, exist_ok=True)
     files = sorted(p for p in inbox.iterdir() if p.is_file() and p.suffix.lower() in (".csv", ".txt"))
     if not files: print(f"No files in {inbox}. Drop each returned batch there (.csv or .txt)."); return 1
     assemble(files)

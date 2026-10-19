@@ -18,3 +18,4 @@ _load\                load-ready files with ONLY questions never loaded before: 
 
 _agent_files\       bank.py, PACK_PROMPT.md and WORK_QUEUE.csv for agents that read this folder from Google Drive (docs\question-bank\DRIVE_AGENT_PROMPT.txt is the one prompt).
 _outputs\<A1-A8>\    where each agent saves its work in the Drive vault; collect with scripts\question-bank\collect-outputs.ps1.
+_work\inbox\<A1-A8>\  one inbox per agent window (python scripts/question-bank/bank.py assemble --inbox ...). Prompt for local agents: docs\question-bank\LOCAL_AGENT_PROMPT.txt
