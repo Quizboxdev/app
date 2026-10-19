@@ -1,19 +1,18 @@
-# Apply: QuizBox Challenges (migration 20261021100000)
+# Apply: QuizBox Challenges (two migrations, eleven small parts)
 
-Run in Supabase, project `fmgccmqxfjppqydkhaiu`, SQL editor. Five small parts, in order. Each is safe to run twice.
-Each step: run the PowerShell line (copies the part to the clipboard), paste it into a new query, press Run, expect "Success".
+Run in Supabase, project `fmgccmqxfjppqydkhaiu`, SQL editor, in this order. Each part is safe to run twice. For each: run the PowerShell line, paste into a new query, press Run, expect "Success".
+If you already applied part1 to part5 earlier, skip them and start at ext1.
 
 ```
-Get-Content "C:\Users\USER\OneDrive\Documents\QuizBox\Codes\QuizBox_Batch1_Student_Teacher_Assessment\docs\release\challenges\part1.sql" -Raw | Set-Clipboard
-Get-Content "C:\Users\USER\OneDrive\Documents\QuizBox\Codes\QuizBox_Batch1_Student_Teacher_Assessment\docs\release\challenges\part2.sql" -Raw | Set-Clipboard
-Get-Content "C:\Users\USER\OneDrive\Documents\QuizBox\Codes\QuizBox_Batch1_Student_Teacher_Assessment\docs\release\challenges\part3.sql" -Raw | Set-Clipboard
-Get-Content "C:\Users\USER\OneDrive\Documents\QuizBox\Codes\QuizBox_Batch1_Student_Teacher_Assessment\docs\release\challenges\part4.sql" -Raw | Set-Clipboard
-Get-Content "C:\Users\USER\OneDrive\Documents\QuizBox\Codes\QuizBox_Batch1_Student_Teacher_Assessment\docs\release\challenges\part5.sql" -Raw | Set-Clipboard
+$d = "C:\Users\USER\OneDrive\Documents\QuizBox\Codes\QuizBox_Batch1_Student_Teacher_Assessment\docs\release\challenges"
+Get-Content "$d\part1.sql" -Raw | Set-Clipboard
 ```
+Change `part1` to part2, part3, part4, part5, then ext1, ext2, ext3, ext4, ext5, ext6 (same line, new file name each time).
 
-Verify (expect 21 functions, 5 tables):
+Verify (expect 38 functions and 11 tables):
 ```sql
-select count(*) as functions from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='public' and (proname like 'challenge\_%' or proname like 'qb\_challenge\_%');
-select count(*) as tables from pg_tables where schemaname='public' and tablename like 'challenge\_%';
+select count(*) as functions from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='public' and proname like '%challenge%';
+select count(*) as tables from pg_tables where schemaname='public' and tablename like 'challenge%';
 ```
-Rollback: `supabase/rollback/challenges_foundation.sql` (deletes every campaign and attempt).
+Rollback: `supabase/rollback/challenges_extensions.sql` (then re-run part1 to part5), or `supabase/rollback/challenges_foundation.sql` to remove everything. Both delete campaign data.
+Parts were produced by `python scripts/release/split_migration.py <migration> docs/release/challenges <prefix>`.

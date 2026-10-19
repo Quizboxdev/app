@@ -3,15 +3,17 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { createChallenge, myCampaigns } from "@/lib/api/challenges";
+import { adminOverview, createChallenge, myCampaigns } from "@/lib/api/challenges";
 import { CHALLENGE_CATEGORIES, type MyCampaign } from "@/lib/challenges/types";
 
 // Challenge console: your campaigns, and a short form to start a new one. Questions are added on the next screen.
 export default function CreatorPage() {
   const router = useRouter();
   const [rows, setRows] = useState<MyCampaign[] | null>(null), [error, setError] = useState(""), [busy, setBusy] = useState(false);
+  const [overview, setOverview] = useState<Awaited<ReturnType<typeof adminOverview>> | null>(null);
   const [f, setF] = useState({ title: "", summary: "", category: "general_knowledge", visibility: "PUBLIC", questionCount: 10, timeLimitSeconds: 600, maxAttempts: 1, startsAt: "", endsAt: "", rewardText: "", accessCode: "" });
   useEffect(() => { myCampaigns().then(setRows).catch((e) => { setError(e.message); setRows([]); }); }, []);
+  useEffect(() => { adminOverview().then(setOverview).catch(() => setOverview(null)); }, []);   // only admins get an answer
   const set = (k: string, v: string | number) => setF((x) => ({ ...x, [k]: v }));
 
   async function create(e: React.FormEvent) {
@@ -26,6 +28,13 @@ export default function CreatorPage() {
     <>
       <div className="qb-page-head"><div><h1>Challenges</h1><p>Create a timed quiz anyone can join, or keep it private with an access code. Answers are scored on the server.</p></div></div>
       {error && <div className="qb-card qb-error" role="alert">{error}</div>}
+      {overview && (
+        <div className="qb-card">
+          <h2>Across QuizBox</h2>
+          <p>{Object.entries(overview.campaigns).map(([k, v]) => `${v} ${k.toLowerCase()}`).join(" · ") || "No challenges yet"}. {overview.players_30d} players and {overview.attempts_30d} attempts in the last 30 days. {overview.awards_pending} prizes waiting to be delivered.</p>
+          {overview.top.length > 0 && <ol className="qb-list">{overview.top.map((c) => <li key={c.slug}><Link className="qb-link" href={`/challenges/${c.slug}`}>{c.title}</Link> <span className="qb-muted">{c.status.toLowerCase()} · {c.players} players</span></li>)}</ol>}
+        </div>
+      )}
       <div className="qb-card">
         <h2>Your challenges</h2>
         {rows === null ? <p className="qb-muted">Loading…</p> : rows.length === 0 ? <p className="qb-muted">Nothing yet. Start one below.</p> : (
