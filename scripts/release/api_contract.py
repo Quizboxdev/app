@@ -15,7 +15,7 @@ ALLOW = REPO / "lib" / "operations" / "public-rpc-allowlist.ts"
 
 def area(path: str) -> str:
     p = path.replace("\\", "/")
-    for key, name in (("admin", "Admin and support"), ("sme", "Reviewers (SME)"), ("review", "Reviewers (SME)"), ("teacher", "Teacher"), ("school", "School"),
+    for key, name in (("challenge", "Challenges"), ("admin", "Admin and support"), ("sme", "Reviewers (SME)"), ("review", "Reviewers (SME)"), ("teacher", "Teacher"), ("school", "School"),
                       ("sponsor", "Sponsor"), ("competition", "Competitions"), ("practice", "Learner"), ("practise", "Learner"), ("student", "Learner"),
                       ("assessment", "Learner"), ("learning", "Learner"), ("curriculum", "Curriculum (all roles)"), ("auth", "Account and sign-in"),
                       ("account", "Account and sign-in"), ("public", "Public (no sign-in)"), ("market", "Markets"), ("owner", "Admin and support"),
@@ -29,7 +29,7 @@ def main():
         if f.name.endswith(".test.ts"): continue
         src = f.read_text(encoding="utf-8", errors="replace"); rel = f.relative_to(REPO).as_posix()
         # Every database function the app calls is named qb_...; wrappers (rpc<T>(...), callRpc, marketSetup actions) all pass that literal.
-        for m in re.finditer(r"""["'`](qb_[a-z_0-9]+)["'`]""", src): rpcs[m.group(1)].add(rel)
+        for m in re.finditer(r"""["'`]((?:qb|challenge)_[a-z_0-9]+)["'`]""", src): rpcs[m.group(1)].add(rel)
         for m in re.finditer(r"""\.from\(\s*["'`]([a-z_0-9]+)["'`]\s*\)\s*\.(select|insert|update|upsert|delete)""", src): tables[(m.group(1), m.group(2))].add(rel)
     public = set(re.findall(r'"(qb_[a-z_0-9]+)"', ALLOW.read_text(encoding="utf-8"))) if ALLOW.exists() else set()
     routes = sorted(p.relative_to(REPO / "app").as_posix().replace("/route.ts", "") for p in (REPO / "app" / "api").rglob("route.ts"))
