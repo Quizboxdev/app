@@ -23,3 +23,4 @@ reports/qa/
 Thumbs.db
 
 supabase/.temp/
+supabase/prod_dump/
