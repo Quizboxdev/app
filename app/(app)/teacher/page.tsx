@@ -16,6 +16,7 @@ import { bootstrapUser } from "@/lib/auth";
 import { getTeacherAnalytics, getTeacherDashboard, listIndicatorLearners, listIndicatorLearnersPage, publishAssignment } from "@/lib/api/teacher";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import MasteryBar from "@/components/charts/MasteryBar";
+import ReviewerApplyCard from "@/components/ReviewerApplyCard";
 
 export default function TeacherDashboardPage() {
   const [data, setData] = useState<any>(null);
@@ -105,6 +106,7 @@ export default function TeacherDashboardPage() {
       </section>
 
       <div style={{ marginTop: 16 }}><HomeSections only={["summary","pending","submissions","weak","sme","earnings","qa"]}/></div>
+      <ReviewerApplyCard />
 
       {drilldown && (
         <nav className="qb-actions" aria-label="Affected learner pages" style={{ margin: "16px 0" }}>

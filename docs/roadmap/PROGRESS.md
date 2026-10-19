@@ -270,3 +270,4 @@ Design canvas: https://claude.ai/artifact/8JyB9ENBGKYpV1ZfGmke7n (5 pages, 19 ar
 - 2026-10-19: delivery 4 documented; apply pack 19 October (RLS internal schemas, enquiry intake).
 - 2026-10-19: delivery 5: enquiry intake verified live; client error monitoring (migration 20261019100000), friendly crash pages, incident runbook; 983 tests.
 - 2026-10-19: delivery 6: subscription payments on the core ledger, Paystack adapter (dormant), Subscribe page pay flow, owner Payments panel; 999 tests.
+- 2026-10-19: delivery 7: reviewer applications (teacher apply-later, staff vetting queue, owner-only senior rights); 1005 tests.

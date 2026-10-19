@@ -96,7 +96,7 @@ export default function AppShell({
     allowedPrefixes.push("/account", "/notifications", "/school");
     if (sme?.reviewer || sme?.content_admin || sme?.super_admin) allowedPrefixes.push("/review");
     if (sme?.super_admin) allowedPrefixes.push("/admin/markets", "/admin/reviewers", "/admin/compensation");
-    if (sme?.super_admin || sme?.sme_support) allowedPrefixes.push("/admin/inbox");
+    if (sme?.super_admin || sme?.sme_support) allowedPrefixes.push("/admin/inbox", "/admin/reviewer-applications");
     if (sme?.super_admin || sme?.finance_admin) allowedPrefixes.push("/admin/sme-performance", "/admin/payouts");
 
     const isAllowed = allowedPrefixes.some(
@@ -123,7 +123,7 @@ export default function AppShell({
     const administration: NavItem[] = [
       ...when(sme?.super_admin, [["/admin/markets", "Markets"], ["/admin/curriculum-sources", "Curriculum Sources"], ["/admin/reviewers", "Reviewers"], ["/admin/compensation", "Compensation"]]),
       ...when(sme?.super_admin || sme?.finance_admin, [["/admin/sme-performance", "SME Performance"], ["/admin/payouts", "Payouts"]]),
-      ...when(sme?.sme_support && !sme?.super_admin, [["/admin/inbox", "Enquiry Inbox"]]),
+      ...when(sme?.sme_support && !sme?.super_admin, [["/admin/inbox", "Enquiry Inbox"], ["/admin/reviewer-applications", "Reviewer Applications"]]),
     ];
 
     if (inSchool) {
@@ -154,6 +154,7 @@ export default function AppShell({
         ...when(reviewer, [["/review", "SME Reviews"]]),
         ...when(reviewer || sme?.content_admin || sme?.super_admin, [["/review/policy", "Reviewer Policy"]]),
         ...when(sme?.super_admin, [["/admin/reviewers", "Reviewers"]]),
+        ...when(sme?.super_admin || sme?.sme_support, [["/admin/reviewer-applications", "Reviewer Applications"]]),
         ...when(sme?.super_admin || sme?.finance_admin, [["/admin/sme-performance", "SME Performance"]]),
         ...when(sme?.super_admin || sme?.content_admin, [["/admin/sme-workforce", "SME Workforce"]]),
         ...when(sme?.super_admin, [["/admin/compensation", "Compensation"]]),

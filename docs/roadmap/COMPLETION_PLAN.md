@@ -356,3 +356,12 @@ Status per item of section 13. **Live** means the code is deployed. A database m
 **Decisions taken as owner:** Paystack as the first provider (mobile money and cards in Ghana; swap by adding another adapter); plans cost 10 Coins (30 days) and 25 Coins (90 days); the cedi price per Coin is yours to set (GHS 1.00 gives GHS 10 and GHS 25). The School plan stays contact-us. **Needs you to go live:** a Paystack business account, the secret key in Vercel and the webhook address (steps in `APPLY_2026-10-19.md`).
 
 **Totals:** 999 tests pass, production build passes.
+
+### Delivery 7 (19 October)
+| Item | Status | Evidence |
+|---|---|---|
+| Reviewer application flow (Phase 6 step 1; tracker D7 route) | **Delivered (live)**, migration `20261019120000` to apply | Teachers can apply at any time from their dashboard (before, only during sign-up), see their status, and re-apply after 90 days if declined. Support staff and the owner vet at **Reviewer Applications**: details, requested subjects, approve with chosen subject domains or decline with a reason; the teacher is notified. One transaction per decision. Quality control: support staff grant review rights; only the owner grants approval or senior rights. 6 database tests. |
+
+**Decisions taken as owner:** support staff may approve reviewers; approval and senior rights stay with the owner; a decline needs a written reason (10 characters or more) that the teacher sees; a declined teacher may re-apply after 90 days. Non-teacher experts who used the public form arrive in the Enquiry Inbox: reply and ask them to register as a teacher account, then apply from the dashboard.
+
+**Totals:** 1,005 tests pass, production build passes.
