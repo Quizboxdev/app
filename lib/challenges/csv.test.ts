@@ -26,5 +26,10 @@ describe("parseQuestionCsv", () => {
     expect(r.errors[3]).toMatch(/Line 5.*same/);
     expect(r.errors[4]).toMatch(/Line 6.*A to B/);
   });
+  it("keeps an optional source quote for book questions", () => {
+    const r = parseQuestionCsv('Who gathered the wisdom?,Kweku,Ananse,Yaw,Kofi,B,It was Ananse,"Ananse wanted all the wisdom"');
+    expect(r.errors).toEqual([]);
+    expect(r.questions[0].source_quote).toBe("Ananse wanted all the wisdom");
+  });
   it("asks for something to add when empty", () => { expect(parseQuestionCsv("  \n ").errors[0]).toMatch(/Nothing to add/); });
 });

@@ -209,6 +209,7 @@ export default function AppShell({
       ["/student/classroom", "Assignments"],
       ["/competition", "Compete"],
       ["/challenges", "Challenges"],
+      ["/play", "My challenges"],
     ]);
     add("My learning", [
       ["/student/results", "Progress"],

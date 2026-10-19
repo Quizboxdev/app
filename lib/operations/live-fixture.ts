@@ -230,7 +230,7 @@ ${users.seller ? `      insert into public.marketplace_sellers(seller_type,selle
 export const TEARDOWN_ORDER = [
   "responses", "learning_events", "xp_transactions", "assessment_results", "gradebook", "attempts", "assignment_targets",
   "assignment_question_versions", "assessment_questions", "assignments", "assessments", "mastery_records", "notifications", "audit_logs",
-  "class_memberships", "classes", "legacy_content_attributions + market_attribution_issues", "question_versions", "questions",
+  "challenge awards/attempts/campaigns", "class_memberships", "classes", "legacy_content_attributions + market_attribution_issues", "question_versions", "questions",
   "curriculum_nodes", "market_curricula", "curricula", "curriculum_authorities", "wallet/coin/qpoint rows", "user_market_memberships",
   "teacher_profiles/student_profiles", "profiles", "auth.users", "markets",
 ] as const;
@@ -264,6 +264,13 @@ function teardownScript(runId: string) {
     delete from public.mastery_records where student_user_id in (select id from _u) or curriculum_node_id in (select id from _n);
     delete from public.notifications where recipient_user_id in (select id from _u) or market_id in (select id from _m);
     delete from public.audit_logs where actor_user_id in (select id from _u);
+    do $do$ begin
+      if to_regclass('public.challenge_campaigns') is not null then
+        delete from public.challenge_awards where user_id in (select id from _u);
+        delete from public.challenge_attempts where user_id in (select id from _u);
+        delete from public.challenge_campaigns where owner_id in (select id from _u);
+      end if;
+    end $do$;
     delete from public.class_memberships where class_id in (select id from _c) or student_user_id in (select id from _u);
     delete from public.classes where id in (select id from _c);
     delete from public.legacy_content_attributions where question_id in (select id from _q) or market_id in (select id from _m);
