@@ -186,6 +186,7 @@ export default function AppShell({
       add("Teaching", [
         ["/teacher", "Dashboard"],
         ["/teacher/classes", "Classes"],
+        ["/teacher/learners", "Young learners"],
         ["/teacher/assignments", "Assignments"],
         ["/teacher/gradebook", "Gradebook"],
         ["/teacher/question-banks", "Question Banks"],

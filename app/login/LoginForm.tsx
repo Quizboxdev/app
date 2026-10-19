@@ -3,6 +3,7 @@
 import { FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { usernameToEmail } from "@/lib/managed/username";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { bootstrapUser, getHomeRouteForRole } from "@/lib/auth";
 import { userFacingError } from "@/lib/errors";
@@ -73,7 +74,8 @@ export default function LoginForm({ initial }: { initial: RegistrationParams }) 
     if (busy) return;
     setBusy(true);
     setNotice(null);
-    const normalizedEmail = email.trim().toLowerCase();
+    // Learners under 13 sign in with a username their teacher gave them; it maps to an address on the managed domain.
+    const normalizedEmail = mode === "login" ? usernameToEmail(email) : email.trim().toLowerCase();
     try {
       const supabase = getSupabaseBrowserClient();
       if (mode === "login") {
@@ -157,8 +159,8 @@ export default function LoginForm({ initial }: { initial: RegistrationParams }) 
         )}
 
         <div className="qb-field">
-          <label htmlFor="auth-email">Email</label>
-          <input id="auth-email" autoComplete="email" inputMode="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required disabled={busy} />
+          <label htmlFor="auth-email">{register ? "Email" : "Email or username"}</label>
+          <input id="auth-email" autoComplete={register ? "email" : "username"} inputMode="email" type={register ? "email" : "text"} autoCapitalize="none" spellCheck={false} value={email} onChange={(e) => setEmail(e.target.value)} required disabled={busy} />
         </div>
         <PasswordField id="auth-password" label="Password" autoComplete={register ? "new-password" : "current-password"} minLength={register ? PASSWORD_MIN_LENGTH : undefined} visible={showPassword} onToggle={() => setShowPassword((v) => !v)} value={password} onChange={(e) => setPassword(e.target.value)} required disabled={busy} />
         {!register && <div className="qb-auth-row"><Link href="/auth/forgot-password">Forgot password?</Link></div>}

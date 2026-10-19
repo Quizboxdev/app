@@ -9,6 +9,7 @@ import { getMyAccess, type MyAccess } from "@/lib/api/access";
 import { getCatalog, startCheckout, type Catalog } from "@/lib/api/payments";
 import { PLANS, planPriceMinor } from "@/lib/payments/plans";
 import { formatDate } from "@/lib/format";
+import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
 const cedis = (minor: number) => `GHS ${(minor / 100).toFixed(2)}`;
 
@@ -17,9 +18,11 @@ function SubscribeInner() {
   const reason = params.get("reason"), returned = params.get("reference");
   const [access, setAccess] = useState<MyAccess | null>(null), [catalog, setCatalog] = useState<Catalog | null>(null);
   const [busy, setBusy] = useState(""), [error, setError] = useState(""), [waited, setWaited] = useState(0);
+  const [isMinor, setIsMinor] = useState(false);
   const polls = useRef(0);
 
-  useEffect(() => { void getMyAccess().then(setAccess); void getCatalog().then(setCatalog); }, []);
+  useEffect(() => { void getMyAccess().then(setAccess); void getCatalog().then(setCatalog);
+    void getSupabaseBrowserClient().auth.getUser().then(async ({ data }) => { if (!data.user) return; const r = await getSupabaseBrowserClient().from("student_profiles").select("is_minor").eq("user_id", data.user.id).maybeSingle(); setIsMinor(!!(r.data as { is_minor?: boolean } | null)?.is_minor); }); }, []);
   // Coming back from the payment page: the provider confirms to our server a moment later, so check a few times before saying anything.
   useEffect(() => {
     if (!returned || access?.subscribed) return;
@@ -31,7 +34,7 @@ function SubscribeInner() {
     setBusy(planId); setError("");
     try { const { url } = await startCheckout(planId); window.location.assign(url); } catch (e: any) { setError(e?.message ?? "We could not start the payment."); setBusy(""); }
   }
-  const open = !!catalog?.payments_enabled;
+  const open = !!catalog?.payments_enabled && !isMinor;
 
   return (
     <>
@@ -68,8 +71,8 @@ function SubscribeInner() {
       </div>
 
       <section className="qb-card" style={{ marginTop: 16 }}>
-        <h2>{open ? "Need help paying?" : "How to subscribe"}</h2>
-        <p className="qb-muted">{open ? "Mobile money and cards are accepted. If a payment goes through but your subscription does not appear within a few minutes, contact us with your reference." : "Online payment is being switched on. Until then, contact us and we will activate your subscription."}</p>
+        <h2>{isMinor ? "Ask your teacher or a parent" : open ? "Need help paying?" : "How to subscribe"}</h2>
+        <p className="qb-muted">{isMinor ? "A subscription is arranged by your school or a parent. Ask your teacher." : open ? "Mobile money and cards are accepted. If a payment goes through but your subscription does not appear within a few minutes, contact us with your reference." : "Online payment is being switched on. Until then, contact us and we will activate your subscription."}</p>
         <Link className="qb-btn secondary" href="/contact">Contact QuizBox</Link>{" "}
         <Link className="qb-btn secondary" href="/practise">Back to Practise</Link>
       </section>

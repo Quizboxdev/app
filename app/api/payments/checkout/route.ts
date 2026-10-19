@@ -34,6 +34,10 @@ export async function POST(request: Request) {
   const { data: who, error: whoError } = await client.auth.getUser(authorization.slice(7));
   if (whoError || !who.user?.email) return json(401, { ok: false, error: "Please sign in." });
 
+  // Children under 13 with a teacher-managed account never pay online: their school or guardian arranges a subscription.
+  const minor = await client.from("student_profiles").select("is_minor").eq("user_id", who.user.id).maybeSingle();
+  if ((minor.data as { is_minor?: boolean } | null)?.is_minor) return json(403, { ok: false, error: "Please ask your teacher or a parent to arrange your subscription." });
+
   const catalog = await client.rpc("qb_subscription_catalog");
   const unit = Number((catalog.data as { unit_price_minor?: number } | null)?.unit_price_minor ?? 0);
   const price = planPriceMinor(plan, unit);
