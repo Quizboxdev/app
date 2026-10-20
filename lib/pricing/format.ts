@@ -4,6 +4,7 @@ export type PricePeriod = "month" | "term" | "year" | "campaign" | "once" | "fre
 export type PriceRow = {
   code: string; kind: "plan" | "campaign" | "bundle" | "addon"; name: string; audience: PriceAudience; description: string; includes: string[]; period: PricePeriod;
   price_minor: number | null; currency: string; highlight: boolean; checkout_url: string | null;
+  coins?: number | null; days?: number | null; levels?: string[];
 };
 export type PriceAdminRow = PriceRow & { id: string; active: boolean; starts_at: string | null; ends_at: string | null; sort_order: number };
 

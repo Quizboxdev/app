@@ -1,40 +1,58 @@
 import Link from "next/link";
-import { Check } from "lucide-react";
+import { Check, Sparkles } from "lucide-react";
 import { groupPrices, priceLabel, type PriceRow } from "@/lib/pricing/format";
 
-// The pricing cards. A card with a price and a payment link sends the buyer to the gateway; a free card goes to sign-up; one with no price yet says "Price to be announced".
-// `onPay` lets a screen handle a paid card that has no link (the existing learner checkout). Plain markup with no state, so it works on the public page and inside the app.
+// The pricing cards. Each section has its own colour band; the best-value card is lifted and carries a badge. A card with a price and a payment link sends the buyer to the
+// gateway; a free card goes to sign-up; one with no price yet says "Price to be announced". Plain markup, works on the public page and inside the app.
+const TONE: Record<string, { band: string; ink: string; soft: string; ring: string }> = {
+  learners: { band: "linear-gradient(135deg,#2563eb 0%,#7c3aed 100%)", ink: "#ffffff", soft: "#eef2ff", ring: "#7c3aed" },
+  schools: { band: "linear-gradient(135deg,#059669 0%,#0ea5e9 100%)", ink: "#ffffff", soft: "#ecfdf5", ring: "#059669" },
+  sponsors: { band: "linear-gradient(135deg,#f59e0b 0%,#ef4444 100%)", ink: "#ffffff", soft: "#fff7ed", ring: "#ea580c" },
+};
+
 export default function PricingCards({ rows, variant = "app", onPay, payable, busy, registerHref = "/login" }: {
   rows: PriceRow[]; variant?: "public" | "app"; onPay?: (row: PriceRow) => void; payable?: (row: PriceRow) => boolean; busy?: string; registerHref?: string;
 }) {
-  const pub = variant === "public";
-  const cls = { card: pub ? "qbp-card" : "qb-card", grid: pub ? "qbp-grid" : "qb-grid cols-3", h: pub ? "qbp-h3" : "", meta: pub ? "qbp-meta" : "qb-muted", btn: pub ? "qbp-btn" : "qb-btn" };
+  const groups = groupPrices(rows);
   return (
-    <div style={{ display: "grid", gap: 32 }}>
-      {groupPrices(rows).map((g) => (
-        <section key={g.id} aria-labelledby={`price-${g.id}`} data-qb-pricing={g.id}>
-          <h2 id={`price-${g.id}`} className={cls.h}>{g.title}</h2>
-          <p className={cls.meta} style={{ marginTop: 0 }}>{g.lead}</p>
-          <div className={cls.grid}>
-            {g.rows.map((r) => {
-              const p = priceLabel(r), free = r.price_minor === 0;
-              return (
-                <article key={r.code} className={cls.card} style={r.highlight ? { outline: "2px solid currentColor" } : undefined} aria-label={r.name}>
-                  {r.highlight && <p className={pub ? "qbp-tag" : "qb-pill"} style={{ margin: 0 }}>Best value</p>}
-                  <h3 className={cls.h} style={{ marginTop: 8 }}>{r.name}</h3>
-                  {r.description && <p className={cls.meta}>{r.description}</p>}
-                  <p style={{ fontSize: p.announced ? 16 : 26, fontWeight: 800, margin: "6px 0" }}>{p.amount}{p.per && <span className={cls.meta} style={{ fontSize: 14, fontWeight: 500 }}> {p.per}</span>}</p>
-                  <ul style={{ listStyle: "none", padding: 0, margin: "8px 0 12px", display: "grid", gap: 6 }}>
-                    {r.includes.map((i) => <li key={i} style={{ display: "flex", gap: 6, alignItems: "flex-start" }}><Check size={14} aria-hidden="true" style={{ marginTop: 4, flex: "0 0 auto" }} /> <span>{i}</span></li>)}
-                  </ul>
-                  {free ? <Link className={cls.btn} href={registerHref}>Get started</Link>
-                    : r.checkout_url ? <a className={cls.btn} href={r.checkout_url} target="_blank" rel="noopener noreferrer">Pay now</a>
-                    : onPay && (payable ? payable(r) : !p.announced) ? <button className={cls.btn} disabled={busy === r.code} onClick={() => onPay(r)}>{busy === r.code ? "Opening payment…" : "Pay with mobile money or card"}</button>
-                    : <Link className={pub ? "qbp-link" : "qb-link"} href="/contact">{p.announced ? "Ask to be told when it opens" : "Contact us"}</Link>}
-                </article>);
-            })}
-          </div>
-        </section>))}
+    <div className="qbp-pricing" style={{ display: "grid", gap: 40 }}>
+      <nav aria-label="Pricing sections" className="qbp-pricing-switch">
+        {groups.map((g) => <a key={g.id} href={`#price-${g.id}`} style={{ background: TONE[g.id]?.band ?? "#1e293b" }}>{g.title}</a>)}
+      </nav>
+      {groups.map((g) => {
+        const t = TONE[g.id] ?? TONE.learners;
+        return (
+          <section key={g.id} id={`price-${g.id}`} aria-labelledby={`price-h-${g.id}`} data-qb-pricing={g.id} className="qbp-pricing-section" style={{ scrollMarginTop: 96 }}>
+            <div className="qbp-pricing-band" style={{ background: t.band, color: t.ink }}>
+              <h2 id={`price-h-${g.id}`}>{g.title}</h2>
+              <p>{g.lead}</p>
+            </div>
+            <div className="qbp-pricing-grid">
+              {g.rows.map((r) => {
+                const p = priceLabel(r), free = r.price_minor === 0;
+                return (
+                  <article key={r.code} aria-label={r.name} className={`qbp-tier${r.highlight ? " is-best" : ""}`} style={{ "--ring": t.ring, "--soft": t.soft } as React.CSSProperties}>
+                    {r.highlight && <span className="qbp-tier-badge" style={{ background: t.band, color: t.ink }}><Sparkles size={12} aria-hidden="true" /> Best value</span>}
+                    <h3>{r.name}</h3>
+                    {r.description && <p className="qbp-tier-desc">{r.description}</p>}
+                    <p className={`qbp-tier-price${p.announced ? " is-announced" : ""}`}>
+                      {p.amount}{p.per && <span> {p.per}</span>}
+                    </p>
+                    {r.coins ? <p className="qbp-tier-coins">{r.coins} Coins{r.days ? ` · ${r.days} days` : ""}</p> : null}
+                    <ul>
+                      {r.includes.map((i) => <li key={i}><Check size={14} aria-hidden="true" /> <span>{i}</span></li>)}
+                    </ul>
+                    <div className="qbp-tier-action">
+                      {free ? <Link className="qbp-pill-btn" style={{ background: t.band, color: t.ink }} href={registerHref}>Get started free</Link>
+                        : r.checkout_url ? <a className="qbp-pill-btn" style={{ background: t.band, color: t.ink }} href={r.checkout_url} target="_blank" rel="noopener noreferrer">Pay now</a>
+                        : onPay && (payable ? payable(r) : !p.announced) ? <button className="qbp-pill-btn" style={{ background: t.band, color: t.ink }} disabled={busy === r.code} onClick={() => onPay(r)}>{busy === r.code ? "Opening payment…" : "Pay with mobile money or card"}</button>
+                        : <Link className="qbp-pill-link" href="/contact">{p.announced ? "Tell me when it opens" : "Talk to us"}</Link>}
+                    </div>
+                  </article>);
+              })}
+            </div>
+          </section>);
+      })}
     </div>
   );
 }
