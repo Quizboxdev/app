@@ -30,3 +30,30 @@ describe("chunkText", () => {
     expect(prompt).toContain("Write 5 different"); expect(prompt).toContain("Ananse wanted all the wisdom."); expect(prompt).toContain("Chapter 1");
   });
 });
+
+import { buildSections } from "./chunker";
+const c = (heading: string | null, i: number) => ({ heading, body: `Passage ${i} of the document text goes here for the test.` });
+
+describe("buildSections", () => {
+  it("starts a section at each chapter heading and keeps sub-headings inside their chapter", () => {
+    const chunks = [c("Chapter 1: The River", 1), c("The source", 2), c("The mouth", 3), c("Chapter 2: The Harvest", 4), c("Chapter 2: The Harvest", 5), c("Chapter 3: The Market", 6)];
+    expect(buildSections(chunks)).toEqual([{ title: "Chapter 1: The River", first: 1, last: 3 }, { title: "Chapter 2: The Harvest", first: 4, last: 5 }, { title: "Chapter 3: The Market", first: 6, last: 6 }]);
+  });
+  it("calls text before the first chapter an introduction, and understands numbered titles and surahs", () => {
+    expect(buildSections([c(null, 1), c("1. Our values", 2), c("2. Our promise", 3)])).toEqual([{ title: "Introduction", first: 1, last: 1 }, { title: "1. Our values", first: 2, last: 2 }, { title: "2. Our promise", first: 3, last: 3 }]);
+    expect(buildSections([c("Surah 1", 1), c("Surah 2", 2), c("Surah 2", 3)]).map((s) => s.title)).toEqual(["Surah 1", "Surah 2"]);
+  });
+  it("uses any headings when none is a chapter heading, and even parts when there are none", () => {
+    expect(buildSections([c("OUR PRODUCTS", 1), c("OUR PRICES", 2)]).map((s) => s.title)).toEqual(["OUR PRODUCTS", "OUR PRICES"]);
+    const flat = Array.from({ length: 25 }, (_, i) => c(null, i + 1));
+    expect(buildSections(flat)).toEqual([{ title: "Part 1", first: 1, last: 10 }, { title: "Part 2", first: 11, last: 20 }, { title: "Part 3", first: 21, last: 25 }]);
+    expect(buildSections([c("ONLY ONE HEADING", 1), c("ONLY ONE HEADING", 2)])).toEqual([{ title: "Part 1", first: 1, last: 2 }]);
+    expect(buildSections([])).toEqual([]);
+  });
+  it("always covers every passage without gaps or overlaps, and never exceeds 80 sections", () => {
+    const many = Array.from({ length: 300 }, (_, i) => c(`Chapter ${i + 1}`, i + 1));
+    const out = buildSections(many);
+    expect(out.length).toBeLessThanOrEqual(80); expect(out[0].first).toBe(1); expect(out[out.length - 1].last).toBe(300);
+    out.slice(1).forEach((s, i) => expect(s.first).toBe(out[i].last + 1));
+  });
+});

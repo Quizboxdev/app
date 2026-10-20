@@ -1,6 +1,6 @@
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { userFacingError } from "@/lib/errors";
-import type { Analytics, AttemptResult, Award, Brand, Format, ContentAsset, EditableQuestion, LeaderRow, MyCampaign, Passage, Prize, StageInfo, StageProgress, StartedAttempt } from "@/lib/challenges/types";
+import type { Analytics, AttemptResult, Award, Brand, FeaturedQuiz, Format, LibraryStats, Material, SectionRead, ContentAsset, EditableQuestion, LeaderRow, MyCampaign, Passage, Prize, StageInfo, StageProgress, StartedAttempt } from "@/lib/challenges/types";
 
 // Participants and creators call the database functions directly; every rule (who may create, one scored submission, locked after going live) is enforced there.
 const CODES: Record<string, string> = {
@@ -14,6 +14,8 @@ const CODES: Record<string, string> = {
   NOT_IN_AUDIENCE: "This is only open to the class or school it was made for.", ROUND_STILL_RUNNING: "The previous round is still running. The next round opens when it closes.", NOT_THROUGH: "You did not make it through to this round. Well done for taking part.",
   CHALLENGE_SINGLE_ROUND: "A challenge has one round. Make a competition if you want rounds.", INVALID_AUDIENCE: "Choose either a class or a school, not both.", INVALID_FORMAT: "Choose challenge or competition.",
   QB_FREE_ALLOWANCE_EXHAUSTED: "Your free practice is used up. Subscribe to keep joining challenges and competitions.",
+  READER_CLOSED: "The reading material is closed right now.", NO_READABLE_SECTIONS: "Choose at least one chapter that people can read.", READER_NEEDS_OPENING_TIME: "Set an opening time to close reading when the competition opens.",
+  INVALID_READER: "Choose when reading closes.", INVALID_TARGET: "Choose from the levels shown.", INVALID_CONTENT: "That document could not be used. Check the type and try again.",
   INVALID_BRAND: "Check the colour (like #1a7f5a) and the lengths of the texts.",
 };
 async function call<T>(fn: string, args: Record<string, unknown> = {}): Promise<T> {
@@ -52,11 +54,11 @@ export const getAnalytics = (id: string) => call<Analytics>("challenge_analytics
 export const adminOverview = () => call<{ campaigns: Record<string, number>; attempts_30d: number; players_30d: number; awards_pending: number; top: { slug: string; title: string; status: string; players: number }[] }>("challenge_admin_overview");
 
 // Uploading a book goes through a server route (it extracts the text); everything else is a direct database call.
-export async function uploadContent(a: { campaignId: string; title: string; kind: string; assetId?: string; file?: File | null; text?: string }): Promise<{ asset_id: string; version: number; passages: number }> {
+export async function uploadContent(a: { campaignId: string; title: string; contentType: string; assetId?: string; file?: File | null; text?: string }): Promise<{ asset_id: string; version: number; passages: number; sections: number; words: number; sectionList: string[] }> {
   const { data } = await getSupabaseBrowserClient().auth.getSession();
   if (!data.session?.access_token) throw new Error("Please sign in again.");
   const form = new FormData();
-  form.set("campaignId", a.campaignId); form.set("title", a.title); form.set("kind", a.kind); form.set("rights", "true");
+  form.set("campaignId", a.campaignId); form.set("title", a.title); form.set("contentType", a.contentType); form.set("rights", "true");
   if (a.assetId) form.set("assetId", a.assetId);
   if (a.file) form.set("file", a.file); else form.set("text", a.text ?? "");
   const res = await fetch("/api/challenges/content", { method: "POST", headers: { Authorization: `Bearer ${data.session.access_token}` }, body: form });
@@ -70,3 +72,14 @@ export const reportChallenge = (slug: string, reason: ReportReason, details?: st
 export type ChallengeReport = { id: string; reason: ReportReason; details: string | null; status: string; created_at: string; handled_note: string | null; campaign_id: string; slug: string; title: string; campaign_status: string; moderation_state: "OK" | "UNDER_REVIEW" | "TAKEN_DOWN"; owner_name: string | null; open_reports: number };
 export const listReports = (status = "OPEN") => call<ChallengeReport[]>("challenge_reports_list", { p_status: status });
 export const resolveReport = (report: string, action: "DISMISS" | "TAKE_DOWN" | "RESTORE", note?: string) => call<{ ok: true }>("challenge_report_resolve", { p_report: report, p_action: action, p_note: note || null });
+
+// Quiz Studio: joining, the reader, chapters, reader switches, targeting, templates, the sponsored carousel and library counts.
+export const joinChallenge = (slug: string, code?: string) => call<{ ok: true; already: boolean }>("challenge_join", { p_slug: slug, p_code: code || null });
+export const getMaterial = (slug: string) => call<Material>("challenge_material", { p_slug: slug });
+export const readSection = (slug: string, section: string) => call<SectionRead>("challenge_material_read", { p_slug: slug, p_section: section });
+export const setVisibleSections = (campaign: string, ids: string[]) => call<{ ok: true }>("challenge_sections_set_visible", { p_campaign: campaign, p_ids: ids });
+export const setReader = (id: string, enabled: boolean, closes: "START" | "END" = "END") => call<{ ok: true }>("challenge_set_reader", { p_id: id, p_enabled: enabled, p_closes: closes });
+export const setTargeting = (id: string, levels: string[]) => call<{ ok: true; levels: string[] }>("challenge_set_targeting", { p_id: id, p_levels: levels });
+export const cloneCampaign = (id: string, title?: string) => call<{ id: string; slug: string; format: Format }>("challenge_clone", { p_id: id, p_title: title || null });
+export const featuredQuizzes = (level?: string, limit = 8) => call<FeaturedQuiz[]>("challenge_featured", { p_limit: limit, p_level: level ?? null });
+export const libraryStats = () => call<LibraryStats>("challenge_library_stats");

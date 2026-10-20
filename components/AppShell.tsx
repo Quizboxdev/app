@@ -17,6 +17,7 @@ import { loginHrefFor } from "@/lib/auth/next-path";
 import WorkspaceChip from "@/components/WorkspaceChip";
 import { SponsorEngineProvider } from "@/components/SponsorEngineFlag";
 import DraftReminder from "@/components/DraftReminder";
+import SponsoredCarousel from "@/components/challenges/SponsoredCarousel";
 
 type NavItem = [string, string];
 type NavGroup = { label: string; items: NavItem[] };
@@ -314,6 +315,7 @@ export default function AppShell({
         <nav className="qb-nav" aria-label="Main">
           {navGroups}
         </nav>
+        {["STUDENT", "TEACHER"].includes(String(ctx?.role ?? "").toUpperCase()) && !inSchool && <div className="qb-sidebar-sponsor" style={{ padding: "0 12px 12px" }}><SponsoredCarousel compact showLibrary={false} /></div>}
       </aside>
 
       <main className="qb-main">

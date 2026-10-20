@@ -4,6 +4,7 @@ import { notFound, redirect } from "next/navigation";
 import PublicShell from "@/components/public/PublicShell";
 import PageIntro from "@/components/public/PageIntro";
 import { getPublicChallenge, getPublicLeaderboard } from "@/lib/challenges/server";
+import { contentType } from "@/lib/challenges/content-types";
 import { CHALLENGE_CATEGORIES, FORMATS, formatDuration, formatOf, readableText, type Format } from "@/lib/challenges/types";
 import { SITE_URL } from "@/lib/site";
 import ViewBeacon from "@/components/challenges/ViewBeacon";
@@ -43,6 +44,7 @@ export default async function PublicDetail({ slug, format }: { slug: string; for
       <ViewBeacon slug={c.slug} />
       <section className="qbp-wrap" style={{ paddingBottom: 64, display: "grid", gap: 24 }} data-qb-section={f.noun}>
         <div className="qbp-card" style={{ maxWidth: 820, ...(accent ? { borderTop: `6px solid ${accent}` } : {}) }}>
+          {c.brand?.logo && /* eslint-disable-next-line @next/next/no-img-element */ <img src={c.brand.logo} alt={c.brand.organiser_name ? `${c.brand.organiser_name} logo` : "Organiser logo"} width={72} height={72} style={{ objectFit: "contain", borderRadius: 12 }} />}
           {c.brand?.welcome && <p>{c.brand.welcome}</p>}
           {!c.private && <p className="qbp-meta">{category} · {c.question_count} questions · {formatDuration(c.time_limit_seconds * 1000)} · {c.max_attempts} attempt{c.max_attempts === 1 ? "" : "s"} · {c.participants} played</p>}
           {c.audience === "CLASS" && <p className="qbp-meta">Open to the members of one class. Sign in with your school account to take part.</p>}
@@ -54,6 +56,13 @@ export default async function PublicDetail({ slug, format }: { slug: string; for
             <p className="qbp-meta">{c.status === "COMPLETED" ? `This ${f.noun} has finished.` : c.status === "PAUSED" ? `This ${f.noun} is paused.` : `This ${f.noun} is not open right now.`}</p>
           )}
         </div>
+        {!c.private && c.material && (
+          <div className="qbp-card" style={{ maxWidth: 820 }}>
+            <h2 className="qbp-h3">Reading material</h2>
+            <p>{c.material.types.map((t) => contentType(t).label).join(", ")}: {c.material.documents} document{c.material.documents === 1 ? "" : "s"} with {c.material.sections} chapter{c.material.sections === 1 ? "" : "s"} to read before you play.</p>
+            <p className="qbp-meta">Join with a free account to read. Reading is closed during a timed round and {c.material.closes === "START" ? "when the competition opens" : "when the competition ends"}.</p>
+          </div>
+        )}
         {!c.private && format === "COMPETITION" && stages.length > 0 && (
           <div className="qbp-card" style={{ maxWidth: 820 }}>
             <h2 className="qbp-h3">Rounds</h2>

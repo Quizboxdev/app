@@ -1,12 +1,14 @@
 import mammoth from "mammoth";
 import { authenticate, isUuid, reply } from "@/lib/managed/server";
-import { chunkText, sha256Hex } from "@/lib/challenges/chunker";
+import { buildSections, chunkText, sha256Hex } from "@/lib/challenges/chunker";
+import { CONTENT_TYPES, contentType } from "@/lib/challenges/content-types";
+import { MAX_PASSAGES, MAX_PASTED_CHARS, MAX_UPLOAD_BYTES } from "@/lib/challenges/limits";
 import { pdfPages } from "@/lib/pdf";
 
 // A challenge creator uploads a book or notes (PDF, Word, text) or pastes text. The server extracts the text, splits it into passages and stores each upload as a new version.
 // The file itself is not kept: only the passages the creator's questions will cite. The database call runs as the signed-in creator, so ownership is checked there, not here.
 export const runtime = "nodejs";
-const MAX_BYTES = 8 * 1024 * 1024;
+const MAX_BYTES = MAX_UPLOAD_BYTES;
 
 async function extract(name: string, bytes: Uint8Array): Promise<string> {
   const ext = name.toLowerCase().split(".").pop() ?? "";
@@ -23,8 +25,9 @@ export async function POST(request: Request) {
   let form: FormData;
   try { form = await request.formData(); } catch { return reply(400, { ok: false, error: "Invalid request." }); }
   const campaignId = String(form.get("campaignId") ?? ""), title = String(form.get("title") ?? "").trim();
-  const kind = String(form.get("kind") ?? "book"), assetId = String(form.get("assetId") ?? "");
-  if (!isUuid(campaignId) || title.length < 2 || !["book", "article", "notes"].includes(kind) || (assetId && !isUuid(assetId))) return reply(400, { ok: false, error: "Please check the title and try again." });
+  const type = String(form.get("contentType") ?? "other"), assetId = String(form.get("assetId") ?? "");
+  const kind = contentType(type).kind;
+  if (!isUuid(campaignId) || title.length < 2 || !CONTENT_TYPES.some((t) => t.id === type) || (assetId && !isUuid(assetId))) return reply(400, { ok: false, error: "Please check the title and try again." });
   if (form.get("rights") !== "true") return reply(400, { ok: false, error: "Please confirm you have the right to use this material." });
 
   let bytes: Uint8Array, sourceName: string;
@@ -32,7 +35,7 @@ export async function POST(request: Request) {
   if (file instanceof File && file.size > 0) {
     if (file.size > MAX_BYTES) return reply(413, { ok: false, error: "That file is larger than 8 MB." });
     bytes = new Uint8Array(await file.arrayBuffer()); sourceName = file.name.slice(0, 200);
-  } else if (pasted.trim().length >= 40 && pasted.length <= 600_000) { bytes = new TextEncoder().encode(pasted); sourceName = "pasted.txt"; }
+  } else if (pasted.trim().length >= 40 && pasted.length <= MAX_PASTED_CHARS) { bytes = new TextEncoder().encode(pasted); sourceName = "pasted.txt"; }
   else return reply(400, { ok: false, error: "Choose a file or paste at least a few sentences." });
 
   let text: string;
@@ -40,14 +43,15 @@ export async function POST(request: Request) {
     const code = String(e?.message ?? "");
     return reply(422, { ok: false, error: code === "UNSUPPORTED_TYPE" ? "Use a PDF, Word (.docx) or text file." : code.startsWith("NOT_A_") ? "That file does not look like a real document of that type." : "We could not read that file. Try a text copy instead." });
   }
-  const chunks = chunkText(text);
+  const chunks = chunkText(text, MAX_PASSAGES + 1);
+  if (chunks.length > MAX_PASSAGES) return reply(413, { ok: false, error: `This document is longer than the limit (about 300 pages of text). Upload the chapters you need as separate documents, or a shorter file.` });
   if (!chunks.length) return reply(422, { ok: false, error: "No readable text was found. Scanned pages need to be typed or run through text recognition first." });
   const { data, error } = await who.client.rpc("challenge_content_add", {
-    p_campaign: campaignId, p_title: title, p_kind: kind, p_source_name: sourceName, p_sha256: await sha256Hex(bytes), p_chunks: chunks, p_rights: true, p_asset: assetId || null,
+    p_campaign: campaignId, p_title: title, p_kind: kind, p_source_name: sourceName, p_sha256: await sha256Hex(bytes), p_chunks: chunks, p_rights: true, p_asset: assetId || null, p_content_type: type, p_sections: buildSections(chunks),
   });
   if (error) {
     const m = error.message ?? "";
     return reply(/NOT_AUTHORIZED|NOT_FOUND/.test(m) ? 403 : 400, { ok: false, error: /RATE_LIMITED/.test(m) ? "This challenge already has the maximum number of sources." : /NOT_AUTHORIZED|NOT_FOUND/.test(m) ? "You can only add material to your own challenges." : "The material could not be saved." });
   }
-  return reply(200, { ok: true, ...(data as Record<string, unknown>), passages: chunks.length });
+  return reply(200, { ok: true, ...(data as Record<string, unknown>), passages: chunks.length, sectionList: buildSections(chunks).map((s) => s.title) });
 }

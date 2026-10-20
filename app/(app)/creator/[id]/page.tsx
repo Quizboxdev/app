@@ -123,7 +123,7 @@ export default function CreatorEditPage({ params }: { params: Promise<{ id: stri
         <AudiencePanel id={id} draft={!!draft} format={campaign.format} current={{ class: campaign.audience_class_id, institution: campaign.audience_institution_id }} onChanged={() => void load()} onError={onError} />
       </>}
       {tab === "Rounds" && <StagesPanel id={id} draft={!!draft} stages={stages} base={{ question_count: campaign.question_count, time_limit_seconds: campaign.time_limit_seconds }} onChanged={() => void load()} onError={onError} />}
-      {tab === "Source" && <SourcePanel campaignId={id} picked={passage} onPick={(p) => { setPassage(p); if (p) setNotice("Passage selected. Go to the Questions tab to paste questions that cite it."); }} onError={onError} />}
+      {tab === "Source" && <SourcePanel campaignId={id} reader={{ enabled: !!campaign.reader_enabled, closes: campaign.reader_closes === "START" ? "START" : "END" }} hasOpeningTime={!!campaign.starts_at} onChanged={() => void load()} picked={passage} onPick={(p) => { setPassage(p); if (p) setNotice("Passage selected. Go to the Questions tab to paste questions that cite it."); }} onError={onError} />}
       {tab === "Prizes" && <PrizesPanel id={id} status={campaign.status} finalized={!!campaign.finalized_at} prizes={prizes} onChanged={() => void load()} onError={onError} />}
       {tab === "Look and feel" && <BrandPanel id={id} brand={campaign.brand ?? {}} onChanged={() => void load()} onError={onError} />}
       {tab === "Results" && <AnalyticsPanel id={id} onError={onError} />}

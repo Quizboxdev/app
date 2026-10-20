@@ -34,6 +34,38 @@ export function chunkText(raw: string, limit = 400): Chunk[] {
   return chunks.slice(0, limit);
 }
 
+
+// Chapters. The reader and the "which parts can people read" choice work on sections: runs of consecutive passages that belong together. A document's own chapter headings
+// ("Chapter 3", "Part II", "Surah 2", "Unit 4", numbered titles) decide where sections start; sub-headings stay inside their chapter. With no usable headings the text is cut into
+// even parts. Always covers every passage, in order, without gaps, and never more than 80 sections.
+export type Section = { title: string; first: number; last: number };
+const MAJOR = /^(chapter|part|book|surah|unit|lesson|section|week|module|day|story)\b/i;
+const NUMBERED = /^\d+[.)]\s+\S/;
+const isMajor = (h: string | null) => !!h && (MAJOR.test(h.trim()) || NUMBERED.test(h.trim()));
+const clip = (t: string) => t.replace(/\s+/g, " ").trim().slice(0, 80);
+
+export function buildSections(chunks: Chunk[], opts: { block?: number; max?: number } = {}): Section[] {
+  const n = chunks.length, max = opts.max ?? 80;
+  if (!n) return [];
+  const blocks = (size: number): Section[] => { const out: Section[] = []; for (let i = 0; i < n; i += size) out.push({ title: `Part ${out.length + 1}`, first: i + 1, last: Math.min(n, i + size) }); return out; };
+  const heads = chunks.map((c) => c.heading);
+  const majors = new Set(heads.filter(isMajor).map((h) => h as string));
+  const distinct = new Set(heads.filter((h): h is string => !!h));
+  // Which headings start a section.
+  const starts = majors.size >= 2 ? (h: string | null) => isMajor(h) : distinct.size >= 2 ? (h: string | null) => !!h : null;
+  if (!starts) return blocks(opts.block ?? 10);
+  const out: Section[] = []; let prev: string | null | undefined;
+  for (let i = 0; i < n; i++) {
+    const h = heads[i];
+    const begins = i === 0 || (starts(h) && h !== prev);
+    if (begins) out.push({ title: i === 0 && !starts(h) ? "Introduction" : clip(h ?? "Introduction"), first: i + 1, last: i + 1 });
+    else out[out.length - 1].last = i + 1;
+    if (starts(h)) prev = h;
+  }
+  if (out.length > max) return blocks(Math.ceil(n / Math.min(max, 60)));
+  return out;
+}
+
 export const sha256Hex = async (bytes: Uint8Array): Promise<string> => {
   const digest = await crypto.subtle.digest("SHA-256", bytes as unknown as ArrayBuffer);
   return Array.from(new Uint8Array(digest)).map((b) => b.toString(16).padStart(2, "0")).join("");

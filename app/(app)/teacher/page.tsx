@@ -17,6 +17,7 @@ import { getTeacherAnalytics, getTeacherDashboard, listIndicatorLearners, listIn
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import MasteryBar from "@/components/charts/MasteryBar";
 import ReviewerApplyCard from "@/components/ReviewerApplyCard";
+import SponsoredCarousel from "@/components/challenges/SponsoredCarousel";
 
 export default function TeacherDashboardPage() {
   const [data, setData] = useState<any>(null);
@@ -74,6 +75,7 @@ export default function TeacherDashboardPage() {
 
   return (
     <>
+      <SponsoredCarousel />
       <DashboardHero eyebrow="Teacher workspace" title={`${greeting}${firstName ? `, ${firstName}` : ""}`} description={`${data.classes.length} class${data.classes.length === 1 ? "" : "es"} · ${phases[0].rows.length} active assignment${phases[0].rows.length === 1 ? "" : "s"} · ${data.questionBanks.length} question bank${data.questionBanks.length === 1 ? "" : "s"}`} primary={{ label: "Create assignment", href: "/teacher/assignments" }} secondary={{ label: "Question bank", href: "/teacher/question-banks" }} />
 
       <section className="qb-card" aria-labelledby="th-attention">

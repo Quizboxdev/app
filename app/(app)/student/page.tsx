@@ -18,6 +18,8 @@ import { getMyAccess, type MyAccess } from "@/lib/api/access";
 import { getMyQPoints, getMyWallet } from "@/lib/api/core";
 import SubjectIcon from "@/components/SubjectIcon";
 import InstallPrompt from "@/components/InstallPrompt";
+import SponsoredCarousel from "@/components/challenges/SponsoredCarousel";
+import { levelFromGrade } from "@/lib/challenges/content-types";
 
 type Subject = { code: string; name: string; percentage: number; count: number; evidence: number };
 
@@ -94,6 +96,7 @@ export default function StudentHomePage() {
     <>
       {error && <div className="qb-card qb-error" role="alert">{error}</div>}
       <InstallPrompt />
+      <SponsoredCarousel level={levelFromGrade(klass?.grade)} />
       <section className="qb-dashboard-hero qb-sh-hero" aria-labelledby="sh-title">
         <div>
           <p className="qb-eyebrow">{[klass?.grade, klass?.class_name].filter(Boolean).join(" · ") || "Student workspace"}</p>

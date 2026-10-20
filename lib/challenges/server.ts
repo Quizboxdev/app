@@ -1,5 +1,5 @@
 import { getSupabaseAdminClient } from "@/lib/supabase/server-admin";
-import type { ChallengeCard, Format, LeaderRow, PublicChallenge } from "./types";
+import type { ChallengeCard, Format, LeaderRow, LibraryStats, PublicChallenge } from "./types";
 
 // Public pages read campaigns on the server through the service role: the database functions return only live public data and never questions or answers.
 // If the migration is not applied or the database is unreachable the pages show an empty state instead of failing.
@@ -14,4 +14,9 @@ export async function getPublicChallenge(slug: string): Promise<ChallengeCard | 
 export async function getPublicLeaderboard(slug: string): Promise<LeaderRow[]> {
   if (!SLUG.test(slug)) return [];
   try { const { data } = await getSupabaseAdminClient().rpc("challenge_leaderboard", { p_slug: slug, p_limit: 20 }); return (data ?? []) as LeaderRow[]; } catch { return []; }
+}
+
+// How much material QuizBox hosts, by type (counts only). Empty if the database function is not there yet.
+export async function getLibraryStats(): Promise<LibraryStats> {
+  try { const { data } = await getSupabaseAdminClient().rpc("challenge_library_stats"); return (data ?? { documents: 0, by_type: {} }) as LibraryStats; } catch { return { documents: 0, by_type: {} }; }
 }

@@ -4,7 +4,7 @@ import { use, useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
-import { getLeaderboard, myProgress, startChallenge, submitChallenge } from "@/lib/api/challenges";
+import { getLeaderboard, getMaterial, joinChallenge, myProgress, startChallenge, submitChallenge } from "@/lib/api/challenges";
 import { isAllowanceExhausted, SUBSCRIBE_PATH } from "@/lib/api/access";
 import ShareBar from "@/components/challenges/ShareBar";
 import { FORMATS, formatOf, formatDuration, readableText, type AttemptResult, type ChallengeCard, type LeaderRow, type StageProgress, type StartedAttempt } from "@/lib/challenges/types";
@@ -20,8 +20,12 @@ export default function PlayPage({ params }: { params: Promise<{ slug: string }>
   const [result, setResult] = useState<AttemptResult | null>(null), [board, setBoard] = useState<LeaderRow[]>([]);
   const [progress, setProgress] = useState<StageProgress[]>([]), [stage, setStage] = useState(1);
   const sent = useRef(false);
+  const [reading, setReading] = useState<Awaited<ReturnType<typeof getMaterial>> | null>(null);
 
   useEffect(() => { void Promise.resolve(getSupabaseBrowserClient().rpc("challenge_public_get", { p_slug: slug })).then(({ data }) => setCard((data as ChallengeCard) ?? null), () => setCard(null)); }, [slug]);
+
+  useEffect(() => { if (card?.material) getMaterial(slug).then(setReading).catch(() => setReading(null)); }, [slug, card?.material, attempt, result]);
+  async function joinAndRead() { setBusy(true); setError(""); try { await joinChallenge(slug, code); router.push(`/play/${slug}/read`); return; } catch (e: any) { if (isAllowanceExhausted(e)) { router.push(SUBSCRIBE_PATH); return; } setError(e.message); } setBusy(false); }
 
   const loadProgress = useCallback(() => { myProgress(slug).then((p) => { setProgress(p); const open = p.find((s) => s.state === "OPEN"); if (open) setStage(open.stage_no); }).catch(() => setProgress([])); }, [slug]);
   useEffect(() => { loadProgress(); }, [loadProgress]);
@@ -115,6 +119,16 @@ export default function PlayPage({ params }: { params: Promise<{ slug: string }>
         <p className="qb-muted qb-small">If you win a prize, the organiser may contact you at your account email.</p>
         {card.live ? <button className="qb-btn" style={brandBtn} disabled={busy || (progress.length > 0 && !progress.some((s) => s.stage_no === stage && s.state === "OPEN"))} onClick={start}>{busy ? "Starting…" : "Start"}</button> : <p className="qb-muted">This {fmt.noun} is not open right now.</p>}
       </div>
+      {card.material && (
+        <div className="qb-card">
+          <h2>Reading material</h2>
+          <p>{card.material.documents} document{card.material.documents === 1 ? "" : "s"}, {card.material.sections} chapter{card.material.sections === 1 ? "" : "s"} to read before you play. Reading is closed while a timed round is running{card.material.closes === "START" ? " and closes when the competition opens" : " and closes when the competition ends"}.</p>
+          {reading?.state === "OPEN" && <Link className="qb-btn" href={`/play/${slug}/read`}>Read the material</Link>}
+          {(reading === null || reading?.state === "NOT_JOINED") && <button className="qb-btn" disabled={busy} onClick={() => void joinAndRead()}>{busy ? "Joining…" : "Join and read the material"}</button>}
+          {reading?.state === "CLOSED_ROUND" && <p className="qb-muted">Finish your round first. Then you can read again.</p>}
+          {(reading?.state === "CLOSED_ENDED" || reading?.state === "CLOSED_STARTED") && <p className="qb-muted">Reading has closed.</p>}
+        </div>
+      )}
     </>
   );
 }
