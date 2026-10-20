@@ -6,6 +6,8 @@ import { listAuthorizedMarkets, listAuthorizedSources, type MarketOption, type S
 import { newWizardConfig, resumeWizardConfig, wizardIssues, WIZARD_STEPS, type WizardConfig } from "@/lib/competition/wizard";
 import type { DocumentRecord, DraftRecord, Organization } from "@/lib/competition/repository";
 import SponsorCompetitionDelivery, { CompetitionComparison } from "@/components/SponsorCompetitionDelivery";
+import { useDraft } from "@/lib/drafts/use-draft";
+import DraftNotice from "@/components/DraftNotice";
 
 export default function SponsorWorkspace() {
   const [organizations, setOrganizations] = useState<Organization[]>([]), [organization, setOrganization] = useState<Organization | null>(null);
@@ -27,11 +29,13 @@ export default function SponsorWorkspace() {
   useEffect(() => { let live = true; Promise.all([call<Organization[]>("list_organizations"), listAuthorizedMarkets()]).then(async ([rows, options]) => { if (!live) return; setOrganizations(rows); setMarkets(options); if (rows[0]) { const org = await call<Organization>("organization", rows[0].sponsor_id); const list = await call<DraftRecord[]>("list_drafts", rows[0].sponsor_id); if (live) { setOrganization(org); setDrafts(list); } } }).catch(e => { if (live) setError(e.message); }); return () => { live = false; }; }, []);
   useEffect(() => { let live = true; setSources([]); if (config.scope === "GLOBAL" || config.scope === "LOCAL_MARKET" && config.marketIds.length === 1 || config.scope === "MULTI_MARKET" && config.marketIds.length >= 2) listAuthorizedSources(undefined, { scope: config.scope, markets: config.marketIds }).then(rows => { if (live) setSources(rows); }).catch(e => { if (live) setError(e.message); }); return () => { live = false; }; }, [config.scope, config.marketIds]);
   useEffect(() => { let live = true; setJobs([]); if (organization && saved) call<Array<{ id: string; status: string; provider: string; model: string; error_code: string | null }>>("jobs", organization.sponsor_id, { competition_id: saved.competition_id }).then(rows => { if (live) setJobs(rows); }).catch(e => { if (live) setError(e.message); }); return () => { live = false; }; }, [organization, saved]);
+  // Everything typed in the wizard is kept as a draft until it is saved or 24 hours pass, so a wrong click on the menu loses nothing.
+  const holder = useDraft({ kind: "sponsor_competition", scope: saved?.competition_id ?? "new", title: config.title, path: "/sponsor/workspace", value: { config }, apply: (v: { config: WizardConfig }) => { if (v?.config) setConfig(v.config); }, empty: !String(config.title ?? "").trim(), ready: Boolean(organization) });
   function set<K extends keyof WizardConfig>(key: K, value: WizardConfig[K]) { setConfig(current => ({ ...current, [key]: value })); }
   async function save() {
     if (!organization) return;
     const result = await call<DraftRecord>("save_draft", organization.sponsor_id, { competition_id: saved?.competition_id ?? null, revision: saved?.revision ?? null, configuration: config });
-    setSaved(result); setNotice("Draft saved."); setDrafts(await call<DraftRecord[]>("list_drafts", organization.sponsor_id));
+    setSaved(result); setNotice("Draft saved."); void holder.finish(); setDrafts(await call<DraftRecord[]>("list_drafts", organization.sponsor_id));
   }
   async function refreshJobs() {
     if (organization && saved) setJobs(await call("jobs", organization.sponsor_id, { competition_id: saved.competition_id }));
@@ -50,6 +54,7 @@ export default function SponsorWorkspace() {
   return <>
     <div className="qb-page-head"><h1>Sponsor competitions</h1><select aria-label="Organization" value={organization?.sponsor_id ?? ""} disabled={busy} onChange={e => run(async () => { await refresh(e.target.value); setSaved(undefined); setConfig(newWizardConfig()); setDocuments([]); })}><option value="">Select organization</option>{organizations.map(o => <option key={o.sponsor_id} value={o.sponsor_id}>{o.organization_name}</option>)}</select></div>
     {error && <p role="alert" className="qb-error">{error}</p>}{notice && <p role="status">{notice}</p>}
+    {view === "competitions" && <DraftNotice restored={!!holder.restored} expiresAt={holder.expiresAt} noun="sponsored competition" onDiscard={() => void holder.finish()} />}
     <div role="tablist" className="qb-content-filters">{["competitions", "organization"].map(tab => <button role="tab" aria-selected={view === tab} key={tab} onClick={() => setView(tab)}>{tab}</button>)}</div>
     {(!organization || view === "organization") && <section className="qb-content-ops"><h2>{organization?.organization_name ?? "Create organization"}</h2>
       <form key={organization?.sponsor_id ?? "new"} onSubmit={e => { e.preventDefault(); const data = Object.fromEntries(new FormData(e.currentTarget)); run(async () => { if (organization) await call("edit_organization", organization.sponsor_id, data); else { const market = markets.find(m => m.id === data.market_id); const result = await call<{ sponsor_id: string }>("create_organization", null, { ...data, country_id: market?.country_id }); await refresh(result.sponsor_id); } await refresh(organization?.sponsor_id); setNotice("Organization saved."); }); }}>

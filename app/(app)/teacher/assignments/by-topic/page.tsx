@@ -1,11 +1,13 @@
 "use client";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { bootstrapUser } from "@/lib/auth";
 import { listTeacherClasses } from "@/lib/api/teacher";
 import { listClassLearners, listTeacherTopics, previewTopicPlan, publishTopicAssignment, type TeacherTopic, type TopicPlan } from "@/lib/api/topic-assignments";
 import { describeErrorMessage } from "@/lib/errors";
 import { splitTopicsForTeacher } from "@/lib/curriculum/display";
+import { useDraft } from "@/lib/drafts/use-draft";
+import DraftNotice from "@/components/DraftNotice";
 
 type ClassRow = { id: string; class_name: string; grade?: string | null };
 
@@ -21,6 +23,12 @@ export default function AssignByTopicPage() {
   const [attempts, setAttempts] = useState(1), [minutes, setMinutes] = useState(30), [dueAt, setDueAt] = useState("");
   const [learners, setLearners] = useState<Array<{ user_id: string; name: string }>>([]), [everyone, setEveryone] = useState(true), [recipients, setRecipients] = useState<string[]>([]);
   const [busy, setBusy] = useState(false), [error, setError] = useState(""), [notice, setNotice] = useState("");
+  // Unfinished work is kept as a draft. The class has to load before the topics and learners it holds can be put back, so those wait in `pending`.
+  type Held = { classId: string; subject: string; chosen: string[]; total: number; difficulty: string; title: string; description: string; mode: "PRACTICE" | "ASSESSMENT"; attempts: number; minutes: number; dueAt: string; everyone: boolean; recipients: string[] };
+  const pending = useRef<Held | null>(null);
+  const draft = useDraft<Held>({ kind: "assignment", title, path: "/teacher/assignments/by-topic", empty: !classId && !title.trim(),
+    value: { classId, subject, chosen, total, difficulty, title, description, mode, attempts, minutes, dueAt, everyone, recipients },
+    apply: (v) => { pending.current = v; setTotal(v.total ?? 20); setDifficulty(v.difficulty ?? ""); setTitle(v.title ?? ""); setDescription(v.description ?? ""); setMode(v.mode ?? "PRACTICE"); setAttempts(v.attempts ?? 1); setMinutes(v.minutes ?? 30); setDueAt(v.dueAt ?? ""); setClassId(v.classId ?? ""); } });
 
   useEffect(() => {
     bootstrapUser().then((ctx: any) => listTeacherClasses(String(ctx.teacherProfile?.id ?? ""))).then((rows: any[]) => setClasses(rows as ClassRow[]))
@@ -30,7 +38,16 @@ export default function AssignByTopicPage() {
     setTopics([]); setSubject(""); setChosen([]); setPlan(null); setLearners([]); setRecipients([]); setEveryone(true);
     if (!classId) return;
     Promise.all([listTeacherTopics(classId), listClassLearners(classId)])
-      .then(([t, l]) => { setTopics(t); setLearners(l); const first = t[0]?.subject; if (first) setSubject(first); })
+      .then(([t, l]) => {
+        setTopics(t); setLearners(l); const first = t[0]?.subject; if (first) setSubject(first);
+        const p = pending.current;
+        if (p && p.classId === classId) {
+          pending.current = null;
+          if (p.subject && t.some((x) => x.subject === p.subject)) setSubject(p.subject);
+          setChosen((p.chosen ?? []).filter((id) => t.some((x) => x.topic_id === id)));
+          setEveryone(p.everyone ?? true); setRecipients((p.recipients ?? []).filter((id) => l.some((x) => x.user_id === id)));
+        }
+      })
       .catch((e: Error) => setError(describeErrorMessage(e.message)));
   }, [classId]);
 
@@ -59,13 +76,14 @@ export default function AssignByTopicPage() {
       await publishTopicAssignment({ classId, title: title.trim(), description, topicIds: chosen, total, difficulty: difficulty || undefined, mode, attempts, minutes,
         dueAt: dueAt ? new Date(dueAt).toISOString() : undefined, targetStudentIds: everyone ? undefined : recipients });
       setNotice(`Assignment published: ${total} questions across ${chosen.length} topic${chosen.length === 1 ? "" : "s"}.`);
-      setTitle(""); setDescription(""); setChosen([]); setPlan(null);
+      void draft.finish(); setTitle(""); setDescription(""); setChosen([]); setPlan(null);
     } catch (e) { setError(describeErrorMessage((e as Error).message)); } finally { setBusy(false); }
   }
 
   return <>
     <div className="qb-page-head"><div><h1>Assign by topic</h1>
       <p>Choose the topics you taught and how many questions. They are shared evenly across the topics. <Link href="/teacher/assignments">Assign by single objective instead</Link>.</p></div></div>
+    <DraftNotice restored={!!draft.restored} expiresAt={draft.expiresAt} noun="assignment" onDiscard={() => void draft.finish()} />
     {error && <div className="qb-card qb-error" role="alert">{error}</div>}{notice && <div className="qb-card" role="status">{notice}</div>}
 
     <section className="qb-card"><h2>1. Class and subject</h2>

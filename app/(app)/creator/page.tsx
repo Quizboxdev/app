@@ -6,6 +6,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { adminOverview, createChallenge, myCampaigns } from "@/lib/api/challenges";
 import { CHALLENGE_CATEGORIES, FORMATS, type Format, type MyCampaign } from "@/lib/challenges/types";
 import { humanize } from "@/lib/format";
+import { useDraft } from "@/lib/drafts/use-draft";
+import DraftNotice from "@/components/DraftNotice";
 
 // Console for challenges and competitions: your campaigns, and a short form to start a new one. A challenge is one timed round; a competition has rounds that pass players on.
 // Questions are added on the next screen. Anyone signed in can create and share one.
@@ -19,11 +21,14 @@ function CreatorConsole() {
   useEffect(() => { adminOverview().then(setOverview).catch(() => setOverview(null)); }, []);   // only admins get an answer
   const mine = (rows ?? []).filter((r) => (r.format ?? "CHALLENGE") === format);
   const set = (k: string, v: string | number) => setF((x) => ({ ...x, [k]: v }));
+  // What is typed in the form is kept as a draft, so leaving the page by mistake loses nothing.
+  const draft = useDraft({ kind: format === "COMPETITION" ? "competition" : "challenge", title: f.title, path: `/creator?format=${format.toLowerCase()}`, value: f, apply: (v) => setF((x) => ({ ...x, ...v })), empty: !f.title.trim() && !f.summary.trim() });
 
   async function create(e: React.FormEvent) {
     e.preventDefault(); setBusy(true); setError("");
     try {
       const r = await createChallenge({ ...f, format, startsAt: f.startsAt ? new Date(f.startsAt).toISOString() : null, endsAt: f.endsAt ? new Date(f.endsAt).toISOString() : null });
+      await draft.finish();
       router.push(`/creator/${r.id}`);
     } catch (err: any) { setError(err.message); setBusy(false); }
   }
@@ -49,6 +54,7 @@ function CreatorConsole() {
           </tbody></table>
         )}
       </div>
+      <DraftNotice restored={!!draft.restored} expiresAt={draft.expiresAt} noun={fmt.noun} onDiscard={() => void draft.finish()} />
       <form className="qb-card qb-form" onSubmit={create}>
         <h2>New {fmt.noun}</h2>
         <label className="qb-field">Title<input required minLength={3} maxLength={120} value={f.title} onChange={(e) => set("title", e.target.value)} /></label>

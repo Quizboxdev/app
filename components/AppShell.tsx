@@ -16,6 +16,7 @@ import WorkspaceProvider from "@/components/WorkspaceProvider";
 import { loginHrefFor } from "@/lib/auth/next-path";
 import WorkspaceChip from "@/components/WorkspaceChip";
 import { SponsorEngineProvider } from "@/components/SponsorEngineFlag";
+import DraftReminder from "@/components/DraftReminder";
 
 type NavItem = [string, string];
 type NavGroup = { label: string; items: NavItem[] };
@@ -94,7 +95,7 @@ export default function AppShell({
     if (isSeller && ["TEACHER", "ADMIN", "OWNER"].includes(role)) {
       allowedPrefixes.push("/seller");
     }
-    allowedPrefixes.push("/account", "/notifications", "/school", "/play");
+    allowedPrefixes.push("/account", "/notifications", "/school", "/play", "/drafts");
     if (sme?.reviewer || sme?.content_admin || sme?.super_admin) allowedPrefixes.push("/review");
     if (sme?.super_admin) allowedPrefixes.push("/admin/markets", "/admin/reviewers", "/admin/compensation");
     if (sme?.super_admin || sme?.sme_support) allowedPrefixes.push("/admin/inbox", "/admin/reviewer-applications");
@@ -133,7 +134,7 @@ export default function AppShell({
     }
 
     if (isAdmin) {
-      add("Overview", [["/admin", "Dashboard"]]);
+      add("Overview", [["/admin", "Dashboard"], ["/drafts", "Unfinished work"]]);
       add("Markets & organizations", [
         ...when(sme?.super_admin, [["/admin/markets", "Markets"]]),
         ["/admin/market-setup", "Market Setup"],
@@ -177,6 +178,7 @@ export default function AppShell({
     if (role === "SPONSOR") {
       add("", [
         ["/sponsor", "Dashboard"],
+        ["/drafts", "Unfinished work"],
         ...when(sponsorEngine, [["/sponsor/workspace", "Workspace"]]),
         ["/creator", "Challenges"],
         ["/competition", "Competitions"],
@@ -190,6 +192,7 @@ export default function AppShell({
     if (role === "TEACHER") {
       add("Teaching", [
         ["/teacher", "Dashboard"],
+        ["/drafts", "Unfinished work"],
         ["/teacher/classes", "Classes"],
         ["/teacher/learners", "Young learners"],
         ["/teacher/assignments", "Assignments"],
@@ -218,7 +221,7 @@ export default function AppShell({
       ["/student/assessments", "Assessments"],
       ["/marketplace", "Marketplace"],
     ]);
-    add("Me", [["/notifications", "Notifications"], ["/account", "Account"]]);
+    add("Me", [["/notifications", "Notifications"], ["/drafts", "Unfinished work"], ["/account", "Account"]]);
     add("SME", when(reviewer, [["/review", "SME Reviews"]]));
     add("Administration", administration);
     return groups;
@@ -344,6 +347,7 @@ export default function AppShell({
         <div className="qb-content" ref={contentRef}>
           <SponsorEngineProvider value={sponsorEngine}><WorkspaceProvider>
             <div className="qb-context-bar"><WorkspaceChip/><MarketContextControl/></div>
+            <DraftReminder />
             {children}
           </WorkspaceProvider></SponsorEngineProvider>
         </div>

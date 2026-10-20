@@ -8,6 +8,8 @@ import { startAttempt } from "@/lib/api/assessment";
 import { gradeSort } from "@/lib/sme/catalogue";
 import { getMyAccess, isAllowanceExhausted, SUBSCRIBE_PATH, type MyAccess } from "@/lib/api/access";
 import SubjectIcon from "@/components/SubjectIcon";
+import { useDraft } from "@/lib/drafts/use-draft";
+import DraftNotice from "@/components/DraftNotice";
 
 // One short screen for learners and teachers alike: subject, then either a random mix or ticked topics, then how many questions, Start.
 // No strands, sub-strands, levels or codes are shown; topics are plain sub-strand names with their question counts. Teachers and admins
@@ -27,6 +29,10 @@ export default function QuickPractice() {
   const effective = useMemo(() => subject ? (mode === "random" ? subject.topics.map((t) => t.id) : mode === "study" ? (studyTopic ? [studyTopic] : []) : ticked) : [], [subject, mode, ticked, studyTopic]);
   const pool = useMemo(() => subject ? subject.topics.filter((t) => effective.includes(t.id)).reduce((n, t) => n + t.available, 0) : 0, [subject, effective]);
   const choices = countChoices(pool);
+  // The choices made so far are kept as a draft, so leaving the page by mistake does not lose them.
+  type Held = { grade: string; subjectId: string; mode: "random" | "topics" | "study"; ticked: string[]; studyTopic: string; count: number };
+  const draft = useDraft<Held>({ kind: "practice", title: subject?.name ?? "Practice set", path: "/practise", value: { grade, subjectId, mode, ticked, studyTopic, count }, ready: menu !== null,
+    empty: !subjectId, apply: (v) => { if (v.grade && menu?.grades) { setGrade(v.grade); load(v.grade); } setSubjectId(v.subjectId ?? ""); setMode(v.mode ?? "random"); setTicked(v.ticked ?? []); setStudyTopic(v.studyTopic ?? ""); if (v.count) setCount(v.count); } });
   useEffect(() => { if (choices.length && !choices.includes(count)) setCount(choices.includes(10) ? 10 : choices[choices.length - 1]); }, [choices, count]);
 
   const pick = (id: string) => { setSubjectId(id); setTicked([]); setStudyTopic(""); setMode("random"); setNote(""); setError(""); const s = menu?.subjects.find((x) => x.id === id); if (s) void getTopicProgress(s.topics.map((t) => t.id)).then(setProgress); };
@@ -36,6 +42,7 @@ export default function QuickPractice() {
     if (access?.exhausted) { router.push(SUBSCRIBE_PATH); return; }
     setBusy(true); setError(""); setNote("");
     try {
+      void draft.finish();
       const built = mode === "study" ? await buildStudySession(studyTopic, count, grade || undefined) : await buildQuickPractice(effective, count, grade || undefined);
       if (built.short) setNote(`Only ${built.question_count} questions are available for this choice, so that is what you get.`);
       // Teachers and admins read their set with answers (attempts are for learners).
@@ -57,7 +64,8 @@ export default function QuickPractice() {
     {!menu.grades.length && <p className="qb-muted">No grades are published for your market yet.</p>}</section>;
   if (!menu.subjects.length) return <section className="qb-card"><h2>Build your practice</h2>
     {error ? <p className="qb-error" role="alert">{error}</p> : <p className="qb-muted">Questions for {menu.grade || "your class"} are being added. Check back soon.</p>}</section>;
-  return <section className="qb-card" aria-labelledby="qp-title">
+  return <><DraftNotice restored={!!draft.restored} expiresAt={draft.expiresAt} noun="practice set" onDiscard={() => void draft.finish()} />
+  <section className="qb-card" aria-labelledby="qp-title">
     <h2 id="qp-title">Build your practice{menu.grade ? ` · ${menu.grade}` : ""}</h2>
     {error && <p className="qb-error" role="alert">{error}</p>}{note && <p role="status">{note}</p>}
     {access?.gated && !access.subscribed && <p className="qb-small qb-muted" role="status">{access.exhausted ? "Your free practice is used up. Starting will take you to subscribe." : `${access.remaining} free practice ${access.remaining === 1 ? "session" : "sessions"} left.`}</p>}
@@ -105,5 +113,5 @@ export default function QuickPractice() {
         <button className="qb-btn" disabled={busy || !choices.length} onClick={() => void start()}><Play size={14} aria-hidden="true" /> {busy ? "Getting your questions…" : mode === "study" ? `Start studying ${choices.length ? count : ""} questions` : `Start ${choices.length ? count : ""} questions`}</button>
       </div>
     </>}
-  </section>;
+  </section></>;
 }
