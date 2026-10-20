@@ -1,4 +1,8 @@
-# Pricing table plan (design only, nothing built yet)
+# Pricing table (built: delivery 28)
+
+Status: built as `public.price_list` (migration 20261030100000) with the admin screen Admin, Prices and the pricing cards on /pricing and /subscribe. Defaults used where the owner had not answered: Paystack as gateway; prices in cedis only; teachers and learners free to create up to 3 live quizzes a month (not yet enforced); sponsors and companies pay per quiz in tiers; refunds by hand; Ghana only. Prices are blank until the owner sets them. Not built: requiring payment before a sponsored quiz can be published, and automatic activation from a payment link (a link cannot say who paid; use the existing checkout for learner plans, or activate by hand).
+
+## Original plan
 
 Goal: the owner sets every price and its payment link in one admin screen. The website shows the active prices. A click sends the buyer to the payment gateway's cart URL. No price is typed into code.
 

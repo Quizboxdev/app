@@ -8,6 +8,9 @@ import BrandBanner from "@/components/BrandBanner";
 import { getMyAccess, type MyAccess } from "@/lib/api/access";
 import { getCatalog, startCheckout, type Catalog } from "@/lib/api/payments";
 import { PLANS, planPriceMinor } from "@/lib/payments/plans";
+import PricingCards from "@/components/pricing/PricingCards";
+import { listPrices } from "@/lib/api/pricing";
+import type { PriceRow } from "@/lib/pricing/format";
 import { formatDate } from "@/lib/format";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
@@ -20,6 +23,8 @@ function SubscribeInner() {
   const [busy, setBusy] = useState(""), [error, setError] = useState(""), [waited, setWaited] = useState(0);
   const [isMinor, setIsMinor] = useState(false);
   const polls = useRef(0);
+  const [prices, setPrices] = useState<PriceRow[]>([]);
+  useEffect(() => { listPrices().then(setPrices).catch(() => setPrices([])); }, []);
 
   useEffect(() => { void getMyAccess().then(setAccess); void getCatalog().then(setCatalog);
     void getSupabaseBrowserClient().auth.getUser().then(async ({ data }) => { if (!data.user) return; const r = await getSupabaseBrowserClient().from("student_profiles").select("is_minor").eq("user_id", data.user.id).maybeSingle(); setIsMinor(!!(r.data as { is_minor?: boolean } | null)?.is_minor); }); }, []);
@@ -35,6 +40,8 @@ function SubscribeInner() {
     try { const { url } = await startCheckout(planId); window.location.assign(url); } catch (e: any) { setError(e?.message ?? "We could not start the payment."); setBusy(""); }
   }
   const open = !!catalog?.payments_enabled && !isMinor;
+  // Prices come from the admin price list; while a learner plan has no price there but the older Coins price exists, that price is shown so buying keeps working.
+  const learnerCards = prices.filter((r) => r.audience === "learner").map((r) => { const plan = PLANS.find((p) => p.id === r.code); const old = plan ? planPriceMinor(plan, catalog?.unit_price_minor) : null; return r.price_minor === null && old !== null && open ? { ...r, price_minor: old } : r; });
 
   return (
     <>
@@ -53,6 +60,7 @@ function SubscribeInner() {
         : "Waiting for your payment to be confirmed. This usually takes under a minute."} <span className="qb-muted qb-small">Reference {returned}</span></div>}
 
       {!(open && PLANS.some((p) => planPriceMinor(p, catalog?.unit_price_minor) !== null)) && <div className="qb-card" role="note">Prices are being finalised. Nothing is charged today.</div>}
+      {learnerCards.length > 0 ? <PricingCards rows={learnerCards} onPay={(r) => void pay(r.code)} payable={(r) => open && planPriceMinor(PLANS.find((p) => p.id === r.code) ?? PLANS[0], catalog?.unit_price_minor) !== null && PLANS.some((p) => p.id === r.code)} busy={busy} /> :
       <div className="qb-grid cols-3">
         {PLANS.map((p) => {
           const price = planPriceMinor(p, catalog?.unit_price_minor);
@@ -69,7 +77,7 @@ function SubscribeInner() {
             </section>
           );
         })}
-      </div>
+      </div>}
 
       <section className="qb-card" style={{ marginTop: 16 }}>
         <h2>{isMinor ? "Ask your teacher or a parent" : open ? "Need help paying?" : "How to subscribe"}</h2>
