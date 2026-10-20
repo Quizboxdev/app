@@ -7,15 +7,14 @@ export default function HeroSection() {
   return (
     <section className="qbp-wrap qbp-hero" aria-labelledby="qbp-hero-title" data-qb-section="hero">
       <div className="qbp-hero-copy">
-        <p className="qbp-eyebrow">Curriculum-aligned · Human-reviewed · Global ready</p>
-        <h1 id="qbp-hero-title" className="qbp-h1">Learn it. Practice it.<br /><span className="qbp-accent">Challenge someone.</span></h1>
-        <p className="qbp-lead">A curriculum-aligned learning and competition platform. Students practise and compete, teachers assign and monitor, sponsors support challenges, and qualified subject experts review content before it reaches learners.</p>
+        <p className="qbp-eyebrow">Curriculum-aligned · Expert-reviewed · Ghana first</p>
+        <h1 id="qbp-hero-title" className="qbp-h1">Learn. Practise.<br /><span className="qbp-accent">Compete.</span></h1>
+        <p className="qbp-lead">Curriculum-aligned practice for Primary, JHS and SHS learners. Every question is traced to the curriculum and reviewed by a subject expert.</p>
         <div className="qbp-actions">
-          <Link className="qbp-btn" href={PUBLIC_LINKS.registerStudent}>I&apos;m a Student</Link>
-          <Link className="qbp-btn2" href={PUBLIC_LINKS.registerTeacher}>I&apos;m a Teacher</Link>
-          <Link className="qbp-btn2" href={PUBLIC_LINKS.sponsor}>I want to sponsor</Link>
-          <Link className="qbp-btn2" href={PUBLIC_LINKS.sme}>I&apos;m a Subject Expert</Link>
+          <Link className="qbp-btn" href={PUBLIC_LINKS.registerStudent}>Start practising, free</Link>
+          <Link className="qbp-btn2" href={PUBLIC_LINKS.registerTeacher}>For teachers and schools</Link>
         </div>
+        <p className="qbp-meta" style={{ marginTop: 8 }}>Sponsors and subject experts: <Link className="qbp-link" href={PUBLIC_LINKS.sponsor}>partner with us</Link> or <Link className="qbp-link" href={PUBLIC_LINKS.sme}>join as a subject expert</Link>.</p>
       </div>
       <div className="qbp-hero-mark">
         <Image src="/brand/quizbox-mark.webp" alt="QuizBox mark: neon nested squares around a Q" width={340} height={340} priority sizes="(max-width: 960px) 260px, 340px" />

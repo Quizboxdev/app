@@ -12,7 +12,7 @@ export const metadata: Metadata = { title: "Sponsor with QuizBox", description: 
 export default function SponsorInterestPage() {
   return (
     <PublicShell>
-      <PageIntro crumb="Sponsors" eyebrow="Support · Challenge · Recognize" title="Sponsor with QuizBox"
+      <PageIntro crumb="Sponsors" eyebrow="Support · Challenge · Recognise" title="Sponsor with QuizBox"
         lead="Individuals, alumni groups, foundations, NGOs, companies and other approved education partners can support curriculum-aligned challenges. Sponsor onboarding and competition approval are subject to QuizBox governance." />
       <section className="qbp-wrap qbp-split" style={{ paddingBottom: 64, paddingTop: 16 }} data-qb-section="sponsor-interest">
         <div style={{ display: "grid", gap: 16 }}>

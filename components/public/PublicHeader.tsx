@@ -8,11 +8,10 @@ import { PUBLIC_LINKS } from "./links";
 
 const NAV = [
   { href: "/#who", label: "Who it's for" },
-  { href: "/#sponsors", label: "Sponsors" },
-  { href: "/#smes", label: "Subject experts" },
   { href: "/challenges", label: "Challenges" },
-  { href: "/#competitions", label: "Competitions" },
+  { href: "/competitions", label: "Competitions" },
   { href: "/#curriculum", label: "Curriculum" },
+  { href: "/pricing", label: "Pricing" },
 ];
 
 export default function PublicHeader() {

@@ -35,7 +35,7 @@ const STEPS = [
   "Define the education objective", "Select the country / market", "Select curriculum, level, grade and subject", "Define the intended learner audience",
   "Set the competition format", "Provide approved supporting material where relevant", "Generate or curate competition content", "Submit content into the SME review workflow",
   "Complete governance / approval requirements", "Publish the competition", "Invite or register participants", "Track participation and results",
-  "Recognize winners and participants", "Review competition analytics",
+  "Recognise winners and participants", "Review competition analytics",
 ];
 
 export default function SponsorSection() {
@@ -44,7 +44,7 @@ export default function SponsorSection() {
       <div className="qbp-wrap" style={{ display: "grid", gap: 24 }}>
         <div className="qbp-head-row" style={{ marginBottom: 0 }}>
           <div className="qbp-head">
-            <p className="qbp-eyebrow" style={{ color: "#9a5b00" }}>For sponsors · Support · Challenge · Recognize</p>
+            <p className="qbp-eyebrow" style={{ color: "#9a5b00" }}>For sponsors · Support · Challenge · Recognise</p>
             <h2 id="qbp-sponsors-title" className="qbp-h2">Turn education support into participation, motivation and measurable impact</h2>
             <p className="qbp-lead">Create or support curriculum-aligned challenges, define the learners you want to reach, recognize performance and participation, and follow activity through competition and engagement data.</p>
           </div>

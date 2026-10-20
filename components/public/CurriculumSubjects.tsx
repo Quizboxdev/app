@@ -11,7 +11,7 @@ export default function CurriculumSubjects({ markets }: { markets: PublicMarkets
       <div className="qbp-wrap qbp-split">
         <div style={{ display: "grid", gap: 12 }}>
           <p className="qbp-eyebrow">Curriculum &amp; subjects</p>
-          <h2 id="qbp-curr-title" className="qbp-h2">Starting in Ghana. Built for multiple curricula.</h2>
+          <h2 id="qbp-curr-title" className="qbp-h2">Starting in Ghana, built to grow.</h2>
           <p className="qbp-body">Each market runs on its own approved curriculum sources, question banks and market rules.</p>
           <p className="qbp-meta">Not in an available country yet? <Link className="qbp-link" href={PUBLIC_LINKS.country}>Register interest</Link>.</p>
         </div>

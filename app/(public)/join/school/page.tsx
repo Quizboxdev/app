@@ -9,7 +9,7 @@ export const metadata: Metadata = { title: "Schools and institutions | QuizBox",
 export default function SchoolInterestPage() {
   return (
     <PublicShell>
-      <PageIntro crumb="Schools" eyebrow="Organize · Support · Measure" title="Bring QuizBox to your school"
+      <PageIntro crumb="Schools" eyebrow="Organise · Support · Measure" title="Bring QuizBox to your school"
         lead="Teachers and classes on one platform, with reviewed, curriculum-linked content and participation across classes. Institutional access is set up by QuizBox after review." />
       <section className="qbp-wrap qbp-split" style={{ paddingBottom: 64, paddingTop: 16 }} data-qb-section="school-interest">
         <div className="qbp-card qbp-card-soft">

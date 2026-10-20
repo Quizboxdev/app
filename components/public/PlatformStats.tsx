@@ -37,7 +37,7 @@ export default function PlatformStats({ stats = null }: { stats?: PublicPlatform
           <p className="qbp-meta" style={{ marginBottom: 6 }}>{g.heading}</p>
           <div className="qbp-strip">{g.items.map((s) => <div key={s.label}><span className="qbp-stat">{fmt(s.value)}</span><span className="qbp-meta">{s.label}</span></div>)}</div>
         </div>)}
-        <p className="qbp-meta">Live figures from the QuizBox platform{stats.asOf ? `, updated ${new Date(stats.asOf).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}` : ""}.</p>
+        <p className="qbp-meta">Ghana pilot. Questions are being loaded and learners join soon. Live figures{stats.asOf ? `, updated ${new Date(stats.asOf).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}` : ""}.</p>
       </div>
     </section>
   );

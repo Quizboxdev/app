@@ -11,7 +11,7 @@ export default async function CountryInterestPage() {
   const available = markets?.available.map((m) => m.country) ?? [];
   return (
     <PublicShell>
-      <PageIntro crumb="Countries" eyebrow="Global ready" title="Register interest for your country"
+      <PageIntro crumb="Countries" eyebrow="Ghana first" title="Register interest for your country"
         lead="Each market runs on its own approved curriculum sources, question banks and market rules." />
       <section className="qbp-wrap qbp-split" style={{ paddingBottom: 64, paddingTop: 16 }} data-qb-section="country-interest" data-qb-source={markets ? "platform.markets" : "static"}>
         <div className="qbp-card qbp-card-soft">
