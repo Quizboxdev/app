@@ -156,3 +156,16 @@ describe("subscription payments", () => {
     expect((await q("select count(*)::int n from public.payment_intents")).n).toBeGreaterThan(3);
   });
 });
+
+// The GHS 5 minimum (migration 20261032100000). Runs after the tests above, on the same database.
+describe("minimum online charge", () => {
+  it("refuses a charge under GHS 5 and accepts GHS 5 and above", async () => {
+    await as(ADMIN); await setting("flags.buy_coins_enabled", true); await setting("flags.student_self_pay", true); await setting("payments.providers", ["testpay"]); await setting("coins.unit_price_minor", { GHS: 100 });
+    await db.exec(read("../../supabase/migrations/20261032100000_minimum_charge.sql"));
+    await expect(intent(WARD, WARD, 4, "idem-min-0001")).rejects.toThrow(/QB_BELOW_MINIMUM_CHARGE/);
+    const five = await intent(WARD, WARD, 5, "idem-min-0002");
+    expect(Number(five.amount_minor)).toBe(500);
+    const ten = await intent(WARD, WARD, 10, "idem-min-0003");
+    expect(Number(ten.amount_minor)).toBe(1000);                                  // still linear: Coins x GHS 1
+  });
+});

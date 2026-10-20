@@ -14,7 +14,7 @@ const json = (status: number, body: Record<string, unknown>) => NextResponse.jso
 const MESSAGES: Record<string, string> = {
   QB_FEATURE_DISABLED: "Online payment is not open yet. Please check back soon.", QB_SELF_PAY_DISABLED: "Online payment is not open yet. Please check back soon.",
   QB_PROVIDER_NOT_ENABLED: "Online payment is not open yet. Please check back soon.", QB_PRICING_NOT_CONFIGURED: "Online payment is not open yet. Please check back soon.",
-  QB_FUNDING_NOT_PERMITTED: "You are not allowed to pay for that account.", QB_INVALID_BENEFICIARY: "That account cannot receive a subscription.",
+  QB_BELOW_MINIMUM_CHARGE: "The smallest online payment is GHS 5 (5 Coins). Choose a larger amount.", QB_FUNDING_NOT_PERMITTED: "You are not allowed to pay for that account.", QB_INVALID_BENEFICIARY: "That account cannot receive a subscription.",
 };
 
 export async function POST(request: Request) {
