@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import AuthShell from "@/components/auth/AuthShell";
 import { bootstrapUser, getHomeRouteForRole } from "@/lib/auth";
+import { takeNext } from "@/lib/auth/next-path";
 import { browserRecoveryStorage, completeAuthCallback, recoveryFailureMessage, RESET_PASSWORD_PATH } from "@/lib/auth-recovery";
 
 // Landing page for every Supabase email link. Recovery links continue to the new-password form; confirmation / magic links
@@ -19,7 +20,7 @@ export default function AuthCallbackPage() {
     (async () => {
       const kind = await completeAuthCallback(new URL(window.location.href), browserRecoveryStorage);
       if (kind === "recovery") { router.replace(RESET_PASSWORD_PATH); return; }
-      try { router.replace(getHomeRouteForRole(String((await bootstrapUser()).role))); }
+      try { const ctx = await bootstrapUser(); router.replace(takeNext() ?? getHomeRouteForRole(String(ctx.role))); }
       catch (error) {
         const code = error instanceof Error ? error.message : "";
         router.replace(code === "ACCOUNT_SUSPENDED" ? "/login?suspended=1" : code === "ONBOARDING_REQUIRED" ? "/onboarding" : "/login");

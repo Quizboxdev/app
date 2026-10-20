@@ -10,11 +10,14 @@ import SourcePanel from "@/components/challenges/SourcePanel";
 import PrizesPanel from "@/components/challenges/PrizesPanel";
 import BrandPanel from "@/components/challenges/BrandPanel";
 import AnalyticsPanel from "@/components/challenges/AnalyticsPanel";
+import AudiencePanel from "@/components/challenges/AudiencePanel";
+import ShareBar from "@/components/challenges/ShareBar";
+import { FORMATS, formatOf } from "@/lib/challenges/types";
 import { humanize } from "@/lib/format";
 
 // Edit one challenge. Questions can be typed in, pasted as CSV, or snapshotted from the QuizBox bank; they are locked once the challenge goes live.
 const GRADES = ["", "B1", "B2", "B3", "B4", "B5", "B6", "B7", "B8", "B9", "SHS1", "SHS2", "SHS3"];
-const TABS = ["Questions", "Rounds", "Source", "Prizes", "Look and feel", "Results"] as const;
+const TABS = ["Questions", "Rounds", "Share", "Source", "Prizes", "Look and feel", "Results"] as const;
 type Tab = (typeof TABS)[number];
 
 export default function CreatorEditPage({ params }: { params: Promise<{ id: string }> }) {
@@ -26,6 +29,7 @@ export default function CreatorEditPage({ params }: { params: Promise<{ id: stri
   const load = useCallback(() => getCampaignForEdit(id).then((r) => { setCampaign(r.campaign); setQ(r.questions); setStagesState(r.stages); setPrizesState(r.prizes); }).catch((e) => setError(e.message)), [id]);
   useEffect(() => { void load(); }, [load]);
   const draft = campaign?.status === "DRAFT";
+  const fmt = FORMATS[formatOf(campaign?.format)], isComp = formatOf(campaign?.format) === "COMPETITION";
   const stageCount: number = campaign?.stage_count ?? 1;
   const needed = (g: number) => stages.find((s) => s.stage_no === g)?.question_count ?? campaign?.question_count ?? 0;
   const have = (g: number) => questions.filter((q) => (q.stage_no ?? 1) === g).length;
@@ -51,21 +55,21 @@ export default function CreatorEditPage({ params }: { params: Promise<{ id: stri
   return (
     <>
       <div className="qb-page-head"><div><h1>{campaign.title}</h1><p>{humanize(campaign.status)}{campaign.visibility === "PRIVATE" ? ` · access code ${campaign.access_code}` : ""}{missing > 0 && draft ? ` · ${missing} more question${missing === 1 ? "" : "s"} needed` : ""}</p></div>
-        <div><Link className="qb-link" href="/creator">All challenges</Link>{campaign.status !== "DRAFT" && <> · <Link className="qb-link" href={`/challenges/${campaign.slug}`}>Public page</Link></>}</div></div>
+        <div><Link className="qb-link" href={isComp ? "/creator?format=competition" : "/creator"}>All {fmt.plural}</Link>{campaign.status !== "DRAFT" && <> · <Link className="qb-link" href={`${fmt.base}/${campaign.slug}`}>Public page</Link></>}</div></div>
       {campaign.moderation_state && campaign.moderation_state !== "OK" && <div className="qb-card qb-error" role="alert"><strong>{campaign.moderation_state === "TAKEN_DOWN" ? "This challenge was taken down." : "This challenge is hidden while reports are reviewed."}</strong>{campaign.moderation_note ? ` ${campaign.moderation_note}` : ""} Players cannot see it.</div>}
       {error && <div className="qb-card qb-error" role="alert">{error}</div>}
       {notice && <div className="qb-card" role="status">{notice}</div>}
 
       <div className="qb-card qb-card-actions" style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-        {draft && <button className="qb-btn" disabled={busy || missing > 0} onClick={() => run(async () => { await publishCampaign(id); return "The challenge is live."; })}>Publish</button>}
-        {campaign.status === "PAUSED" && <button className="qb-btn" disabled={busy} onClick={() => run(async () => { await publishCampaign(id); return "The challenge is live again."; })}>Resume</button>}
+        {draft && <button className="qb-btn" disabled={busy || missing > 0} onClick={() => run(async () => { await publishCampaign(id); return `The ${fmt.noun} is live.`; })}>Publish</button>}
+        {campaign.status === "PAUSED" && <button className="qb-btn" disabled={busy} onClick={() => run(async () => { await publishCampaign(id); return `The ${fmt.noun} is live again.`; })}>Resume</button>}
         {campaign.status === "LIVE" && <button className="qb-btn qb-btn-secondary" disabled={busy} onClick={() => run(async () => { await setCampaignStatus(id, "PAUSED"); })}>Pause</button>}
-        {["LIVE", "PAUSED"].includes(campaign.status) && <button className="qb-btn qb-btn-secondary" disabled={busy} onClick={() => { if (window.confirm("End this challenge? Nobody can play it afterwards, and the leaderboard stays.")) void run(async () => { await setCampaignStatus(id, "COMPLETED"); }); }}>End challenge</button>}
-        {["DRAFT", "COMPLETED", "PAUSED"].includes(campaign.status) && <button className="qb-btn qb-btn-secondary" disabled={busy} onClick={() => { if (window.confirm("Archive this challenge?")) void run(async () => { await setCampaignStatus(id, "ARCHIVED"); }); }}>Archive</button>}
+        {["LIVE", "PAUSED"].includes(campaign.status) && <button className="qb-btn qb-btn-secondary" disabled={busy} onClick={() => { if (window.confirm(`End this ${fmt.noun}? Nobody can play it afterwards, and the leaderboard stays.`)) void run(async () => { await setCampaignStatus(id, "COMPLETED"); }); }}>End {fmt.noun}</button>}
+        {["DRAFT", "COMPLETED", "PAUSED"].includes(campaign.status) && <button className="qb-btn qb-btn-secondary" disabled={busy} onClick={() => { if (window.confirm(`Archive this ${fmt.noun}?`)) void run(async () => { await setCampaignStatus(id, "ARCHIVED"); }); }}>Archive</button>}
       </div>
 
-      <div role="tablist" aria-label="Challenge sections" style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-        {TABS.map((t) => <button key={t} role="tab" aria-selected={tab === t} className={`qb-btn ${tab === t ? "" : "qb-btn-secondary"}`} onClick={() => setTab(t)}>{t}</button>)}
+      <div role="tablist" aria-label="Sections" style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+        {TABS.filter((t) => t !== "Rounds" || isComp || stageCount > 1).map((t) => <button key={t} role="tab" aria-selected={tab === t} className={`qb-btn ${tab === t ? "" : "qb-btn-secondary"}`} onClick={() => setTab(t)}>{t}</button>)}
       </div>
 
       {tab === "Questions" && (
@@ -111,6 +115,13 @@ export default function CreatorEditPage({ params }: { params: Promise<{ id: stri
           </div>
         </>
       )}
+      {tab === "Share" && <>
+        {campaign.status === "LIVE" && campaign.visibility !== "PRIVATE" && !campaign.audience_class_id && !campaign.audience_institution_id
+          ? <ShareBar slug={campaign.slug} title={campaign.title} format={campaign.format} />
+          : campaign.status === "LIVE" && campaign.visibility === "PRIVATE" ? <ShareBar slug={campaign.slug} title={campaign.title} format={campaign.format} code={campaign.access_code} />
+          : <div className="qb-card" role="note">{campaign.audience_class_id || campaign.audience_institution_id ? `This ${fmt.noun} is for one class or school, so there is no public link to share. Those people are told when you publish.` : `Sharing opens when the ${fmt.noun} is live.`}</div>}
+        <AudiencePanel id={id} draft={!!draft} format={campaign.format} current={{ class: campaign.audience_class_id, institution: campaign.audience_institution_id }} onChanged={() => void load()} onError={onError} />
+      </>}
       {tab === "Rounds" && <StagesPanel id={id} draft={!!draft} stages={stages} base={{ question_count: campaign.question_count, time_limit_seconds: campaign.time_limit_seconds }} onChanged={() => void load()} onError={onError} />}
       {tab === "Source" && <SourcePanel campaignId={id} picked={passage} onPick={(p) => { setPassage(p); if (p) setNotice("Passage selected. Go to the Questions tab to paste questions that cite it."); }} onError={onError} />}
       {tab === "Prizes" && <PrizesPanel id={id} status={campaign.status} finalized={!!campaign.finalized_at} prizes={prizes} onChanged={() => void load()} onError={onError} />}

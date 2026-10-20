@@ -1,6 +1,6 @@
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { userFacingError } from "@/lib/errors";
-import type { Analytics, AttemptResult, Award, Brand, ContentAsset, EditableQuestion, LeaderRow, MyCampaign, Passage, Prize, StageInfo, StageProgress, StartedAttempt } from "@/lib/challenges/types";
+import type { Analytics, AttemptResult, Award, Brand, Format, ContentAsset, EditableQuestion, LeaderRow, MyCampaign, Passage, Prize, StageInfo, StageProgress, StartedAttempt } from "@/lib/challenges/types";
 
 // Participants and creators call the database functions directly; every rule (who may create, one scored submission, locked after going live) is enforced there.
 const CODES: Record<string, string> = {
@@ -11,6 +11,9 @@ const CODES: Record<string, string> = {
   STAGE_LOCKED: "Reach the pass mark in the previous round to unlock this one.", STAGE_NOT_OPEN: "This round has not opened yet.", STAGE_CLOSED: "This round has closed.",
   QUOTE_NOT_IN_SOURCE: "A source quote is not word for word in the passage you chose.", INVALID_SOURCE: "A question points to a passage that is not in this challenge.", NOT_GROUNDED: "Every question in a book challenge needs a passage and a quote from it.",
   RIGHTS_NOT_CONFIRMED: "Please confirm you have the right to use this material.", INVALID_STAGES: "Add between 1 and 6 rounds.", INVALID_PRIZES: "Check the prize ranks and names.", TAKEN_DOWN: "This challenge was taken down after a review and cannot be published.", NOT_FOUND: "That challenge could not be found.",
+  NOT_IN_AUDIENCE: "This is only open to the class or school it was made for.", ROUND_STILL_RUNNING: "The previous round is still running. The next round opens when it closes.", NOT_THROUGH: "You did not make it through to this round. Well done for taking part.",
+  CHALLENGE_SINGLE_ROUND: "A challenge has one round. Make a competition if you want rounds.", INVALID_AUDIENCE: "Choose either a class or a school, not both.", INVALID_FORMAT: "Choose challenge or competition.",
+  QB_FREE_ALLOWANCE_EXHAUSTED: "Your free practice is used up. Subscribe to keep joining challenges and competitions.",
   INVALID_BRAND: "Check the colour (like #1a7f5a) and the lengths of the texts.",
 };
 async function call<T>(fn: string, args: Record<string, unknown> = {}): Promise<T> {
@@ -18,8 +21,8 @@ async function call<T>(fn: string, args: Record<string, unknown> = {}): Promise<
   if (error) { const code = Object.keys(CODES).find((c) => error.message?.includes(c)); throw new Error(code ? CODES[code] : userFacingError(error)); }
   return data as T;
 }
-export const createChallenge = (a: { title: string; summary: string; category: string; visibility: string; questionCount: number; timeLimitSeconds: number; maxAttempts: number; startsAt?: string | null; endsAt?: string | null; rewardText?: string; accessCode?: string }) =>
-  call<{ id: string; slug: string }>("challenge_create", { p_title: a.title, p_summary: a.summary, p_category: a.category, p_visibility: a.visibility, p_question_count: a.questionCount, p_time_limit_seconds: a.timeLimitSeconds, p_max_attempts: a.maxAttempts, p_starts_at: a.startsAt || null, p_ends_at: a.endsAt || null, p_reward_text: a.rewardText || null, p_access_code: a.accessCode || null });
+export const createChallenge = (a: { title: string; summary: string; category: string; visibility: string; questionCount: number; timeLimitSeconds: number; maxAttempts: number; startsAt?: string | null; endsAt?: string | null; rewardText?: string; accessCode?: string; format?: Format }) =>
+  call<{ id: string; slug: string; format: Format }>("challenge_create", { p_format: a.format ?? "CHALLENGE", p_title: a.title, p_summary: a.summary, p_category: a.category, p_visibility: a.visibility, p_question_count: a.questionCount, p_time_limit_seconds: a.timeLimitSeconds, p_max_attempts: a.maxAttempts, p_starts_at: a.startsAt || null, p_ends_at: a.endsAt || null, p_reward_text: a.rewardText || null, p_access_code: a.accessCode || null });
 export const myCampaigns = () => call<MyCampaign[]>("challenge_my_campaigns");
 export const getCampaignForEdit = (id: string) => call<{ campaign: Record<string, any>; questions: EditableQuestion[]; stages: StageInfo[]; prizes: Prize[] }>("challenge_creator_get", { p_id: id });
 export const updateCampaign = (id: string, patch: Record<string, unknown>) => call<{ ok: true }>("challenge_update", { p_id: id, p_patch: patch });
@@ -32,7 +35,10 @@ export const submitChallenge = (attempt: string, answers: { question_id: string;
 export const getLeaderboard = (slug: string) => call<LeaderRow[]>("challenge_leaderboard", { p_slug: slug, p_limit: 50 });
 export const myAttempts = () => call<{ slug: string; title: string; attempt_no: number; score: number | null; max_score: number | null; duration_ms: number | null; started_at: string; submitted_at: string | null; expired: boolean }[]>("challenge_my_attempts");
 
-export const setStages = (id: string, stages: { title: string; question_count: number; time_limit_seconds: number; pass_percent: number; starts_at?: string | null; ends_at?: string | null }[]) => call<{ ok: true; stages: number }>("challenge_set_stages", { p_id: id, p_stages: stages });
+export const setStages = (id: string, stages: { title: string; question_count: number; time_limit_seconds: number; pass_percent: number; advance_top_n?: number | null; starts_at?: string | null; ends_at?: string | null }[]) => call<{ ok: true; stages: number }>("challenge_set_stages", { p_id: id, p_stages: stages });
+export const myAudiences = () => call<{ classes: { id: string; name: string }[]; institutions: { id: string; name: string }[] }>("challenge_my_audiences");
+export const setAudience = (id: string, target: { classId?: string | null; institutionId?: string | null }) => call<{ ok: true }>("challenge_set_audience", { p_id: id, p_class: target.classId ?? null, p_institution: target.institutionId ?? null });
+export const openCompetitions = (format: Format = "COMPETITION") => call<import("@/lib/challenges/types").PublicChallenge[]>("challenge_public_list", { p_limit: 24, p_offset: 0, p_format: format });
 export const myProgress = (slug: string) => call<StageProgress[]>("challenge_my_progress", { p_slug: slug });
 export const contentList = (campaign: string) => call<ContentAsset[]>("challenge_content_list", { p_campaign: campaign });
 export const contentChunks = (campaign: string, version: string, offset = 0) => call<Passage[]>("challenge_content_chunks", { p_campaign: campaign, p_version: version, p_limit: 50, p_offset: offset });

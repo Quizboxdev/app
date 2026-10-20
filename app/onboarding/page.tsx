@@ -4,6 +4,7 @@ import { FormEvent, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { bootstrapUser, getHomeRouteForRole } from "@/lib/auth";
+import { takeNext } from "@/lib/auth/next-path";
 import { completeOnboarding, listSignupCountries, type OnboardingRole, type SignupCountry } from "@/lib/api/markets";
 import { userFacingError } from "@/lib/errors";
 import { recordFailure } from "@/lib/api/operations";
@@ -50,7 +51,7 @@ export default function OnboardingPage() {
         ...(role === "sponsor" ? org : {}),
       });
       const ctx = await bootstrapUser();
-      router.replace(getHomeRouteForRole(String(ctx.role)));
+      router.replace(takeNext() ?? getHomeRouteForRole(String(ctx.role)));
     } catch (cause) { void recordFailure("ONBOARDING", cause).catch(() => undefined); setError(userFacingError(cause)); } finally { setBusy(false); }
   }
 

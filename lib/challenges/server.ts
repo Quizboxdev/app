@@ -1,11 +1,11 @@
 import { getSupabaseAdminClient } from "@/lib/supabase/server-admin";
-import type { ChallengeCard, LeaderRow, PublicChallenge } from "./types";
+import type { ChallengeCard, Format, LeaderRow, PublicChallenge } from "./types";
 
 // Public pages read campaigns on the server through the service role: the database functions return only live public data and never questions or answers.
 // If the migration is not applied or the database is unreachable the pages show an empty state instead of failing.
 const SLUG = /^[a-z0-9]+(-[a-z0-9]+)*$/;
-export async function listPublicChallenges(): Promise<PublicChallenge[]> {
-  try { const { data } = await getSupabaseAdminClient().rpc("challenge_public_list", { p_limit: 48, p_offset: 0 }); return (data ?? []) as PublicChallenge[]; } catch { return []; }
+export async function listPublicChallenges(format: Format = "CHALLENGE"): Promise<PublicChallenge[]> {
+  try { const { data } = await getSupabaseAdminClient().rpc("challenge_public_list", { p_limit: 48, p_offset: 0, p_format: format }); return (data ?? []) as PublicChallenge[]; } catch { return []; }
 }
 export async function getPublicChallenge(slug: string): Promise<ChallengeCard | null> {
   if (!SLUG.test(slug)) return null;

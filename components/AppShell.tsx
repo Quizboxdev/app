@@ -89,7 +89,7 @@ export default function AppShell({
         ? ["/teacher", "/practise", "/student/attempt", "/competition", "/marketplace", "/subscribe", "/creator"]
         : role === "SPONSOR"
           ? ["/sponsor", "/competition", "/marketplace", "/creator"]
-          : ["/student", "/learn", "/practise", "/competition", "/marketplace", "/subscribe"];
+          : ["/student", "/learn", "/practise", "/competition", "/marketplace", "/subscribe", "/creator"];
 
     if (isSeller && ["TEACHER", "ADMIN", "OWNER"].includes(role)) {
       allowedPrefixes.push("/seller");
@@ -128,7 +128,7 @@ export default function AppShell({
     ];
 
     if (inSchool) {
-      add("School", [["/school", "Overview"], ["/school/classes", "Classes"], ["/school/teachers", "Teachers"], ["/school/learners", "Learners"], ["/school/performance", "Performance"]]);
+      add("School", [["/school", "Overview"], ["/school/classes", "Classes"], ["/school/teachers", "Teachers"], ["/school/learners", "Learners"], ["/school/performance", "Performance"], ["/creator", "Challenges"], ["/creator?format=competition", "Competitions"]]);
       return groups;
     }
 
@@ -211,6 +211,7 @@ export default function AppShell({
       ["/competition", "Compete"],
       ["/challenges", "Challenges"],
       ["/play", "My challenges"],
+      ["/creator", "Create and share"],
     ]);
     add("My learning", [
       ["/student/results", "Progress"],

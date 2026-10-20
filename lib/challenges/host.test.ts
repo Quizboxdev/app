@@ -8,6 +8,7 @@ describe("challengeHostRedirect", () => {
     expect(challengeHostRedirect("challenge.quizbox.io", "/maths-sprint/")).toBe("https://www.quizbox.io/challenges/maths-sprint");
     expect(challengeHostRedirect("Challenges.QuizBox.io:443", "/challenges/book-week")).toBe("https://www.quizbox.io/challenges/book-week");
     expect(challengeHostRedirect("challenge.quizbox.io", "/play/book-week")).toBe("https://www.quizbox.io/play/book-week");
+    expect(challengeHostRedirect("challenge.quizbox.io", "/competitions/spelling-cup")).toBe("https://www.quizbox.io/competitions/spelling-cup");
   });
   it("never forwards unknown paths, so it cannot open anything else", () => {
     for (const p of ["/admin", "/admin/inbox", "/a/b/c", "/..%2fadmin", "//evil.example", "/x?y=1"]) expect(challengeHostRedirect("challenge.quizbox.io", p)).toMatch(/^https:\/\/www\.quizbox\.io\/challenges(\/[a-z0-9-]+)?$/);

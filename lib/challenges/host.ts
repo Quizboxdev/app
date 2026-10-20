@@ -12,6 +12,6 @@ export function challengeHostRedirect(host: string | null | undefined, pathname:
   if (clean === "/") return `${WWW_ORIGIN}/challenges`;
   const bare = clean.slice(1);
   if (SLUG.test(bare) && bare.length <= 60 && bare !== "challenges") return `${WWW_ORIGIN}/challenges/${bare}`;
-  if (/^\/(challenges|play|creator|login)(\/[a-z0-9-]+)?$/.test(clean)) return `${WWW_ORIGIN}${clean}`;
+  if (/^\/(challenges|competitions|play|creator|login)(\/[a-z0-9-]+)?$/.test(clean)) return `${WWW_ORIGIN}${clean}`;
   return `${WWW_ORIGIN}/challenges`;
 }

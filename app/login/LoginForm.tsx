@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { usernameToEmail } from "@/lib/managed/username";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { bootstrapUser, getHomeRouteForRole } from "@/lib/auth";
-import { safeNextPath } from "@/lib/auth/next-path";
+import { rememberNext, safeNextPath, takeNext } from "@/lib/auth/next-path";
 import { userFacingError } from "@/lib/errors";
 import { authErrorMessage } from "@/lib/auth-errors";
 import { AUTH_CALLBACK_PATH, RESET_SUCCESS_MESSAGE } from "@/lib/auth-recovery";
@@ -58,7 +58,7 @@ export default function LoginForm({ initial }: { initial: RegistrationParams }) 
   async function routeAfterAuth() {
     try {
       const ctx = await bootstrapUser();
-      router.replace(safeNextPath(new URLSearchParams(window.location.search).get("next")) ?? getHomeRouteForRole(String(ctx.role)));
+      router.replace(safeNextPath(new URLSearchParams(window.location.search).get("next")) ?? takeNext() ?? getHomeRouteForRole(String(ctx.role)));
     } catch (error) {
       const code = error instanceof Error ? error.message : "";
       if (code === "ONBOARDING_REQUIRED") { router.replace("/onboarding"); return; }
@@ -88,6 +88,7 @@ export default function LoginForm({ initial }: { initial: RegistrationParams }) 
       if (!country?.available) throw new Error("QB_COUNTRY_NOT_AVAILABLE");
       const problem = passwordProblem(password);
       if (problem) { setNotice({ kind: "error", text: problem }); return; }
+      rememberNext(new URLSearchParams(window.location.search).get("next"));   // an invited person returns to the shared link after confirming their email
       const { data, error } = await supabase.auth.signUp({
         email: normalizedEmail,
         password,

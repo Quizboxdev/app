@@ -24,9 +24,12 @@ describe.skipIf(process.env.QB_LIVE_ACCEPTANCE !== "1")("challenges acceptance (
     expect(r.error?.message ?? "").not.toMatch(/Could not find the function|PGRST202/);
   });
 
-  it("lets a teacher create, fill and publish a challenge, and a student cannot create one", async () => {
-    const denied = await a.rpc("challenge_create", { p_title: "QBRUN nope", p_summary: "", p_category: "general_knowledge", p_visibility: "PUBLIC", p_question_count: 3, p_time_limit_seconds: 300, p_max_attempts: 1 });
-    expect(denied.error?.message).toMatch(/NOT_AUTHORIZED/);
+  it("lets a teacher create, fill and publish a challenge; a learner can also create a challenge or a competition, but not an unknown kind", async () => {
+    const mine = { p_summary: "", p_category: "general_knowledge", p_visibility: "UNLISTED", p_question_count: 3, p_time_limit_seconds: 300, p_max_attempts: 1 };
+    const learnerOwn = await a.rpc("challenge_create", { ...mine, p_title: `QBRUN ${world.runId} learner challenge` });
+    expect(learnerOwn.error).toBeNull(); expect(learnerOwn.data.format).toBe("CHALLENGE");
+    expect((await a.rpc("challenge_create", { ...mine, p_title: `QBRUN ${world.runId} learner cup`, p_format: "COMPETITION" })).data?.format).toBe("COMPETITION");
+    expect((await a.rpc("challenge_create", { ...mine, p_title: `QBRUN ${world.runId} bad kind`, p_format: "LEAGUE" })).error?.message).toMatch(/INVALID_FORMAT/);
     const made = await teacher.rpc("challenge_create", { p_title: `QBRUN ${world.runId} quiz`, p_summary: "run scoped", p_category: "general_knowledge", p_visibility: "PUBLIC", p_question_count: 3, p_time_limit_seconds: 300, p_max_attempts: 1 });
     expect(made.error).toBeNull(); campaign = made.data;
     expect((await teacher.rpc("challenge_set_questions", { p_id: campaign.id, p_questions: questions(3) })).error).toBeNull();

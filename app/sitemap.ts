@@ -9,6 +9,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     changeFrequency: path === "/" ? "weekly" : "monthly",
     priority: path === "/" ? 1 : path.startsWith("/join") ? 0.8 : 0.4,
   }));
-  const challenges = await listPublicChallenges();
-  return [...pages, { url: `${SITE_URL}/challenges`, changeFrequency: "daily", priority: 0.7 }, ...challenges.map((c) => ({ url: `${SITE_URL}/challenges/${c.slug}`, changeFrequency: "daily" as const, priority: 0.6 }))];
+  const [challenges, competitions] = await Promise.all([listPublicChallenges("CHALLENGE"), listPublicChallenges("COMPETITION")]);
+  return [...pages, { url: `${SITE_URL}/challenges`, changeFrequency: "daily", priority: 0.7 }, { url: `${SITE_URL}/competitions`, changeFrequency: "daily", priority: 0.7 },
+    ...competitions.map((c) => ({ url: `${SITE_URL}/competitions/${c.slug}`, changeFrequency: "daily" as const, priority: 0.6 })), ...challenges.map((c) => ({ url: `${SITE_URL}/challenges/${c.slug}`, changeFrequency: "daily" as const, priority: 0.6 }))];
 }
