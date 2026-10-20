@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { getAccessOverview, grantSubscription, revokeSubscription, setFreeAllowance, type AccessOverview, type Subscription } from "@/lib/api/owner";
-import { formatDate } from "@/lib/format";
+import { formatDate, humanize } from "@/lib/format";
 import { getCatalog, listPayments, setCoinUnitPrice, setPaymentsOpen, type Catalog, type PaymentRow } from "@/lib/api/payments";
 import plansFile from "../../../../config/subscription-plans.json";
 
@@ -72,7 +72,7 @@ export default function AccessPage() {
             <button className="qb-btn secondary" disabled={busy || !catalog?.payments_enabled} onClick={() => void act(async () => { await setPaymentsOpen(false); loadPayments(); }, "Online payments switched OFF.")}>Switch off</button>
           </div>
           {payments.length > 0 && <div className="qb-table-wrap" style={{ marginTop: 12 }}><table className="qb-table"><thead><tr><th>When</th><th>Learner</th><th>Plan</th><th>Amount</th><th>Status</th><th>Check</th></tr></thead><tbody>
-            {payments.map((p) => <tr key={p.reference}><td>{formatDate(p.created_at)}</td><td>{p.learner}</td><td>{p.plan ?? "Coins"}</td><td>{p.currency} {(p.amount_minor / 100).toFixed(2)}</td><td>{p.status}</td><td>{p.reconciliation}</td></tr>)}
+            {payments.map((p) => <tr key={p.reference}><td>{formatDate(p.created_at)}</td><td>{p.learner}</td><td>{p.plan ?? "Coins"}</td><td>{p.currency} {(p.amount_minor / 100).toFixed(2)}</td><td>{humanize(p.status)}</td><td>{p.reconciliation}</td></tr>)}
           </tbody></table></div>}
         </section>
         <section className="qb-card" style={{ marginTop: 16 }}>
@@ -80,7 +80,7 @@ export default function AccessPage() {
           {!data.subscriptions.length ? <p className="qb-muted">None yet.</p> :
             <div className="qb-table-wrap"><table className="qb-table"><thead><tr><th>Learner</th><th>Plan</th><th>Valid</th><th>Status</th><th>Reference</th><th /></tr></thead><tbody>
               {data.subscriptions.map((s) => <tr key={s.id}><td>{s.name}<div className="qb-small qb-muted">{s.email}</div></td><td>{s.plan}</td>
-                <td>{formatDate(s.valid_from)} to {formatDate(s.valid_until)}</td><td>{s.status}</td><td className="qb-small">{s.note}</td>
+                <td>{formatDate(s.valid_from)} to {formatDate(s.valid_until)}</td><td>{humanize(s.status)}</td><td className="qb-small">{s.note}</td>
                 <td>{s.status === "active" && <button className="qb-btn secondary" disabled={busy} onClick={() => revoke(s)}>Revoke</button>}</td></tr>)}
             </tbody></table></div>}
         </section>

@@ -52,6 +52,7 @@ function SubscribeInner() {
         ? "We have not received confirmation yet. If you were charged, do not pay again: your subscription is activated as soon as the payment is confirmed, and you can contact us with your payment reference."
         : "Waiting for your payment to be confirmed. This usually takes under a minute."} <span className="qb-muted qb-small">Reference {returned}</span></div>}
 
+      {!(open && PLANS.some((p) => planPriceMinor(p, catalog?.unit_price_minor) !== null)) && <div className="qb-card" role="note">Prices are being finalised. Nothing is charged today.</div>}
       <div className="qb-grid cols-3">
         {PLANS.map((p) => {
           const price = planPriceMinor(p, catalog?.unit_price_minor);

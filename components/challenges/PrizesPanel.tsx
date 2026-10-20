@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { awardsList, finalizeChallenge, setPrizes, updateAward } from "@/lib/api/challenges";
 import type { Award, Prize } from "@/lib/challenges/types";
+import { humanize } from "@/lib/format";
 
 const KINDS: Prize["kind"][] = ["recognition", "certificate", "goods", "voucher", "cash"];
 const STATUSES = ["PENDING", "CONTACTED", "FULFILLED", "FORFEITED"] as const;
@@ -28,7 +29,7 @@ export default function PrizesPanel({ id, status, finalized, prizes, onChanged, 
           <div key={i} className="qb-grid cols-3" style={{ alignItems: "end" }}>
             <label className="qb-field">Ranks from<input disabled={locked} type="number" min={1} max={100} value={r.rank_from} onChange={(e) => set(i, { rank_from: Number(e.target.value), rank_to: Math.max(Number(e.target.value), r.rank_to) })} /></label>
             <label className="qb-field">to<input disabled={locked} type="number" min={r.rank_from} max={100} value={r.rank_to} onChange={(e) => set(i, { rank_to: Number(e.target.value) })} /></label>
-            <label className="qb-field">Kind<select disabled={locked} value={r.kind} onChange={(e) => set(i, { kind: e.target.value as Prize["kind"] })}>{KINDS.map((k) => <option key={k} value={k}>{k}</option>)}</select></label>
+            <label className="qb-field">Kind<select disabled={locked} value={r.kind} onChange={(e) => set(i, { kind: e.target.value as Prize["kind"] })}>{KINDS.map((k) => <option key={k} value={k}>{humanize(k)}</option>)}</select></label>
             <label className="qb-field">Prize<input disabled={locked} maxLength={120} value={r.title} onChange={(e) => set(i, { title: e.target.value })} /></label>
             <label className="qb-field">Details (optional)<input disabled={locked} maxLength={400} value={r.details ?? ""} onChange={(e) => set(i, { details: e.target.value })} /></label>
             {!locked && <button type="button" className="qb-link-btn" onClick={() => setRows((x) => x.filter((_, k) => k !== i))}>Remove</button>}

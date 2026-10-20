@@ -4,6 +4,7 @@ import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import { factory, factoryOptions, importQuestions, runCampaignJobs, type Allocation, type Campaign, type CampaignDetail, type FactoryOptions } from "@/lib/api/factory";
 import { parseImport, precheckRows, type ImportRow } from "@/lib/content/factory/import";
 import { factorySources } from "@/lib/api/sources";
+import { humanize } from "@/lib/format";
 
 type Ops = { totals: Record<string, number>; by_subject: Array<Record<string, any>>; by_level: Array<Record<string, any>>; by_market: Array<Record<string, any>>; indicators: Array<Record<string, any>>; sources: Array<Record<string, any>> };
 const DIFFICULTY = ["easy", "medium", "hard"], COGNITIVE = ["Recall", "Understanding", "Application", "Higher-order"], TYPES = ["SINGLE_CHOICE", "TRUE_FALSE"];
@@ -67,7 +68,7 @@ export default function ContentFactoryPage() {
 
     <section className="qb-card"><h2>Campaigns</h2>
       <div className="qb-table-wrap"><table className="qb-table"><thead><tr><th>Campaign</th><th>Market</th><th>Status</th><th>Target</th><th>Generated</th><th>Approved</th><th>Jobs</th><th>Action</th></tr></thead>
-        <tbody>{campaigns.map((c) => <tr key={c.id}><td>{c.name}<div className="qb-small qb-muted">{c.curriculum}</div></td><td>{c.market}</td><td><span className="qb-pill">{c.status}</span>{c.assignment_paused && <div className="qb-small qb-muted">assignment paused</div>}</td>
+        <tbody>{campaigns.map((c) => <tr key={c.id}><td>{c.name}<div className="qb-small qb-muted">{c.curriculum}</div></td><td>{c.market}</td><td><span className="qb-pill">{humanize(c.status)}</span>{c.assignment_paused && <div className="qb-small qb-muted">assignment paused</div>}</td>
           <td>{c.target_question_count}</td><td>{c.generated_count}</td><td>{c.accepted_count}</td><td>{c.jobs.completed}/{c.jobs.total}{c.jobs.failed ? ` (${c.jobs.failed} failed)` : ""}</td>
           <td><button className="qb-btn secondary" onClick={() => setSelected(c.id)} aria-label={`Open ${c.name}`}>Open</button></td></tr>)}</tbody></table>
         {!campaigns.length && <p className="qb-muted">No campaigns yet.</p>}</div>
@@ -196,7 +197,7 @@ export default function ContentFactoryPage() {
 
     {detail && <>
       <section className="qb-card"><h2>{detail.name}</h2>
-        <p className="qb-muted">{detail.market} · {detail.curriculum} · <span className="qb-pill">{detail.status}</span> · priority {detail.priority}{detail.generation_paused ? " · generation paused" : ""}{detail.assignment_paused ? " · SME assignment stopped" : ""}</p>
+        <p className="qb-muted">{detail.market} · {detail.curriculum} · <span className="qb-pill">{humanize(detail.status)}</span> · priority {detail.priority}{detail.generation_paused ? " · generation paused" : ""}{detail.assignment_paused ? " · SME assignment stopped" : ""}</p>
         <div className="qb-content-filters">
           {editable && <button className="qb-btn secondary" disabled={busy} onClick={() => campaignAction("plan", {}, "Distribution plan generated. Review it before launch.")}>Generate distribution plan</button>}
           {detail.status === "RUNNING" && <><button className="qb-btn" disabled={busy || detail.generation_paused} onClick={runJobs}>Run next {detail.max_jobs_per_execution} job(s)</button><button className="qb-btn secondary" disabled={busy} onClick={() => campaignAction("pause", {}, "Generation paused.")}>Pause generation</button></>}

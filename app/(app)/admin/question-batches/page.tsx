@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { CheckCircle2, RotateCcw, Eye } from "lucide-react";
 import { approveBatch, listBatchApprovals, listLoadBatches, previewBatch, revokeBatchApproval, type BatchApproval, type BatchPreview, type LoadBatch } from "@/lib/api/owner";
-import { formatDate } from "@/lib/format";
+import { formatDate, humanize } from "@/lib/format";
 
 // Owner-approved batches (the interim review step until reviewers are onboarded). Read the random sample, tick each question you checked,
 // then approve. Approved questions are labelled OWNER_BATCH, never "reviewed by subject experts", and one click revokes the whole batch.
@@ -60,7 +60,7 @@ export default function QuestionBatchesPage() {
             {batches.map((b) => { const a = activeApproval(b.id); return <tr key={b.id}>
               <td>{b.file_name}<div className="qb-small qb-muted">{formatDate(b.created_at)}</div></td>
               <td>{b.rows_loaded} of {b.rows_total}{b.rows_rejected ? ` (${b.rows_rejected} rejected)` : ""}</td>
-              <td>{b.status}</td>
+              <td>{humanize(b.status)}</td>
               <td>{a ? <span className="qb-pill success">Approved: {a.questions_approved} live</span> : <span className="qb-pill">Not approved</span>}</td>
               <td>{a ? <button className="qb-btn secondary" disabled={busy} onClick={() => void revoke(a)}><RotateCcw size={14} aria-hidden="true" /> Revoke</button>
                 : ["LOADED", "PARTIAL"].includes(b.status) ? <button className="qb-btn" disabled={busy} onClick={() => void openBatch(b.id)}><Eye size={14} aria-hidden="true" /> Review sample</button>

@@ -8,6 +8,7 @@ import { setAssignmentGradeOverride } from "@/lib/api/markets";
 import WorkflowStepper from "@/components/WorkflowStepper";
 import StatusBadge from "@/components/StatusBadge";
 import CurriculumBrowser from "@/components/CurriculumBrowser";
+import { objectiveLabel } from "@/lib/curriculum/display";
 import { assignmentPhase } from "@/lib/learning/analytics";
 import { getQuestionAvailability, listApprovedQuestionsForNode, listCurriculumNodes } from "@/lib/api/curriculum";
 
@@ -56,12 +57,12 @@ export default function TeacherAssignmentsPage() {
     { id: "scope", title: "Scope", description: "Choose the curriculum objective the questions come from.", isValid: Boolean(nodeId), content: !selectedClass ? <p className="qb-muted">Select a class first.</p> : subjectRoot ? (
       <>
         <CurriculumBrowser curriculumId={selectedClass.curriculum_id} root={subjectRoot} rootLabel={subjectRoot.title}
-          renderLeaf={(leaf, { available }) => <div className="qb-launch"><p className="qb-overline">{leaf.code ?? "Objective"}</p><h3>{leaf.title}</h3><p className="qb-muted">{available} approved question{available === 1 ? "" : "s"}</p>
+          renderLeaf={(leaf, { available }) => <div className="qb-launch"><p className="qb-overline">Objective</p><h3>{leaf.title}</h3><p className="qb-muted">{available} approved question{available === 1 ? "" : "s"}</p>
             <button type="button" className="qb-btn" disabled={!available} aria-pressed={nodeId === leaf.id} onClick={() => setNodeId(leaf.id)}>{nodeId === leaf.id ? "Selected" : "Use this objective"}</button>{!available && <p className="qb-muted qb-small">No approved questions here yet.</p>}</div>} />
         {nodeId && availability && <p className="qb-muted" role="status">{availability.approved_count} approved questions available · Easy {availability.easy_count} · Medium {availability.medium_count} · Hard {availability.hard_count}</p>}
       </>
     ) : (
-      <div className="qb-field"><label htmlFor="asg-curriculum-objective">Curriculum objective</label><select id="asg-curriculum-objective" value={nodeId} onChange={(e) => setNodeId(e.target.value)}><option value="">Select objective</option>{objectives.map((row) => <option key={row.id} value={row.id}>{row.code} · {row.title}</option>)}</select>
+      <div className="qb-field"><label htmlFor="asg-curriculum-objective">Curriculum objective</label><select id="asg-curriculum-objective" value={nodeId} onChange={(e) => setNodeId(e.target.value)}><option value="">Select objective</option>{objectives.map((row) => <option key={row.id} value={row.id}>{objectiveLabel(row)}</option>)}</select>
         {availability && <p className="qb-muted">{availability.approved_count} approved questions available · Easy {availability.easy_count} · Medium {availability.medium_count} · Hard {availability.hard_count}</p>}</div>
     ) },
     { id: "questions", title: "Questions", description: "How many, how hard, and who picks them.", isValid: enough, content:

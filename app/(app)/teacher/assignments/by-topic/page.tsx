@@ -5,6 +5,7 @@ import { bootstrapUser } from "@/lib/auth";
 import { listTeacherClasses } from "@/lib/api/teacher";
 import { listClassLearners, listTeacherTopics, previewTopicPlan, publishTopicAssignment, type TeacherTopic, type TopicPlan } from "@/lib/api/topic-assignments";
 import { describeErrorMessage } from "@/lib/errors";
+import { splitTopicsForTeacher } from "@/lib/curriculum/display";
 
 type ClassRow = { id: string; class_name: string; grade?: string | null };
 
@@ -35,11 +36,8 @@ export default function AssignByTopicPage() {
 
   const subjects = useMemo(() => [...new Set(topics.map((t) => t.subject))], [topics]);
   const visible = useMemo(() => topics.filter((t) => !subject || t.subject === subject), [topics, subject]);
-  const byStrand = useMemo(() => {
-    const groups = new Map<string, TeacherTopic[]>();
-    for (const t of visible) groups.set(t.strand ?? "Other topics", [...(groups.get(t.strand ?? "Other topics") ?? []), t]);
-    return [...groups.entries()];
-  }, [visible]);
+  // Only topics with readable names are offered; a topic whose name is still a code is held back (reported to admins), never grouped as "Other".
+  const { shown: readable, unlabelled } = useMemo(() => splitTopicsForTeacher(visible), [visible]);
 
   // The server is the one that decides the split; ask it whenever the choice changes.
   useEffect(() => {
@@ -84,11 +82,13 @@ export default function AssignByTopicPage() {
 
     {visible.length > 0 && <section className="qb-card"><h2>2. Topics</h2>
       <p className="qb-muted">Tick every topic to include. The number beside a topic is how many approved questions it has now.</p>
-      {byStrand.map(([strand, list]) => <fieldset key={strand}><legend>{strand}</legend>
-        {list.map((t) => <label key={t.topic_id} className="qb-row">
+      <div className="qb-list">
+        {readable.map((t) => <label key={t.topic_id} className="qb-row">
           <input type="checkbox" checked={chosen.includes(t.topic_id)} disabled={t.available === 0} onChange={() => toggle(t.topic_id)}/>
-          <span><strong>{t.title}</strong> <span className="qb-muted">· {t.available} questions · {t.concepts.length} concept{t.concepts.length === 1 ? "" : "s"}{t.concepts.length ? `: ${t.concepts.join(", ")}` : ""}</span></span>
-        </label>)}</fieldset>)}
+          <span><strong>{t.label}</strong> <span className="qb-muted">· {t.available} question{t.available === 1 ? "" : "s"}{t.hint ? ` · ${t.hint}` : ""}{t.concepts.length ? ` · ${t.concepts.join(", ")}` : ""}</span></span>
+        </label>)}
+      </div>
+      {unlabelled.length > 0 && <p className="qb-muted qb-small">{unlabelled.length} more topic{unlabelled.length === 1 ? " is" : "s are"} not shown yet while we finish preparing {unlabelled.length === 1 ? "it" : "them"}.</p>}
     </section>}
 
     {chosen.length > 0 && <section className="qb-card"><h2>3. How many questions</h2>
@@ -102,7 +102,7 @@ export default function AssignByTopicPage() {
       {planError && <p className="qb-error" role="alert">{planError}</p>}
       {plan && <div className="qb-table-wrap"><table className="qb-table"><caption className="qb-sr-only">How the questions are shared</caption>
         <thead><tr><th>Topic</th><th>Questions</th><th>Easy</th><th>Medium</th><th>Hard</th></tr></thead>
-        <tbody>{plan.shares.slice().sort((a, b) => a.title.localeCompare(b.title)).map((s) => <tr key={s.topic_id}><td>{s.title}</td><td>{s.share}</td><td>{s.easy}</td><td>{s.medium}</td><td>{s.hard}</td></tr>)}</tbody></table></div>}
+        <tbody>{plan.shares.map((s) => ({ ...s, name: readable.find((t) => t.topic_id === s.topic_id)?.label ?? s.title })).sort((a, b) => a.name.localeCompare(b.name)).map((s) => <tr key={s.topic_id}><td>{s.name}</td><td>{s.share}</td><td>{s.easy}</td><td>{s.medium}</td><td>{s.hard}</td></tr>)}</tbody></table></div>}
       {plan && <p className="qb-muted">Questions are picked when you publish, so two assignments on the same topics differ. Nothing repeats within an assignment.</p>}
     </section>}
 

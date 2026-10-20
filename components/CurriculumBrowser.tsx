@@ -3,16 +3,13 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { ChevronRight } from "lucide-react";
 import { getQuestionAvailability, listCurriculumNodes } from "@/lib/api/curriculum";
+import { levelDisplayName, looksLikeCode } from "@/lib/curriculum/display";
 
 export type CurriculumBrowserNode = { id: string; node_type: string; code: string | null; title: string; source_terminology: string | null; subject_code: string | null; grade_code: string | null };
 
-// Ghana hierarchy labels; the curriculum's own terminology wins when it supplies one.
-const LEVEL: Record<string, string> = {
-  education_level: "Education level", grade: "Grade", subject: "Subject", strand: "Strand", sub_strand: "Sub-strand", topic: "Topic", subtopic: "Subtopic",
-  content_standard: "Content standard", learning_indicator: "Learning indicator", learning_objective: "Learning objective",
-};
+// Plain level names come from lib/curriculum/display (no strand / indicator jargon, no codes).
 const LEAF = new Set(["learning_indicator", "learning_objective"]);
-export const nodeLevelName = (node: CurriculumBrowserNode) => node.source_terminology || LEVEL[node.node_type] || node.node_type;
+export const nodeLevelName = (node: CurriculumBrowserNode) => levelDisplayName(node.node_type, node.source_terminology);
 
 // Curriculum path → the question columns that carry each level (questions are denormalised with strand/sub-strand/standard/indicator).
 export function curriculumScopeFilters(path: Pick<CurriculumBrowserNode, "node_type" | "code" | "title" | "subject_code" | "grade_code">[]) {
@@ -79,7 +76,7 @@ export default function CurriculumBrowser({ curriculumId, root = null, onPathCha
         : loading ? <div className="qb-node-grid" aria-busy="true">{[1, 2, 3].map((i) => <div key={i} className="qb-node qb-skeleton" />)}</div>
         : children.length ? <div className="qb-node-grid">
           {children.map((node) => <button type="button" key={node.id} className="qb-node" onClick={() => setPath([...path, node])}>
-            <span><strong>{node.title}</strong>{nodeLevelName(node)}{node.code ? ` · ${node.code}` : ""}{available[node.id] ? ` · ${available[node.id]} questions` : ""}</span>
+            <span><strong>{looksLikeCode(node.title) ? nodeLevelName(node) : node.title}</strong>{nodeLevelName(node)}{available[node.id] ? ` · ${available[node.id]} question${available[node.id] === 1 ? "" : "s"}` : ""}</span>
             <ChevronRight size={16} aria-hidden="true" />
           </button>)}
         </div>

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { adminOverview, createChallenge, myCampaigns } from "@/lib/api/challenges";
 import { CHALLENGE_CATEGORIES, type MyCampaign } from "@/lib/challenges/types";
+import { humanize } from "@/lib/format";
 
 // Challenge console: your campaigns, and a short form to start a new one. Questions are added on the next screen.
 export default function CreatorPage() {
@@ -39,7 +40,7 @@ export default function CreatorPage() {
         <h2>Your challenges</h2>
         {rows === null ? <p className="qb-muted">Loading…</p> : rows.length === 0 ? <p className="qb-muted">Nothing yet. Start one below.</p> : (
           <table className="qb-table"><thead><tr><th>Title</th><th>Status</th><th>Who can join</th><th>Questions</th><th>Played</th><th /></tr></thead><tbody>
-            {rows.map((r) => <tr key={r.id}><td>{r.title}</td><td>{r.status}</td><td>{r.visibility === "PRIVATE" ? `Code ${r.access_code ?? ""}` : r.visibility === "UNLISTED" ? "Link only" : "Everyone"}</td>
+            {rows.map((r) => <tr key={r.id}><td>{r.title}</td><td>{humanize(r.status)}</td><td>{r.visibility === "PRIVATE" ? `Code ${r.access_code ?? ""}` : r.visibility === "UNLISTED" ? "Link only" : "Everyone"}</td>
               <td>{r.questions_loaded}/{r.question_count}</td><td>{r.participants}</td><td><Link className="qb-link" href={`/creator/${r.id}`}>Open</Link>{r.status === "LIVE" && <> · <Link className="qb-link" href={`/challenges/${r.slug}`}>Public page</Link></>}</td></tr>)}
           </tbody></table>
         )}

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { contentChunks, contentList, uploadContent } from "@/lib/api/challenges";
 import { passagePrompt } from "@/lib/challenges/chunker";
 import type { ContentAsset, Passage } from "@/lib/challenges/types";
+import { humanize } from "@/lib/format";
 
 // Source material for book challenges: upload a PDF, Word or text file (or paste text). It is split into numbered passages; each question can cite one passage and quote it word for word.
 // A new upload of the same book is a new version; passages are never edited, so a question's evidence stays exactly as it was.
@@ -47,7 +48,7 @@ export default function SourcePanel({ campaignId, picked, onPick, onError }: { c
         <h2>Your sources</h2>
         {assets === null ? <p className="qb-muted">Loading…</p> : assets.length === 0 ? <p className="qb-muted">Nothing added yet.</p> : (
           <ul className="qb-list">{assets.map((a) => (
-            <li key={a.asset_id}><strong>{a.title}</strong> <span className="qb-muted">({a.kind})</span>
+            <li key={a.asset_id}><strong>{a.title}</strong> <span className="qb-muted">({humanize(a.kind)})</span>
               <ul>{a.versions.map((v) => <li key={v.version_id}>Version {v.version}{v.source_name ? ` · ${v.source_name}` : ""} · {v.chunk_count} passages · <button className="qb-link-btn" onClick={() => view(v.version_id)}>{viewing === v.version_id ? "Showing" : "Show passages"}</button></li>)}</ul>
             </li>))}</ul>
         )}

@@ -3,6 +3,7 @@ import { FormEvent, useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { RefreshCw, Save, Plus } from "lucide-react";
 import { formatOptions, marketAdmin, marketSetup, parseOptions, type MarketRow, type MarketStatus } from "@/lib/api/markets";
+import { humanize } from "@/lib/format";
 type RecordRow = Record<string, any>;
 
 const NEXT: Record<MarketStatus, MarketStatus[]> = { DRAFT: ["CONFIGURING"], CONFIGURING: ["DRAFT", "READY"], READY: ["CONFIGURING", "ACTIVE"], ACTIVE: ["SUSPENDED"], SUSPENDED: ["ACTIVE", "CONFIGURING"] };
@@ -54,7 +55,7 @@ export default function MarketSetup() {
         <tbody>{dashboard.markets.map((m) => <tr key={String(m.market)}><td>{String(m.market)}{m.is_test ? " (test)" : ""}</td><td>{String(m.status)}</td><td>{m.ready ? "Yes" : "No"}</td>{["users", "students", "teachers", "smes", "sponsors", "questions", "approved_questions"].map((k) => <td key={k}>{String(m[k])}</td>)}</tr>)}</tbody></table></div>
     </section>}
     <section><h2>Markets</h2><div className="qb-table-wrap"><table className="qb-table"><thead><tr><th>Market</th><th>Country</th><th>Currency / locale</th><th>Status</th><th>Readiness</th><th>Actions</th></tr></thead><tbody>
-      {markets.map((m) => <tr key={m.id}><td>{m.name}{m.is_test && " (test, hidden from signup)"}</td><td>{m.country} ({m.country_code})</td><td>{m.currency} · {m.locale} · {m.timezone}</td><td>{m.status}</td>
+      {markets.map((m) => <tr key={m.id}><td>{m.name}{m.is_test && " (test, hidden from signup)"}</td><td>{m.country} ({m.country_code})</td><td>{m.currency} · {m.locale} · {m.timezone}</td><td>{humanize(m.status)}</td>
         <td>{m.readiness.ready ? "Ready" : m.readiness.blockers.map((b) => <div key={b}><small>{b.replaceAll("_", " ")}</small></div>)}<small>SME coverage: {m.readiness.sme_coverage}</small>{m.readiness.sources && <div><small>Sources: {m.readiness.sources.active} active / {m.readiness.sources.pending} pending · <a href="/admin/curriculum-sources">Curriculum sources</a></small></div>}</td>
         <td className="qb-content-filters"><button disabled={busy} onClick={() => edit(m)}>Edit</button>{NEXT[m.status].map((s) => <button key={s} disabled={busy} onClick={() => void perform(async () => { const r = await marketAdmin<{ changed: boolean; blockers: string[] }>("set_status", { market_id: m.id, status: s }); if (!r.changed) throw new Error(`Not ready: ${r.blockers.join(", ")}`); }, `Status changed to ${s}.`)}>Move to {s}</button>)}</td></tr>)}
     </tbody></table></div></section>

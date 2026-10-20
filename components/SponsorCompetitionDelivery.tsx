@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { RefreshCw, UserPlus, Check, X, Layers, Send } from "lucide-react";
 import { sponsorWorkspaceRequest as call } from "@/lib/api/sponsor-workspace";
+import { humanize } from "@/lib/format";
 
 type CandidateRow = { id: string; status: string; question_id: string | null; payload: { stem: string; difficulty: string; subject: string } };
 type BankRow = { candidate_id: string; included: boolean; position: number; question_version_id: string };
@@ -25,7 +26,7 @@ export default function SponsorCompetitionDelivery({ sponsor, competition, writa
     {error && <p className="qb-error" role="alert">{error}</p>}{notice && <p role="status">{notice}</p>}
     <div className="qb-table-wrap"><table className="qb-table"><thead><tr><th>Question</th><th>Domain</th><th>Difficulty</th><th>Review</th><th>Bank</th><th>Actions</th></tr></thead><tbody>{candidates.map((row) => {
       const included = bank.find(b => b.candidate_id === row.id)?.included;
-      return <tr key={row.id}><td>{row.payload.stem}</td><td>{row.payload.subject}</td><td>{row.payload.difficulty}</td><td>{row.status}</td><td>{included ? "Included" : "Excluded"}</td><td>
+      return <tr key={row.id}><td>{row.payload.stem}</td><td>{row.payload.subject}</td><td>{row.payload.difficulty}</td><td>{humanize(row.status)}</td><td>{included ? "Included" : "Excluded"}</td><td>
         {row.status === "APPROVED" && <button disabled={busy || !writable} title={included ? "Exclude from bank" : "Materialize and include"} onClick={() => void perform(async () => { await call("include_bank", sponsor, { competition_id: competition, candidate_id: row.id, included: !included, position: bankPosition(row.id) }); })}>{included ? <X size={16}/> : <Check size={16}/>}</button>}
         {!row.question_id && ["GENERATED", "ASSIGNED_FOR_REVIEW"].includes(row.status) && <form onSubmit={event => { event.preventDefault(); const data = Object.fromEntries(new FormData(event.currentTarget)); void perform(async () => { await call("assign_candidate", sponsor, { ...data, competition_id: competition, candidate_id: row.id }); setNotice("Review assigned."); }); }}><fieldset disabled={busy || !writable} className="qb-content-filters"><label>Reviewer UUID<input name="reviewer_id" required/></label><label>Domain assignment UUID<input name="domain_id" required/></label><label>Review level<select name="kind"><option value="primary">Primary</option><option value="senior">Senior QA</option></select></label><button title="Assign candidate review" aria-label="Assign candidate review"><UserPlus size={16}/></button></fieldset></form>}
       </td></tr>;
@@ -81,5 +82,5 @@ export function CompetitionComparison({ sponsor }: { sponsor: string }) {
   if (error) return <p className="qb-error" role="alert">{error}</p>;
   if (!rows.length) return null;
   return <details><summary>Compare competitions ({rows.length})</summary><div className="qb-table-wrap"><table className="qb-table"><thead><tr><th>Competition</th><th>Scope</th><th>Status</th><th>Registered</th><th>Started</th><th>Completed</th><th>Average</th></tr></thead>
-    <tbody>{rows.map((r, i) => <tr key={i}><td>{r.title}</td><td>{r.scope}</td><td>{r.status}</td><td>{r.registrations}</td><td>{r.started}</td><td>{r.completed}</td><td>{r.average_percentage === null ? "-" : `${r.average_percentage}%`}</td></tr>)}</tbody></table></div></details>;
+    <tbody>{rows.map((r, i) => <tr key={i}><td>{r.title}</td><td>{r.scope}</td><td>{humanize(r.status)}</td><td>{r.registrations}</td><td>{r.started}</td><td>{r.completed}</td><td>{r.average_percentage === null ? "-" : `${r.average_percentage}%`}</td></tr>)}</tbody></table></div></details>;
 }

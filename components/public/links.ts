@@ -15,6 +15,7 @@ export const PUBLIC_LINKS = {
   sme: "/join/sme",
   school: "/join/school",
   country: "/join/country",
+  pricing: "/pricing",
   contact: "/contact",
   privacy: "/privacy",
   terms: "/terms",

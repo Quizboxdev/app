@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import StatusBadge from "@/components/StatusBadge";
 import CurriculumBrowser, { curriculumScopeFilters, type CurriculumBrowserNode } from "@/components/CurriculumBrowser";
 import { humanize, shortenIds } from "@/lib/format";
+import { curriculumTrail } from "@/lib/curriculum/display";
 import { listCurricula } from "@/lib/api/curriculum";
 import { listQuestions } from "@/lib/api/teacher";
 
@@ -35,7 +36,7 @@ export default function TeacherQuestionBanksPage() {
   const set = (key: keyof typeof filters) => (event: { target: { value: string } }) => setFilters({ ...filters, [key]: event.target.value });
 
   return <>
-    <div className="qb-page-head"><div><h1>Question Bank</h1><p>Browse the approved curriculum repository by grade, subject, strand and indicator.</p></div><span className="qb-pill">{result.count} questions</span></div>
+    <div className="qb-page-head"><div><h1>Question Bank</h1><p>Browse the approved questions by grade, subject and topic.</p></div><span className="qb-pill">{result.count} questions</span></div>
 
     <section className="qb-card" aria-labelledby="qb-scope">
       <div className="qb-page-head"><h2 id="qb-scope">Curriculum scope</h2>
@@ -60,7 +61,7 @@ export default function TeacherQuestionBanksPage() {
       <table className="qb-table"><thead><tr><th>Question</th><th>Curriculum</th><th>Difficulty</th><th>Type</th><th>Status</th></tr></thead>
         <tbody>{result.rows.map((row) => <tr key={row.id}>
           <td><strong>{row.question_text}</strong><br /><span className="qb-muted">{shortenIds(row.question_code ?? row.id)}</span></td>
-          <td>{row.grade} · {row.subject_code}<br /><span className="qb-muted">{[row.strand_name, row.substrand_name, row.indicator_code ?? row.content_standard_code].filter(Boolean).join(" › ")}</span></td>
+          <td>{row.grade} · {row.subject_code}<br /><span className="qb-muted">{curriculumTrail([row.strand_name, row.substrand_name])}</span></td>
           <td>{row.difficulty_label ? humanize(row.difficulty_label) : "Not set"}</td><td>{row.answer_type ? humanize(row.answer_type) : "Not set"}</td><td><StatusBadge status={row.status} /></td>
         </tr>)}</tbody></table>
       {!result.rows.length && !loading && !error && <div className="qb-empty"><strong>No questions match</strong>Widen the curriculum scope or clear a filter.</div>}
