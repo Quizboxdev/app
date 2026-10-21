@@ -96,7 +96,7 @@ export default function AppShell({
     if (isSeller && ["TEACHER", "ADMIN", "OWNER"].includes(role)) {
       allowedPrefixes.push("/seller");
     }
-    allowedPrefixes.push("/account", "/notifications", "/school", "/play", "/drafts");
+    allowedPrefixes.push("/account", "/notifications", "/school", "/play", "/open", "/drafts");
     if (sme?.reviewer || sme?.content_admin || sme?.super_admin) allowedPrefixes.push("/review");
     if (sme?.super_admin) allowedPrefixes.push("/admin/markets", "/admin/reviewers", "/admin/compensation");
     if (sme?.super_admin || sme?.sme_support) allowedPrefixes.push("/admin/inbox", "/admin/reviewer-applications");

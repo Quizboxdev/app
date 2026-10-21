@@ -5,7 +5,11 @@ import type { ChallengeCard, Format, LeaderRow, LibraryStats, PublicChallenge } 
 // If the migration is not applied or the database is unreachable the pages show an empty state instead of failing.
 const SLUG = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 export async function listPublicChallenges(format: Format = "CHALLENGE"): Promise<PublicChallenge[]> {
-  try { const { data } = await getSupabaseAdminClient().rpc("challenge_public_list", { p_limit: 48, p_offset: 0, p_format: format }); return (data ?? []) as PublicChallenge[]; } catch { return []; }
+  try {
+    const { data, error } = await getSupabaseAdminClient().rpc("challenge_public_list", { p_limit: 48, p_offset: 0, p_format: format });
+    if (error) console.error("[challenges] public list failed:", `${error.code ?? ""} ${error.message}`.trim());
+    return (data ?? []) as PublicChallenge[];
+  } catch (e) { console.error("[challenges] public list unavailable:", e instanceof Error ? e.message : "unknown error"); return []; }
 }
 export async function getPublicChallenge(slug: string): Promise<ChallengeCard | null> {
   if (!SLUG.test(slug)) return null;

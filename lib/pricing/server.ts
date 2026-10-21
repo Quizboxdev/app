@@ -13,6 +13,8 @@ export async function getPrices(): Promise<PriceRow[]> {
   try {
     const { data, error } = await getSupabaseAdminClient().rpc("qb_price_list");
     if (!error && Array.isArray(data) && data.length > 0) return data as PriceRow[];
-  } catch { /* fall through to the plan file */ }
+    // Say why the fallback is showing (a missing server key, an unapplied migration, an empty list) so it is visible in the function logs. No secret is logged.
+    console.error("[pricing] price list not used:", error ? `${error.code ?? ""} ${error.message}`.trim() : "the list is empty");
+  } catch (e) { console.error("[pricing] price list unavailable:", e instanceof Error ? e.message : "unknown error"); }
   return FALLBACK_PRICES;
 }
