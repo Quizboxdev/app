@@ -10,7 +10,7 @@ const TONE: Record<string, { band: string; ink: string; soft: string; ring: stri
   sponsors: { band: "linear-gradient(135deg,#f59e0b 0%,#ef4444 100%)", ink: "#ffffff", soft: "#fff7ed", ring: "#ea580c" },
 };
 
-export default function PricingCards({ rows, variant = "app", onPay, payable, busy, registerHref = "/login" }: {
+export default function PricingCards({ rows, onPay, payable, busy, registerHref = "/login" }: {
   rows: PriceRow[]; variant?: "public" | "app"; onPay?: (row: PriceRow) => void; payable?: (row: PriceRow) => boolean; busy?: string; registerHref?: string;
 }) {
   const groups = groupPrices(rows);

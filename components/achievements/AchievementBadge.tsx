@@ -1,7 +1,7 @@
 "use client";
 
 import { ReactNode } from "react";
-import { Award, Star, Zap, Shield, Trophy } from "lucide-react";
+import { Star, Zap, Shield, Trophy } from "lucide-react";
 
 export type BadgeTier = "gold" | "silver" | "bronze" | "standard";
 export type BadgeType = "championship" | "mastery" | "streak" | "perfect";

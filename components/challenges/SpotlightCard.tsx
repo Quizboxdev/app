@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { BookOpen, Trophy, Zap } from "lucide-react";
 import { FORMATS, formatOf, readableText, type Brand } from "@/lib/challenges/types";
+import LogoImage from "./LogoImage";
 
 // How a quiz looks to people browsing: the carousel, the sidebar, and the live preview while it is being made. Pure display (no data loading).
 export type SpotlightProps = { title: string; summary?: string; brand?: Brand; format?: string; rounds?: number; questions?: number; hasMaterial?: boolean; played?: number; href?: string; sponsored?: boolean; compact?: boolean; cta?: string };
@@ -12,7 +13,7 @@ export default function SpotlightCard(p: SpotlightProps) {
     <div className="qb-card" style={{ borderTop: `6px solid ${accent}`, display: "grid", gap: 8, minWidth: 0 }}>
       <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
         <div aria-hidden="true" style={{ flex: "0 0 auto", width: p.compact ? 44 : 64, height: p.compact ? 44 : 64, borderRadius: 12, background: "#fff", border: "1px solid rgba(0,0,0,.12)", display: "grid", placeItems: "center", overflow: "hidden" }}>
-          {p.brand?.logo ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={p.brand.logo} alt="" style={{ maxWidth: "100%", maxHeight: "100%" }} /> : <Trophy size={p.compact ? 20 : 28} color={accent} />}
+          {p.brand?.logo ? <LogoImage src={p.brand.logo} style={{ maxWidth: "100%", maxHeight: "100%" }} /> : <Trophy size={p.compact ? 20 : 28} color={accent} />}
         </div>
         <div style={{ minWidth: 0 }}>
           <p className="qb-overline" style={{ margin: 0 }}>{p.brand?.organiser_name || "Your organisation"}{p.sponsored !== false ? " · Sponsored" : ""}</p>

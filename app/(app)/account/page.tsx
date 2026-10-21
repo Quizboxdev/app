@@ -17,14 +17,6 @@ export default function AccountPage() {
     catch (cause) { setError(userFacingError(cause)); } finally { setBusy(false); }
   }
   if (!account) return error ? <p className="qb-error" role="alert">{error}</p> : <p>Loading account…</p>;
-  const rows: Array<[string, string]> = [
-    ["Name", account.full_name], ["Email", account.email], ["Role", account.role], ["Country", account.country ?? "-"],
-    ["Primary market", account.primary_market?.name ?? "-"], ["Active market", account.active_market?.name ?? "-"],
-    ["Authorized markets", account.authorized_markets.map((m) => m.name + (m.primary ? " (primary)" : "")).join(", ") || "-"],
-    ["Language / locale", account.primary_market?.locale ?? "-"], ["School / institution", account.school_name ?? "-"],
-    ...(account.student ? [["Grade", account.student.grade_code ?? "-"], ["Education level", account.student.education_level ?? "-"]] as Array<[string, string]> : []),
-    ...(account.teacher ? [["Subjects taught", account.teacher.subjects.join(", ") || "-"], ["Grades taught", account.teacher.grade_codes.join(", ") || "-"]] as Array<[string, string]> : []),
-  ];
   return (
     <>
       <div className="qb-page-head" style={{ marginBottom: '2rem' }}>

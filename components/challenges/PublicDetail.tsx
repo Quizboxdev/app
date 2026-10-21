@@ -10,6 +10,7 @@ import { SITE_URL } from "@/lib/site";
 import ViewBeacon from "@/components/challenges/ViewBeacon";
 import ReportChallenge from "@/components/challenges/ReportChallenge";
 import ShareBar from "@/components/challenges/ShareBar";
+import LogoImage from "@/components/challenges/LogoImage";
 
 const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
@@ -44,7 +45,7 @@ export default async function PublicDetail({ slug, format }: { slug: string; for
       <ViewBeacon slug={c.slug} />
       <section className="qbp-wrap" style={{ paddingBottom: 64, display: "grid", gap: 24 }} data-qb-section={f.noun}>
         <div className="qbp-card" style={{ maxWidth: 820, ...(accent ? { borderTop: `6px solid ${accent}` } : {}) }}>
-          {c.brand?.logo && /* eslint-disable-next-line @next/next/no-img-element */ <img src={c.brand.logo} alt={c.brand.organiser_name ? `${c.brand.organiser_name} logo` : "Organiser logo"} width={72} height={72} style={{ objectFit: "contain", borderRadius: 12 }} />}
+          {c.brand?.logo && <LogoImage src={c.brand.logo} alt={c.brand.organiser_name ? `${c.brand.organiser_name} logo` : "Organiser logo"} width={72} height={72} style={{ objectFit: "contain", borderRadius: 12 }} />}
           {c.brand?.welcome && <p>{c.brand.welcome}</p>}
           {!c.private && <p className="qbp-meta">{category} · {c.question_count} questions · {formatDuration(c.time_limit_seconds * 1000)} · {c.max_attempts} attempt{c.max_attempts === 1 ? "" : "s"} · {c.participants} played</p>}
           {c.audience === "CLASS" && <p className="qbp-meta">Open to the members of one class. Sign in with your school account to take part.</p>}

@@ -85,7 +85,7 @@ describe("create learners route", () => {
     expect(state.deleteUser).toHaveBeenCalledTimes(1);
   });
   it("tries another username if one is taken", async () => {
-    let n = 0; state.createUser = vi.fn(async (a: any) => (++n === 1 ? { data: { user: null }, error: { message: "User already registered" } } : { data: { user: { id: "u" + n } }, error: null }));
+    let n = 0; state.createUser = vi.fn(async () => (++n === 1 ? { data: { user: null }, error: { message: "User already registered" } } : { data: { user: { id: "u" + n } }, error: null }));
     const out = await (await call("", { ...good, names: ["Ama"] })).json();
     expect(out.created).toHaveLength(1); expect(state.createUser).toHaveBeenCalledTimes(2);
   });

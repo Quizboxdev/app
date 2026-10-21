@@ -57,7 +57,7 @@ export function extractCurriculum(pages: CurriculumPage[]): Extraction {
   let current: (CurriculumRow & { mode: "indicator" | "exemplars" | "done" }) | null = null;
   let expected = 1, ctxGrade = "";
 
-  const finish = () => { if (current) { const { mode: _mode, ...row } = current; rows.push({ ...row, indicator: row.indicator.trim(), exemplars: row.exemplars.map((e) => e.trim()).filter(Boolean) }); current = null; } };
+  const finish = () => { if (current) { const { mode: _mode, ...row } = current; void _mode; rows.push({ ...row, indicator: row.indicator.trim(), exemplars: row.exemplars.map((e) => e.trim()).filter(Boolean) }); current = null; } };
   const addExemplarLine = (line: string) => {
     if (!current) return;
     const numbered = NUMBERED.exec(line);

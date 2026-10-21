@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { setBrand } from "@/lib/api/challenges";
-import { readableText, type Brand } from "@/lib/challenges/types";
+import type { Brand } from "@/lib/challenges/types";
 import LogoPicker from "@/components/challenges/LogoPicker";
 import SpotlightCard from "@/components/challenges/SpotlightCard";
 

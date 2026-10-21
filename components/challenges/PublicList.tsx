@@ -4,6 +4,7 @@ import PageIntro from "@/components/public/PageIntro";
 import { getLibraryStats, listPublicChallenges } from "@/lib/challenges/server";
 import { CONTENT_TYPES } from "@/lib/challenges/content-types";
 import { CHALLENGE_CATEGORIES, FORMATS, formatDuration, type Format } from "@/lib/challenges/types";
+import LogoImage from "@/components/challenges/LogoImage";
 
 const label = (id: string) => CHALLENGE_CATEGORIES.find((c) => c.id === id)?.label ?? id;
 const when = (iso: string | null) => (iso ? new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : null);
@@ -32,7 +33,7 @@ export default async function PublicList({ format }: { format: Format }) {
           <div className="qbp-grid">
             {items.map((c) => (
               <article key={c.slug} className="qbp-card">
-                {c.brand?.logo && /* eslint-disable-next-line @next/next/no-img-element */ <img src={c.brand.logo} alt="" width={48} height={48} style={{ objectFit: "contain", borderRadius: 8 }} />}
+                {c.brand?.logo && <LogoImage src={c.brand.logo} width={48} height={48} style={{ objectFit: "contain", borderRadius: 8 }} />}
                 <p className="qbp-tag">{c.brand?.organiser_name ? `${c.brand.organiser_name} · ` : ""}{label(c.category)}</p>
                 <h2 className="qbp-h3"><Link href={`${f.base}/${c.slug}`}>{c.title}</Link></h2>
                 {c.summary && <p className="qbp-meta">{c.summary}</p>}

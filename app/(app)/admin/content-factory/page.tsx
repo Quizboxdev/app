@@ -1,5 +1,5 @@
 "use client";
-import WorkflowStepper, { type WorkflowStep } from "@/components/WorkflowStepper";
+import WorkflowStepper from "@/components/WorkflowStepper";
 import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import { factory, factoryOptions, importQuestions, runCampaignJobs, type Allocation, type Campaign, type CampaignDetail, type FactoryOptions } from "@/lib/api/factory";
 import { parseImport, precheckRows, type ImportRow } from "@/lib/content/factory/import";

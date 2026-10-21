@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import { LOGO_MAX_CHARS, LOGO_MAX_PIXELS } from "@/lib/challenges/limits";
+import LogoImage from "./LogoImage";
 
 // Pick a logo: it is shrunk in the browser to at most 160 pixels and stored as a small picture (PNG, JPEG or WebP; SVG is not accepted because it can carry scripts).
 // Users see it on the quiz card, the sponsored carousel and the quiz page.
@@ -34,7 +35,7 @@ export default function LogoPicker({ value, onChange, onError }: { value?: strin
       <span>Logo</span>
       <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
         <div aria-hidden="true" style={{ width: 72, height: 72, borderRadius: 12, border: "1px dashed currentColor", display: "grid", placeItems: "center", overflow: "hidden", background: "#fff" }}>
-          {value ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={value} alt="" style={{ maxWidth: "100%", maxHeight: "100%" }} /> : <span style={{ color: "#777", fontSize: 12 }}>No logo</span>}
+          {value ? <LogoImage src={value} style={{ maxWidth: "100%", maxHeight: "100%" }} /> : <span style={{ color: "#777", fontSize: 12 }}>No logo</span>}
         </div>
         <div>
           <input ref={input} type="file" accept="image/png,image/jpeg,image/webp" onChange={(e) => void pick(e.target.files?.[0])} aria-label="Choose a logo picture" disabled={busy} />

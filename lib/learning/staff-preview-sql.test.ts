@@ -10,8 +10,6 @@ const id = (n: number) => `00000000-0000-4000-8000-${String(n).padStart(12, "0")
 let db: PGlite;
 const as = (n: number, caps = "") => db.exec(`select set_config('request.jwt.claim.sub','${id(n)}',false), set_config('test.caps','${caps}',false)`);
 const one = async (sql: string, params: unknown[] = []) => (await db.query<Record<string, any>>(sql, params)).rows[0] ?? {};
-const start = () => one("select public.qb_start_quick_practice($1::uuid[], 5) v", [[id(302)]]);
-const access = async () => (await one("select public.qb_my_access() v")).v;
 
 // users: 1 learner, 2 learner, 3 teacher, 9 owner (super_admin)
 describe("staff practice preview (isolated PostgreSQL)", () => {

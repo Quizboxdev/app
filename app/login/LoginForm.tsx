@@ -46,7 +46,6 @@ export default function LoginForm({ initial }: { initial: RegistrationParams }) 
   useEffect(() => {
     if (mode !== "register" || countries.length) return;
     void loadCountries();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mode, countries.length]);
   useEffect(() => {
     if (initial.country && countries.some((c) => c.country_code === initial.country)) setCountryCode((current) => current || initial.country!);
