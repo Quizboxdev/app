@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { featuredQuizzes, libraryStats } from "@/lib/api/challenges";
 import { CONTENT_TYPES, type TargetLevel } from "@/lib/challenges/content-types";
-import { FORMATS, formatOf, type FeaturedQuiz, type LibraryStats } from "@/lib/challenges/types";
+import type { FeaturedQuiz, LibraryStats } from "@/lib/challenges/types";
 import SpotlightCard from "./SpotlightCard";
 
 // Sponsored quizzes, shown on the home pages after sign-in: one slide at a time, moving on by itself (not for people who prefer less motion, and never while the pointer or focus is on it),
@@ -22,14 +22,14 @@ export default function SponsoredCarousel({ level, compact = false, showLibrary 
     return () => clearInterval(t);
   }, [items.length, hold]);
   if (!items.length) return null;
-  const cur = items[Math.min(i, items.length - 1)], f = FORMATS[formatOf(cur.format)];
+  const cur = items[Math.min(i, items.length - 1)];
   const go = (d: number) => setI((n) => (n + d + items.length) % items.length);
   const library = stats && stats.documents > 0 ? CONTENT_TYPES.filter((t) => stats.by_type[t.id]).map((t) => `${stats.by_type[t.id]} ${t.plural}`).join(" · ") : "";
   return (
     <section aria-roledescription="carousel" aria-label="Sponsored quizzes" onMouseEnter={() => setHold(true)} onMouseLeave={() => setHold(false)} onFocus={() => setHold(true)} onBlur={() => setHold(false)} style={{ margin: "0 0 16px" }}>
       {!compact && <h2 style={{ marginBottom: 8 }}>Sponsored quizzes</h2>}
       <div aria-live={hold ? "polite" : "off"}>
-        <SpotlightCard compact={compact} title={cur.title} summary={cur.summary} brand={cur.brand} format={cur.format} rounds={cur.stage_count} questions={cur.question_count} hasMaterial={cur.has_material} played={cur.participants} href={`${f.base}/${cur.slug}`} />
+        <SpotlightCard compact={compact} title={cur.title} summary={cur.summary} brand={cur.brand} format={cur.format} rounds={cur.stage_count} questions={cur.question_count} hasMaterial={cur.has_material} played={cur.participants} href={`/play/${cur.slug}`} />
       </div>
       {items.length > 1 && (
         <div style={{ display: "flex", gap: 8, alignItems: "center", marginTop: 8 }}>

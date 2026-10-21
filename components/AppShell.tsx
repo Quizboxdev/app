@@ -29,7 +29,7 @@ function navigationIcon(href: string): LucideIcon {
   if (/notifications/.test(href)) return Bell;
   if (/^\/account/.test(href)) return CircleUser;
   if (/student\/classroom/.test(href)) return FileText;
-  if (/competition|creator|challenges/.test(href)) return Trophy;
+  if (/competition|creator|challenges|open/.test(href)) return Trophy;
   if (/marketplace|seller/.test(href)) return ShoppingBag;
   if (/classes|classroom|tenants|school/.test(href)) return Users;
   if (/markets|market-setup/.test(href)) return Globe;
@@ -202,7 +202,7 @@ export default function AppShell({
         ["/teacher/question-banks", "Question Banks"],
         ["/practise", "Practise questions"],
       ]);
-      add("Explore", [["/creator", "Challenges"], ["/competition", "Competitions"], ["/marketplace", "Marketplace"], ...seller]);
+      add("Explore", [["/creator", "Challenges"], ["/open", "Open to join"], ["/competition", "Competitions"], ["/marketplace", "Marketplace"], ...seller]);
       add("SME", when(reviewer, [["/review", "SME Reviews"]]));
       add("Administration", administration);
       return groups;
@@ -214,7 +214,7 @@ export default function AppShell({
       ["/practise", "Practise"],
       ["/student/classroom", "Assignments"],
       ["/competition", "Compete"],
-      ["/challenges", "Challenges"],
+      ["/open", "Challenges"],
       ["/play", "My challenges"],
       ["/creator", "Create and share"],
     ]);
