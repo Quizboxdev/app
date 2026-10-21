@@ -26,8 +26,9 @@ export default function CreatorEditPage({ params }: { params: Promise<{ id: stri
   const [campaign, setCampaign] = useState<Record<string, any> | null>(null), [questions, setQ] = useState<EditableQuestion[]>([]), [stages, setStagesState] = useState<StageInfo[]>([]), [prizes, setPrizesState] = useState<Prize[]>([]);
   const [error, setError] = useState(""), [notice, setNotice] = useState(""), [busy, setBusy] = useState(false);
   const [csv, setCsv] = useState(""), [subject, setSubject] = useState(""), [grade, setGrade] = useState(""), [count, setCount] = useState(10), [stage, setStage] = useState(1), [passage, setPassage] = useState<Passage | null>(null);
-  const load = useCallback(() => getCampaignForEdit(id).then((r) => { setCampaign(r.campaign); setQ(r.questions); setStagesState(r.stages); setPrizesState(r.prizes); }).catch((e) => setError(e.message)), [id]);
+  const load = useCallback(() => getCampaignForEdit(id).then((r) => { setCampaign(r.campaign); setLimited(!!r.student_limited); setQ(r.questions); setStagesState(r.stages); setPrizesState(r.prizes); }).catch((e) => setError(e.message)), [id]);
   useEffect(() => { void load(); }, [load]);
+  const [limited, setLimited] = useState(false);          // a learner: approved curriculum questions only
   const draft = campaign?.status === "DRAFT";
   const fmt = FORMATS[formatOf(campaign?.format)], isComp = formatOf(campaign?.format) === "COMPETITION";
   const stageCount: number = campaign?.stage_count ?? 1;
@@ -69,7 +70,7 @@ export default function CreatorEditPage({ params }: { params: Promise<{ id: stri
       </div>
 
       <div role="tablist" aria-label="Sections" style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-        {TABS.filter((t) => t !== "Rounds" || isComp || stageCount > 1).map((t) => <button key={t} role="tab" aria-selected={tab === t} className={`qb-btn ${tab === t ? "" : "qb-btn-secondary"}`} onClick={() => setTab(t)}>{t}</button>)}
+        {TABS.filter((t) => (t !== "Rounds" || isComp || stageCount > 1) && !(limited && ["Source", "Prizes", "Look and feel"].includes(t))).map((t) => <button key={t} role="tab" aria-selected={tab === t} className={`qb-btn ${tab === t ? "" : "qb-btn-secondary"}`} onClick={() => setTab(t)}>{t}</button>)}
       </div>
 
       {tab === "Questions" && (
@@ -89,13 +90,13 @@ export default function CreatorEditPage({ params }: { params: Promise<{ id: stri
                 </div>
                 <button className="qb-btn" disabled={busy || !subject} onClick={() => run(async () => { const r = await pullBank(id, subject, grade || null, count, stage); return r.added ? `${r.added} questions added (${r.total} in total).` : "No more matching questions were found."; })}>Add from the bank</button>
               </div>
-              <div className="qb-card qb-form">
+              {limited ? <div className="qb-card" role="note"><strong>Curriculum questions only.</strong> As a learner you build your quiz from approved QuizBox questions, for your friends and classmates. It is shared by link or code and is not listed publicly.</div> : <div className="qb-card qb-form">
                 <h3>Paste your own questions</h3>
                 <p className="qb-muted">One question per line: question, option A, B, C, D, correct letter (A to D), explanation (optional){campaign.category === "book" ? ", source quote (word for word from the passage)" : ", source quote (optional)"}. Separate with commas or tabs; put a field in double quotes if it contains a comma. Two or three options also work.</p>
                 {passage ? <p role="status"><strong>Citing passage {passage.position}</strong>{passage.heading ? ` (${passage.heading})` : ""}. <button className="qb-link-btn" onClick={() => setPassage(null)}>Clear</button></p> : campaign.category === "book" ? <p className="qb-muted">Pick a passage on the Source tab first: every question in a book challenge must cite one.</p> : null}
                 <textarea rows={6} value={csv} onChange={(e) => setCsv(e.target.value)} placeholder={'What is 7 x 8?,54,56,58,64,B,7 x 8 = 56'} />
                 <button className="qb-btn" disabled={busy || !csv.trim()} onClick={addFromCsv}>Add these questions</button>
-              </div>
+              </div>}
             </>
           )}
           <div className="qb-card">
@@ -103,7 +104,7 @@ export default function CreatorEditPage({ params }: { params: Promise<{ id: stri
             {questions.length === 0 ? <p className="qb-muted">None yet.</p> : (
               <ol className="qb-list">{questions.map((q, i) => (
                 <li key={q.id ?? i}>
-                  {draft ? <input aria-label={`Question ${i + 1}`} style={{ width: "100%" }} value={q.question_text} onChange={(e) => updateQ(i, { question_text: e.target.value })} /> : <strong>{q.question_text}</strong>}
+                  {draft && !limited ? <input aria-label={`Question ${i + 1}`} style={{ width: "100%" }} value={q.question_text} onChange={(e) => updateQ(i, { question_text: e.target.value })} /> : <strong>{q.question_text}</strong>}
                   {stageCount > 1 && <span className="qb-muted qb-small"> · Round {q.stage_no ?? 1}</span>}
                   {q.source_quote && <span className="qb-muted qb-small"> · cites “{q.source_quote.length > 60 ? `${q.source_quote.slice(0, 60)}…` : q.source_quote}”</span>}
                   {draft && <button className="qb-link-btn" disabled={busy} onClick={() => run(async () => { await setQuestions(id, questions.filter((_, k) => k !== i)); })}>Remove</button>}
