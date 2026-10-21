@@ -1,6 +1,6 @@
 # Beta exit checklist
 
-- [ ] All 35 scenarios are PASS, FAIL or BLOCKED; none NOT RUN
+- [ ] All 34 scenarios are PASS, FAIL or BLOCKED; none NOT RUN
 - [ ] Every FAIL has a defect report with evidence
 - [ ] No open P0; no open P1 (or each has an owner-signed waiver)
 - [ ] All high-risk scenarios (25) have PASS with evidence on both laptop and, where listed, phone

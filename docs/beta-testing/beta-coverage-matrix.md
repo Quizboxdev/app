@@ -10,6 +10,6 @@
 | Young learner | PAY-03 | 1 | none |
 | Student A and B | SEC-01 | 1 | none |
 | Teacher A and B | SEC-03 | 1 | none |
-| Any | UX-01, DATA-02 | 0 | UX-01 |
+| Any | UX-01 | 0 | UX-01 |
 
-Total scenarios: 35. High risk: 25.
+Total scenarios: 34. High risk: 25.

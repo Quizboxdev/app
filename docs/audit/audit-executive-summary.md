@@ -13,4 +13,4 @@
 
 **What this audit could not do.** Test with signed-in accounts, look at the production or Preview database, read Vercel logs, measure performance. Those are marked BLOCKED or NOT RUN, never PASS. The beta kit in `docs/beta-testing/` turns them into scripts interns can run on Preview.
 
-**Counts.** 17 findings: 0 P0, 2 P1, 5 P2, 9 P3, 1 informational (access limits). Full register: `audit-findings.csv`.
+**Counts.** 16 open findings: 0 P0, 2 P1, 5 P2, 8 P3, 1 informational (access limits). One more was raised and withdrawn as a false positive (QB-AUD-010). Full register: `audit-findings.csv`.

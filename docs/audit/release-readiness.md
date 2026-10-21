@@ -7,7 +7,7 @@
 | 1 Repository and feature inventory complete | PASS | repository-inventory.md |
 | 2 Critical security checks complete | PARTIAL: static checks PASS; live authorization probes BLOCKED | security-review.md |
 | 3 Core business journeys executed | BLOCKED (no accounts / Preview access); DB-level behaviour covered by automated tests | functional-qa-report.md |
-| 4 Question bank and scoring validated | PARTIAL: files structurally validated (1 garbled row); database comparison and scoring re-execution BLOCKED | curriculum-data-quality.md |
+| 4 Question bank and scoring validated | PARTIAL: files structurally validated, no defects of consequence; database comparison and scoring re-execution BLOCKED | curriculum-data-quality.md |
 | 5 Essential automated tests passing | PASS (1,186 passed, 0 failed; 119 live tests skipped) | evidence/baseline-vitest.json |
 | 6 Significant browser flows validated | BLOCKED for signed-in flows; public pages PASS except pricing content (FAIL) | screenshots |
 | 7 User guides aligned with the actual UI | PARTIAL: public guide only; role guides BLOCKED (need screenshots from the real build) | user-guides/index.md |

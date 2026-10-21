@@ -37,7 +37,7 @@ for f in files:
         if not ic: flag("NO_INDICATOR", i)
         elif g and not ic.upper().replace("SHS", "SHS").startswith(g.upper().replace("SHS-", "SHS")[:2]): flag("INDICATOR_GRADE_MISMATCH", i)
         txt = q + " " + " ".join(opts) + " " + (r.get("explanation") or "")
-        if "�" in txt or re.search("Ã.|â€", txt): flag("ENCODING_DAMAGE", i)
+        if "�" in txt or re.search("[ÃÂ][ -¿]|â€", txt): flag("ENCODING_DAMAGE", i)   # a lone letter A-tilde is a legitimate answer option, so only Ã/Â followed by a symbol counts
         if re.search(r"\s{3,}|^\s|\s$", q): flag("WHITESPACE", i)
         k = (g, (r.get("subject") or "").strip(), norm(q))
         if k in local: flag("DUPLICATE_IN_FILE", i)

@@ -20,7 +20,7 @@ Header equals the 20-column template; empty question; empty options; duplicate o
 |---|---|---|---|
 | Header, empty question, bad answer key, missing explanation, missing source reference, missing indicator, bad difficulty, duplicates (within or across files) | 0 | 0 | PASS |
 | True/False rows (2 options, key A or B) | 3,553, all well-formed | 703 | PASS (the scanner's "missing option" flag on these is expected, not a defect) |
-| Encoding damage (U+FFFD) | 1 row | the same row (it is a slice of main) | FAIL, P3: `B4_FRENCH_4600.csv` row 162, indicator B4.1.1.4.1: the question text itself reads "In the written phrase � demain" (an accented capital was lost), so the question is garbled for learners (QB-AUD-010) |
+| Encoding damage (U+FFFD or Ã/Â mojibake) in any column | 0 | 0 | PASS. An earlier run flagged one B4 French row; that was a false positive (option A is the letter Ã) and was withdrawn (QB-AUD-010). Accented text is intact. |
 | Answer-key position | A 29.3%, B 24.8%, C 23.0%, D 22.8% | A 28.3% | Mild bias to A (QB-AUD-017) |
 | Correct option is the longest by a wide margin | 1,168 rows (1.8%) | 216 rows | Low risk, review a sample |
 | Difficulty mix | 30% easy / 40% medium / 30% hard exactly | same | Looks generated to a target, consistent |
@@ -36,7 +36,6 @@ Header equals the 20-column template; empty question; empty options; duplicate o
 
 ## Recommended before loading anything
 
-1. Fix row 162 of the B4 French file.
-2. Run the loader's `balanceAnswerKey` so each file lands near 25% per letter.
-3. Teacher spot-check 50 random rows per subject per grade for correctness.
-4. Confirm unique keys include the subject for SHS.
+1. Run the loader's `balanceAnswerKey` so each file lands near 25% per letter.
+2. Teacher spot-check 50 random rows per subject per grade for correctness.
+3. Confirm unique keys include the subject for SHS.

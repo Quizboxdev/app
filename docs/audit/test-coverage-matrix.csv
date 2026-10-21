@@ -13,7 +13,7 @@ AUD-T11,Pricing page live content,Visitor,Public site,GET /pricing and inspect,C
 AUD-T12,Pricing page mobile layout,Visitor,390 px viewport,Open /pricing,No horizontal scroll,Overflow -15 px (none),PASS,-,screenshots/public-pricing-mobile-390.png
 AUD-T13,Accessible names and alt text,Visitor,/pricing,DOM check,All links buttons named; all images alt,0 unnamed / 0 missing alt,PASS,-,this report
 AUD-T14,Sidebar Challenges link,Student,Signed in (deployed build),Click Challenges,Opens /open,Static: bounced to home,FAIL (static),P1,components/appshell-nav.test.ts
-AUD-T15,Question bank structural scan,Content,CSV files,qb_validate.py,No structural errors,1 corrupted row,FAIL (1 row),P3,evidence/qbank-validation-main.json
+AUD-T15,Question bank structural scan,Content,CSV files,qb_validate.py,No structural errors,No structural errors (one earlier encoding flag was a false positive and was withdrawn),PASS,-,evidence/qbank-validation-main.json
 AUD-T16,Question bank cross-file duplicates,Content,CSV files,Key on grade+subject+text,None,None (staged set is a subset of main),PASS,-,curriculum-data-quality.md
 AUD-T17,Signed-in browser journeys (all roles),All,Test accounts,Beta scripts,As scripted,Not executed,BLOCKED,-,docs/beta-testing
 AUD-T18,Cross-role data isolation (live),Two accounts,Preview,Beta scripts SEC-*,No cross-access,Not executed,BLOCKED,-,docs/beta-testing

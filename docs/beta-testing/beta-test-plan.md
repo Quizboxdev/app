@@ -6,7 +6,7 @@
 
 **Entry criteria:** audit findings QB-AUD-001 fixed on the Preview build; QB-AUD-002 understood (Preview pricing page shows the ladder); Preview seeded with at least one class, one public challenge and one two-round competition; a small test question set approved.
 
-**Method:** 35 scripted scenarios (`test-scenarios.md`, 25 high risk), run by interns in pairs by role; results in `test-case-register.csv`; defects with `defect-report-template.md`; daily report; regression checklist after every fix; exit checklist at the end.
+**Method:** 34 scripted scenarios (`test-scenarios.md`, 25 high risk), run by interns in pairs by role; results in `test-case-register.csv`; defects with `defect-report-template.md`; daily report; regression checklist after every fix; exit checklist at the end.
 
 **Schedule (suggested):** Day 1 set-up and AUTH/STU; Day 2 TCH, CHL; Day 3 SPN, ADM, PAY; Day 4 SEC, UX, DATA; Day 5 retest and sign-off.
 

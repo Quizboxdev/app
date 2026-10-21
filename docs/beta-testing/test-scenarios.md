@@ -274,11 +274,3 @@ Run every scenario on the Preview site with the accounts in `tester-account-matr
 - Expected: Four options, a single right answer, an explanation after answering, maths shows properly.
 - Evidence: Screenshots of any problem
 
-## DATA-02: Garbled characters
-
-- Role: Any | Risk: Low | Device: Desktop
-- Before you start: Practice or challenge with French
-- Steps: 1. Look for a question reading 'In the written phrase ? demain'.
-- Expected: Report it if you find it (known defect QB-AUD-010).
-- Evidence: Screenshot
-

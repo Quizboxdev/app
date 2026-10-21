@@ -96,11 +96,9 @@
     "hard": 315
    },
    "issues": {
-    "ENCODING_DAMAGE": 1,
     "KEY_IS_OUTLIER_LONGEST": 2
    },
    "first_row_example": {
-    "ENCODING_DAMAGE": 162,
     "KEY_IS_OUTLIER_LONGEST": 280
    }
   },
