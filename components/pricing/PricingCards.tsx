@@ -1,4 +1,5 @@
 import Link from "next/link";
+import "./pricing.css";
 import { Check, Sparkles } from "lucide-react";
 import { groupPrices, priceLabel, type PriceRow } from "@/lib/pricing/format";
 
