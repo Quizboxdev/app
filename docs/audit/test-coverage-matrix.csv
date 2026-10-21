@@ -1,0 +1,21 @@
+test_id,feature,role,precondition,procedure,expected,actual,status,severity,evidence
+AUD-T01,Type check,Developer,Clean install,npx tsc --noEmit,No errors,0 errors,PASS,-,evidence/baseline-typecheck.log
+AUD-T02,Lint,Developer,Clean install,npx eslint .,No errors,0 errors / 1 warning,PASS,P3,evidence/baseline-lint.log
+AUD-T03,Automated suite,Developer,Clean install,npx vitest run,All non-live tests pass,1186 passed / 0 failed / 119 skipped,PASS,-,evidence/baseline-vitest.json
+AUD-T04,Live acceptance suites (6 files),Developer,Preview environment with accounts,npm run acceptance:*,Pass,Not executed (no environment),NOT RUN,-,
+AUD-T05,Dependency audit,Developer,-,npm audit --json,No high production advisories,6 high (all dev tooling),PASS (prod) / FAIL (dev),P3,evidence/npm-audit.json
+AUD-T06,Secret scan,Developer,-,Pattern scan of tracked files,No secrets,None found,PASS,-,security-review.md
+AUD-T07,RLS coverage,Database,Migrations,Static scan plus core-platform tests,RLS on every public table,All 98 covered (static),PASS (static),-,security-review.md
+AUD-T08,Definer function search_path,Database,Migrations,Scan 276 functions,All pinned,0 unpinned,PASS (static),-,security-review.md
+AUD-T09,Security headers (live),Visitor,Public site,curl -D,HSTS XFO nosniff referrer permissions CSP,All present; CSP is Report-Only,PASS / FAIL (CSP),P2,evidence/live-headers.txt
+AUD-T10,Apex to www redirect,Visitor,Public site,curl https://quizbox.io/,308 to www,308 to https://www.quizbox.io/,PASS,-,evidence/live-headers.txt
+AUD-T11,Pricing page live content,Visitor,Public site,GET /pricing and inspect,Coin ladder cards with prices,Four placeholder cards,FAIL,P1,screenshots/public-pricing-desktop-1366.png
+AUD-T12,Pricing page mobile layout,Visitor,390 px viewport,Open /pricing,No horizontal scroll,Overflow -15 px (none),PASS,-,screenshots/public-pricing-mobile-390.png
+AUD-T13,Accessible names and alt text,Visitor,/pricing,DOM check,All links buttons named; all images alt,0 unnamed / 0 missing alt,PASS,-,this report
+AUD-T14,Sidebar Challenges link,Student,Signed in (deployed build),Click Challenges,Opens /open,Static: bounced to home,FAIL (static),P1,components/appshell-nav.test.ts
+AUD-T15,Question bank structural scan,Content,CSV files,qb_validate.py,No structural errors,1 corrupted row,FAIL (1 row),P3,evidence/qbank-validation-main.json
+AUD-T16,Question bank cross-file duplicates,Content,CSV files,Key on grade+subject+text,None,None (staged set is a subset of main),PASS,-,curriculum-data-quality.md
+AUD-T17,Signed-in browser journeys (all roles),All,Test accounts,Beta scripts,As scripted,Not executed,BLOCKED,-,docs/beta-testing
+AUD-T18,Cross-role data isolation (live),Two accounts,Preview,Beta scripts SEC-*,No cross-access,Not executed,BLOCKED,-,docs/beta-testing
+AUD-T19,Payment end to end (test mode),Student,Paystack test keys,Beta script PAY-01,Coins credited once,Not executed,NOT RUN,-,
+AUD-T20,Performance and concurrency,-,Isolated environment,See performance-review.md,Within targets,Not executed,NOT RUN,-,performance-review.md
