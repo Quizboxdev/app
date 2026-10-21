@@ -4,7 +4,7 @@ Order of work, with who acts. "Safe fix" means small, tested and applied on the 
 
 | Order | Finding | Action | Owner | State |
 |---|---|---|---|---|
-| 1 | QB-AUD-002 pricing page and challenge list not showing live data | Check `SUPABASE_SERVICE_ROLE_KEY` exists (name only) in Vercel Production, redeploy, then read function logs for lines starting `[pricing]` or `[challenges]` | Owner | OPEN (logging added) |
+| 1 | QB-AUD-002 pricing page and challenge list not showing live data | Find which Vercel project (quizbox or quizbox-app) owns www.quizbox.io (Settings, Domains); add the variables it is missing (service-role key, CRON_SECRET, VAPID_*, or PAYSTACK/RESEND/EMAIL_FROM); redeploy; later keep one project only, then read function logs for lines starting `[pricing]` or `[challenges]` | Owner | OPEN (logging added) |
 | 2 | QB-AUD-001 Challenges link bounces users | Deploy the one-line allow-list fix with its test | Owner approves, then Claude Code | Fixed on branch |
 | 3 | QB-AUD-003 wrong files in `main` | Approve force-with-lease of clean commit `432dded` on `main` and the release branch, then add `Questions Bank/`, `scratch/`, `_work/`, `Images/` to `.gitignore` | Owner | Awaiting decision |
 | 4 | QB-AUD-010 | Withdrawn (false positive): the French question is correct. No action. | - | WITHDRAWN |
