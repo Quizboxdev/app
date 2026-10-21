@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 import { getSupabaseAdminClient } from "@/lib/supabase/server-admin";
-import { findPlan, isOnlinePlan, planPriceMinor } from "@/lib/payments/plans";
+import { resolveSellablePlan } from "@/lib/payments/plans";
 import { createPaystackProvider } from "@/lib/payments/paystack";
 import { SITE_URL } from "@/lib/site";
 
@@ -24,8 +24,10 @@ export async function POST(request: Request) {
   if (!key) return json(503, { ok: false, error: "Online payment is not open yet. Please check back soon." });
   let body: { planId?: unknown; beneficiary?: unknown; idempotencyKey?: unknown };
   try { body = await request.json(); } catch { return json(400, { ok: false, error: "Invalid request." }); }
-  const plan = findPlan(String(body.planId ?? ""));
-  if (!isOnlinePlan(plan)) return json(400, { ok: false, error: "That plan is not sold online. Please contact us." });
+  // The plan comes from the admin price list (or the plan file for older links); only its Coins and days are used.
+  const priceRows = await getSupabaseAdminClient().rpc("qb_price_list").then((r) => r.data, () => null);
+  const plan = resolveSellablePlan(String(body.planId ?? ""), priceRows);
+  if (!plan) return json(400, { ok: false, error: "That plan is not sold online. Please contact us." });
   const beneficiaryIn = body.beneficiary === undefined ? null : String(body.beneficiary);
   if (beneficiaryIn !== null && !/^[0-9a-f-]{36}$/i.test(beneficiaryIn)) return json(400, { ok: false, error: "Invalid request." });
 
@@ -40,7 +42,7 @@ export async function POST(request: Request) {
 
   const catalog = await client.rpc("qb_subscription_catalog");
   const unit = Number((catalog.data as { unit_price_minor?: number } | null)?.unit_price_minor ?? 0);
-  const price = planPriceMinor(plan, unit);
+  const price = unit > 0 ? plan.coins * unit : 0;
   if (catalog.error || !price) return json(503, { ok: false, error: MESSAGES.QB_PRICING_NOT_CONFIGURED });
 
   const idem = typeof body.idempotencyKey === "string" && body.idempotencyKey.length >= 8 && body.idempotencyKey.length <= 120 ? body.idempotencyKey : `sub-${randomUUID()}`;

@@ -60,7 +60,7 @@ function SubscribeInner() {
         : "Waiting for your payment to be confirmed. This usually takes under a minute."} <span className="qb-muted qb-small">Reference {returned}</span></div>}
 
       {!(open && PLANS.some((p) => planPriceMinor(p, catalog?.unit_price_minor) !== null)) && <div className="qb-card" role="note">Prices are being finalised. Nothing is charged today.</div>}
-      {learnerCards.length > 0 ? <PricingCards rows={learnerCards} onPay={(r) => void pay(r.code)} payable={(r) => open && planPriceMinor(PLANS.find((p) => p.id === r.code) ?? PLANS[0], catalog?.unit_price_minor) !== null && PLANS.some((p) => p.id === r.code)} busy={busy} /> :
+      {learnerCards.length > 0 ? <PricingCards rows={learnerCards} onPay={(r) => void pay(r.code)} payable={(r) => open && !!r.coins && !!r.days} busy={busy} /> :
       <div className="qb-grid cols-3">
         {PLANS.map((p) => {
           const price = planPriceMinor(p, catalog?.unit_price_minor);

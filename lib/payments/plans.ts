@@ -10,3 +10,15 @@ export const isOnlinePlan = (p: Plan | undefined): p is Plan & { coins: number; 
 // Price in minor units (pesewas) from the unit price per Coin; null when payments are not priced yet.
 export const planPriceMinor = (p: Plan, unitMinor: number | null | undefined): number | null =>
   isOnlinePlan(p) && unitMinor && unitMinor > 0 ? p.coins * unitMinor : null;
+
+// A plan the checkout can sell: Coins and days. It comes from the admin price list (code plan_weekly, plan_monthly, ...) or, for older links, from the plan file.
+// The price is never taken from here: the route computes it as Coins x the unit price held in the database.
+export type SellablePlan = { id: string; coins: number; days: number };
+type PriceRowLike = { code?: unknown; audience?: unknown; coins?: unknown; days?: unknown };
+export function resolveSellablePlan(id: string, rows: unknown): SellablePlan | undefined {
+  const list = Array.isArray(rows) ? (rows as PriceRowLike[]) : [];
+  const row = list.find((r) => r.code === id && r.audience === "learner");
+  if (row && Number.isSafeInteger(row.coins) && (row.coins as number) > 0 && Number.isSafeInteger(row.days) && (row.days as number) > 0) return { id, coins: row.coins as number, days: row.days as number };
+  const old = findPlan(id);
+  return isOnlinePlan(old) ? { id: old.id, coins: old.coins, days: old.days } : undefined;
+}

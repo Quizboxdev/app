@@ -18,11 +18,11 @@ export const SECTIONS: { id: string; title: string; lead: string; audiences: Pri
 export const PERIOD_LABEL: Record<PricePeriod, string> = { month: "per month", term: "per term", year: "per year", campaign: "per quiz", once: "one-off", free: "" };
 
 // "Free", "GHS 25.00" and "Price to be announced": never a broken or zero-looking price.
-export function priceLabel(row: Pick<PriceRow, "price_minor" | "currency" | "period">): { amount: string; per: string; announced: boolean } {
+export function priceLabel(row: Pick<PriceRow, "price_minor" | "currency" | "period"> & { days?: number | null }): { amount: string; per: string; announced: boolean } {
   if (row.price_minor === null || row.price_minor === undefined) return { amount: "Price to be announced", per: "", announced: true };
   if (row.price_minor === 0) return { amount: "Free", per: "", announced: false };
   const major = row.price_minor / 100;
-  return { amount: `${row.currency} ${Number.isInteger(major) ? major.toFixed(0) : major.toFixed(2)}`, per: PERIOD_LABEL[row.period] ?? "", announced: false };
+  return { amount: `${row.currency} ${Number.isInteger(major) ? major.toFixed(0) : major.toFixed(2)}`, per: row.days === 7 ? "per week" : PERIOD_LABEL[row.period] ?? "", announced: false };
 }
 // Cedis typed by the admin (e.g. "25", "25.50", "") to pesewas; null for blank. Throws on anything else.
 export function toMinor(input: string): number | null {

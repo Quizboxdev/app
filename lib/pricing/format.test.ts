@@ -7,6 +7,7 @@ describe("price wording", () => {
     expect(priceLabel({ price_minor: 0, currency: "GHS", period: "free" })).toEqual({ amount: "Free", per: "", announced: false });
     expect(priceLabel({ price_minor: 2500, currency: "GHS", period: "month" })).toEqual({ amount: "GHS 25", per: "per month", announced: false });
     expect(priceLabel({ price_minor: 12050, currency: "GHS", period: "campaign" })).toEqual({ amount: "GHS 120.50", per: "per quiz", announced: false });
+    expect(priceLabel({ price_minor: 500, currency: "GHS", period: "month", days: 7 })).toEqual({ amount: "GHS 5", per: "per week", announced: false });
   });
   it("turns cedis typed by an admin into pesewas and back, and refuses nonsense", () => {
     expect(toMinor("25")).toBe(2500); expect(toMinor("25.5")).toBe(2550); expect(toMinor(" 1,200.99 ")).toBe(120099); expect(toMinor("")).toBeNull(); expect(toMinor("0")).toBe(0);
