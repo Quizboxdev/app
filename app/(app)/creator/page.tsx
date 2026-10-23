@@ -1,5 +1,6 @@
 "use client";
 
+import HelpLink from "@/components/help/HelpLink";
 import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -40,7 +41,8 @@ function Console() {
       <div className="qb-page-head"><div><h1>My {fmt.plural}</h1><p>{format === "COMPETITION" ? "Run a competition with rounds: the best players go through to the next round. Share the link, aim it at a class or school, or keep it private with an access code." : "Create a timed quiz anyone can join, share the link, or keep it private with an access code. Answers are scored on the server."}</p></div>
         <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
           <Link className="qb-btn" href={`/creator/new?format=${format.toLowerCase()}`}>Start a {fmt.noun}</Link>
-          <Link className="qb-link" href={format === "COMPETITION" ? "/creator" : "/creator?format=competition"}>{format === "COMPETITION" ? "Go to challenges" : "Go to competitions"}</Link></div></div>
+          <Link className="qb-link" href={format === "COMPETITION" ? "/creator" : "/creator?format=competition"}>{format === "COMPETITION" ? "Go to challenges" : "Go to competitions"}</Link>
+          <HelpLink slug={format === "COMPETITION" ? "create-a-competition" : "create-a-challenge"} label="Guide" /></div></div>
       {error && <div className="qb-card qb-error" role="alert">{error}</div>}
       {overview && (
         <div className="qb-card">

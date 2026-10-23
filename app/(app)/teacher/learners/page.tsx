@@ -1,5 +1,6 @@
 "use client";
 
+import HelpLink from "@/components/help/HelpLink";
 import { useEffect, useMemo, useState } from "react";
 import { KeyRound, Printer, UserMinus } from "lucide-react";
 import { bootstrapUser } from "@/lib/auth";
@@ -47,7 +48,7 @@ export default function YoungLearnersPage() {
 
   return (
     <>
-      <div className="qb-page-head"><div><h1>Young learners</h1><p>Create sign-ins for learners under 13 in your classes. They use a username and password, with no email.</p></div></div>
+      <div className="qb-page-head"><div><h1>Young learners</h1><p>Create sign-ins for learners under 13 in your classes. They use a username and password, with no email.</p></div><HelpLink slug="add-young-learners" label="How to add young learners" /></div>
       {error && <div className="qb-card qb-error" role="alert">{error}</div>}
       {done && <div className="qb-card" role="status">{done}</div>}
 

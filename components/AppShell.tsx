@@ -5,7 +5,7 @@ import NotificationBell from "@/components/NotificationBell";
 import GlobalSearch from "@/components/GlobalSearch";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { LayoutGrid, X, Home, BookOpen, Dumbbell, FileText, BarChart3, Bell, Users, Trophy, ShoppingBag, Globe, ShieldCheck, Layers, LifeBuoy, Settings, CircleUser, LogOut, type LucideIcon } from "lucide-react";
+import { LayoutGrid, X, Home, BookOpen, Dumbbell, FileText, BarChart3, Bell, Users, Trophy, ShoppingBag, Globe, ShieldCheck, Layers, LifeBuoy, Settings, CircleUser, CircleHelp, LogOut, type LucideIcon } from "lucide-react";
 import { bootstrapUser, getHomeRouteForRole, signOut } from "@/lib/auth";
 import type { UserContext } from "@/lib/types";
 import { findMySeller } from "@/lib/api/marketplace";
@@ -18,6 +18,7 @@ import WorkspaceChip from "@/components/WorkspaceChip";
 import { SponsorEngineProvider } from "@/components/SponsorEngineFlag";
 import DraftReminder from "@/components/DraftReminder";
 import PolicyGate from "@/components/policies/PolicyGate";
+import HelpStarter from "@/components/help/HelpStarter";
 import SponsoredCarousel from "@/components/challenges/SponsoredCarousel";
 
 type NavItem = [string, string];
@@ -97,10 +98,10 @@ export default function AppShell({
     if (isSeller && ["TEACHER", "ADMIN", "OWNER"].includes(role)) {
       allowedPrefixes.push("/seller");
     }
-    allowedPrefixes.push("/account", "/notifications", "/school", "/play", "/open", "/drafts", "/support");
+    allowedPrefixes.push("/account", "/notifications", "/school", "/play", "/open", "/drafts", "/support", "/guides");
     if (sme?.reviewer || sme?.content_admin || sme?.super_admin) allowedPrefixes.push("/review");
     if (sme?.super_admin) allowedPrefixes.push("/admin/markets", "/admin/reviewers", "/admin/compensation", "/admin/policies");
-    if (sme?.super_admin || sme?.sme_support) allowedPrefixes.push("/admin/inbox", "/admin/reviewer-applications", "/admin/tickets");
+    if (sme?.super_admin || sme?.sme_support) allowedPrefixes.push("/admin/inbox", "/admin/reviewer-applications", "/admin/tickets", "/admin/help");
     if (sme?.super_admin || sme?.finance_admin) allowedPrefixes.push("/admin/sme-performance", "/admin/payouts");
 
     const isAllowed = allowedPrefixes.some(
@@ -125,9 +126,9 @@ export default function AppShell({
     const add = (label: string, items: NavItem[]) => { if (items.length) groups.push({ label, items }); };
     // Non-admin accounts can still hold SME super-admin or finance duties.
     const administration: NavItem[] = [
-      ...when(sme?.super_admin, [["/admin/markets", "Markets"], ["/admin/curriculum-sources", "Curriculum Sources"], ["/admin/reviewers", "Reviewers"], ["/admin/compensation", "Compensation"], ["/admin/policies", "Policies"], ["/admin/tickets", "Support requests"]]),
+      ...when(sme?.super_admin, [["/admin/markets", "Markets"], ["/admin/curriculum-sources", "Curriculum Sources"], ["/admin/reviewers", "Reviewers"], ["/admin/compensation", "Compensation"], ["/admin/policies", "Policies"], ["/admin/tickets", "Support requests"], ["/admin/help", "Help guides"]]),
       ...when(sme?.super_admin || sme?.finance_admin, [["/admin/sme-performance", "SME Performance"], ["/admin/payouts", "Payouts"]]),
-      ...when(sme?.sme_support && !sme?.super_admin, [["/admin/inbox", "Enquiry Inbox"], ["/admin/tickets", "Support requests"], ["/admin/reviewer-applications", "Reviewer Applications"]]),
+      ...when(sme?.sme_support && !sme?.super_admin, [["/admin/inbox", "Enquiry Inbox"], ["/admin/tickets", "Support requests"], ["/admin/help", "Help guides"], ["/admin/reviewer-applications", "Reviewer Applications"]]),
     ];
 
     if (inSchool) {
@@ -174,6 +175,7 @@ export default function AppShell({
         ...when(sme?.super_admin, [["/admin/access", "Access & Subscriptions"]]),
         ["/admin/pricing", "Prices"],
         ["/admin/tickets", "Support requests"],
+        ["/admin/help", "Help guides"],
         ["/admin/refunds", "Refunds"],
         ["/admin/policies", "Policies"],
       ]);
@@ -227,7 +229,7 @@ export default function AppShell({
       ["/student/assessments", "Assessments"],
       ["/marketplace", "Marketplace"],
     ]);
-    add("Me", [["/notifications", "Notifications"], ["/drafts", "Unfinished work"], ["/account", "Account"]]);
+    add("Me", [["/notifications", "Notifications"], ["/drafts", "Unfinished work"], ["/subscribe", "Subscribe"], ["/account", "Account"]]);
     add("SME", when(reviewer, [["/review", "SME Reviews"]]));
     add("Administration", administration);
     return groups;
@@ -336,7 +338,8 @@ export default function AppShell({
               <strong>{name}</strong>
               <span className="qb-muted">{role}</span>
             </div>
-            <Link className="qb-btn secondary qb-account-link" href="/support"><LifeBuoy size={16} aria-hidden="true" />Support</Link>
+            <Link className="qb-btn secondary" href="/guides" aria-label="Help" title="Help"><CircleHelp size={16} aria-hidden="true" /><span className="qb-signout-label">Help</span></Link>
+            <Link className="qb-btn secondary" href="/support" aria-label="Support" title="Support"><LifeBuoy size={16} aria-hidden="true" /><span className="qb-signout-label">Support</span></Link>
             <Link className="qb-btn secondary qb-account-link" href="/account"><CircleUser size={16} aria-hidden="true" />Account</Link>
             <button
               className="qb-btn ghost"
@@ -356,6 +359,7 @@ export default function AppShell({
           <SponsorEngineProvider value={sponsorEngine}><WorkspaceProvider>
             <div className="qb-context-bar"><WorkspaceChip/><MarketContextControl/></div>
             <DraftReminder />
+            <HelpStarter pathname={pathname} />
             <PolicyGate>{children}</PolicyGate>
           </WorkspaceProvider></SponsorEngineProvider>
         </div>

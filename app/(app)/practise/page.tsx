@@ -9,6 +9,7 @@ import { getMyAttemptsPage, listAvailableAssessments, startAttempt } from "@/lib
 import { getStudentDashboard } from "@/lib/api/student";
 import { studentInsights } from "@/lib/api/platform";
 import { sanitizeLabel, subjectLabel } from "@/lib/learning/labels";
+import HelpLink from "@/components/help/HelpLink";
 import { formatDate } from "@/lib/format";
 import QuickPractice from "@/components/QuickPractice";
 import BrandBanner from "@/components/BrandBanner";
@@ -65,7 +66,7 @@ function PractiseInner() {
   return (
     <>
       <BrandBanner src="/brand/pages/practise-banner.webp" />
-      <div className="qb-page-head"><div><h1>Practise</h1><p>Short practice sets with instant feedback. Practising builds mastery and earns XP.</p></div></div>
+      <div className="qb-page-head"><div><h1>Practise</h1><p>Short practice sets with instant feedback. Practising builds mastery and earns XP.</p></div><HelpLink slug="practice-session" label="How to start a practice session" /></div>
       {error && <div className="qb-card qb-error" role="alert">{error}</div>}
 
       <QuickPractice />

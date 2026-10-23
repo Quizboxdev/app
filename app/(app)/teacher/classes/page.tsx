@@ -1,5 +1,6 @@
 "use client";
 
+import HelpLink from "@/components/help/HelpLink";
 import { FormEvent, useEffect, useState } from "react";
 import { bootstrapUser } from "@/lib/auth";
 import { archiveClass, createClass, listTeacherClasses } from "@/lib/api/teacher";
@@ -36,7 +37,7 @@ export default function TeacherClassesPage() {
   }
 
   return <>
-    <div className="qb-page-head"><div><h1>Classes</h1><p>Create curriculum-linked classes and manage enrollment.</p></div></div>
+    <div className="qb-page-head"><div><h1>Classes</h1><p>Create curriculum-linked classes and manage enrollment.</p></div><HelpLink slug="create-a-class" label="How to create a class and send the code" /></div>
     {error && <div className="qb-card qb-error">{error}</div>}{notice && <div className="qb-card">{notice}</div>}
     <div className="qb-grid cols-2">
       <form className="qb-card qb-form" onSubmit={submit}><h2>Create class</h2>

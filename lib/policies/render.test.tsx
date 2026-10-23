@@ -27,4 +27,12 @@ describe("policy text", () => {
     expect(parseBlocks("")).toEqual([]);
     expect(parseBlocks("  \r\n\r\n  hello  \r\n")).toEqual([{ kind: "p", text: "hello" }]);
   });
+  it("points help:slug links at another guide, in the public or the in-app place, and refuses a bad one", () => {
+    const text = "See [how to join](help:join-a-class) and [bad](help:../../x) and [worse](help:Join_A_Class).";
+    expect(renderToStaticMarkup(<RenderText source={text} />)).toContain('href="/help/join-a-class"');
+    const app = renderToStaticMarkup(<RenderText source={text} helpBase="/guides" linkClass="qb-link" />);
+    expect(app).toContain('<a class="qb-link" href="/guides/join-a-class">how to join</a>');
+    expect(app).not.toContain("..");
+    expect(app).not.toMatch(/href="[^"]*Join_A_Class/);
+  });
 });
