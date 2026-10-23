@@ -20,6 +20,7 @@ export const PUBLIC_LINKS = {
   privacy: "/privacy",
   terms: "/terms",
   refunds: "/refunds",
+  cookies: "/cookies",
   // /competition is an authenticated workspace route; anonymous visitors sign in first.
   competitions: "/login",
 } as const;
