@@ -7,7 +7,7 @@ import type { PaymentProvider, VerifiedPaymentEvent } from "@/lib/core/payments"
 const API = "https://api.paystack.co";
 type Fetch = typeof fetch;
 export type InitializeInput = { email: string; amountMinor: number; currency: string; reference: string; callbackUrl: string; metadata?: Record<string, unknown> };
-export type PaystackProvider = PaymentProvider & { initialize(i: InitializeInput): Promise<{ url: string; reference: string }>; confirm(reference: string): Promise<VerifiedPaymentEvent | { pending: true } | null> };
+export type PaystackProvider = PaymentProvider & { initialize(i: InitializeInput): Promise<{ url: string; reference: string }>; confirm(reference: string): Promise<VerifiedPaymentEvent | { pending: true } | null>; lookup(reference: string): Promise<string | null> };
 
 export function createPaystackProvider(secretKey: string, fetchImpl: Fetch = fetch): PaystackProvider {
   const auth = { Authorization: `Bearer ${secretKey}`, "Content-Type": "application/json" };
@@ -51,6 +51,16 @@ export function createPaystackProvider(secretKey: string, fetchImpl: Fetch = fet
       if (!live) return null;
       if (live.status === "success" && live.id && live.reference === reference) return { provider: "paystack", eventId: `charge.success:${live.id}`, reference, status: "successful" as const, providerReference: String(live.id), amountMinor: Number(live.amount), currency: String(live.currency) };
       return live.status === "failed" || live.status === "abandoned" || live.status === "reversed" ? null : { pending: true as const };
+    },
+    // How Paystack itself says a payment stands ("success", "abandoned", "failed", "ongoing", "pending", "reversed"), or "not_found" if it never reached Paystack. null means Paystack could not be reached.
+    async lookup(reference: string) {
+      try {
+        const res = await fetchImpl(`${API}/transaction/verify/${encodeURIComponent(reference)}`, { headers: auth, cache: "no-store" });
+        if (res.status === 404) return "not_found";
+        if (!res.ok) return null;
+        const body = (await res.json()) as { status?: boolean; data?: { status?: string } };
+        return body.status && body.data?.status ? String(body.data.status) : null;
+      } catch { return null; }
     },
     async initialize(i: InitializeInput) {
       const res = await fetchImpl(`${API}/transaction/initialize`, { method: "POST", headers: auth, cache: "no-store",
