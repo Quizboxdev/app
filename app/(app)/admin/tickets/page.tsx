@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { adminRequests, CATEGORIES, deleteRequest, requestDetail, setRequest, staffReply, STATUS, type AdminRow, type RequestDetail, type Status } from "@/lib/api/support";
 import { AttachPicker, StatusChip, Thread, when } from "@/components/support/parts";
+import ExportLink from "@/components/admin/ExportLink";
 
 // Support queue for owners, admins, super admins and support staff. Pick a request, read the conversation, answer the person, or leave an internal note only staff see. A public answer is emailed
 // (a signed-in person is told there is a reply; a visitor gets the text). Resolved or closed requests can be deleted with their files, as the Privacy Notice's retention period requires.
@@ -48,7 +49,7 @@ export default function AdminTicketsPage() {
   useEffect(() => { load(); }, [load]);
   return (
     <>
-      <div className="qb-page-head"><div><h1>Support requests</h1><p>Answer people who asked for help in the app or through the contact form. Payment questions: use <Link className="qb-link" href="/admin/refunds">Refunds</Link>.</p></div></div>
+      <div className="qb-page-head"><div><h1>Support requests</h1><p>Answer people who asked for help in the app or through the contact form. Payment questions: use <Link className="qb-link" href="/admin/refunds">Refunds</Link>.</p></div><ExportLink dataset="support_requests" /></div>
       {error && <div className="qb-card qb-error" role="alert">{error}</div>}
       <nav aria-label="Filter by status" style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>{FILTERS.map((f) => <button key={f.id} className={`qb-btn${filter === f.id ? "" : " qb-btn-secondary"}`} onClick={() => { setFilter(f.id); setSel(""); }}>{f.label}</button>)}</nav>
       <div className="qb-card">

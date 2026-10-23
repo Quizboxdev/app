@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { listReports, resolveReport, type ChallengeReport } from "@/lib/api/challenges";
+import ExportLink from "@/components/admin/ExportLink";
 
 // Reports on public challenges. Dismiss clears every open report on that challenge and unhides it; take down removes it for good (the organiser is told); restore reverses a take-down.
 const LABEL: Record<string, string> = { inappropriate: "Inappropriate or harmful", misleading: "Misleading or a scam", copyright: "Copyright", wrong_answers: "Wrong answers", spam: "Spam", other: "Other" };
@@ -18,7 +19,7 @@ export default function ChallengeReportsPage() {
   }
   return (
     <>
-      <div className="qb-page-head"><div><h1>Challenge reports</h1><p>People can report public challenges. Three different reporters hide a challenge until you decide.</p></div></div>
+      <div className="qb-page-head"><div><h1>Challenge reports</h1><p>People can report public challenges. Three different reporters hide a challenge until you decide.</p></div><ExportLink dataset="challenge_attempts" /></div>
       {error && <div className="qb-card qb-error" role="alert">{error}</div>}
       <div role="tablist" style={{ display: "flex", gap: 6 }}>{["OPEN", "ACTIONED", "DISMISSED"].map((s) => <button key={s} role="tab" aria-selected={status === s} className={`qb-btn ${status === s ? "" : "qb-btn-secondary"}`} onClick={() => setStatus(s)}>{s === "OPEN" ? "Open" : s === "ACTIONED" ? "Taken down" : "Dismissed"}</button>)}</div>
       <div className="qb-card">

@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { CheckCircle2, RotateCcw, Eye } from "lucide-react";
 import { approveBatch, listBatchApprovals, listLoadBatches, previewBatch, revokeBatchApproval, type BatchApproval, type BatchPreview, type LoadBatch } from "@/lib/api/owner";
 import { formatDate, humanize } from "@/lib/format";
+import ExportLink from "@/components/admin/ExportLink";
 
 // Owner-approved batches (the interim review step until reviewers are onboarded). Read the random sample, tick each question you checked,
 // then approve. Approved questions are labelled OWNER_BATCH, never "reviewed by subject experts", and one click revokes the whole batch.
@@ -49,7 +50,7 @@ export default function QuestionBatchesPage() {
   return (
     <>
       <div className="qb-page-head"><div><h1>Question batches</h1>
-        <p>Read a random sample of each loaded batch, then approve it to make its questions available to learners. You can revoke any approval.</p></div></div>
+        <p>Read a random sample of each loaded batch, then approve it to make its questions available to learners. You can revoke any approval.</p></div><ExportLink dataset="question_batches" /></div>
       {error && <div className="qb-card qb-error" role="alert">{error}</div>}
       {done && <div className="qb-card" role="status"><CheckCircle2 size={16} aria-hidden="true" /> {done}</div>}
 

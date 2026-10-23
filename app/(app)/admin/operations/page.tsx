@@ -3,6 +3,7 @@ import Link from "next/link";
 import { FormEvent, useCallback, useEffect, useState } from "react";
 import { adminOps, platformInsights } from "@/lib/api/platform";
 import { useSponsorEngine } from "@/components/SponsorEngineFlag";
+import ExportLink from "@/components/admin/ExportLink";
 
 type Hit = { kind: "user" | "sponsor"; id: string; name: string; email?: string; role?: string; status: string; primary_market?: string; markets?: string; verification?: string };
 type AuditRow = { at: string; action: string; actor: string; entity: string; entity_id: string | null; status: string; details: Record<string, unknown> };
@@ -22,7 +23,7 @@ export default function AdminOperationsPage() {
     catch (cause) { setError((cause as Error).message); } finally { setBusy(false); }
   }
   return <>
-    <div className="qb-page-head"><div><h1>Operations</h1><p>Account lookup, suspension, audit trail and failure monitoring.</p></div></div>
+    <div className="qb-page-head"><div><h1>Operations</h1><p>Account lookup, suspension, audit trail and failure monitoring.</p></div><ExportLink dataset="audit_log" /></div>
     {error && <p className="qb-error" role="alert">{error}</p>}{notice && <p role="status">{notice}</p>}
     <section className="qb-card"><h2>Other controls</h2><div className="qb-content-filters">
       <Link href="/admin/markets">Market memberships and sources</Link><Link href="/admin/reviewers">SME permissions</Link>{sponsorEngine && <Link href="/admin/competitions/assignments">Review assignment</Link>}

@@ -317,3 +317,5 @@ Design canvas: https://claude.ai/artifact/8JyB9ENBGKYpV1ZfGmke7n (5 pages, 19 ar
 - 2026-10-23 Delivery 39: seat bundles (docs/release/APPLY_SEATS.md). Built and tested; the database change is applied by the owner, then the switch is turned on after a test. Phase 3 of the Coin plan (school and sponsor payers) remains.
 
 - 2026-10-23 Delivery 40: the Marketplace (docs/release/APPLY_MARKETPLACE.md). Built and tested; the owner applies the database change, tests with a teacher and a buyer account, then opens it in Admin, Marketplace. Remaining: legal and tax review of seller terms, automatic Paystack transfers for payouts, school and sponsor payers (Coin plan phase 3).
+
+- 2026-10-23 Delivery 41: admin data exports (docs/release/APPLY_EXPORTS.md). Built and tested; the owner applies the database change and runs the verification query that builds one row of every dataset against the real tables. More datasets (competitions, sponsor workspace, class progress, notifications) can be added the same way.

@@ -5,6 +5,7 @@ import Link from "next/link";
 import StatCard from "@/components/StatCard";
 import { useSponsorEngine } from "@/components/SponsorEngineFlag";
 import { getCompetitionMetrics } from "@/lib/api/admin";
+import ExportLink from "@/components/admin/ExportLink";
 
 export default function AdminCompetitionsPage() {
   const sponsorEngine = useSponsorEngine();
@@ -27,6 +28,7 @@ export default function AdminCompetitionsPage() {
           <h1>Competition Operations</h1>
           <p>Interschool participation, teams, results and sponsorship.</p>
         </div>
+        <ExportLink dataset="challenges" label="Export challenges" />
         {sponsorEngine && <div className="qb-content-filters"><Link href="/admin/competitions/assignments">Review assignment</Link><Link href="/admin/competitions/oversight">Sponsor oversight</Link></div>}
       </div>
 

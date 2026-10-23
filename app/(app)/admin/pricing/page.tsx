@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { listPricesAdmin, savePrice } from "@/lib/api/pricing";
 import { AUDIENCE_LABEL, fromMinor, PERIOD_LABEL, toMinor, type PriceAdminRow, type PriceAudience, type PricePeriod } from "@/lib/pricing/format";
 import PricingCards from "@/components/pricing/PricingCards";
+import ExportLink from "@/components/admin/ExportLink";
 
 // Prices and payment links. One card per thing QuizBox sells. Type the price in cedis and paste the payment link from your payment gateway (it must start with https://); the pricing page and
 // the in-app cards update at once. Leave the price empty to show "Price to be announced"; a price of 0 shows "Free". Cards are switched off, never deleted.
@@ -62,7 +63,7 @@ export default function AdminPricingPage() {
   const live = (rows ?? []).filter((r) => r.active);
   return (
     <>
-      <div className="qb-page-head"><div><h1>Prices and payment links</h1><p>What QuizBox sells, for whom, and where buyers pay. Type the price in cedis and paste the link from your payment gateway. Changes appear on the pricing page at once.</p></div></div>
+      <div className="qb-page-head"><div><h1>Prices and payment links</h1><p>What QuizBox sells, for whom, and where buyers pay. Type the price in cedis and paste the link from your payment gateway. Changes appear on the pricing page at once.</p></div><ExportLink dataset="price_list" /></div>
       {error && <div className="qb-card qb-error" role="alert">{error}</div>}
       <div className="qb-card" role="note"><strong>How payment works today.</strong> A card with a price and a link sends the buyer to that link. For learner plans you can leave the link empty and the existing secure checkout is used, which records who paid. A link opens the gateway but cannot tell QuizBox who paid, so for those sales activate the buyer yourself under Access and Subscriptions.</div>
       <Editor code="" initial={blank} isNew onSaved={() => void load()} onError={onError} />

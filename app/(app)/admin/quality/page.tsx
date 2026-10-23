@@ -1,6 +1,7 @@
 "use client";
 import { useCallback, useEffect, useState } from "react";
 import { contentQuality } from "@/lib/api/platform";
+import ExportLink from "@/components/admin/ExportLink";
 
 type Signal = { question_id: string; question: string; subject: string; grade: string; status: string; responses: number; accuracy: number | null; started: number; abandoned: number; revisions: number; disputes: number; flags: string[] };
 type QueueItem = { id: string; question_id: string; question: string; type: string; reason: string; created_at: string };
@@ -20,7 +21,7 @@ export default function ContentQualityPage() {
   const act = async (work: () => Promise<unknown>, done: string) => { setBusy(true); try { await work(); setNotice(done); await load(); } catch (cause) { setError((cause as Error).message); } finally { setBusy(false); } };
   const pct = (v: number | null) => (v === null || v === undefined ? "-" : `${Math.round(Number(v) * 100)}%`);
   return <>
-    <div className="qb-page-head"><div><h1>Content quality</h1><p>Lifecycle counts, quality signals and the review queue. Flags never change approved content.</p></div></div>
+    <div className="qb-page-head"><div><h1>Content quality</h1><p>Lifecycle counts, quality signals and the review queue. Flags never change approved content.</p></div><ExportLink dataset="question_bank" /></div>
     {error && <p className="qb-error" role="alert">{error}</p>}{notice && <p role="status">{notice}</p>}
     {!summary && !error && <p className="qb-muted" role="status">Loading…</p>}
     {summary && <section className="qb-card"><h2>Lifecycle</h2><dl className="qb-stat-list">
