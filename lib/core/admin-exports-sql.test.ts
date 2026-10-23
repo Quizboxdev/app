@@ -7,6 +7,8 @@ const read = (p: string) => readFileSync(new URL(p, import.meta.url), "utf8");
 const MARKET = read("../../supabase/migrations/20261043100000_marketplace.sql");
 const MIGRATION = read("../../supabase/migrations/20261045100000_admin_exports.sql");
 const ROLLBACK = read("../../supabase/rollback/admin_exports.sql");
+const MORE = read("../../supabase/migrations/20261046100000_admin_exports_more.sql");
+const MORE_ROLLBACK = read("../../supabase/rollback/admin_exports_more.sql");
 const id = (n: number) => `00000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
 const [OWNER, FINANCE, SUPPORT, TEACHER, CHILD, STUDENT, CONTENT] = [1, 2, 3, 4, 5, 6, 7].map(id);
 let db: PGlite;
@@ -60,6 +62,16 @@ beforeAll(async () => {
     create table public.challenge_attempts(id uuid primary key default gen_random_uuid(), campaign_id uuid, user_id uuid, attempt_no int, score int, max_score int, duration_ms int, started_at timestamptz not null default now(), submitted_at timestamptz, expired boolean default false);
     create table public.questions(id uuid primary key default gen_random_uuid(), subject_name text, grade text, status text, created_at timestamptz not null default now());
     create table public.question_load_batches(id uuid primary key default gen_random_uuid(), file_name text, scope text, status text, rows_total int, rows_loaded int, rows_rejected int, uploaded_by uuid, created_at timestamptz not null default now(), completed_at timestamptz);
+    alter table public.student_profiles add column grade text, add column school_name text, add column region text, add column status text default 'active', add column created_at timestamptz not null default now();
+    create table public.teacher_profiles(id uuid primary key default gen_random_uuid(), user_id uuid, school_name text, region text, status text default 'active', created_at timestamptz not null default now());
+    create table public.classes(id uuid primary key default gen_random_uuid(), class_name text, school_name text, grade text, term text, academic_year text, status text default 'active', teacher_user_id uuid, join_code text, created_at timestamptz not null default now());
+    create table public.class_memberships(id uuid primary key default gen_random_uuid(), class_id uuid, student_user_id uuid, status text default 'active');
+    create table public.assignments(id uuid primary key default gen_random_uuid(), class_id uuid, teacher_user_id uuid, title text, subject_name text, grade text, question_count int, due_at timestamptz, status text default 'draft', created_at timestamptz not null default now(), published_at timestamptz);
+    create table public.gradebook(id uuid primary key default gen_random_uuid(), class_id uuid, assignment_id uuid, student_user_id uuid, student_email text, student_name text, score numeric, total_marks numeric, percentage numeric, status text default 'final', graded_at timestamptz not null default now());
+    create table public.sponsor_profiles(id uuid primary key default gen_random_uuid(), user_id uuid, sponsor_type text, organization_name text, contact_name text, country text, verification_status text default 'PENDING', status text default 'ACTIVE', created_at timestamptz not null default now());
+    create table public.competitions(id uuid primary key default gen_random_uuid(), sponsor_id uuid, competition_type text, title text, subject_code text, grade text, starts_at timestamptz, ends_at timestamptz, entry_fee numeric, currency text, prize_pool numeric, participant_limit int, status text, created_at timestamptz not null default now());
+    create table public.competition_teams(id uuid primary key default gen_random_uuid(), competition_id uuid, team_name text);
+    create table public.competition_results(id uuid primary key default gen_random_uuid(), competition_id uuid, entity_type text, entity_id uuid, score numeric, percentage numeric, completion_time_ms bigint, rank int, result_status text, calculated_at timestamptz not null default now());
     create table public.policy_documents(id uuid primary key default gen_random_uuid(), slug text, title text);
     create table public.policy_versions(id uuid primary key default gen_random_uuid(), document_id uuid, version_no int);
     create table public.policy_acceptances(id uuid primary key default gen_random_uuid(), user_id uuid, version_id uuid, accepted_at timestamptz not null default now());
@@ -70,6 +82,7 @@ beforeAll(async () => {
   `);
   await db.exec(MARKET);
   await db.exec(MIGRATION);
+  await db.exec(MORE);
   // One row of everything, created at known times.
   await db.exec(`
     insert into public.payment_intents(reference, payer_user_id, beneficiary_user_id, amount_minor, coins, status, metadata, created_at) values
@@ -95,6 +108,17 @@ beforeAll(async () => {
     insert into public.policy_documents(id, slug, title) values ('${id(80)}', 'terms', 'Terms of Use'); insert into public.policy_versions(id, document_id, version_no) values ('${id(81)}', '${id(80)}', 1);
     insert into public.policy_acceptances(user_id, version_id) values ('${STUDENT}', '${id(81)}'), ('${CHILD}', '${id(81)}');
     insert into public.audit_logs(actor_user_id, actor_role, action, entity_type, status, details) values ('${OWNER}', 'owner', 'payment.credit', 'payment_intents', 'pass', '{"coins":40}');
+    update public.student_profiles set grade = 'B7', school_name = 'VPCS', region = 'Greater Accra';
+    insert into public.teacher_profiles(user_id, school_name, region) values ('${TEACHER}', 'VPCS', 'Greater Accra');
+    insert into public.classes(id, class_name, school_name, grade, term, teacher_user_id, join_code) values ('${id(100)}', 'JHS 1A', 'VPCS', 'B7', 'Term 1', '${TEACHER}', 'SECRETJOIN');
+    insert into public.class_memberships(class_id, student_user_id) values ('${id(100)}', '${STUDENT}');
+    insert into public.assignments(id, class_id, teacher_user_id, title, subject_name, grade, question_count, status) values ('${id(101)}', '${id(100)}', '${TEACHER}', 'Fractions quiz', 'Mathematics', 'B7', 10, 'published');
+    insert into public.gradebook(class_id, assignment_id, student_user_id, student_email, student_name, score, total_marks, percentage) values ('${id(100)}', '${id(101)}', '${STUDENT}', 'esi@example.com', 'Esi Student', 8, 10, 80);
+    insert into public.sponsor_profiles(id, user_id, sponsor_type, organization_name, contact_name, country) values ('${id(102)}', '${OWNER}', 'COMPANY', 'Acme Foods', 'Kwame', 'Ghana');
+    insert into public.competitions(id, sponsor_id, competition_type, title, subject_code, grade, entry_fee, currency, prize_pool, status) values ('${id(103)}', '${id(102)}', 'STANDARD', 'Inter-school Quiz', 'MATH', 'B7', 0, 'GHS', 1000, 'DRAFT');
+    insert into public.competition_teams(competition_id, team_name) values ('${id(103)}', 'VPCS A');
+    insert into public.competition_results(competition_id, entity_type, entity_id, score, percentage, completion_time_ms, rank, result_status) values ('${id(103)}', 'TEAM', '${id(104)}', 90, 90, 120000, 1, 'FINAL');
+    insert into public.notifications(recipient_user_id, recipient_role, type, title, message) values ('${STUDENT}', 'STUDENT', 'assignment', 'New assignment', 'Secret message body about Fractions');
   `);
   // A teacher who sells: seller + item + a sale
   await db.exec(`
@@ -110,7 +134,7 @@ afterAll(async () => { await db.close(); });
 
 describe("admin data exports", () => {
   it("re-applies cleanly and is closed to anonymous callers", async () => {
-    await db.exec("reset role"); await db.exec(MIGRATION);
+    await db.exec("reset role"); await db.exec(MIGRATION); await db.exec(MORE);                                         // the second change builds on the first, in that order
     await as(null); await fails("select public.qb_export_catalog()", [], /permission denied/);
     await fails("select public.qb_export_run('payments')", [], /permission denied/);
     await as(STUDENT); await fails("select public.qb_export_build('payments', null, null, null, 10)", [], /permission denied/);   // the builder is internal
@@ -119,7 +143,7 @@ describe("admin data exports", () => {
   it("offers each person only the datasets their role allows", async () => {
     const keys = async (u: string) => { await as(u); return ((await rpc("select public.qb_export_catalog()")) as { key: string }[]).map((d) => d.key); };
     const owner = await keys(OWNER);
-    expect(owner).toHaveLength(22);
+    expect(owner).toHaveLength(31);
     const finance = await keys(FINANCE);
     for (const k of ["payments", "subscriptions", "coin_ledger", "refund_cases", "mk_sales", "mk_payouts", "mk_ledger", "sme_earnings", "sme_payout_batches"]) expect(finance, k).toContain(k);
     for (const k of ["users", "audit_log", "policy_acceptances"]) expect(finance, k).not.toContain(k);                  // people and audit are owner-only
@@ -220,5 +244,16 @@ describe("admin data exports", () => {
     expect(await rpc("select count(*)::int from pg_proc where proname like 'qb\\_export\\_%'")).toBe(0);
     await db.exec(MIGRATION);
     expect(await rpc("select count(*)::int from pg_proc where proname like 'qb\\_export\\_%'")).toBe(12);
+    await db.exec(MORE);
+    expect(await rpc("select count(*)::int from pg_proc where proname like 'qb\\_export\\_%'")).toBe(17);
+  });
+
+  it("the second change rolls back to the first (22 datasets) and applies again", async () => {
+    await db.exec("reset role"); await db.exec(MORE_ROLLBACK);
+    await as(OWNER); const keys = ((await rpc("select public.qb_export_catalog()")) as { key: string }[]).map((d) => d.key);
+    expect(keys).toContain("payments"); expect(keys).not.toContain("classes"); expect(keys).not.toContain("learners");
+    expect(await rpc("select count(*)::int from pg_proc where proname like 'qb\\_export\\_%'")).toBe(12);
+    await db.exec("reset role"); await db.exec(MORE);
+    await as(OWNER); expect(((await rpc("select public.qb_export_catalog()")) as unknown[]).length).toBe(30);   // 31, less the loading-batches dataset whose table an earlier test dropped
   });
 });
