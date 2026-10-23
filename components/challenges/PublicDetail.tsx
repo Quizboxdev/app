@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import PublicShell from "@/components/public/PublicShell";
 import PageIntro from "@/components/public/PageIntro";
-import { getPublicChallenge, getPublicLeaderboard } from "@/lib/challenges/server";
+import { getPublicChallenge, getPublicLeaderboard, getSeatStatus } from "@/lib/challenges/server";
 import { contentType } from "@/lib/challenges/content-types";
 import { CHALLENGE_CATEGORIES, FORMATS, formatDuration, formatOf, readableText, type Format } from "@/lib/challenges/types";
 import { SITE_URL } from "@/lib/site";
@@ -35,6 +35,7 @@ export default async function PublicDetail({ slug, format }: { slug: string; for
   if (formatOf(c.format) !== format) redirect(`${FORMATS[formatOf(c.format)].base}/${c.slug}`);
   const f = FORMATS[format];
   const board = c.private ? [] : await getPublicLeaderboard(slug);
+  const seats = c.live ? await getSeatStatus(slug) : { capped: false, cap: null, joined: 0, full: false };
   const category = CHALLENGE_CATEGORIES.find((x) => x.id === c.category)?.label;
   const play = `/play/${c.slug}`, accent = c.brand?.accent;
   const btn = accent ? { background: accent, color: readableText(accent), borderColor: accent } : undefined;
@@ -51,7 +52,9 @@ export default async function PublicDetail({ slug, format }: { slug: string; for
           {c.audience === "CLASS" && <p className="qbp-meta">Open to the members of one class. Sign in with your school account to take part.</p>}
           {c.audience === "SCHOOL" && <p className="qbp-meta">Open to the members of one school. Sign in with your school account to take part.</p>}
           {c.reward_text && <p><strong>Prize or recognition:</strong> {c.reward_text}</p>}
-          {c.live ? (
+          {c.live && seats.full ? (
+            <p className="qbp-notice qbp-notice-info" role="status"><strong>This {f.noun} is full.</strong> All {seats.cap} places are taken. Ask the organiser to add more places, or look for another one in the <Link className="qbp-link" href={f.base}>list of open {f.plural}</Link>.</p>
+          ) : c.live ? (
             <p><Link className="qbp-btn" style={btn} href={play}>{format === "COMPETITION" ? "Join the competition" : "Play now"}</Link> <span className="qbp-meta">You need a free account. Sign up and you come straight back here.</span></p>
           ) : (
             <p className="qbp-meta">{c.status === "COMPLETED" ? `This ${f.noun} has finished.` : c.status === "PAUSED" ? `This ${f.noun} is paused.` : `This ${f.noun} is not open right now.`}</p>

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { getAccessOverview, grantSubscription, revokeSubscription, setFreeAllowance, type AccessOverview, type Subscription } from "@/lib/api/owner";
 import { formatDate, humanize } from "@/lib/format";
-import { getCatalog, listPayments, setCoinUnitPrice, setPaymentsOpen, type Catalog, type PaymentRow } from "@/lib/api/payments";
+import { getCatalog, getPaidChallenges, listPayments, setCoinUnitPrice, setPaidChallenges, setPaymentsOpen, type Catalog, type PaymentRow } from "@/lib/api/payments";
 import plansFile from "../../../../config/subscription-plans.json";
 
 // Owner screen for the free allowance and subscriptions. Until online payment is live, the owner grants a subscription here after a payment is
@@ -13,10 +13,10 @@ export default function AccessPage() {
   const [limit, setLimit] = useState("");
   const [email, setEmail] = useState(""), [days, setDays] = useState("30"), [plan, setPlan] = useState(plansFile.plans[0]?.id ?? "learner"), [note, setNote] = useState("");
   const [catalog, setCatalog] = useState<Catalog | null>(null), [payments, setPayments] = useState<PaymentRow[]>([]), [unit, setUnit] = useState("");
-  const [busy, setBusy] = useState(false), [error, setError] = useState(""), [done, setDone] = useState("");
+  const [busy, setBusy] = useState(false), [error, setError] = useState(""), [done, setDone] = useState(""), [seatsOn, setSeatsOn] = useState<boolean | null>(null);
 
   const load = () => getAccessOverview().then((d) => { setData(d); setLimit(d.free_limit === null ? "" : String(d.free_limit)); }).catch((e) => setError(e.message));
-  const loadPayments = () => { void getCatalog().then((c) => { setCatalog(c); setUnit(c?.unit_price_minor ? String(c.unit_price_minor / 100) : ""); }); listPayments(20).then(setPayments).catch(() => setPayments([])); };
+  const loadPayments = () => { void getCatalog().then((c) => { setCatalog(c); setUnit(c?.unit_price_minor ? String(c.unit_price_minor / 100) : ""); }); listPayments(20).then(setPayments).catch(() => setPayments([])); getPaidChallenges().then(setSeatsOn).catch(() => setSeatsOn(null)); };
   useEffect(() => { void load(); loadPayments(); }, []);
   const act = async (fn: () => Promise<unknown>, message: string) => {
     setBusy(true); setError(""); setDone("");
@@ -74,6 +74,14 @@ export default function AccessPage() {
           {payments.length > 0 && <div className="qb-table-wrap" style={{ marginTop: 12 }}><table className="qb-table"><thead><tr><th>When</th><th>Learner</th><th>Plan</th><th>Amount</th><th>Status</th><th>Check</th></tr></thead><tbody>
             {payments.map((p) => <tr key={p.reference}><td>{formatDate(p.created_at)}</td><td>{p.learner}</td><td>{p.plan ?? "Coins"}</td><td>{p.currency} {(p.amount_minor / 100).toFixed(2)}</td><td>{humanize(p.status)}</td><td>{p.reconciliation}</td></tr>)}
           </tbody></table></div>}
+        </section>
+        <section className="qb-card" style={{ marginTop: 16 }}>
+          <h2>Seat limits for challenges and competitions</h2>
+          <p className="qb-muted">Seat limits are {seatsOn === null ? "unknown (apply the seat bundles database change first)" : seatsOn ? "ON" : "OFF"}. When ON, every NEW challenge or competition is free for 5 players; to host more, the organiser pays 1 Coin per player from their Coins (bundles of 10, 20, 50, 100, 200, 500 or 1000, or their own number up to 1000). Quizzes made before you switch this on keep no limit, and quizzes for one class or school are always free. Switch it on only after Online payments work.</p>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            <button className="qb-btn" disabled={busy || seatsOn !== false || !catalog?.payments_enabled} onClick={() => void act(async () => { await setPaidChallenges(true); loadPayments(); }, "Seat limits switched ON for new quizzes.")}>Switch seat limits on</button>
+            <button className="qb-btn secondary" disabled={busy || seatsOn !== true} onClick={() => void act(async () => { await setPaidChallenges(false); loadPayments(); }, "Seat limits switched OFF: no quiz has a limit.")}>Switch off</button>
+          </div>
         </section>
         <section className="qb-card" style={{ marginTop: 16 }}>
           <h2>Recent subscriptions</h2>

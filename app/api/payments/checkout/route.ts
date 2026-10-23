@@ -24,11 +24,15 @@ export async function POST(request: Request) {
   if (!authorization?.startsWith("Bearer ")) return json(401, { ok: false, error: "Please sign in." });
   const key = process.env.PAYSTACK_SECRET_KEY;
   if (!key) return refuse(503, "NO_PROVIDER_KEY", "Online payment is not open yet. Please check back soon.");
-  let body: { planId?: unknown; beneficiary?: unknown; idempotencyKey?: unknown };
+  let body: { planId?: unknown; coins?: unknown; returnTo?: unknown; beneficiary?: unknown; idempotencyKey?: unknown };
   try { body = await request.json(); } catch { return json(400, { ok: false, error: "Invalid request." }); }
+  // Buying Coins on their own (for example to pay for seats): a whole number from 5 to 1000. The price is still computed here, as Coins x the unit price. A plan is not involved.
+  const topup = body.coins !== undefined && body.planId === undefined;
+  const coinsIn = topup ? Number(body.coins) : 0;
+  if (topup && (!Number.isSafeInteger(coinsIn) || coinsIn < 5 || coinsIn > 1000)) return refuse(400, "INVALID_COINS", "Choose a whole number of Coins from 5 to 1000.");
   // The plan comes from the admin price list (or the plan file for older links); only its Coins and days are used.
-  const priceRows = await getSupabaseAdminClient().rpc("qb_price_list").then((r) => r.data, () => null);
-  const plan = resolveSellablePlan(String(body.planId ?? ""), priceRows);
+  const priceRows = topup ? null : await getSupabaseAdminClient().rpc("qb_price_list").then((r) => r.data, () => null);
+  const plan = topup ? { id: "coins_topup", coins: coinsIn, days: 0 } : resolveSellablePlan(String(body.planId ?? ""), priceRows);
   if (!plan) return refuse(400, "PLAN_NOT_SOLD", "That plan is not sold online. Please contact us.", `plan=${String(body.planId ?? "").slice(0, 60)} priceRows=${Array.isArray(priceRows) ? priceRows.length : "unreadable"}`);
   const beneficiaryIn = body.beneficiary === undefined ? null : String(body.beneficiary);
   if (beneficiaryIn !== null && !/^[0-9a-f-]{36}$/i.test(beneficiaryIn)) return json(400, { ok: false, error: "Invalid request." });
@@ -56,10 +60,12 @@ export async function POST(request: Request) {
   const intent = created.data as { reference: string; amount_minor: number };
   if (Number(intent.amount_minor) !== price) return refuse(500, "PRICE_MISMATCH", "We could not start the payment. Please try again.", `db=${intent.amount_minor} route=${price}`);      // the database and this route must agree on the price
   try {
-    await getSupabaseAdminClient().rpc("qb_set_payment_plan", { p_reference: intent.reference, p_plan: plan.id, p_days: plan.days });
+    if (!topup) await getSupabaseAdminClient().rpc("qb_set_payment_plan", { p_reference: intent.reference, p_plan: plan.id, p_days: plan.days });
     const origin = new URL(SITE_URL).origin;
+    // After paying for Coins, the buyer comes back to the quiz they were setting up (only a quiz page of their own on this site, never an outside address).
+    const back = topup && typeof body.returnTo === "string" && /^\/creator\/[0-9a-f-]{36}$/i.test(body.returnTo) ? `${body.returnTo}?topup=${encodeURIComponent(intent.reference)}` : `/subscribe?reference=${encodeURIComponent(intent.reference)}`;
     const started = await createPaystackProvider(key).initialize({ email: who.user.email, amountMinor: price, currency: "GHS", reference: intent.reference,
-      callbackUrl: `${origin}/subscribe?reference=${encodeURIComponent(intent.reference)}`, metadata: { plan: plan.id } });
+      callbackUrl: `${origin}${back}`, metadata: { plan: plan.id } });
     return json(200, { ok: true, url: started.url, reference: intent.reference });
   } catch (e) {
     return refuse(502, "PROVIDER_UNAVAILABLE", "The payment service is not available right now. Please try again in a few minutes.", e instanceof Error ? e.message.slice(0, 160) : "");

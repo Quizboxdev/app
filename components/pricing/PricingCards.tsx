@@ -46,6 +46,7 @@ export default function PricingCards({ rows, onPay, payable, busy, registerHref 
                     <div className="qbp-tier-action">
                       {free ? <Link className="qbp-pill-btn" style={{ background: t.band, color: t.ink }} href={registerHref}>Get started free</Link>
                         : r.checkout_url ? <a className="qbp-pill-btn" style={{ background: t.band, color: t.ink }} href={r.checkout_url} target="_blank" rel="noopener noreferrer">Pay now</a>
+                        : r.kind === "bundle" ? <Link className="qbp-pill-btn" style={{ background: t.band, color: t.ink }} href={registerHref}>Start a quiz</Link>
                         : onPay && (payable ? payable(r) : !p.announced) ? <button className="qbp-pill-btn" style={{ background: t.band, color: t.ink }} disabled={busy === r.code} onClick={() => onPay(r)}>{busy === r.code ? "Opening payment…" : "Pay with mobile money or card"}</button>
                         : <Link className="qbp-pill-link" href="/contact">{p.announced ? "Tell me when it opens" : "Talk to us"}</Link>}
                     </div>

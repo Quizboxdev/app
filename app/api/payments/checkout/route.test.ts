@@ -38,4 +38,21 @@ describe("POST /api/payments/checkout refusals", () => {
     expect(JSON.stringify(await res.json())).not.toContain("marker_secret");
     expect(JSON.stringify(log.mock.calls)).not.toContain("marker_secret");
   });
+  it("buying Coins on their own accepts only whole numbers from 5 to 1000, and never asks the price list", async () => {
+    vi.stubEnv("PAYSTACK_SECRET_KEY", "sk_test_not_a_real_key");
+    vi.spyOn(console, "error").mockImplementation(() => undefined);
+    for (const coins of [4, 0, -5, 1001, 2.5, "abc", null]) {
+      const res = await POST(request({ coins }));
+      expect(res.status, String(coins)).toBe(400);
+      expect(await res.json()).toMatchObject({ ok: false, code: "INVALID_COINS" });
+    }
+    expect(rpc).not.toHaveBeenCalled();
+  });
+  it("a request that names a plan is a plan purchase, whatever else it carries", async () => {
+    vi.stubEnv("PAYSTACK_SECRET_KEY", "sk_test_not_a_real_key");
+    vi.spyOn(console, "error").mockImplementation(() => undefined);
+    rpc.mockResolvedValue({ data: [], error: null });
+    const res = await POST(request({ planId: "no_such_plan", coins: 50 }));
+    expect(await res.json()).toMatchObject({ code: "PLAN_NOT_SOLD" });
+  });
 });

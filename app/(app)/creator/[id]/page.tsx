@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useCallback, useEffect, useState } from "react";
+import { Suspense, use, useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { getCampaignForEdit, publishCampaign, pullBank, setCampaignStatus, setQuestions } from "@/lib/api/challenges";
 import { parseQuestionCsv } from "@/lib/challenges/csv";
@@ -12,17 +12,19 @@ import BrandPanel from "@/components/challenges/BrandPanel";
 import AnalyticsPanel from "@/components/challenges/AnalyticsPanel";
 import AudiencePanel from "@/components/challenges/AudiencePanel";
 import ShareBar from "@/components/challenges/ShareBar";
+import SeatsPanel from "@/components/challenges/SeatsPanel";
 import { FORMATS, formatOf } from "@/lib/challenges/types";
 import { humanize } from "@/lib/format";
 
 // Edit one challenge. Questions can be typed in, pasted as CSV, or snapshotted from the QuizBox bank; they are locked once the challenge goes live.
 const GRADES = ["", "B1", "B2", "B3", "B4", "B5", "B6", "B7", "B8", "B9", "SHS1", "SHS2", "SHS3"];
-const TABS = ["Questions", "Rounds", "Share", "Source", "Prizes", "Look and feel", "Results"] as const;
+const TABS = ["Questions", "Rounds", "People", "Share", "Source", "Prizes", "Look and feel", "Results"] as const;
 type Tab = (typeof TABS)[number];
 
 export default function CreatorEditPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const [tab, setTab] = useState<Tab>("Questions");
+  useEffect(() => { if (new URLSearchParams(window.location.search).has("topup")) setTab("People"); }, []);   // back from paying for Coins: show the seats again
   const [campaign, setCampaign] = useState<Record<string, any> | null>(null), [questions, setQ] = useState<EditableQuestion[]>([]), [stages, setStagesState] = useState<StageInfo[]>([]), [prizes, setPrizesState] = useState<Prize[]>([]);
   const [error, setError] = useState(""), [notice, setNotice] = useState(""), [busy, setBusy] = useState(false);
   const [csv, setCsv] = useState(""), [subject, setSubject] = useState(""), [grade, setGrade] = useState(""), [count, setCount] = useState(10), [stage, setStage] = useState(1), [passage, setPassage] = useState<Passage | null>(null);
@@ -116,6 +118,7 @@ export default function CreatorEditPage({ params }: { params: Promise<{ id: stri
           </div>
         </>
       )}
+      {tab === "People" && <Suspense fallback={<div className="qb-card"><p className="qb-muted">Loading…</p></div>}><SeatsPanel id={id} noun={fmt.noun} onError={onError} /></Suspense>}
       {tab === "Share" && <>
         {campaign.status === "LIVE" && campaign.visibility !== "PRIVATE" && !campaign.audience_class_id && !campaign.audience_institution_id
           ? <ShareBar slug={campaign.slug} title={campaign.title} format={campaign.format} />
