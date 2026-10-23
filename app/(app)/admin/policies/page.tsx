@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { adminPolicies, adminVersion, companyDetails, discardDraft, extractDocument, publishVersion, saveCompanyDetail, saveDraft, type CompanyDetail, type PolicyDoc, type VersionFull } from "@/lib/api/policies";
 import { RenderText } from "@/lib/policies/render";
+import ExportLink from "@/components/admin/ExportLink";
 
 // Admin, Policies. Company details are typed once and fill {{name}} in every policy. Each policy has versions: write or upload a draft, preview it, publish it. A published version never changes;
 // a new draft starts the next version. "People must accept again" is for real changes; leave it off for a typo.
@@ -95,7 +96,7 @@ export default function AdminPoliciesPage() {
   const doc = docs?.find((d) => d.id === sel) ?? null;
   return (
     <>
-      <div className="qb-page-head"><div><h1>Policies</h1><p>Terms, privacy, refunds and cookies as managed text. Write or upload, preview, publish. People accept the required ones after sign-up and after a real change.</p></div></div>
+      <div className="qb-page-head"><div><h1>Policies</h1><p>Terms, privacy, refunds and cookies as managed text. Write or upload, preview, publish. People accept the required ones after sign-up and after a real change.</p></div><ExportLink dataset="policy_acceptances" /></div>
       {error && <div className="qb-card qb-error" role="alert">{error}</div>}
       {notice && <div className="qb-card" role="status"><strong>{notice}</strong></div>}
       <Company details={details} onSaved={() => { setNotice("Saved."); load(); }} onError={setError} />

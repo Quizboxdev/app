@@ -83,7 +83,8 @@ export default function AppShell({
     if (sme?.reviewer || sme?.content_admin || sme?.super_admin) allowedPrefixes.push("/review");
     if (sme?.super_admin) allowedPrefixes.push("/admin/markets", "/admin/reviewers", "/admin/compensation", "/admin/policies");
     if (sme?.super_admin || sme?.sme_support) allowedPrefixes.push("/admin/inbox", "/admin/reviewer-applications", "/admin/tickets", "/admin/help");
-    if (sme?.super_admin || sme?.finance_admin) allowedPrefixes.push("/admin/sme-performance", "/admin/payouts");
+    if (sme?.super_admin || sme?.finance_admin) allowedPrefixes.push("/admin/sme-performance", "/admin/payouts", "/admin/payment-checks");
+    if (sme?.super_admin || sme?.finance_admin || sme?.content_admin || sme?.sme_support) allowedPrefixes.push("/admin/exports");
 
     const isAllowed = allowedPrefixes.some(
       (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)
@@ -108,7 +109,8 @@ export default function AppShell({
     // Non-admin accounts can still hold SME super-admin or finance duties.
     const administration: NavItem[] = [
       ...when(sme?.super_admin, [["/admin/markets", "Markets"], ["/admin/curriculum-sources", "Curriculum Sources"], ["/admin/reviewers", "Reviewers"], ["/admin/compensation", "Compensation"], ["/admin/policies", "Policies"], ["/admin/tickets", "Support requests"], ["/admin/help", "Help guides"]]),
-      ...when(sme?.super_admin || sme?.finance_admin, [["/admin/sme-performance", "SME Performance"], ["/admin/payouts", "Payouts"]]),
+      ...when(sme?.super_admin || sme?.finance_admin, [["/admin/sme-performance", "SME Performance"], ["/admin/payouts", "Payouts"], ["/admin/payment-checks", "Payment checks"]]),
+      ...when(sme?.super_admin || sme?.finance_admin || sme?.content_admin || sme?.sme_support, [["/admin/exports", "Export data"]]),
       ...when(sme?.sme_support && !sme?.super_admin, [["/admin/inbox", "Enquiry Inbox"], ["/admin/tickets", "Support requests"], ["/admin/help", "Help guides"], ["/admin/reviewer-applications", "Reviewer Applications"]]),
     ];
 
@@ -159,6 +161,8 @@ export default function AppShell({
         ["/admin/help", "Help guides"],
         ["/admin/refunds", "Refunds"],
         ["/admin/policies", "Policies"],
+        ["/admin/exports", "Export data"],
+        ...when(sme?.super_admin || sme?.finance_admin, [["/admin/payment-checks", "Payment checks"]]),
       ]);
       add("Marketplace", [["/marketplace", "Catalogue"], ["/marketplace/mine", "My question sets"]]);
       return groups;

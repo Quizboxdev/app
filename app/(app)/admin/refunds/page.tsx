@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { CASE_KINDS, CASE_STATUS, creditDuplicate, findPayments, refundCases, saveRefundCase, type PaymentFacts, type RefundCase } from "@/lib/api/refunds";
+import ExportLink from "@/components/admin/ExportLink";
 
 // Refunds under the published policy (/refunds): 7 days; a duplicate charge comes back as Coins; a cash refund only when none of the purchase's Coins were used.
 // Find the payment, read the facts, then either add the Coins or record the outcome. Cash itself is refunded from the Paystack dashboard; this page records it.
@@ -72,7 +73,7 @@ export default function AdminRefundsPage() {
   const chosen = results?.find((r) => r.reference === sel) ?? null;
   return (
     <>
-      <div className="qb-page-head"><div><h1>Refunds</h1><p>Handle refund requests under the <Link className="qb-link" href="/refunds">published policy</Link>: 7 days; duplicate charges come back as Coins; cash only if none of the purchase&apos;s Coins were used.</p></div></div>
+      <div className="qb-page-head"><div><h1>Refunds</h1><p>Handle refund requests under the <Link className="qb-link" href="/refunds">published policy</Link>: 7 days; duplicate charges come back as Coins; cash only if none of the purchase&apos;s Coins were used.</p></div><ExportLink dataset="refund_cases" /></div>
       {error && <div className="qb-card qb-error" role="alert">{error}</div>}
       {notice && <div className="qb-card" role="status"><strong>{notice}</strong></div>}
       <form className="qb-card qb-form" onSubmit={(e) => { e.preventDefault(); void search(); }}>

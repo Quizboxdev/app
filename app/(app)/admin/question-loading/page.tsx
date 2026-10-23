@@ -8,6 +8,7 @@ import { buildPlan, describePlan } from "@/lib/question-loading/plan";
 import { buildLoadPayload } from "@/lib/question-loading/payload";
 import type { LoadRow } from "@/lib/question-loading/template";
 import { describeErrorMessage } from "@/lib/errors";
+import ExportLink from "@/components/admin/ExportLink";
 
 const sha256Hex = async (bytes: Uint8Array) => [...new Uint8Array(await crypto.subtle.digest("SHA-256", bytes as BufferSource))].map((b) => b.toString(16).padStart(2, "0")).join("");
 
@@ -66,7 +67,7 @@ export default function QuestionLoadingPage() {
 
   return <>
     <div className="qb-page-head"><div><h1>Load questions</h1>
-      <p>Check a question file against a curriculum and load it into SME review. The curriculum structure must already be loaded, and the curriculum needs at least one approved source.</p></div></div>
+      <p>Check a question file against a curriculum and load it into SME review. The curriculum structure must already be loaded, and the curriculum needs at least one approved source.</p></div><ExportLink dataset="question_batches" /></div>
     {error && <p className="qb-error" role="alert">{error}</p>}
     <section className="qb-card"><h2>1. Curriculum and approved sources</h2>
       <label>Curriculum<select value={curriculumId} onChange={(e) => setCurriculumId(e.target.value)}><option value="">Select a curriculum</option>

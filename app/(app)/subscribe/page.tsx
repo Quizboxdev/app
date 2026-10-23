@@ -6,7 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { Check } from "lucide-react";
 import BrandBanner from "@/components/BrandBanner";
 import { getMyAccess, type MyAccess } from "@/lib/api/access";
-import { getCatalog, startCheckout, type Catalog } from "@/lib/api/payments";
+import { confirmReturn, getCatalog, startCheckout, type Catalog } from "@/lib/api/payments";
 import HelpLink from "@/components/help/HelpLink";
 import { PLANS, planPriceMinor } from "@/lib/payments/plans";
 import PricingCards from "@/components/pricing/PricingCards";
@@ -32,6 +32,7 @@ function SubscribeInner() {
   // Coming back from the payment page: the provider confirms to our server a moment later, so check a few times before saying anything.
   useEffect(() => {
     if (!returned || access?.subscribed) return;
+    if (polls.current === 0) void confirmReturn(returned).then(() => getMyAccess().then(setAccess));   // ask Paystack directly first, in case the webhook is slow
     const t = setInterval(async () => { polls.current += 1; setWaited(polls.current); const a = await getMyAccess(); setAccess(a); if (a.subscribed || polls.current >= 12) clearInterval(t); }, 5000);
     return () => clearInterval(t);
   }, [returned, access?.subscribed]);

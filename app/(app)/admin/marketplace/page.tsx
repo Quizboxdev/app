@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import ExportLink from "@/components/admin/ExportLink";
 import {
   adminItem, adminItems, adminPayoutSet, adminPayouts, adminReverse, adminReview, adminSellerSet, adminSellers, adminSummary, cedis, ITEM_STATUS, marketplaceOpen, marketplaceSwitch, sourceLine, when,
   type AdminItem, type AdminItemDetail, type AdminPayout, type AdminSeller, type AdminSummary,
@@ -149,6 +150,7 @@ export default function AdminMarketplace() {
       <div role="tablist" style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 12 }}>
         {TABS.map(([k, l]) => <button key={k} role="tab" aria-selected={tab === k} className={`qb-btn ${tab === k ? "" : "secondary"}`} onClick={() => { setTab(k); setError(""); }}>{l}</button>)}
       </div>
+      <p style={{ margin: "0 0 12px" }}><ExportLink dataset={{ review: "mk_items", sellers: "mk_sellers", payouts: "mk_payouts", account: "mk_sales" }[tab]} label="Export this data" /></p>
       {error && <div className="qb-card qb-error" role="alert" style={{ marginBottom: 12 }}>{error}</div>}
       {tab === "review" && <Review onError={onError} />}
       {tab === "sellers" && <Sellers onError={onError} />}

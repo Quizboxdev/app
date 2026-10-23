@@ -5,6 +5,7 @@ import { getAccessOverview, grantSubscription, revokeSubscription, setFreeAllowa
 import { formatDate, humanize } from "@/lib/format";
 import { getCatalog, getPaidChallenges, listPayments, setCoinUnitPrice, setPaidChallenges, setPaymentsOpen, type Catalog, type PaymentRow } from "@/lib/api/payments";
 import plansFile from "../../../../config/subscription-plans.json";
+import ExportLink from "@/components/admin/ExportLink";
 
 // Owner screen for the free allowance and subscriptions. Until online payment is live, the owner grants a subscription here after a payment is
 // received (mobile money, cash, bank). Payments will later write the same records automatically.
@@ -27,7 +28,7 @@ export default function AccessPage() {
 
   return (
     <>
-      <div className="qb-page-head"><div><h1>Access and subscriptions</h1><p>Set how many free practice sessions a new learner gets, and grant subscriptions after payment.</p></div></div>
+      <div className="qb-page-head"><div><h1>Access and subscriptions</h1><p>Set how many free practice sessions a new learner gets, and grant subscriptions after payment.</p></div><ExportLink dataset="payments" /></div>
       {error && <div className="qb-card qb-error" role="alert">{error}</div>}
       {done && <div className="qb-card" role="status">{done}</div>}
       {!data ? <div className="qb-card qb-skeleton" style={{ minHeight: 120 }} aria-busy="true" /> : <>

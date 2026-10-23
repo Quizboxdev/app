@@ -81,8 +81,14 @@ describe("settlement after a verified callback", () => {
     expect((await run(chargeSuccess(), "already_settled")).status).toBe(200);                                         // a retried callback re-checks fulfilment, harmlessly
     expect(rpc).toHaveBeenCalledWith("qb_fulfil_subscription_payment", { p_reference: "QB-abc" });
   });
+  it("re-checks fulfilment when the provider retries an event that was already recorded (the first try may have failed after recording it)", async () => {
+    const res = await run(chargeSuccess(), "duplicate_event");
+    expect(res.status).toBe(200);
+    expect(rpc).toHaveBeenCalledWith("qb_fulfil_subscription_payment", { p_reference: "QB-abc" });
+    expect(rpc).toHaveBeenCalledWith("qb_mk_fulfil_purchase", { p_reference: "QB-abc" });
+  });
   it("does not grant for a duplicate event, a mismatch or an unverifiable call", async () => {
-    await run(chargeSuccess(), "duplicate_event"); await run(chargeSuccess(), "amount_mismatch");
+    await run(chargeSuccess(), "amount_mismatch");
     expect(rpc).not.toHaveBeenCalledWith("qb_fulfil_subscription_payment", expect.anything());
     rpc.mockClear();
     const raw = chargeSuccess();
@@ -101,7 +107,7 @@ describe("settlement after a verified callback", () => {
     const raw = chargeSuccess();
     expect((await processProviderCallback(admin, "paystack", raw, new Headers({ "x-paystack-signature": sign(raw) }))).status).toBe(500);
   });
-  it("records a Marketplace sale after a credited payment, reverses it on a refund, and tolerates a database that has no Marketplace yet", async () => {
+  it("records a Marketplace sale after a credited payment, reverses it on a refund, and fails (so the provider retries) when it cannot be recorded", async () => {
     await run(chargeSuccess(), "credited");
     expect(rpc).toHaveBeenCalledWith("qb_mk_fulfil_purchase", { p_reference: "QB-abc" });
     const refund = JSON.stringify({ event: "refund.processed", data: { id: 6, transaction_reference: "QB-abc", amount: 1000, currency: "GHS" } });
@@ -111,7 +117,7 @@ describe("settlement after a verified callback", () => {
     rpc.mockImplementation(async (name: string) => name === "qb_payment_apply_event" ? { data: { outcome: "credited" }, error: null } : name === "qb_mk_fulfil_purchase" ? { data: null, error: { message: "Could not find the function public.qb_mk_fulfil_purchase in the schema cache" } } : { data: {}, error: null });
     const { processProviderCallback } = await import("./settlement");
     const raw = chargeSuccess();
-    expect((await processProviderCallback(admin, "paystack", raw, new Headers({ "x-paystack-signature": sign(raw) }))).status).toBe(200);
+    expect((await processProviderCallback(admin, "paystack", raw, new Headers({ "x-paystack-signature": sign(raw) }))).status).toBe(500);   // a missing database change must fail loudly so the provider retries, not pass silently
     rpc.mockImplementation(async (name: string) => name === "qb_payment_apply_event" ? { data: { outcome: "credited" }, error: null } : name === "qb_mk_fulfil_purchase" ? { data: null, error: { message: "deadlock detected" } } : { data: {}, error: null });
     expect((await processProviderCallback(admin, "paystack", raw, new Headers({ "x-paystack-signature": sign(raw) }))).status).toBe(500);   // a real failure makes the provider retry
   });

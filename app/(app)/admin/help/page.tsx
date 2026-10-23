@@ -5,6 +5,7 @@ import Link from "next/link";
 import { adminGuide, adminGuides, deleteGuide, saveGuide, setGuideState, type AdminGuide } from "@/lib/api/help";
 import { categoryLabel, HELP_AUDIENCES, HELP_CATEGORIES } from "@/lib/help/categories";
 import { RenderText } from "@/lib/policies/render";
+import ExportLink from "@/components/admin/ExportLink";
 
 // Admin, Help. Write, preview and publish the guides people see at Help (/help on the website, Help inside the app). Guides are for learners, teachers, schools and sponsors; administrator workflows
 // do not belong here. Link to another guide with [words](help:web-name). A guide that is switched back to draft disappears from Help at once.
@@ -61,7 +62,7 @@ export default function AdminHelpPage() {
   return (
     <>
       <div className="qb-page-head"><div><h1>Help guides</h1><p>The guides people read at <Link className="qb-link" href="/guides">Help</Link> and on the website. Write, preview, publish. Learners, teachers, schools and sponsors only: no administrator workflows.</p></div>
-        <button className="qb-btn" onClick={() => { setForm({ ...blank }); setNotice(""); setError(""); }}>New guide</button></div>
+        <ExportLink dataset="help_articles" /><button className="qb-btn" onClick={() => { setForm({ ...blank }); setNotice(""); setError(""); }}>New guide</button></div>
       {error && <div className="qb-card qb-error" role="alert">{error}</div>}
       {notice && <div className="qb-card" role="status"><strong>{notice}</strong></div>}
       <nav aria-label="Filter" style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>{(["all", "published", "draft"] as const).map((f) => <button key={f} className={`qb-btn${filter === f ? "" : " qb-btn-secondary"}`} onClick={() => setFilter(f)}>{f === "all" ? "All" : f === "published" ? "Published" : "Drafts"}</button>)}</nav>

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { getMyWallet } from "@/lib/api/core";
 import { startTopup } from "@/lib/api/payments";
+import { confirmReturn } from "@/lib/api/payments";
 import { buySeats, MAX_SEATS, MIN_SEATS, SEAT_TIERS, seatCost, seatsInfo, shortfall, topupAmount, type SeatsInfo } from "@/lib/api/seats";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
@@ -25,7 +26,8 @@ export default function SeatsPanel({ id, noun, onError }: { id: string; noun: st
   // Coming back from paying for Coins: the provider confirms to our server a moment later, so look a few times.
   useEffect(() => {
     if (!topup) return;
-    let n = 0; const t = setInterval(() => { n += 1; setWaited(n); void refresh(); if (n >= 12) clearInterval(t); }, 5000);
+    let n = 0; void confirmReturn(topup).then(() => refresh());   // ask Paystack directly first, in case the webhook is slow
+    const t = setInterval(() => { n += 1; setWaited(n); void refresh(); if (n >= 12) clearInterval(t); }, 5000);
     return () => clearInterval(t);
   }, [topup, refresh]);
 
