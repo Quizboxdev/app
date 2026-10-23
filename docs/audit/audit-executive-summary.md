@@ -14,3 +14,5 @@
 **What this audit could not do.** Test with signed-in accounts, look at the production or Preview database, read Vercel logs, measure performance. Those are marked BLOCKED or NOT RUN, never PASS. The beta kit in `docs/beta-testing/` turns them into scripts interns can run on Preview.
 
 **Counts.** 16 open findings: 0 P0, 2 P1, 5 P2, 8 P3, 1 informational (access limits). One more was raised and withdrawn as a false positive (QB-AUD-010). Full register: `audit-findings.csv`.
+
+**Update, 2026-10-23.** The three items above were fixed (pricing and checkout live, Challenges link fixed, repository history cleaned). Since then the owner added refund tools, a policy section with acknowledgement, support requests with file upload, a Help centre, a CI workflow and CSP violation reporting. Those additions pass the automated suite (1,290 tests) and the build, but were not part of this independent review; see `release-readiness.md` for the follow-up scope.

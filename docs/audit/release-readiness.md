@@ -34,3 +34,18 @@
 * PR C (proposal only): CSP enforcement, CI workflow, server-side route guard, rate limit on view counter.
 
 Each PR description should carry: rationale, files, defects addressed (IDs above), tests run (1,186 plus the new tests), screenshots (public pages), risk (low for A and B), rollback (revert the commit), and the reviewer checklist in `docs/beta-testing/regression-checklist.md`.
+
+## Addendum, 2026-10-23: what changed since this assessment
+
+**Release blockers 1 to 3 are cleared.** The live pricing page and checkout work (a real GHS 5 payment was received), the Challenges link is fixed and deployed, and the repository history is clean.
+
+**New surface area that this audit did not review.** After the audit date the following were built and tested by the automated suite, but have NOT had the independent review this document describes. They should be the scope of a follow-up pass:
+- Refund tools in Admin (migration 20261035100000): credits Coins to wallets, so it touches money.
+- Policy section and acknowledgement (20261036100000, 20261037100000): legal records.
+- Support requests with file upload and private storage (20261038100000): accepts files from the public.
+- Help centre (20261039100000, 20261040100000): public read and search.
+- New server routes under /api/support, /api/help and /api/ops/csp-report (30 routes in total now).
+
+**Updated decisions.**
+- Engineering readiness: still CONDITIONAL. Conditions now: (1) a review of the new surface area above, with live two-account authorization checks on Preview; (2) CSP enforcement after a clean week of reports; (3) the first CI run is green; (4) the Terms and Privacy Notice are reviewed by a lawyer in Ghana and published.
+- Supervised beta readiness: CONDITIONAL, closer to READY. A beta on Preview with disposable accounts can start now. A beta that takes real payments or open sign-ups should also wait for conditions (1) and (4) and for scenarios SEC-01 to SEC-04 and PAY-01 to pass.

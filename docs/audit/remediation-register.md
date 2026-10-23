@@ -1,5 +1,7 @@
 # Remediation register
 
+**Status at 2026-10-23.** Items 1 to 3 are done (live site data fixed, Challenges link fixed, repository history cleaned). Items 6 and 7 are in progress (CSP reports and CI added). The rest are open. See `audit-findings.csv` for each finding's current status.
+
 Order of work, with who acts. "Safe fix" means small, tested and applied on the audit branch; nothing here is deployed.
 
 | Order | Finding | Action | Owner | State |
