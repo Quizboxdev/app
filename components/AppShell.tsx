@@ -8,7 +8,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { LayoutGrid, X, Home, BookOpen, Dumbbell, FileText, BarChart3, Bell, Users, Trophy, ShoppingBag, Globe, ShieldCheck, Layers, LifeBuoy, Settings, CircleUser, CircleHelp, LogOut, type LucideIcon } from "lucide-react";
 import { bootstrapUser, getHomeRouteForRole, signOut } from "@/lib/auth";
 import type { UserContext } from "@/lib/types";
-import { findMySeller } from "@/lib/api/marketplace";
 import { getSmeContext, type SmeContext } from "@/lib/api/sme";
 import MarketContextControl from "@/components/MarketContextControl";
 import BrandLockup from "@/components/BrandLockup";
@@ -52,8 +51,6 @@ export default function AppShell({
   sponsorEngine?: boolean;
 }) {
   const [ctx, setCtx] = useState<UserContext | null>(null);
-  const [isSeller, setIsSeller] = useState(false);
-  const [sellerChecked, setSellerChecked] = useState(false);
   const [sme, setSme] = useState<SmeContext | null>(null);
   const [moreOpen, setMoreOpen] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -66,38 +63,22 @@ export default function AppShell({
         setCtx(context);
         // An unapplied foundation migration must not disrupt existing role access.
         try { setSme(await getSmeContext()); } catch { setSme(null); }
-
-        try {
-          const teacherId = (context.teacherProfile as any)?.id ?? null;
-          const seller = await findMySeller({
-            userId: context.userId,
-            teacherId,
-          });
-          setIsSeller(Boolean(seller));
-        } catch {
-          setIsSeller(false);
-        } finally {
-          setSellerChecked(true);
-        }
       })
       .catch((error) => router.replace(error instanceof Error && error.message === "ONBOARDING_REQUIRED" ? "/onboarding" : error instanceof Error && error.message === "ACCOUNT_SUSPENDED" ? "/login?suspended=1" : loginHrefFor(window.location.pathname)));
   }, [router]);
 
   useEffect(() => {
-    if (!ctx || !sellerChecked) return;
+    if (!ctx) return;
 
     const role = String(ctx.role).toUpperCase();
     const allowedPrefixes = ["ADMIN", "OWNER"].includes(role)
       ? ["/admin", "/teacher", "/practise", "/student/attempt", "/competition", "/marketplace", "/subscribe", "/creator"]
       : role === "TEACHER"
-        ? ["/teacher", "/practise", "/student/attempt", "/competition", "/marketplace", "/subscribe", "/creator"]
+        ? ["/teacher", "/practise", "/student/attempt", "/competition", "/marketplace", "/seller", "/subscribe", "/creator"]
         : role === "SPONSOR"
           ? ["/sponsor", "/competition", "/marketplace", "/creator"]
           : ["/student", "/learn", "/practise", "/competition", "/marketplace", "/subscribe", "/creator"];
 
-    if (isSeller && ["TEACHER", "ADMIN", "OWNER"].includes(role)) {
-      allowedPrefixes.push("/seller");
-    }
     allowedPrefixes.push("/account", "/notifications", "/school", "/play", "/open", "/drafts", "/support", "/guides");
     if (sme?.reviewer || sme?.content_admin || sme?.super_admin) allowedPrefixes.push("/review");
     if (sme?.super_admin) allowedPrefixes.push("/admin/markets", "/admin/reviewers", "/admin/compensation", "/admin/policies");
@@ -111,7 +92,7 @@ export default function AppShell({
     if (!isAllowed) {
       router.replace(getHomeRouteForRole(role));
     }
-  }, [ctx, isSeller, pathname, router, sellerChecked, sme]);
+  }, [ctx, pathname, router, sme]);
 
   const inSchool = pathname.startsWith("/school");
   const groups = useMemo<NavGroup[]>(() => {
@@ -120,7 +101,7 @@ export default function AppShell({
     const role = String(ctx.role).toUpperCase();
     const isAdmin = ["ADMIN", "OWNER"].includes(role);
     const reviewer = Boolean(sme?.reviewer || sme?.content_admin || sme?.super_admin);
-    const seller: NavItem[] = isSeller && ["TEACHER", "ADMIN", "OWNER"].includes(role) ? [["/seller", "Seller"]] : [];
+    const seller: NavItem[] = role === "TEACHER" ? [["/seller", "Sell question sets"]] : [];
     const when = (condition: unknown, items: NavItem[]): NavItem[] => (condition ? items : []);
     const groups: NavGroup[] = [];
     const add = (label: string, items: NavItem[]) => { if (items.length) groups.push({ label, items }); };
@@ -179,7 +160,7 @@ export default function AppShell({
         ["/admin/refunds", "Refunds"],
         ["/admin/policies", "Policies"],
       ]);
-      add("Marketplace", [["/marketplace", "Catalogue"], ...seller]);
+      add("Marketplace", [["/marketplace", "Catalogue"], ["/marketplace/mine", "My question sets"]]);
       return groups;
     }
 
@@ -228,12 +209,13 @@ export default function AppShell({
       ["/student/results", "Progress"],
       ["/student/assessments", "Assessments"],
       ["/marketplace", "Marketplace"],
+      ["/marketplace/mine", "My question sets"],
     ]);
     add("Me", [["/notifications", "Notifications"], ["/drafts", "Unfinished work"], ["/subscribe", "Subscribe"], ["/account", "Account"]]);
     add("SME", when(reviewer, [["/review", "SME Reviews"]]));
     add("Administration", administration);
     return groups;
-  }, [ctx, isSeller, inSchool, sme, sponsorEngine]);
+  }, [ctx, inSchool, sme, sponsorEngine]);
 
   const nav = useMemo(() => groups.flatMap((group) => group.items), [groups]);
   // The most specific matching link is the current page (so /admin is not active on /admin/content).
