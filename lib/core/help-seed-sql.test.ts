@@ -7,6 +7,7 @@ const read = (p: string) => readFileSync(new URL(p, import.meta.url), "utf8");
 const MIGRATION = read("../../supabase/migrations/20261039100000_help_centre.sql");
 const SEED = read("../../supabase/migrations/20261040100000_help_seed_v1.sql");
 const SEATS_GUIDE = read("../../supabase/migrations/20261042100000_help_seats_guide.sql");
+const MARKET_GUIDES = read("../../supabase/migrations/20261044100000_help_marketplace_guides.sql");
 const APPSHELL = read("../../components/AppShell.tsx");
 const id = (n: number) => `00000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
 const [OWNER, SUPPORT, STUDENT] = [1, 2, 3].map(id);
@@ -38,17 +39,18 @@ beforeAll(async () => {
 });
 afterAll(async () => { await db.close(); });
 
-beforeAll(async () => { await db.exec(SEED); await db.exec(SEATS_GUIDE); });
+beforeAll(async () => { await db.exec(SEED); await db.exec(SEATS_GUIDE); await db.exec(MARKET_GUIDES); });
 
 const all = async () => { await db.exec("reset role"); return (await db.query<{ slug: string; title: string; summary: string; body: string; audiences: string[]; category: string; state: string }>("select slug, title, summary, body, audiences, category, state from public.help_articles order by sort_order, slug")).rows; };
 
 describe("the first Help centre guides", () => {
   it("are all published, for learners, teachers, schools and sponsors, and none for administrators", async () => {
     const rows = await all();
-    expect(rows.length).toBeGreaterThanOrEqual(23);
+    expect(rows.length).toBeGreaterThanOrEqual(25);
     expect(new Set(rows.map((r) => r.slug)).size).toBe(rows.length);
-    expect(rows.filter((r) => r.slug !== "add-more-players").every((r) => r.state === "published")).toBe(true);
+    expect(rows.filter((r) => !["add-more-players", "sell-question-sets", "buy-a-question-set"].includes(r.slug)).every((r) => r.state === "published")).toBe(true);
     expect(rows.find((r) => r.slug === "add-more-players")).toMatchObject({ state: "draft", category: "challenges" });          // the seats guide waits until the owner switches seat limits on
+    for (const slug of ["sell-question-sets", "buy-a-question-set"]) expect(rows.find((r) => r.slug === slug), slug).toMatchObject({ state: "draft", category: "payments" });   // the Marketplace guides wait until the owner opens the Marketplace
     for (const r of rows) expect(r.audiences.every((a) => ["everyone", "student", "teacher", "school", "sponsor"].includes(a)), r.slug).toBe(true);
     for (const who of ["student", "teacher", "school", "sponsor"]) expect(rows.filter((r) => r.audiences.includes(who) || r.audiences.includes("everyone")).length, who).toBeGreaterThanOrEqual(8);
     expect(rows.some((r) => /(admin|administrator|super admin|content factory|payouts|question loading)/i.test(r.title + " " + r.summary)), "no admin workflow").toBe(false);

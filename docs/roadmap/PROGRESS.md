@@ -317,3 +317,5 @@ Design canvas: https://claude.ai/artifact/8JyB9ENBGKYpV1ZfGmke7n (5 pages, 19 ar
 - 2026-10-23 Delivery 38: CI workflow added; CSP reports collected before enforcing. Owner: check the Actions tab after the next push, and read the Vercel logs for [csp] lines after a week.
 
 - 2026-10-23 Delivery 39: seat bundles (docs/release/APPLY_SEATS.md). Built and tested; the database change is applied by the owner, then the switch is turned on after a test. Phase 3 of the Coin plan (school and sponsor payers) remains.
+
+- 2026-10-23 Delivery 40: the Marketplace (docs/release/APPLY_MARKETPLACE.md). Built and tested; the owner applies the database change, tests with a teacher and a buyer account, then opens it in Admin, Marketplace. Remaining: legal and tax review of seller terms, automatic Paystack transfers for payouts, school and sponsor payers (Coin plan phase 3).

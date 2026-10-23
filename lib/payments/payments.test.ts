@@ -101,4 +101,18 @@ describe("settlement after a verified callback", () => {
     const raw = chargeSuccess();
     expect((await processProviderCallback(admin, "paystack", raw, new Headers({ "x-paystack-signature": sign(raw) }))).status).toBe(500);
   });
+  it("records a Marketplace sale after a credited payment, reverses it on a refund, and tolerates a database that has no Marketplace yet", async () => {
+    await run(chargeSuccess(), "credited");
+    expect(rpc).toHaveBeenCalledWith("qb_mk_fulfil_purchase", { p_reference: "QB-abc" });
+    const refund = JSON.stringify({ event: "refund.processed", data: { id: 6, transaction_reference: "QB-abc", amount: 1000, currency: "GHS" } });
+    rpc.mockClear(); await run(refund, "refunded");
+    expect(rpc).toHaveBeenCalledWith("qb_mk_reverse_purchase", { p_reference: "QB-abc", p_reason: "refunded" });
+    rpc.mockReset(); vi.stubGlobal("fetch", live({ status: "success", amount: 1000, currency: "GHS" }));
+    rpc.mockImplementation(async (name: string) => name === "qb_payment_apply_event" ? { data: { outcome: "credited" }, error: null } : name === "qb_mk_fulfil_purchase" ? { data: null, error: { message: "Could not find the function public.qb_mk_fulfil_purchase in the schema cache" } } : { data: {}, error: null });
+    const { processProviderCallback } = await import("./settlement");
+    const raw = chargeSuccess();
+    expect((await processProviderCallback(admin, "paystack", raw, new Headers({ "x-paystack-signature": sign(raw) }))).status).toBe(200);
+    rpc.mockImplementation(async (name: string) => name === "qb_payment_apply_event" ? { data: { outcome: "credited" }, error: null } : name === "qb_mk_fulfil_purchase" ? { data: null, error: { message: "deadlock detected" } } : { data: {}, error: null });
+    expect((await processProviderCallback(admin, "paystack", raw, new Headers({ "x-paystack-signature": sign(raw) }))).status).toBe(500);   // a real failure makes the provider retry
+  });
 });
