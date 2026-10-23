@@ -20,7 +20,7 @@ function SubscribeInner() {
   const params = useSearchParams();
   const reason = params.get("reason"), returned = params.get("reference");
   const [access, setAccess] = useState<MyAccess | null>(null), [catalog, setCatalog] = useState<Catalog | null>(null);
-  const [busy, setBusy] = useState(""), [error, setError] = useState(""), [waited, setWaited] = useState(0);
+  const [busy, setBusy] = useState(""), [error, setError] = useState(""), [errorCode, setErrorCode] = useState(""), [waited, setWaited] = useState(0);
   const [isMinor, setIsMinor] = useState(false);
   const polls = useRef(0);
   const [prices, setPrices] = useState<PriceRow[]>([]);
@@ -35,9 +35,11 @@ function SubscribeInner() {
     return () => clearInterval(t);
   }, [returned, access?.subscribed]);
 
+  // A failed attempt is shown where the buyer is looking: the message is scrolled into view, with a short support code to quote.
+  useEffect(() => { if (error) document.getElementById("pay-error")?.scrollIntoView({ behavior: "smooth", block: "center" }); }, [error, errorCode]);
   async function pay(planId: string) {
-    setBusy(planId); setError("");
-    try { const { url } = await startCheckout(planId); window.location.assign(url); } catch (e: any) { setError(e?.message ?? "We could not start the payment."); setBusy(""); }
+    setBusy(planId); setError(""); setErrorCode("");
+    try { const { url } = await startCheckout(planId); window.location.assign(url); } catch (e: any) { setError(e?.message ?? "We could not start the payment."); setErrorCode(typeof e?.code === "string" ? e.code : ""); setBusy(""); }
   }
   const open = !!catalog?.payments_enabled && !isMinor;
   // Prices come from the admin price list; while a learner plan has no price there but the older Coins price exists, that price is shown so buying keeps working.
@@ -53,7 +55,7 @@ function SubscribeInner() {
           : "Unlimited practice across all subjects for your grade."}</p>
       </div></div>
 
-      {error && <div className="qb-card qb-error" role="alert">{error}</div>}
+      {error && <div id="pay-error" className="qb-card qb-error" role="alert">{error}{errorCode && <span className="qb-muted qb-small" style={{ display: "block", marginTop: 4 }}>Support code: {errorCode}</span>}</div>}
       {access?.subscribed && <div className="qb-card" role="status"><strong>You are subscribed{(access as any).subscription_until ? ` until ${formatDate((access as any).subscription_until)}` : ""}.</strong> <Link href="/practise">Go to Practise</Link></div>}
       {returned && !access?.subscribed && <div className="qb-card" role="status">{waited >= 12
         ? "We have not received confirmation yet. If you were charged, do not pay again: your subscription is activated as soon as the payment is confirmed, and you can contact us with your payment reference."

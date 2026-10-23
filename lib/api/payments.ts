@@ -15,7 +15,7 @@ export async function startCheckout(planId: string): Promise<{ url: string }> {
   if (!token) throw new Error("Please sign in to subscribe.");
   const res = await fetch("/api/payments/checkout", { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ planId }) });
   const body = await res.json().catch(() => ({}));
-  if (!res.ok || !body?.url) throw new Error(typeof body?.error === "string" ? body.error : "We could not start the payment. Please try again.");
+  if (!res.ok || !body?.url) throw Object.assign(new Error(typeof body?.error === "string" ? body.error : "We could not start the payment. Please try again."), { code: typeof body?.code === "string" ? body.code : "" });
   return { url: String(body.url) };
 }
 
