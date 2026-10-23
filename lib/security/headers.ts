@@ -18,6 +18,8 @@ export const CONTENT_SECURITY_POLICY = [
   "base-uri 'self'",
   "form-action 'self'",
   "object-src 'none'",
+  // Browsers post violations here; the route writes a one-line summary to the function logs (no query strings), so the policy can be checked before it is enforced.
+  "report-uri /api/ops/csp-report",
   // Browsers ignore this directive in report-only mode (and log a console notice), so it is added only when enforcing.
   ...(CSP_MODE === "enforce" ? ["upgrade-insecure-requests"] : []),
 ].join("; ");

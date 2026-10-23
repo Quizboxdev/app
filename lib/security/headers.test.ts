@@ -18,4 +18,7 @@ describe("security headers", () => {
     expect(CONTENT_SECURITY_POLICY).toMatch(/connect-src 'self' https:\/\/\*\.supabase\.co/);
     expect(SECURITY_HEADERS.find((h) => h.key === "X-Frame-Options")?.value).toBe("DENY");
   });
+  it("asks browsers to report violations to our own collector", () => {
+    expect(CONTENT_SECURITY_POLICY).toContain("report-uri /api/ops/csp-report");
+  });
 });
