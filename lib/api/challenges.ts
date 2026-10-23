@@ -5,6 +5,7 @@ import type { Analytics, AttemptResult, Award, Brand, FeaturedQuiz, Format, Libr
 // Participants and creators call the database functions directly; every rule (who may create, one scored submission, locked after going live) is enforced there.
 const CODES: Record<string, string> = {
   NOT_AUTHORIZED: "You need to sign in with an account that can do this. Accounts for young learners cannot join challenges.",
+  QUIZ_FULL: "This quiz is full. Please ask the organiser to add more places.",
   CHALLENGE_NOT_LIVE: "This challenge is not open right now.", WRONG_CODE: "That access code is not right.", NO_ATTEMPTS_LEFT: "You have used all your attempts.",
   RATE_LIMITED: "Too many tries. Please wait a little and try again.", NOT_ENOUGH_QUESTIONS: "Add enough questions before publishing.", ONLY_DRAFT_EDITABLE: "Questions and rules are locked once a challenge has gone live.",
   INVALID_TRANSITION: "That change is not allowed from the current status.", INVALID_QUESTIONS: "Every question needs 2 to 4 options and a correct answer.", ENDS_IN_THE_PAST: "The end date has already passed.",

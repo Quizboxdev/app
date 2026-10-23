@@ -313,3 +313,5 @@ Design canvas: https://claude.ai/artifact/8JyB9ENBGKYpV1ZfGmke7n (5 pages, 19 ar
 - 2026-10-23 Delivery 37: Help centre with search and 23 guides (docs/release/APPLY_HELP.md). The policy CMS, support requests and Help centre from the owner's request are now all built; remaining owner steps are applying the database changes, filling Company details, reading and publishing the policies, and walking through the guides once.
 
 - 2026-10-23 Delivery 38: CI workflow added; CSP reports collected before enforcing. Owner: check the Actions tab after the next push, and read the Vercel logs for [csp] lines after a week.
+
+- 2026-10-23 Delivery 39: seat bundles (docs/release/APPLY_SEATS.md). Built and tested; the database change is applied by the owner, then the switch is turned on after a test. Phase 3 of the Coin plan (school and sponsor payers) remains.
