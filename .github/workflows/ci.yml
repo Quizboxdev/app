@@ -1,0 +1,40 @@
+name: CI
+
+# Every change is checked before and after it reaches main: type check, lint, the automated tests (the database tests run on an in-memory PostgreSQL, so no secrets are needed) and a production build.
+# No secrets are used. The build gets harmless placeholder public settings, because the real ones only matter at run time on Vercel.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Type check
+        run: npx tsc --noEmit
+      - name: Lint
+        run: npx eslint .
+      - name: Tests
+        run: npx vitest run
+      - name: Build
+        run: npm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: https://example-ci.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: sb_publishable_ci_dummy
+      - name: Production dependencies have no high advisories
+        run: npm audit --omit=dev --audit-level=high
