@@ -37,7 +37,7 @@ function Editor({ code, initial, isNew, onSaved, onError }: { code: string; init
         <label className="qb-field">For<select value={d.audience} onChange={(e) => set("audience", e.target.value as PriceAudience)}>{AUDIENCES.map((a) => <option key={a} value={a}>{AUDIENCE_LABEL[a]}</option>)}</select></label>
         <label className="qb-field">Charged<select value={d.period} onChange={(e) => set("period", e.target.value as PricePeriod)}>{PERIODS.map((p) => <option key={p} value={p}>{p === "free" ? "Free (no charge)" : PERIOD_LABEL[p]}</option>)}</select></label>
         <label className="qb-field">Price in cedis (empty = to be announced, 0 = free)<input inputMode="decimal" value={d.price} onChange={(e) => set("price", e.target.value)} placeholder="e.g. 25" /></label>
-        <label className="qb-field" style={{ gridColumn: "span 2" }}>Payment link from your gateway (https://…)<input type="url" value={d.url} onChange={(e) => set("url", e.target.value)} placeholder="https://paystack.com/pay/…" /></label>
+        <label className="qb-field" style={{ gridColumn: "span 2" }}>Payment link for invoice or hand-confirmed sales only (https://…). Card and mobile-money plans use our own checkout, so leave this empty for them<input type="url" value={d.url} onChange={(e) => set("url", e.target.value)} placeholder="https://paystack.com/pay/…" /></label>
       </div>
       <label className="qb-field">One line about it<input value={d.description} maxLength={300} onChange={(e) => set("description", e.target.value)} /></label>
       <label className="qb-field">What is included (one per line, up to 12)<textarea rows={4} value={d.includes} onChange={(e) => set("includes", e.target.value)} /></label>
