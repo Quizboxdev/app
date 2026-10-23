@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getSupabaseAdminClient } from "@/lib/supabase/server-admin";
+import { secretMatches } from "@/lib/security/secret";
 
 export const runtime = "nodejs";
 
@@ -7,7 +8,7 @@ export async function POST(request: Request) {
   const expected = process.env.QB_OPS_SECRET;
   const provided = request.headers.get("x-qb-ops-secret");
 
-  if (!expected || provided !== expected) {
+  if (!secretMatches(provided, expected)) {                      // constant-time comparison (audit QB-AUD-008)
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

@@ -321,3 +321,5 @@ Design canvas: https://claude.ai/artifact/8JyB9ENBGKYpV1ZfGmke7n (5 pages, 19 ar
 - 2026-10-23 Delivery 41: admin data exports (docs/release/APPLY_EXPORTS.md). Built and tested; the owner applies the database change and runs the verification query that builds one row of every dataset against the real tables. More datasets (competitions, sponsor workspace, class progress, notifications) can be added the same way.
 
 - 2026-10-24 Delivery 42: payment checks screen (docs/release/PAYMENT_CHECKS.md). No database change; live once deployed.
+
+- 2026-10-24 Delivery 43: audit findings QB-AUD-007 and QB-AUD-008 closed (no database change).
