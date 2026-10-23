@@ -97,7 +97,8 @@ def main(argv):
     files, digest = build()
     if "--check" in argv:
         for path, data in files.items():
-            if not path.exists() or path.read_bytes() != data:
+            # Line endings are not compared: git stores LF and a Windows checkout may have CRLF; the content must be identical.
+            if not path.exists() or path.read_bytes().replace(b"\r\n", b"\n") != data.replace(b"\r\n", b"\n"):
                 sys.exit(f"MISMATCH: {path.relative_to(ROOT)} is not what the generator produces from the committed template and dry-run")
             print(f"OK: {path.relative_to(ROOT)} equals the generated output; engine sha256 {digest}")
         return

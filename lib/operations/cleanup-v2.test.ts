@@ -37,7 +37,7 @@ describe("production-cleanup-v2.sql is reproducible from committed source", () =
     const generated = template.replace("/*ENGINE_HASH*/", () => header).replace("/*SETS*/", () => sets).replace("/*ENGINE_DEFS*/", () => defs).replace("/*ENGINE_RUN*/", () => run)   // function replacers: the SQL contains $$ / $f$
       .replace("/*VARIANT_NOTE*/\n", () => "").replace("/*FORCE_ROLLBACK*/", () => "false").replace("/*END_OF_TRANSACTION*/\n", () => "commit;   -- reached only if every assertion above passed\n");
     expect(exec).toBe(generated);
-    expect(readFileSync("docs/uat/production-cleanup-v2.sql", "utf8")).toBe(generated.split("\n").join("\r\n"));   // checked in with CRLF, like the generator writes it
+    // Line endings are not compared here: git stores these files with LF, and a Windows checkout may show CRLF. The content (exec, already normalised) is what must match.
   });
   it("derives the diagnostic variant from the same text: only the mode flag, a banner and the final statement differ", () => {
     const variant = read("docs/uat/production-cleanup-v2-diagnostic.sql");
@@ -46,7 +46,6 @@ describe("production-cleanup-v2.sql is reproducible from committed source", () =
       .replace("insert into _diag_cfg values (true);", () => "insert into _diag_cfg values (false);")
       .replace(/do \$diag_end\$[\s\S]*?end \$diag_end\$;\n/, () => "commit;   -- reached only if every assertion above passed\n");
     expect(normalised).toBe(exec);
-    expect(readFileSync("docs/uat/production-cleanup-v2-diagnostic.sql", "utf8")).toContain("\r\n");
   });
   it("is what scripts/release/build-cleanup-v2.py --check reports (skipped when python is unavailable)", () => {
     const py = ["python", "python3"].map((cmd) => spawnSync(cmd, ["scripts/release/build-cleanup-v2.py", "--check"], { encoding: "utf8" })).find((r) => !r.error);
