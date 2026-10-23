@@ -38,7 +38,7 @@ export const SPONSOR_TYPES = [
 
 export const INSTITUTION_TYPES = ["Public school", "Private school", "Group of schools", "Education office / authority", "Other organization"] as const;
 
-export const ENQUIRY_TYPES = ["General enquiry", "Sponsor enquiry", "School / institution enquiry", "SME enquiry", "Account support"] as const;
+export const ENQUIRY_TYPES = ["General enquiry", "Sponsor enquiry", "School / institution enquiry", "SME enquiry", "Account support", "Payment or refund"] as const;
 
 export function isIntakeAvailable(kind: InterestKind): boolean {
   return INTAKE_STATUS[kind] !== "STORAGE_REQUIRED";
