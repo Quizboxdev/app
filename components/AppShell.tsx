@@ -172,6 +172,7 @@ export default function AppShell({
         ...when(sme?.super_admin, [["/admin/young-learners", "Young learners (privacy)"]]),
         ...when(sme?.super_admin, [["/admin/access", "Access & Subscriptions"]]),
         ["/admin/pricing", "Prices"],
+        ["/admin/refunds", "Refunds"],
       ]);
       add("Marketplace", [["/marketplace", "Catalogue"], ...seller]);
       return groups;

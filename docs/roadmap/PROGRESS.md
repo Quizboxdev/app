@@ -303,3 +303,5 @@ Design canvas: https://claude.ai/artifact/8JyB9ENBGKYpV1ZfGmke7n (5 pages, 19 ar
 - 2026-10-22: delivery 33: Pay buttons for the Coin ladder. The checkout now sells any learner plan on the price list (plan_weekly, plan_monthly, plan_term, plan_yearly) by its code, computing the price on the server as Coins x unit price; the Subscribe page shows Pay for a card with Coins and days once payments are on; Weekly is labelled per week. Older plan names still work. No database change. 15 tests, build clean. Needs Admin, Access and Subscriptions: Coin price 1 and Switch payments on.
 
 - 2026-10-21 In-app Challenges no longer drops a signed-in user onto the public site: new /open page (challenges and competitions to join) inside the app, carousel and My challenges link straight to /play/<slug>, and the public header shows "Open my workspace" when a session exists.
+
+- 2026-10-23 Delivery 34: refund tools in Admin (Refunds), refund policy at /refunds, payment refusals with support codes, plan for policies CMS, Help centre and support tickets (docs/roadmap/POLICY_HELP_SUPPORT_PLAN.md). Refund database change waits for the owner to apply (docs/release/APPLY_REFUNDS.md).

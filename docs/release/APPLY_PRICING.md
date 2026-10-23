@@ -14,7 +14,7 @@ select code, audience, period, price_minor, active from public.price_list order 
 ```
 
 ## 2. Set prices and payment links
-Sign in as owner or admin, open Admin, then Prices. For each card: type the price in cedis, paste the payment link from your gateway (it must start with https://), tick "Show on the pricing page", Save. The preview at the bottom shows exactly what visitors see. Empty price shows "Price to be announced"; 0 shows "Free".
+Sign in as owner or admin, open Admin, then Prices. For each card: set the Coins (the cedi price follows: 1 Coin = GHS 1), tick "Show on the pricing page", Save. Leave the payment link empty: card and mobile-money plans use QuizBox's own checkout, which records who paid. A link is only for invoice or hand-confirmed sales (it must start with https://). The preview at the bottom shows exactly what visitors see. Empty price shows "Price to be announced"; 0 shows "Free".
 
 ## Rules
 - A payment link is shown only when the price is above zero. A link opens the gateway but cannot say who paid: activate those buyers under Access and Subscriptions. For learner plans, leave the link empty to keep using the secure checkout that records who paid.
