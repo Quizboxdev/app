@@ -7,8 +7,8 @@ Requested by the owner on 2026-10-23. Sign-off on every document: **QuizBox Solu
 | Phase | What | State |
 |---|---|---|
 | 1 | Refund tools in Admin (find payment, credit duplicate as Coins, record outcome, case list) | Built, tested, applied by the owner 2026-10-23 |
-| 2 | Policy section (a small CMS) and acknowledgement | Built and tested (20 database tests, renderer and upload tests); needs the database change applied (`docs/release/APPLY_POLICIES.md`) |
-| 3 | Support tickets, and the contact form with upload | After 2 |
+| 2 | Policy section (a small CMS) and acknowledgement | Built, tested, applied by the owner 2026-10-23 (company details and version 1 drafts in place; publishing is the owner's step) |
+| 3 | Support tickets, and the contact form with upload | Built and tested (11 database tests, 7 route tests, file checks); needs the database change applied (`docs/release/APPLY_SUPPORT.md`) |
 | 4 | Help centre with search and guides | After 3 (articles can be drafted in parallel) |
 | 5 | Terms of Use, Privacy Notice, Cookie notice, Refund policy as version 1 in the CMS | Drafted as version 1 drafts (migration 20261037100000); the owner fills the company details, reads them and publishes. Lawyer review recommended |
 

@@ -2,9 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import PublicShell from "@/components/public/PublicShell";
 import PageIntro from "@/components/public/PageIntro";
-import InterestForm from "@/components/public/InterestForm";
+import SupportContactForm from "@/components/public/SupportContactForm";
 import { PUBLIC_LINKS } from "@/components/public/links";
-import { ENQUIRY_TYPES } from "@/lib/public/intake";
 
 export const metadata: Metadata = { title: "Contact | QuizBox", description: "Contact QuizBox about sponsorship, schools, subject expert applications or general enquiries." };
 
@@ -15,7 +14,8 @@ const ROUTES = [
   { title: "Account support", text: "Trouble signing in? Reset your password.", href: "/auth/forgot-password", cta: "Reset password" },
 ];
 
-export default function ContactPage() {
+export default async function ContactPage({ searchParams }: { searchParams: Promise<{ type?: string }> }) {
+  const initialType = (await searchParams).type;
   return (
     <PublicShell>
       <PageIntro crumb="Contact" title="Contact QuizBox" lead="Choose the route that fits your enquiry." />
@@ -30,19 +30,9 @@ export default function ContactPage() {
           ))}
         </div>
         <div className="qbp-card" style={{ maxWidth: 820 }}>
-          <h2 className="qbp-h3">General enquiry</h2>
-          <InterestForm
-            kind="contact"
-            submitLabel="Send enquiry"
-            consentLabel="I agree that QuizBox may use these details to respond to my enquiry."
-            fields={[
-              { name: "name", label: "Full name", type: "text", required: true, autoComplete: "name" },
-              { name: "email", label: "Email", type: "email", required: true, autoComplete: "email" },
-              { name: "enquiry_type", label: "Enquiry type", type: "select", options: ENQUIRY_TYPES, required: true },
-              { name: "country", label: "Country", type: "text", required: true, autoComplete: "country-name" },
-              { name: "message", label: "Message", type: "textarea", required: true },
-            ]}
-          />
+          <h2 className="qbp-h3">Send us a message</h2>
+          <p className="qbp-meta">For general questions, account help, and payments or refunds. You can attach screenshots or a PDF. Sponsors, schools and subject experts: please use the forms above.</p>
+          <SupportContactForm initialType={initialType} />
         </div>
       </section>
     </PublicShell>

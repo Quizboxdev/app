@@ -97,10 +97,10 @@ export default function AppShell({
     if (isSeller && ["TEACHER", "ADMIN", "OWNER"].includes(role)) {
       allowedPrefixes.push("/seller");
     }
-    allowedPrefixes.push("/account", "/notifications", "/school", "/play", "/open", "/drafts");
+    allowedPrefixes.push("/account", "/notifications", "/school", "/play", "/open", "/drafts", "/support");
     if (sme?.reviewer || sme?.content_admin || sme?.super_admin) allowedPrefixes.push("/review");
     if (sme?.super_admin) allowedPrefixes.push("/admin/markets", "/admin/reviewers", "/admin/compensation", "/admin/policies");
-    if (sme?.super_admin || sme?.sme_support) allowedPrefixes.push("/admin/inbox", "/admin/reviewer-applications");
+    if (sme?.super_admin || sme?.sme_support) allowedPrefixes.push("/admin/inbox", "/admin/reviewer-applications", "/admin/tickets");
     if (sme?.super_admin || sme?.finance_admin) allowedPrefixes.push("/admin/sme-performance", "/admin/payouts");
 
     const isAllowed = allowedPrefixes.some(
@@ -125,9 +125,9 @@ export default function AppShell({
     const add = (label: string, items: NavItem[]) => { if (items.length) groups.push({ label, items }); };
     // Non-admin accounts can still hold SME super-admin or finance duties.
     const administration: NavItem[] = [
-      ...when(sme?.super_admin, [["/admin/markets", "Markets"], ["/admin/curriculum-sources", "Curriculum Sources"], ["/admin/reviewers", "Reviewers"], ["/admin/compensation", "Compensation"], ["/admin/policies", "Policies"]]),
+      ...when(sme?.super_admin, [["/admin/markets", "Markets"], ["/admin/curriculum-sources", "Curriculum Sources"], ["/admin/reviewers", "Reviewers"], ["/admin/compensation", "Compensation"], ["/admin/policies", "Policies"], ["/admin/tickets", "Support requests"]]),
       ...when(sme?.super_admin || sme?.finance_admin, [["/admin/sme-performance", "SME Performance"], ["/admin/payouts", "Payouts"]]),
-      ...when(sme?.sme_support && !sme?.super_admin, [["/admin/inbox", "Enquiry Inbox"], ["/admin/reviewer-applications", "Reviewer Applications"]]),
+      ...when(sme?.sme_support && !sme?.super_admin, [["/admin/inbox", "Enquiry Inbox"], ["/admin/tickets", "Support requests"], ["/admin/reviewer-applications", "Reviewer Applications"]]),
     ];
 
     if (inSchool) {
@@ -173,6 +173,7 @@ export default function AppShell({
         ...when(sme?.super_admin, [["/admin/young-learners", "Young learners (privacy)"]]),
         ...when(sme?.super_admin, [["/admin/access", "Access & Subscriptions"]]),
         ["/admin/pricing", "Prices"],
+        ["/admin/tickets", "Support requests"],
         ["/admin/refunds", "Refunds"],
         ["/admin/policies", "Policies"],
       ]);
@@ -335,6 +336,7 @@ export default function AppShell({
               <strong>{name}</strong>
               <span className="qb-muted">{role}</span>
             </div>
+            <Link className="qb-btn secondary qb-account-link" href="/support"><LifeBuoy size={16} aria-hidden="true" />Support</Link>
             <Link className="qb-btn secondary qb-account-link" href="/account"><CircleUser size={16} aria-hidden="true" />Account</Link>
             <button
               className="qb-btn ghost"

@@ -32,7 +32,7 @@ function RefundsFallback() {
           <ol>
             <li>Open the <Link className="qbp-link" href="/contact">contact page</Link> and choose <strong>Payment or refund</strong> as the enquiry type.</li>
             <li>Give the email on your QuizBox account, the Paystack reference, the date and the amount, and what went wrong.</li>
-            <li>For a duplicate charge, include the evidence described above. If you need to send a screenshot, we will tell you how when we reply.</li>
+            <li>For a duplicate charge, include the evidence described above. You can attach screenshots or a statement to the contact form.</li>
           </ol>
           <p>We decide within <strong>3 working days</strong> and tell you by email. If a cash refund is approved, it is sent through Paystack to the way you paid. How long it takes to reach you depends on your bank or mobile-money provider.</p>
 
