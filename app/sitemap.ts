@@ -3,6 +3,9 @@ import { PUBLIC_PATHS, SITE_URL } from "@/lib/site";
 import { listPublicChallenges } from "@/lib/challenges/server";
 import { getHelpList } from "@/lib/help/server";
 
+// Rebuilt at most once an hour, so a new challenge or Help guide appears without a new deployment.
+export const revalidate = 3600;
+
 // Public pages plus every live public challenge. Private, unlisted and draft campaigns never appear: the database only returns live public ones.
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const pages: MetadataRoute.Sitemap = PUBLIC_PATHS.map((path) => ({
