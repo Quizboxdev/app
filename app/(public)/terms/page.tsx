@@ -1,15 +1,9 @@
-import type { Metadata } from "next";
 import LegalPlaceholder from "@/components/public/LegalPlaceholder";
+import PolicyRoute, { policyMetadata } from "@/components/policies/PolicyRoute";
 
-// LEGAL_CONTENT_REQUIRED: publication blocked until approved terms of use are supplied.
-export const metadata: Metadata = { title: "Terms | QuizBox", robots: { index: false, follow: true } };
-
-export default function TermsPage() {
-  return (
-    <LegalPlaceholder
-      title="Terms of use"
-      crumb="Terms"
-      notice="QuizBox's full terms of use are being finalized. Please contact us for questions about platform use."
-    />
-  );
+// The text comes from Admin, Policies. Until a version is published there, this notice shows and the page stays out of search results.
+type Props = { searchParams: Promise<{ v?: string }> };
+export const generateMetadata = ({ searchParams }: Props) => policyMetadata("terms", "Terms", searchParams);
+export default function TermsPage({ searchParams }: Props) {
+  return <PolicyRoute slug="terms" searchParams={searchParams} fallback={<LegalPlaceholder title="Terms of use" crumb="Terms" notice="QuizBox's full terms of use are being finalized. Please contact us for questions about platform use." />} />;
 }

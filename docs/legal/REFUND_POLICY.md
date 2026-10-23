@@ -15,11 +15,11 @@ Source of truth for `/refunds` (`app/(public)/refunds/page.tsx`). Decisions by t
 ## Points to confirm
 1. **Change of mind on an unused purchase** (a normal payment that was applied but never used) is not covered by the decisions above, so the page says nothing about it. Decide whether it is refundable inside 7 days.
 2. **Evidence upload.** The contact form has no file upload, so the page tells buyers to describe the charges and says we will explain how to send a screenshot. A dedicated refund form with upload is a separate build.
-3. **Crediting the extra as Coins has no admin tool yet.** The database has an internal ledger helper (`quizbox_core.post_coin`) and `qb_admin_grant_subscription` (grants a plan), but no owner-callable function that adds Coins to an account, with an audit-log entry and a reference to the original payment. Build and test one (with a migration, rollback and paste command) before the first duplicate-charge request, or the policy cannot be honoured. Until then, the only workaround is to grant a plan of equal value with `qb_admin_grant_subscription`.
+3. **Crediting the extra as Coins** is built: Admin, Operations, Refunds (migration 20261035100000, `docs/release/APPLY_REFUNDS.md`).
 4. **Terms and Privacy** are still placeholders marked "legal content required". A lawyer should review this page together with them.
 
 ## Operating the process (for the owner)
 1. A request arrives through the contact form. Find the payment in Admin, Online payments, by reference.
-2. Duplicate: confirm both charges in the Paystack dashboard, credit the extra Coins (needs the tool in point 3), reply by email.
+2. Duplicate: confirm both charges in the Paystack dashboard, credit the extra Coins (Admin, Refunds), reply by email.
 3. Unapplied: apply the payment. If that is impossible and no Coins were used, refund from the Paystack dashboard. The site ends any granted plan automatically when Paystack reports the refund.
 4. Reply within 3 working days.

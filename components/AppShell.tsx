@@ -17,6 +17,7 @@ import { loginHrefFor } from "@/lib/auth/next-path";
 import WorkspaceChip from "@/components/WorkspaceChip";
 import { SponsorEngineProvider } from "@/components/SponsorEngineFlag";
 import DraftReminder from "@/components/DraftReminder";
+import PolicyGate from "@/components/policies/PolicyGate";
 import SponsoredCarousel from "@/components/challenges/SponsoredCarousel";
 
 type NavItem = [string, string];
@@ -98,7 +99,7 @@ export default function AppShell({
     }
     allowedPrefixes.push("/account", "/notifications", "/school", "/play", "/open", "/drafts");
     if (sme?.reviewer || sme?.content_admin || sme?.super_admin) allowedPrefixes.push("/review");
-    if (sme?.super_admin) allowedPrefixes.push("/admin/markets", "/admin/reviewers", "/admin/compensation");
+    if (sme?.super_admin) allowedPrefixes.push("/admin/markets", "/admin/reviewers", "/admin/compensation", "/admin/policies");
     if (sme?.super_admin || sme?.sme_support) allowedPrefixes.push("/admin/inbox", "/admin/reviewer-applications");
     if (sme?.super_admin || sme?.finance_admin) allowedPrefixes.push("/admin/sme-performance", "/admin/payouts");
 
@@ -124,7 +125,7 @@ export default function AppShell({
     const add = (label: string, items: NavItem[]) => { if (items.length) groups.push({ label, items }); };
     // Non-admin accounts can still hold SME super-admin or finance duties.
     const administration: NavItem[] = [
-      ...when(sme?.super_admin, [["/admin/markets", "Markets"], ["/admin/curriculum-sources", "Curriculum Sources"], ["/admin/reviewers", "Reviewers"], ["/admin/compensation", "Compensation"]]),
+      ...when(sme?.super_admin, [["/admin/markets", "Markets"], ["/admin/curriculum-sources", "Curriculum Sources"], ["/admin/reviewers", "Reviewers"], ["/admin/compensation", "Compensation"], ["/admin/policies", "Policies"]]),
       ...when(sme?.super_admin || sme?.finance_admin, [["/admin/sme-performance", "SME Performance"], ["/admin/payouts", "Payouts"]]),
       ...when(sme?.sme_support && !sme?.super_admin, [["/admin/inbox", "Enquiry Inbox"], ["/admin/reviewer-applications", "Reviewer Applications"]]),
     ];
@@ -173,6 +174,7 @@ export default function AppShell({
         ...when(sme?.super_admin, [["/admin/access", "Access & Subscriptions"]]),
         ["/admin/pricing", "Prices"],
         ["/admin/refunds", "Refunds"],
+        ["/admin/policies", "Policies"],
       ]);
       add("Marketplace", [["/marketplace", "Catalogue"], ...seller]);
       return groups;
@@ -352,7 +354,7 @@ export default function AppShell({
           <SponsorEngineProvider value={sponsorEngine}><WorkspaceProvider>
             <div className="qb-context-bar"><WorkspaceChip/><MarketContextControl/></div>
             <DraftReminder />
-            {children}
+            <PolicyGate>{children}</PolicyGate>
           </WorkspaceProvider></SponsorEngineProvider>
         </div>
 

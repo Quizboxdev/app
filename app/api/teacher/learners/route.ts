@@ -38,6 +38,7 @@ export async function POST(request: Request) {
       if (made.error || !made.data.user) { if (/already|registered|exists/i.test(made.error?.message ?? "")) continue; failed.push({ name: first, reason: "Could not create the sign-in." }); break; }
       const provisioned = await svc.rpc("qb_managed_learner_provision", { p_teacher: who.user.id, p_class: classId, p_user: made.data.user.id, p_first_name: first, p_username: username, p_consent_ref: consentRef });
       if (provisioned.error) { await svc.auth.admin.deleteUser(made.data.user.id); failed.push({ name: first, reason: "Could not finish setting up the account." }); break; }   // nothing half-created
+      await svc.rpc("qb_policy_record_for_managed", { p_learner: made.data.user.id, p_teacher: who.user.id });   // the teacher accepts the live policies for the child; best effort, never blocks the account
       created.push({ first_name: first, username, password }); done = true;
     }
     if (!done && !failed.some((f) => f.name === first)) failed.push({ name: first, reason: "Please try this name again." });

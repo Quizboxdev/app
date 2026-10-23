@@ -8,7 +8,7 @@ src, out = pathlib.Path(sys.argv[1]), pathlib.Path(sys.argv[2])
 prefix = sys.argv[3] if len(sys.argv) > 3 else "part"
 # Parts are pasted one at a time, so a begin; in one part and a commit; in another would roll the first part back: drop both.
 lines = [l for l in src.read_text(encoding="utf-8").split("\n") if l.strip().lower() not in ("begin;", "commit;")]
-starts = [i for i, l in enumerate(lines) if re.match(r"^(create or replace function|create table|create index|drop function|revoke all|grant execute|alter table|do \$do\$|-- \d+\.)", l)]
+starts = [i for i, l in enumerate(lines) if re.match(r"^(create or replace function|create table|create index|create unique index|create trigger|drop trigger|drop function|revoke all|grant execute|alter table|insert into|do \$do\$|-- \d+\.)", l)]
 chunks, prev = [], 0
 for s in starts[1:] + [len(lines)]:
     chunks.append("\n".join(lines[prev:s])); prev = s

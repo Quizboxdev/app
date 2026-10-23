@@ -1,13 +1,15 @@
-import type { Metadata } from "next";
 import Link from "next/link";
 import PublicShell from "@/components/public/PublicShell";
 import PageIntro from "@/components/public/PageIntro";
+import PolicyRoute, { policyMetadata } from "@/components/policies/PolicyRoute";
 
 // Refund terms as decided by the owner on 2026-10-23: 7-day window; duplicate charges are credited back as Coins; a payment that was never applied to an account is refunded in cash
 // only if none of its Coins were used; requests by the contact form, answered within 3 working days. Keep this page and docs/legal/REFUND_POLICY.md in step.
-export const metadata: Metadata = { title: "Refund policy | QuizBox", description: "How refunds, duplicate charges and unapplied payments are handled on QuizBox." };
+// Once a Refund Policy is published in Admin, Policies, that text is shown instead of the built-in text below.
+type Props = { searchParams: Promise<{ v?: string }> };
+export const generateMetadata = ({ searchParams }: Props) => policyMetadata("refunds", "Refund policy", searchParams);
 
-export default function RefundsPage() {
+function RefundsFallback() {
   return (
     <PublicShell>
       <PageIntro crumb="Refund policy" title="Refund policy" lead="What happens if you are charged twice, or a payment does not reach your account." />
@@ -42,4 +44,8 @@ export default function RefundsPage() {
       </section>
     </PublicShell>
   );
+}
+
+export default function RefundsPage({ searchParams }: Props) {
+  return <PolicyRoute slug="refunds" searchParams={searchParams} fallback={<RefundsFallback />} />;
 }

@@ -305,3 +305,5 @@ Design canvas: https://claude.ai/artifact/8JyB9ENBGKYpV1ZfGmke7n (5 pages, 19 ar
 - 2026-10-21 In-app Challenges no longer drops a signed-in user onto the public site: new /open page (challenges and competitions to join) inside the app, carousel and My challenges link straight to /play/<slug>, and the public header shows "Open my workspace" when a session exists.
 
 - 2026-10-23 Delivery 34: refund tools in Admin (Refunds), refund policy at /refunds, payment refusals with support codes, plan for policies CMS, Help centre and support tickets (docs/roadmap/POLICY_HELP_SUPPORT_PLAN.md). Refund database change waits for the owner to apply (docs/release/APPLY_REFUNDS.md).
+
+- 2026-10-23 Delivery 35: Policies section, acknowledgement, version 1 drafts of Terms/Privacy/Cookies/Refunds (docs/release/APPLY_POLICIES.md). Phase 3 (support tickets, contact upload) and Phase 4 (Help centre) next.
