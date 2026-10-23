@@ -2,6 +2,7 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import StatusBadge from "@/components/StatusBadge";
+import HelpLink from "@/components/help/HelpLink";
 import { formatDateTime, isUuid } from "@/lib/format";
 import { bootstrapUser } from "@/lib/auth";
 import { getStudentClassroom, joinClass } from "@/lib/api/student";
@@ -52,6 +53,7 @@ export default function StudentClassroomPage() {
           <h1>Classroom</h1>
           <p>Your joined classes and teacher assignments.</p>
         </div>
+        <HelpLink slug="join-a-class" label="How to join a class" />
       </div>
 
       <form className="qb-card qb-form" onSubmit={submitJoin}>

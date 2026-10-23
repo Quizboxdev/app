@@ -1,5 +1,6 @@
 "use client";
 
+import HelpLink from "@/components/help/HelpLink";
 import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -62,7 +63,7 @@ function Studio() {
 
   return (
     <>
-      <div className="qb-page-head"><div><h1>{id ? `Set up your ${noun}` : `Start a ${noun}`}</h1><p>Step {Math.max(1, visibleSteps.findIndex(({ i }) => i === step) + 1)} of {visibleSteps.length}: {STEPS[step]}</p></div><div><Link className="qb-link" href={format === "COMPETITION" ? "/creator?format=competition" : "/creator"}>My {fmt.plural}</Link></div></div>
+      <div className="qb-page-head"><div><h1>{id ? `Set up your ${noun}` : `Start a ${noun}`}</h1><p>Step {Math.max(1, visibleSteps.findIndex(({ i }) => i === step) + 1)} of {visibleSteps.length}: {STEPS[step]}</p><HelpLink slug={format === "COMPETITION" ? "create-a-competition" : "create-a-challenge"} label="Guide: how this works" /></div><div><Link className="qb-link" href={format === "COMPETITION" ? "/creator?format=competition" : "/creator"}>My {fmt.plural}</Link></div></div>
       <ol aria-label="Steps" style={{ display: "flex", gap: 6, flexWrap: "wrap", padding: 0, listStyle: "none", margin: "0 0 12px" }}>
         {visibleSteps.map(({ s, i }) => <li key={s} aria-current={i === step ? "step" : undefined} className="qb-pill" style={{ opacity: i <= step ? 1 : 0.5, fontWeight: i === step ? 700 : 400 }}>{i + 1}. {s}</li>)}
       </ol>

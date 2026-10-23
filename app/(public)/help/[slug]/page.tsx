@@ -1,0 +1,27 @@
+import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import PublicShell from "@/components/public/PublicShell";
+import PageIntro from "@/components/public/PageIntro";
+import HelpArticleView from "@/components/help/HelpArticleView";
+import { getHelpArticle } from "@/lib/help/server";
+import { SITE_URL } from "@/lib/site";
+
+export const revalidate = 60;
+type Props = { params: Promise<{ slug: string }> };
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const d = await getHelpArticle((await params).slug);
+  if (!d) return { title: "Help | QuizBox", robots: { index: false, follow: true } };
+  return { title: `${d.article.title} | QuizBox Help`, description: d.article.summary, alternates: { canonical: `${SITE_URL}/help/${d.article.slug}` } };
+}
+
+export default async function HelpArticlePage({ params }: Props) {
+  const d = await getHelpArticle((await params).slug);
+  if (!d) notFound();
+  return (
+    <PublicShell>
+      <PageIntro crumb="Help" title={d.article.title} lead={d.article.summary} />
+      <section className="qbp-wrap" style={{ paddingBottom: 64 }} data-qb-section="help-article"><HelpArticleView detail={d} inApp={false} /></section>
+    </PublicShell>
+  );
+}

@@ -27,14 +27,18 @@ export function parseBlocks(source: string): Block[] {
   return out;
 }
 
-const SAFE_LINK = /^(https?:\/\/|mailto:|\/(?!\/))/i;
-export function inline(text: string, keyBase = "i"): ReactNode[] {
+const SAFE_LINK = /^(https?:\/\/|mailto:|help:[a-z0-9-]+$|\/(?!\/))/i;
+export type LinkOptions = { helpBase?: string; linkClass?: string };
+export function inline(text: string, keyBase = "i", opts: LinkOptions = {}): ReactNode[] {
   const nodes: ReactNode[] = [], re = /\*\*(.+?)\*\*|\[([^\]]+)\]\(([^)\s]+)\)/g;
   let last = 0, m: RegExpExecArray | null, n = 0;
   while ((m = re.exec(text))) {
     if (m.index > last) nodes.push(text.slice(last, m.index));
     if (m[1] !== undefined) nodes.push(<strong key={`${keyBase}${n++}`}>{m[1]}</strong>);
-    else if (SAFE_LINK.test(m[3])) { const external = /^https?:/i.test(m[3]); nodes.push(<a key={`${keyBase}${n++}`} className="qbp-link" href={m[3]} {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}>{m[2]}</a>); }
+    else if (SAFE_LINK.test(m[3])) {
+      const external = /^https?:/i.test(m[3]), href = m[3].startsWith("help:") ? `${opts.helpBase ?? "/help"}/${m[3].slice(5)}` : m[3];   // help:slug points at another guide
+      nodes.push(<a key={`${keyBase}${n++}`} className={opts.linkClass ?? "qbp-link"} href={href} {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}>{m[2]}</a>);
+    }
     else nodes.push(m[2]);                                   // an unsafe address is shown as plain words, not as a link
     last = m.index + m[0].length;
   }
@@ -45,14 +49,15 @@ export function inline(text: string, keyBase = "i"): ReactNode[] {
 export const slugOf = (text: string) => text.toLowerCase().replace(/\*\*|\[|\]\([^)]*\)/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 60);
 export const headingsOf = (source: string) => parseBlocks(source).filter((b): b is Extract<Block, { kind: "h" }> => b.kind === "h" && b.level === 2).map((b) => ({ text: b.text.replace(/\*\*/g, ""), id: slugOf(b.text) }));
 
-export function RenderText({ source }: { source: string }) {
+export function RenderText({ source, helpBase, linkClass }: { source: string } & LinkOptions) {
+  const opts = { helpBase, linkClass };
   return (
     <>
       {parseBlocks(source).map((b, i) => {
-        if (b.kind === "h") { const Tag = (`h${b.level + 1}` as "h2" | "h3" | "h4"); return <Tag key={i} id={slugOf(b.text)}>{inline(b.text, `h${i}`)}</Tag>; }   // the page title is the h1, so # becomes h2
-        if (b.kind === "ul") return <ul key={i}>{b.items.map((t, j) => <li key={j}>{inline(t, `u${i}${j}`)}</li>)}</ul>;
-        if (b.kind === "ol") return <ol key={i}>{b.items.map((t, j) => <li key={j}>{inline(t, `o${i}${j}`)}</li>)}</ol>;
-        return <p key={i}>{inline(b.text, `p${i}`)}</p>;
+        if (b.kind === "h") { const Tag = (`h${b.level + 1}` as "h2" | "h3" | "h4"); return <Tag key={i} id={slugOf(b.text)}>{inline(b.text, `h${i}`, opts)}</Tag>; }   // the page title is the h1, so # becomes h2
+        if (b.kind === "ul") return <ul key={i}>{b.items.map((t, j) => <li key={j}>{inline(t, `u${i}${j}`, opts)}</li>)}</ul>;
+        if (b.kind === "ol") return <ol key={i}>{b.items.map((t, j) => <li key={j}>{inline(t, `o${i}${j}`, opts)}</li>)}</ol>;
+        return <p key={i}>{inline(b.text, `p${i}`, opts)}</p>;
       })}
     </>
   );

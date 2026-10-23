@@ -4,4 +4,4 @@
 export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || "https://quizbox.io").replace(/\/+$/, "");
 
 // Public, indexable marketing and legal pages. Everything else (workspaces, auth, onboarding) is private.
-export const PUBLIC_PATHS = ["/", "/join/country", "/join/school", "/join/sme", "/join/sponsor", "/pricing", "/contact", "/privacy", "/terms", "/refunds", "/cookies"] as const;
+export const PUBLIC_PATHS = ["/", "/join/country", "/join/school", "/join/sme", "/join/sponsor", "/pricing", "/contact", "/privacy", "/terms", "/refunds", "/cookies", "/help"] as const;

@@ -21,6 +21,7 @@ export const PUBLIC_LINKS = {
   terms: "/terms",
   refunds: "/refunds",
   cookies: "/cookies",
+  help: "/help",
   // /competition is an authenticated workspace route; anonymous visitors sign in first.
   competitions: "/login",
 } as const;

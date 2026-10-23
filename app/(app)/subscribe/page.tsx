@@ -7,6 +7,7 @@ import { Check } from "lucide-react";
 import BrandBanner from "@/components/BrandBanner";
 import { getMyAccess, type MyAccess } from "@/lib/api/access";
 import { getCatalog, startCheckout, type Catalog } from "@/lib/api/payments";
+import HelpLink from "@/components/help/HelpLink";
 import { PLANS, planPriceMinor } from "@/lib/payments/plans";
 import PricingCards from "@/components/pricing/PricingCards";
 import { listPrices } from "@/lib/api/pricing";
@@ -53,7 +54,7 @@ function SubscribeInner() {
         <p>{returned ? "We are confirming your payment." : reason === "free_used" || access?.exhausted
           ? "Well done on the practice so far. Subscribe to keep building your own practice sessions with no limit."
           : "Unlimited practice across all subjects for your grade."}</p>
-      </div></div>
+      </div><HelpLink slug="subscribe-and-coins" label="How Coins and paying work" /></div>
 
       {error && <div id="pay-error" className="qb-card qb-error" role="alert">{error}{errorCode && <span className="qb-muted qb-small" style={{ display: "block", marginTop: 4 }}>Support code: {errorCode}</span>}</div>}
       {access?.subscribed && <div className="qb-card" role="status"><strong>You are subscribed{(access as any).subscription_until ? ` until ${formatDate((access as any).subscription_until)}` : ""}.</strong> <Link href="/practise">Go to Practise</Link></div>}

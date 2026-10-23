@@ -1,5 +1,6 @@
 "use client";
 
+import HelpLink from "@/components/help/HelpLink";
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { discardDraft, keepDraft, listDrafts, type DraftRow } from "@/lib/api/drafts";
@@ -14,7 +15,7 @@ export default function DraftsPage() {
   async function act(id: string, work: () => Promise<unknown>) { setBusy(id); setError(""); try { await work(); await load(); } catch { setError("That did not work. Please try again."); } setBusy(""); }
   return (
     <>
-      <div className="qb-page-head"><div><h1>Unfinished work</h1><p>Whatever you were setting up is saved here so you can finish it. Each draft is deleted 24 hours after your last change, and you are warned two hours before.</p></div></div>
+      <div className="qb-page-head"><div><h1>Unfinished work</h1><p>Whatever you were setting up is saved here so you can finish it. Each draft is deleted 24 hours after your last change, and you are warned two hours before.</p></div><HelpLink slug="unfinished-work" label="How drafts work" /></div>
       {error && <div className="qb-card qb-error" role="alert">{error}</div>}
       <div className="qb-card">
         {rows === null ? <p className="qb-muted">Loading…</p> : rows.length === 0 ? <div className="qb-empty"><strong>Nothing unfinished</strong>When you start something and leave before finishing, it appears here.</div> : (
