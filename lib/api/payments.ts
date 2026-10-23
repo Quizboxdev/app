@@ -30,6 +30,18 @@ export async function startTopup(coins: number, returnTo: string): Promise<{ url
   return { url: String(body.url) };
 }
 
+// Back from the payment page: ask the server to check with Paystack how the payment ended, in case the webhook has not arrived. Safe to call more than once; it never throws.
+export async function confirmReturn(reference: string): Promise<"confirmed" | "pending" | "failed" | "unknown"> {
+  try {
+    const { data } = await getSupabaseBrowserClient().auth.getSession();
+    const token = data.session?.access_token;
+    if (!token) return "unknown";
+    const res = await fetch("/api/payments/confirm", { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ reference }) });
+    const body = await res.json().catch(() => ({}));
+    return ["confirmed", "pending", "failed", "unknown"].includes(body?.state) ? body.state : "pending";
+  } catch { return "pending"; }
+}
+
 export type PaymentRow = { reference: string; status: string; provider: string; method: string; amount_minor: number; currency: string; coins: number; plan: string | null;
   reconciliation: string; learner: string; created_at: string; settled_at: string | null };
 export async function listPayments(limit = 50): Promise<PaymentRow[]> {

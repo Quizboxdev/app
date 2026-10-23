@@ -4,6 +4,7 @@ import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { cedis, day, myPurchases, sourceLine, type Purchase } from "@/lib/api/marketplace";
+import { confirmReturn } from "@/lib/api/payments";
 
 // The question sets a person has bought. A set stays here for 90 days; the days left are shown. Paystack sends the buyer back to this page after paying, and the sale is recorded
 // a moment later, so the page checks a few times before saying it is taking longer than usual.
@@ -13,7 +14,8 @@ function Mine() {
   const tries = useRef(0), before = useRef<number | null>(null);
 
   const load = useCallback(() => myPurchases().then((r) => { setRows(r); return r; }).catch((e) => { setError(e.message); return null; }), []);
-  useEffect(() => { void load(); }, [load]);
+  // Back from paying: ask Paystack directly (in case the webhook is slow). If it says the payment is confirmed, the sale is recorded and there is nothing left to wait for.
+  useEffect(() => { void (reference ? confirmReturn(reference).then((state) => { if (state === "confirmed") setWaiting(false); return load(); }) : load()); }, [load, reference]);
   useEffect(() => {
     if (!waiting || rows === null) return;
     if (before.current === null) before.current = rows.filter((r) => r.active).length;
