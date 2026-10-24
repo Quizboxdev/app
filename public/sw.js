@@ -44,7 +44,7 @@ self.addEventListener("fetch", (event) => {
 // Push: the server sends a short title and message that are already safe to show on a lock screen. A link is only followed when it stays inside the app.
 self.addEventListener("push", (event) => {
   let data = {};
-  try { data = event.data ? event.data.json() : {}; } catch (e) { data = {}; }
+  try { data = event.data ? event.data.json() : {}; } catch { data = {}; }
   const title = typeof data.title === "string" && data.title ? data.title.slice(0, 80) : "QuizBox";
   const body = typeof data.body === "string" ? data.body.slice(0, 160) : "";
   const link = typeof data.url === "string" && /^\/[A-Za-z0-9/_\-?=&.]*$/.test(data.url) ? data.url : "/";
