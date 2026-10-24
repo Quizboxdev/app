@@ -304,6 +304,8 @@ Design canvas: https://claude.ai/artifact/8JyB9ENBGKYpV1ZfGmke7n (5 pages, 19 ar
 
 - 2026-10-21 In-app Challenges no longer drops a signed-in user onto the public site: new /open page (challenges and competitions to join) inside the app, carousel and My challenges link straight to /play/<slug>, and the public header shows "Open my workspace" when a session exists.
 
+- 2026-10-23 Live payments confirmed by the owner: a real GHS 5 payment completed and was received through Paystack (live key in the `quizbox` Vercel project). Cause of the earlier "not open yet" / "not sold online" messages: environment variables split across two Vercel projects, and a stale service-role key. `main` and `release/public-homepage-hardening` replaced by clean commit 49f9ff5 (Challenges link fix, price-list logging); the earlier commit that included question-bank scratch files was removed. Independent audit documents are on branch audit/2026-10-21-independent-review (not yet a pull request).
+
 - 2026-10-23 Delivery 34: refund tools in Admin (Refunds), refund policy at /refunds, payment refusals with support codes, plan for policies CMS, Help centre and support tickets (docs/roadmap/POLICY_HELP_SUPPORT_PLAN.md). Refund database change waits for the owner to apply (docs/release/APPLY_REFUNDS.md).
 
 - 2026-10-23 Delivery 35: Policies section, acknowledgement, version 1 drafts of Terms/Privacy/Cookies/Refunds (docs/release/APPLY_POLICIES.md). Phase 3 (support tickets, contact upload) and Phase 4 (Help centre) next.
