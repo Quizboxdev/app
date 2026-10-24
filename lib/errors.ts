@@ -130,6 +130,9 @@ export function isNetworkFailure(message: string): boolean {
   return NETWORK_FAILURE.test(message) || (typeof navigator !== "undefined" && navigator.onLine === false);
 }
 
+// The text of anything that was thrown, without `any`: pages use it in catch blocks.
+export const errorMessage = (error: unknown): string => (error instanceof Error ? error.message : typeof error === "string" ? error : GENERIC_ERROR_MESSAGE);
+
 export const GENERIC_ERROR_MESSAGE = "The operation could not be completed. Please try again or contact support.";
 
 export function userFacingError(error: unknown): string {

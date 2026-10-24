@@ -1,0 +1,19 @@
+# Who must review a change. GitHub asks these owners automatically; turn on "Require review from Code Owners" in the branch protection rule for main
+# to make it binding. Add a second person to the sensitive paths as soon as there is one (a code owner cannot be the only approver of their own change).
+*                              @Quizboxdev
+
+# Money: prices, payments, refunds, the marketplace split and payouts
+/lib/payments/                 @Quizboxdev
+/app/api/payments/             @Quizboxdev
+/app/api/marketplace/          @Quizboxdev
+
+# Who may do what: the database (rules, functions, migrations), the sign-in guard and the security headers
+/supabase/                     @Quizboxdev
+/middleware.ts                 @Quizboxdev
+/lib/auth/                     @Quizboxdev
+/lib/security/                 @Quizboxdev
+
+# Release and operations
+/.github/                      @Quizboxdev
+/scripts/release/              @Quizboxdev
+/docs/release/                 @Quizboxdev

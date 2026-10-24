@@ -93,6 +93,29 @@ New unit tests: save queue (7), price tones (6), share-card text (3), middleware
 | Needs a database to check | help guides (UX-006, UX-030), policy versions, challenge share cards (UX-032) | Not verifiable locally (the Preview service-role key was deliberately replaced by a dummy) |
 | Not changed | UX-007 (guide text), UX-013, UX-020, UX-023 (needs a migration), UX-029, 008, 009, 010, 015 to 019, 027, 028 | See the register status column |
 
+## 7b. Production verification (deployment of `0986fdb`, READY on 2026-10-24)
+
+Read-only checks against `https://www.quizbox.io` after the owner pushed the release to `main`:
+
+| Check | Result |
+|---|---|
+| axe-core (WCAG 2.0 to 2.2 A/AA + best practice) at 390 px on 34 pages: home, pricing, 4 policy pages, contact, sign-in, help, a join page, the 404 page, **all 23 help guides** | **0 violations**, one h1 each, no horizontal scroll |
+| Help guide headings | h1, h2, h2 (was h1, h3) |
+| Cache | `/`, `/contact`, `/terms`, `/privacy`, `/refunds`, `/cookies`, `/help`, `/pricing`, guides: PRERENDER then HIT |
+| Titles | Sign in, Forgot password, Reset your password, Choose a new password, Set up your account, Page not found |
+| 404 | HTTP 404, 40 links |
+| `/?code=...` | 307 to `/auth/callback?code=...` |
+| Request with a session cookie | `/opening` content (Opening QuizBox) |
+| `/terms?v=1` | 200, "Terms of Use" (served through the policy-version page) |
+| Canonical and share image | `https://www.quizbox.io`; `/opengraph-image-...` PNG 41 KB; Twitter large-image card |
+| Click on Sign in to a visible form | 102, 123, 144, 234 ms; no request after the click (was 592 to 725 ms) |
+
+Still **not** verified on production (need a signed-in session): page titles and skip link in the app, the offline banner, the quiz save queue, resume at the first unanswered question, the LoadError panel, and a real public challenge share card. The Vercel Preview deployment of the release branch ended in ERROR (the known Preview environment-variable problem); the production deployment of the same commit built successfully.
+
+## 7c. Diligence-readiness pass (2026-10-25)
+
+Repository hygiene and typing, local and uncommitted at the time of writing: Dependabot, `CODEOWNERS`, pull-request template, `SECURITY.md`, `LICENSE` (default proprietary notice, lawyer to confirm), `CONTRIBUTING.md`, a rewritten `README.md`, a complete `.env.example` (the old default pointed at the Production project), a monthly checklist workflow, a database-fingerprint comparison tool with history (`docs/release/FINGERPRINT_HISTORY.md`), a CSP log triage tool and the environment switch `QB_CSP_MODE` (still report-only), `docs/DILIGENCE_OVERVIEW.md`, and typed API layers for the teacher, student, sponsor, competition and practise screens (`any` in application code: 250 to 193; the five largest screens have none). Checks: `tsc` clean, `eslint` clean, **1,479 tests passed**, 0 failed (was 1,464). No behaviour was intended to change; the typing exposed and fixed two latent cases (a weak indicator without class ids could be opened; an assignment without an assessment id was started with an undefined id).
+
 ## 8. Known gaps in this QA pass
 
 - No signed-in browser testing of any kind (UX-024).

@@ -28,5 +28,5 @@ export const publishTopicAssignment = (args: {
 export async function listClassLearners(classId: string): Promise<Array<{ user_id: string; name: string }>> {
   const { data, error } = await getSupabaseBrowserClient().from("class_memberships").select("student_user_id,student_name,status").eq("class_id", classId).eq("status", "active").order("student_name");
   if (error) throw new Error(describeErrorMessage(error.message));
-  return (data ?? []).filter((r: any) => r.student_user_id).map((r: any) => ({ user_id: r.student_user_id, name: r.student_name || "Learner" }));
+  return (data ?? []).flatMap((r: { student_user_id?: string | null; student_name?: string | null }) => (r.student_user_id ? [{ user_id: r.student_user_id, name: r.student_name || "Learner" }] : []));
 }

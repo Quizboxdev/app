@@ -1,30 +1,31 @@
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import type { AttemptPayload } from "@/lib/types";
+import type { AvailableAssessment, MyAttempt, StartedAttempt } from "@/lib/api/student-types";
 import type { PracticeFeedback } from "@/lib/learning/feedback";
 import { isNetworkFailure, userFacingError } from "@/lib/errors";
 import { recordFailure } from "@/lib/api/operations";
 
-function unwrapRpc<T>(data: T | null, error: any): T {
+function unwrapRpc<T>(data: T | null, error: unknown): T {
   if (error) throw new Error(userFacingError(error));
   if (data == null) throw new Error("EMPTY_RPC_RESPONSE");
   return data;
 }
 
-export async function listAvailableAssessments() {
+export async function listAvailableAssessments(): Promise<AvailableAssessment[]> {
   const supabase = getSupabaseBrowserClient();
   const { data, error } = await supabase.rpc(
     "qb_list_available_assessments"
   );
 
   if (error) throw new Error(userFacingError(error));
-  return data ?? [];
+  return (data ?? []) as AvailableAssessment[];
 }
 
 export async function startAttempt(args: {
   assessmentId: string;
   assignmentId?: string | null;
   classId?: string | null;
-}) {
+}): Promise<StartedAttempt> {
   const supabase = getSupabaseBrowserClient();
   let assignmentId = args.assignmentId ?? null, classId = args.classId ?? null;
   // Assignment-backed assessments must be started with their assignment and class; the
@@ -45,7 +46,7 @@ export async function startAttempt(args: {
   });
 
   if (error) await recordFailure("ATTEMPT_START", error).catch(() => undefined);
-  return unwrapRpc<any>(data, error);
+  return unwrapRpc<StartedAttempt>(data, error);
 }
 
 export async function getAttempt(attemptId: string) {
@@ -98,7 +99,7 @@ export async function saveResponse(args: {
   });
 
   if (error) logSaveFailure(error);
-  return unwrapRpc<any>(data, error);
+  return unwrapRpc<unknown>(data, error);
 }
 
 export async function submitAttempt(
@@ -113,7 +114,7 @@ export async function submitAttempt(
   });
 
   if(error) await recordFailure("ATTEMPT_COMPLETION",error).catch(()=>undefined);
-  return unwrapRpc<any>(data, error);
+  return unwrapRpc<unknown>(data, error);
 }
 
 export async function getAttemptLearningSummary(attemptId: string) {
@@ -127,7 +128,7 @@ export async function getAttemptLearningSummary(attemptId: string) {
   if (xp.error) throw xp.error;
   const byIndicator = new Map<string, { code: string; title: string; correct: number; total: number }>();
   for (const row of events.data ?? []) {
-    const node: any = Array.isArray(row.curriculum_nodes) ? row.curriculum_nodes[0] : row.curriculum_nodes;
+    const node = (Array.isArray(row.curriculum_nodes) ? row.curriculum_nodes[0] : row.curriculum_nodes) as { code?: string; title?: string } | null | undefined;
     const key = row.curriculum_node_id ?? "unmapped";
     const current = byIndicator.get(key) ?? { code: node?.code ?? "Unmapped", title: node?.title ?? "Unmapped curriculum", correct: 0, total: 0 };
     current.total += 1; if (row.is_correct) current.correct += 1; byIndicator.set(key, current);
@@ -166,5 +167,5 @@ export async function getMyResultsPage(page = 1) {
 
 export async function getMyAttemptsPage(page = 1) {
   const { data, error } = await getSupabaseBrowserClient().rpc("qb_my_attempts_page", { p_page: page, p_limit: 25 });
-  return unwrapRpc<{ rows: any[]; total: number }>(data, error);
+  return unwrapRpc<{ rows: MyAttempt[]; total: number }>(data, error);
 }

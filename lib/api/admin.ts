@@ -1,6 +1,6 @@
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
-function ensure<T>(data: T | null, error: any): T {
+function ensure<T>(data: T | null, error: unknown): T {
   if (error) throw error;
   if (data == null) throw new Error("EMPTY_RESPONSE");
   return data;

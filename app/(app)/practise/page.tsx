@@ -15,8 +15,10 @@ import QuickPractice from "@/components/QuickPractice";
 import BrandBanner from "@/components/BrandBanner";
 import { getMyAccess, isAllowanceExhausted, SUBSCRIBE_PATH } from "@/lib/api/access";
 import { gradeVariants, studentGrade } from "@/lib/learning/student-scope";
+import { errorMessage } from "@/lib/errors";
+import type { AvailableAssessment, MyAttempt, StudentAssignmentTarget } from "@/lib/api/student-types";
 
-type PracticeSet = { id: string; assessment_type: string; subject_code: string | null; subject_name: string | null; grade: string | null; question_count: number | null; difficulty: string | null; time_limit_minutes: number | null };
+type PracticeSet = AvailableAssessment;
 const isPractice = (row: PracticeSet) => String(row.assessment_type).toUpperCase() === "PRACTICE";
 const setTitle = (row: PracticeSet) => sanitizeLabel(row.subject_name ?? row.subject_code ?? "Practice set");
 
@@ -24,8 +26,8 @@ function PractiseInner() {
   const router = useRouter();
   const params = useSearchParams();
   const [sets, setSets] = useState<PracticeSet[] | null>(null);
-  const [attempts, setAttempts] = useState<any[]>([]);
-  const [assigned, setAssigned] = useState<any[]>([]);
+  const [attempts, setAttempts] = useState<MyAttempt[]>([]);
+  const [assigned, setAssigned] = useState<StudentAssignmentTarget[]>([]);
   const [weakSubject, setWeakSubject] = useState("");
   const [subject, setSubject] = useState(params.get("subject") ?? "");
   const [difficulty, setDifficulty] = useState("");
@@ -37,15 +39,15 @@ function PractiseInner() {
     Promise.all([listAvailableAssessments(), bootstrapUser().catch(() => null)]).then(([rows, ctx]) => {
       const mine = gradeVariants(studentGrade(ctx?.studentProfile as Record<string, unknown> | null | undefined)).map((g) => g.toUpperCase().replace(/\s+/g, ""));
       const fits = (row: PracticeSet) => !mine.length || !row.grade || mine.includes(String(row.grade).toUpperCase().replace(/\s+/g, ""));
-      setSets((rows as PracticeSet[]).filter(isPractice).filter(fits));
-    }).catch((e) => { setError(e.message); setSets([]); });
+      setSets(rows.filter(isPractice).filter(fits));
+    }).catch((e) => { setError(errorMessage(e)); setSets([]); });
     getMyAttemptsPage(1).then((r) => setAttempts(r.rows)).catch(() => setAttempts([]));
     studentInsights().then((d) => {
-      const worst = [...(d.by_subject ?? [])].filter((s: any) => s.subject).sort((a: any, b: any) => Number(a.mastery) - Number(b.mastery))[0];
+      const worst = [...(d.by_subject ?? [])].filter((s) => s.subject).sort((a, b) => Number(a.mastery) - Number(b.mastery))[0];
       setWeakSubject(worst && Number(worst.mastery) < 68 ? String(worst.subject) : "");
     }).catch(() => undefined);
-    bootstrapUser().then((ctx) => getStudentDashboard(String((ctx.studentProfile as any)?.id ?? "")))
-      .then((d) => setAssigned((d.assignments as any[]).filter((row) => String(row.assignments?.mode ?? "").toUpperCase() === "PRACTICE")))
+    bootstrapUser().then((ctx) => getStudentDashboard(String(ctx.studentProfile?.id ?? "")))
+      .then((d) => setAssigned(d.assignments.filter((row) => String(row.assignments?.mode ?? "").toUpperCase() === "PRACTICE")))
       .catch(() => setAssigned([]));
   }, []);
 
@@ -59,8 +61,8 @@ function PractiseInner() {
     setStarting(key); setError("");
     // Free allowance used up: go to subscribe instead of starting (the quick builder enforces the same limit on the server).
     if ((await getMyAccess()).exhausted) { router.push(SUBSCRIBE_PATH); return; }
-    try { router.push(`/student/attempt/${((await startAttempt(args)) as any).attempt_id}`); }
-    catch (e: any) { if (isAllowanceExhausted(e)) { router.push(SUBSCRIBE_PATH); return; } setError(e.message); setStarting(""); }
+    try { router.push(`/student/attempt/${(await startAttempt(args)).attempt_id}`); }
+    catch (e) { if (isAllowanceExhausted(e)) { router.push(SUBSCRIBE_PATH); return; } setError(errorMessage(e)); setStarting(""); }
   }
 
   return (
@@ -93,9 +95,9 @@ function PractiseInner() {
         {assigned.length > 0 && <>
           <h3 style={{ marginTop: 16 }}>Practice from your teacher</h3>
           <ul className="qb-task-list">
-            {assigned.slice(0, 3).map((row) => <li key={row.id}>
+            {assigned.slice(0, 3).map((row) => <li key={String(row.id ?? row.assignment_id)}>
               <div className="qb-row-main"><strong>{sanitizeLabel(row.assignments?.title ?? "Assignment")}</strong><span>{subjectLabel(row.assignments?.subject_code)}{row.assignments?.due_at ? ` · Due ${formatDate(row.assignments.due_at)}` : ""}</span></div>
-              <button className="qb-btn secondary" disabled={!!starting} onClick={() => void begin({ assessmentId: row.assignments.assessment_id, assignmentId: row.assignment_id, classId: row.class_id }, row.id)}>Start</button>
+              <button className="qb-btn secondary" disabled={!!starting} onClick={() => void begin({ assessmentId: String(row.assignments?.assessment_id ?? ""), assignmentId: row.assignment_id, classId: row.class_id ?? undefined }, String(row.id ?? row.assignment_id))}>Start</button>
             </li>)}
           </ul>
         </>}

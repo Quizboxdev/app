@@ -1,0 +1,32 @@
+# Automatic dependency updates. Each update arrives as a pull request, so CI (type check, lint, tests, build, advisory check) runs on it before anyone merges.
+# Minor and patch updates are grouped into one weekly pull request to keep the review load small. Major versions of the framework are never proposed
+# automatically: they are planned upgrades (see docs/DILIGENCE_OVERVIEW.md, "Open risks").
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: Africa/Accra
+    open-pull-requests-limit: 5
+    labels: ["dependencies"]
+    groups:
+      minor-and-patch:
+        update-types: ["minor", "patch"]
+    ignore:
+      - dependency-name: "next"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "react"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "react-dom"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
+
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: monthly
+    labels: ["dependencies", "ci"]

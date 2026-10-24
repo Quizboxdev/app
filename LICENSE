@@ -1,0 +1,20 @@
+Copyright (c) 2026 QuizBox Solutions, Ghana. All rights reserved.
+
+This software, its source code, database designs, documentation, question content, brand names, logos and all related materials (together, the "Materials")
+are the proprietary property of QuizBox Solutions, Ghana ("QuizBox"). The Materials are not open source.
+
+No licence or right is granted to anyone to use, copy, modify, merge, publish, distribute, sublicense, sell, host or create derivative works from the Materials,
+or to use them to train or fine-tune any machine learning model, except:
+  1. by QuizBox and by people and organisations it has engaged in writing to work on its behalf, for that work only; and
+  2. as QuizBox may separately agree in a signed written agreement.
+
+Access to this repository, in whole or in part, for review, due diligence, audit or support does not grant any licence. Anyone given access must keep the
+Materials confidential and delete their copies when asked.
+
+The Materials are provided "as is", without warranty of any kind. To the fullest extent permitted by law, QuizBox is not liable for any claim, damages or other
+liability arising from them.
+
+Third-party components used by the software remain under their own licences, listed by their package managers (see package.json and package-lock.json).
+
+(Owner: this notice is a reasonable default for a private commercial product. Have a lawyer qualified in Ghana confirm it before it is relied on, in the same
+review as the Terms of Use and seller terms.)

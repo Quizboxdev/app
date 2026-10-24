@@ -2,8 +2,9 @@ import { canonicalFilterGrade } from "@/lib/content/grades";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { userFacingError } from "@/lib/errors";
 import { indicatorsFromSummary, summarizeClassLearners, type IndicatorSummaryRow } from "@/lib/learning/analytics";
+import type { ClassWithAnalytics, GradebookRow, IndicatorLearner, IndicatorLearnersPage, NeedsAttentionRow, QuestionBankRow, TeacherAnalytics, TeacherAssignment, TeacherClass, TeacherDashboardData } from "@/lib/api/teacher-types";
 
-export async function getTeacherDashboard(teacherId: string, userId: string) {
+export async function getTeacherDashboard(teacherId: string, userId: string): Promise<TeacherDashboardData> {
   const supabase = getSupabaseBrowserClient();
 
   const [classesRes, assignmentsRes, banksRes, gradebookRes] = await Promise.all([
@@ -33,14 +34,14 @@ export async function getTeacherDashboard(teacherId: string, userId: string) {
   }
 
   return {
-    classes: classesRes.data ?? [],
-    assignments: assignmentsRes.data ?? [],
-    questionBanks: banksRes.data ?? [],
-    gradebook: gradebookRes.data ?? [],
+    classes: (classesRes.data ?? []) as TeacherClass[],
+    assignments: (assignmentsRes.data ?? []) as TeacherAssignment[],
+    questionBanks: (banksRes.data ?? []) as QuestionBankRow[],
+    gradebook: (gradebookRes.data ?? []) as GradebookRow[],
   };
 }
 
-export async function getTeacherAnalytics(teacherId: string) {
+export async function getTeacherAnalytics(teacherId: string): Promise<TeacherAnalytics> {
   const supabase = getSupabaseBrowserClient();
   const { data: classes, error: classError } = await supabase.from("classes").select("id,class_name").or(`primary_teacher_id.eq.${teacherId},teacher_id.eq.${teacherId}`);
   if (classError) throw new Error(userFacingError(classError));
@@ -53,19 +54,20 @@ export async function getTeacherAnalytics(teacherId: string) {
     supabase.from("class_memberships").select("class_id,student_user_id").in("class_id", classIds).eq("status", "active"),
   ]);
   for (const result of [grades, summary, rosters]) if (result.error) throw new Error(userFacingError(result.error));
-  const classAnalytics = (classes ?? []).map((row) => ({ ...row, ...summarizeClassLearners((grades.data ?? []).filter((grade) => grade.class_id === row.id), (rosters.data ?? []).filter((member) => member.class_id === row.id).map((member) => member.student_user_id)) }));
+  const classAnalytics: ClassWithAnalytics[] = (classes ?? []).map((row) => ({ ...row, ...summarizeClassLearners((grades.data ?? []).filter((grade) => grade.class_id === row.id), (rosters.data ?? []).filter((member) => member.class_id === row.id).map((member) => member.student_user_id)) }));
   const summaryRows: IndicatorSummaryRow[] = summary.data ?? [];
   const indicators = indicatorsFromSummary(summaryRows);
-  return { classes: classAnalytics, indicators, needsAttention: indicators.filter((row) => row.averageMastery < 68 || row.averageAccuracy < 68).map((row) => ({ ...row, className: "Teacher class", classId: summaryRows.find((s) => s.code === row.code)?.class_id, curriculumNodeId: summaryRows.find((s) => s.code === row.code)?.curriculum_node_id })) };
+  const needsAttention: NeedsAttentionRow[] = indicators.filter((row) => row.averageMastery < 68 || row.averageAccuracy < 68).map((row) => ({ ...row, className: "Teacher class", classId: summaryRows.find((s) => s.code === row.code)?.class_id, curriculumNodeId: summaryRows.find((s) => s.code === row.code)?.curriculum_node_id }));
+  return { classes: classAnalytics, indicators, needsAttention };
 }
 
-export async function listIndicatorLearnersPage(classId: string, curriculumNodeId: string, page = 1) {
+export async function listIndicatorLearnersPage(classId: string, curriculumNodeId: string, page = 1): Promise<IndicatorLearnersPage> {
   const { data,error }=await getSupabaseBrowserClient().rpc("qb_indicator_learners_page",{p_class_id:classId,p_node_id:curriculumNodeId,p_page:page,p_limit:25});
   if(error)throw new Error(userFacingError(error));
-  return data as {rows:any[];total:number};
+  return data as IndicatorLearnersPage;
 }
 
-export async function listIndicatorLearners(classId: string, curriculumNodeId: string) {
+export async function listIndicatorLearners(classId: string, curriculumNodeId: string): Promise<IndicatorLearner[]> {
   return (await listIndicatorLearnersPage(classId,curriculumNodeId)).rows;
 }
 
@@ -184,7 +186,7 @@ export async function listGradebook(teacherId: string, filters: { page?: number;
 
   if (classError) throw new Error(userFacingError(classError));
 
-  const ids = (classes ?? []).map((c: any) => c.id);
+  const ids = (classes ?? []).map((c: { id: string }) => c.id);
   if (!ids.length) return [];
 
   const page = Math.max(1, Math.floor(filters.page ?? 1));

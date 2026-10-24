@@ -1,0 +1,48 @@
+name: Monthly checks
+
+# Opens one GitHub issue on the 1st of each month with the checklist below, so the routine checks cannot be forgotten. It needs no secrets and touches no database:
+# the database fingerprint itself is run by a person in the Supabase SQL editor (docs/release/FINGERPRINT_HISTORY.md).
+on:
+  schedule:
+    - cron: "0 7 1 * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  checklist:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Open the monthly checklist issue (once per month)
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          month="$(date -u +%Y-%m)"
+          title="Monthly checks ${month}"
+          if gh issue list --repo "$REPO" --state open --search "\"$title\" in:title" --json title --jq '.[].title' | grep -qx "$title"; then
+            echo "Issue already open for ${month}"; exit 0
+          fi
+          cat > body.md <<'BODY'
+          Routine checks, about an hour in total. Tick each line and close the issue when done.
+
+          **Database**
+          - [ ] Run the database fingerprint (parts A and B) on **Production** and **Preview**, compare and record: `docs/release/FINGERPRINT_HISTORY.md`
+          - [ ] Export datasets count is the same on both projects (`select count(*) from public.qb_export_defs();`)
+          - [ ] Admin, Payment checks: "All clear" on Production
+
+          **Dependencies and security**
+          - [ ] Review and merge (or close with a reason) the open Dependabot pull requests; CI must be green
+          - [ ] The CI run on main is green; `npm audit --omit=dev --audit-level=high` passes
+          - [ ] Content Security Policy: if still report-only, triage the logs (`docs/ops/CSP_ENFORCEMENT.md`)
+          - [ ] Any open security report (`SECURITY.md`) has an owner and a date
+
+          **Product**
+          - [ ] Support requests older than 3 working days: none
+          - [ ] Open items in `docs/ux-audit/08_PRIORITIZED_DEFECT_REGISTER.csv`: re-rank, close what is fixed
+          - [ ] Vercel: latest Production deployment is Ready; Preview builds are healthy
+          BODY
+          gh issue create --repo "$REPO" --title "$title" --body-file body.md

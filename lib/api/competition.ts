@@ -1,6 +1,7 @@
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
+import type { CompetitionTeam, LeaderboardRow } from "@/lib/api/competition-types";
 
-function ensure<T>(data: T | null, error: any): T {
+function ensure<T>(data: T | null, error: unknown): T {
   if (error) throw error;
   if (data == null) throw new Error("EMPTY_RESPONSE");
   return data;
@@ -29,7 +30,7 @@ export async function registerSchool(
       p_institution_id: institutionId,
     }
   );
-  return ensure<any>(data, error);
+  return ensure<Record<string, unknown>>(data, error);
 }
 
 export async function createTeam(
@@ -43,7 +44,7 @@ export async function createTeam(
     p_institution_id: institutionId,
     p_team_name: teamName,
   });
-  return ensure<any>(data, error);
+  return ensure<Record<string, unknown>>(data, error);
 }
 
 export async function addTeamMember(
@@ -57,7 +58,7 @@ export async function addTeamMember(
     p_student_id: studentId,
     p_role: role,
   });
-  return ensure<any>(data, error);
+  return ensure<Record<string, unknown>>(data, error);
 }
 
 export async function verifyTeamMember(teamMemberId: string) {
@@ -65,7 +66,7 @@ export async function verifyTeamMember(teamMemberId: string) {
   const { data, error } = await supabase.rpc("qb_verify_team_member", {
     p_team_member_id: teamMemberId,
   });
-  return ensure<any>(data, error);
+  return ensure<Record<string, unknown>>(data, error);
 }
 
 export async function getLeaderboard(competitionId: string) {
@@ -74,7 +75,7 @@ export async function getLeaderboard(competitionId: string) {
     "qb_competition_leaderboard",
     { p_competition_id: competitionId }
   );
-  return ensure<any[]>(data, error);
+  return ensure<LeaderboardRow[]>(data, error);
 }
 
 export async function finalizeLeaderboard(competitionId: string) {
@@ -83,7 +84,7 @@ export async function finalizeLeaderboard(competitionId: string) {
     "qb_finalize_competition_leaderboard",
     { p_competition_id: competitionId }
   );
-  return ensure<any>(data, error);
+  return ensure<Record<string, unknown>>(data, error);
 }
 
 export async function listCompetitionTeams(competitionId: string) {
@@ -95,7 +96,7 @@ export async function listCompetitionTeams(competitionId: string) {
     .order("team_name");
 
   if (error) throw error;
-  return data ?? [];
+  return (data ?? []) as CompetitionTeam[];
 }
 
 export async function listTeamMembers(teamId: string) {

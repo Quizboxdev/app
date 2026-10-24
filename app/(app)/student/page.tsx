@@ -20,15 +20,19 @@ import SubjectIcon from "@/components/SubjectIcon";
 import InstallPrompt from "@/components/InstallPrompt";
 import SponsoredCarousel from "@/components/challenges/SponsoredCarousel";
 import { levelFromGrade } from "@/lib/challenges/content-types";
+import { errorMessage } from "@/lib/errors";
+import type { BadgeTier } from "@/components/achievements/AchievementBadge";
+import type { Achievement, AvailableAssessment, CompetitionAnalytics, StudentDashboardData } from "@/lib/api/student-types";
+import type { AssignmentLike } from "@/lib/learning/home";
 
 type Subject = { code: string; name: string; percentage: number; count: number; evidence: number };
 
 export default function StudentHomePage() {
   const router = useRouter();
-  const [data, setData] = useState<any>(null);
-  const [comp, setComp] = useState<any>(null);
-  const [achievements, setAchievements] = useState<any[]>([]);
-  const [practice, setPractice] = useState<any>(null);
+  const [data, setData] = useState<StudentDashboardData | null>(null);
+  const [comp, setComp] = useState<CompetitionAnalytics | null>(null);
+  const [achievements, setAchievements] = useState<Achievement[]>([]);
+  const [practice, setPractice] = useState<AvailableAssessment | null>(null);
   const [name, setName] = useState("");
   const [error, setError] = useState("");
   const [starting, setStarting] = useState(false);
@@ -38,9 +42,9 @@ export default function StudentHomePage() {
 
   useEffect(() => {
     bootstrapUser().then(async (ctx) => {
-      const studentId = String((ctx.studentProfile as any)?.id ?? "");
+      const studentId = String(ctx.studentProfile?.id ?? "");
       if (!studentId) throw new Error("Student profile not found.");
-      setName(String((ctx.profile as any)?.full_name ?? "").split(" ")[0]);
+      setName(String(ctx.profile?.full_name ?? "").split(" ")[0]);
       const [dash, c, a, available] = await Promise.all([
         getStudentDashboard(studentId),
         getStudentCompetitionAnalytics(studentId).catch(() => null),
@@ -48,18 +52,18 @@ export default function StudentHomePage() {
         listAvailableAssessments().catch(() => []),
       ]);
       setData(dash); setComp(c); setAchievements(a);
-      setPractice((available as any[]).find((row) => String(row.assessment_type).toUpperCase() === "PRACTICE") ?? null);
+      setPractice(available.find((row) => String(row.assessment_type).toUpperCase() === "PRACTICE") ?? null);
       void getMyAccess().then(setAccess);
       void getMyWallet(ctx.userId).then((w) => setCoins(w ? Number(w.purchased_balance) + Number(w.promotional_balance) : 0)).catch(() => setCoins(null));
       void getMyQPoints(ctx.userId).then(setQpoints).catch(() => setQpoints(null));
-    }).catch((e) => setError(e.message));
+    }).catch((e) => setError(errorMessage(e)));
   }, []);
 
   if (error && !data) return <div className="qb-card qb-error" role="alert">{error}</div>;
   if (!data) return <div className="qb-sh-grid" aria-busy="true"><div className="qb-card qb-skeleton" /><div className="qb-card qb-skeleton" /><div className="qb-card qb-skeleton" /></div>;
 
-  const results: any[] = data.results ?? [];
-  const assignments: any[] = data.assignments ?? [];
+  const results = data.results ?? [];
+  const assignments = data.assignments ?? [];
   const xp = data.xp ?? { total_xp: 0, level: 1, current_level_xp: 0, next_level_xp: 100 };
   const klass = data.memberships?.[0]?.classes;
 
@@ -87,10 +91,10 @@ export default function StudentHomePage() {
 
   const begin = async (args: { assessmentId: string; assignmentId?: string; classId?: string }) => {
     setStarting(true); setError("");
-    try { router.push(`/student/attempt/${((await startAttempt(args)) as any).attempt_id}`); }
-    catch (e: any) { setError(e.message); setStarting(false); }
+    try { router.push(`/student/attempt/${(await startAttempt(args)).attempt_id}`); }
+    catch (e) { setError(errorMessage(e)); setStarting(false); }
   };
-  const startAssignment = (row: any) => begin({ assessmentId: row.assignments.assessment_id, assignmentId: row.assignment_id, classId: row.class_id });
+  const startAssignment = (row: AssignmentLike) => begin({ assessmentId: String(row.assignments?.assessment_id ?? ""), assignmentId: row.assignment_id, classId: row.class_id ?? undefined });
 
   return (
     <>
@@ -212,7 +216,7 @@ export default function StudentHomePage() {
             <div className="qb-page-head"><h2 id="sh-compete">Compete</h2><Link className="qb-link" href="/competition">Challenges</Link></div>
             {rank ? <p className="qb-sh-rank"><Trophy size={18} aria-hidden="true" /> Rank #{rank}</p> : null}
             {comp?.leaderboard?.length ? <ol className="qb-leaderboard">
-              {comp.leaderboard.slice(0, 3).map((p: any, i: number) => <li key={p.id || i} className={`top-${i + 1}`}>
+              {comp.leaderboard.slice(0, 3).map((p, i) => <li key={p.id || i} className={`top-${i + 1}`}>
                 <span className="qb-leader-rank">{i + 1}</span><span className="qb-leader-name">{sanitizeLabel(p.name || "Learner")}</span><strong>{p.score || 0}</strong>
               </li>)}
             </ol> : <div className="qb-empty"><Flag size={22} aria-hidden="true" /><strong>No rankings yet</strong>Join a challenge to appear here.</div>}
@@ -221,7 +225,7 @@ export default function StudentHomePage() {
             <div className="qb-page-head"><h2 id="sh-rewards">Achievements</h2></div>
             {achievements.length ? <div className="qb-badges">
               {achievements.slice(0, 4).map((a) => <div key={a.id} className="qb-badge-item">
-                <AchievementBadge type={String(a.type).toLowerCase() === "championship" ? "championship" : "mastery"} tier={a.tier?.toLowerCase() || "standard"} size="md" label="" />
+                <AchievementBadge type={String(a.type).toLowerCase() === "championship" ? "championship" : "mastery"} tier={(a.tier?.toLowerCase() as BadgeTier | undefined) || "standard"} size="md" label="" />
                 <strong>{sanitizeLabel(a.title)}</strong>
               </div>)}
             </div> : <div className="qb-empty"><strong>No achievements yet</strong>Badges unlock as you master topics and compete.</div>}
