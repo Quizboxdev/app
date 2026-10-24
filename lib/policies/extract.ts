@@ -1,4 +1,5 @@
 import mammoth from "mammoth";
+import { assertSafeZip } from "@/lib/uploads/zip-guard";
 import { pdfPages } from "@/lib/pdf";
 
 // Text from an uploaded Word, PDF or text file, for the policy editor. A Word file keeps its headings, lists and bold (as the simple formatting the editor uses); a PDF gives plain text.
@@ -11,7 +12,7 @@ const toMarkdown = (buffer: Buffer) => (mammoth as unknown as { convertToMarkdow
 export async function extractPolicyText(name: string, bytes: Uint8Array): Promise<string> {
   const ext = name.toLowerCase().split(".").pop() ?? "";
   if (ext === "pdf") { if (String.fromCharCode(...bytes.slice(0, 4)) !== "%PDF") throw new Error("NOT_A_PDF"); return (await pdfPages(bytes)).map((p) => p.text).join("\n\n").trim(); }
-  if (ext === "docx") { if (bytes[0] !== 0x50 || bytes[1] !== 0x4b) throw new Error("NOT_A_DOCX"); return tidyMarkdown((await toMarkdown(Buffer.from(bytes))).value); }
+  if (ext === "docx") { if (bytes[0] !== 0x50 || bytes[1] !== 0x4b) throw new Error("NOT_A_DOCX"); assertSafeZip(bytes); return tidyMarkdown((await toMarkdown(Buffer.from(bytes))).value); }
   if (ext === "txt" || ext === "md") return new TextDecoder("utf-8", { fatal: false }).decode(bytes).trim();
   throw new Error("UNSUPPORTED_TYPE");
 }

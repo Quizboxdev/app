@@ -2,6 +2,7 @@ import { timingSafeEqual } from "node:crypto";
 import webpush from "web-push";
 import { admin, reply } from "@/lib/managed/server";
 import { runDraftSweep } from "@/lib/drafts/sweep";
+import { logFallback } from "@/lib/ops/log";
 
 // Sends web push for unread in-app notifications. Run it every few minutes by any scheduler that can call a URL with a bearer token (see docs/release/APPLY_PUSH.md).
 // Closed unless CRON_SECRET (16+ characters) and the VAPID keys are set. The answer carries counts only: never names, endpoints or message text.
@@ -38,6 +39,6 @@ export async function GET(request: Request) {
   }
   await svc.rpc("qb_push_report", { p_done: list.map((n) => n.notification_id), p_ok: ok, p_gone: gone, p_failed: failed });
   // The same five-minute run also clears expired drafts and emails the two-hour warnings, so no second schedule is needed. It never affects the push result.
-  try { await runDraftSweep(svc); } catch { /* the drafts route can also be scheduled on its own */ }
+  try { await runDraftSweep(svc); } catch (e) { logFallback("cron-push", "the drafts sweep failed (the push result is unaffected)", e); }
   return reply(200, { ok: true, notifications: list.length, sent, gone: gone.length, failed: failed.length });
 }

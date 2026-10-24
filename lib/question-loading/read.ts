@@ -1,6 +1,7 @@
 import JSZip from "jszip";
 import { parseCsv } from "../content/factory/import";
 import { LEVELS, LOAD_COLUMNS, MAX_FILE_BYTES, MAX_FILE_ROWS, REQUIRED_COLUMNS, type LoadColumn, type LoadRow } from "./template";
+import { assertSafeZip } from "../uploads/zip-guard";
 
 // Reads the question-loading template from .csv or .xlsx. Pure code: no database, no network.
 export type ParsedFile = { rows: LoadRow[]; fileRows: number[]; unknownColumns: string[]; sheet?: string; headerless?: boolean };
@@ -47,7 +48,7 @@ export function readCsv(bytes: Uint8Array): ParsedFile {
 
 export async function readXlsx(bytes: Uint8Array): Promise<ParsedFile> {
   let zip: JSZip;
-  try { zip = await JSZip.loadAsync(bytes); } catch { throw new Error("QL_FILE_UNREADABLE"); }
+  try { assertSafeZip(bytes); zip = await JSZip.loadAsync(bytes); } catch { throw new Error("QL_FILE_UNREADABLE"); }
   const read = async (path: string) => zip.file(path)?.async("string");
   const workbook = await read("xl/workbook.xml"), rels = await read("xl/_rels/workbook.xml.rels");
   if (!workbook || !rels) throw new Error("QL_FILE_UNREADABLE");

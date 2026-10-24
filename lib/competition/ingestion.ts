@@ -3,6 +3,7 @@ import mammoth from "mammoth";
 import { pdfPages } from "../pdf";
 import { chunkExtract, type Chunk } from "./lifecycle";
 import type { SponsorRepository } from "./repository";
+import { assertSafeZip } from "../uploads/zip-guard";
 
 export const SOURCE_MAX_BYTES = 10 * 1024 * 1024;
 const mimes = new Set(["text/plain", "application/pdf", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"]);
@@ -15,6 +16,7 @@ export const extractSource: Extractor = async (bytes, mime) => {
   }
   if (mime.includes("wordprocessingml")) {
     if (!bytes.subarray(0, 2).equals(Buffer.from("PK"))) throw new Error("INVALID_DOCX_SIGNATURE");
+    assertSafeZip(bytes);
     const result = await mammoth.extractRawText({ buffer: bytes });
     return [{ text: result.value, page: null, chapter: null, section: null, heading: null }];
   }

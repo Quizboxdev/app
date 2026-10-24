@@ -2,6 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { applyVerifiedPaymentEvent } from "@/lib/core/payments";
 import { createPaystackProvider } from "./paystack";
 import { fulfilAfter } from "./settlement";
+import { logFallback } from "@/lib/ops/log";
 
 // A safety net for the webhook. When a buyer comes back from Paystack, we ask Paystack directly (server to server, with our secret key) how the payment ended, and settle it the same way the webhook would.
 // The browser's say-so is never used: only Paystack's own answer counts, only for a payment that belongs to the caller, and the event id is the webhook's, so whichever arrives first settles it and the other is a harmless duplicate.
@@ -17,10 +18,10 @@ export async function confirmPayment(admin: SupabaseClient, secretKey: string, u
   }
   if (["reversed", "refunded", "failed", "cancelled", "expired"].includes(row.status)) return { state: "failed" };
   let result: Awaited<ReturnType<ReturnType<typeof createPaystackProvider>["confirm"]>>;
-  try { result = await createPaystackProvider(secretKey, fetchImpl).confirm(reference); } catch { return { state: "pending" }; }
+  try { result = await createPaystackProvider(secretKey, fetchImpl).confirm(reference); } catch (e) { logFallback("payment-confirm", "Paystack could not be reached", e); return { state: "pending" }; }
   if (result === null) return { state: "failed" };
   if ("pending" in result) return { state: "pending" };
-  const applied = await applyVerifiedPaymentEvent(admin, result).catch(() => null);
+  const applied = await applyVerifiedPaymentEvent(admin, result).catch((e) => { logFallback("payment-confirm", "could not apply the payment event", e); return null; });
   if (!applied) return { state: "pending", error: "apply_failed" };
   const done = await fulfilAfter(admin, applied.outcome, reference);
   return done.ok ? { state: applied.outcome === "amount_mismatch" ? "failed" : "confirmed" } : { state: "pending", error: done.failure };

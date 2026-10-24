@@ -134,3 +134,26 @@ describe("Primary (B4-B6) placement", () => {
     expect(ok.topics[0].indicator).toMatchObject({ subject: "Mathematics", grade: "B6", indicator_code: "B6.4.1.2.2" });
   });
 });
+
+// Audit QB-AUD-011: SHS indicator codes repeat across subjects (for example 1.1.1.LI.1 in Biology and in Chemistry). A question must land on its own subject's indicator, and topics must never merge across subjects.
+describe("indicator codes shared by two subjects", () => {
+  const two = buildIndex(parseVerifiedCsv([HEADER,
+    '"Biology","SHS 1","1","Diversity of living things","Classification","1.1.1","Classification","1.1.1.LI.1","Classify living things","","5","YES",""',
+    '"Chemistry","SHS 1","1","Introduction to chemistry","Matter","1.1.1","Matter","1.1.1.LI.1","Describe matter","","8","YES",""',
+  ].join("\r\n")));
+  const q = (subject: string): LoadRow => row({ level: "SHS", grade: "SHS 1", subject, strand: "", sub_strand: "", indicator_code: "1.1.1.LI.1", topic: "Introduction", concept: "basics" });
+  it("resolves the same code to a different indicator for each subject", () => {
+    const bio = resolveIndicator(two, q("Biology")), chem = resolveIndicator(two, q("Chemistry"));
+    expect(bio.status).toBe("RESOLVED"); expect(chem.status).toBe("RESOLVED");
+    expect((bio as { indicator: { subject: string; strand: string } }).indicator).toMatchObject({ subject: "Biology", strand: "Diversity of living things" });
+    expect((chem as { indicator: { subject: string; strand: string } }).indicator).toMatchObject({ subject: "Chemistry", strand: "Introduction to chemistry" });
+  });
+  it("keeps two subjects' topics apart even when the topic title and code are identical", () => {
+    const rows = [q("Biology"), q("Chemistry"), q("Biology"), q("Chemistry")];
+    const plan = buildPlan({ rows, fileSha256: sha256("two-subjects"), scope: "CURRICULUM", index: two });
+    expect(plan.unresolved).toEqual([]);
+    expect(plan.topics).toHaveLength(2);
+    expect(plan.topics.map((t) => t.indicator.subject).sort()).toEqual(["Biology", "Chemistry"]);
+    expect(plan.topics.every((t) => t.rows === 2)).toBe(true);
+  });
+});

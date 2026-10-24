@@ -1,4 +1,5 @@
 import mammoth from "mammoth";
+import { assertSafeZip } from "@/lib/uploads/zip-guard";
 import { authenticate, isUuid, reply } from "@/lib/managed/server";
 import { buildSections, chunkText, sha256Hex } from "@/lib/challenges/chunker";
 import { CONTENT_TYPES, contentType } from "@/lib/challenges/content-types";
@@ -13,7 +14,7 @@ const MAX_BYTES = MAX_UPLOAD_BYTES;
 async function extract(name: string, bytes: Uint8Array): Promise<string> {
   const ext = name.toLowerCase().split(".").pop() ?? "";
   if (ext === "pdf") { if (String.fromCharCode(...bytes.slice(0, 4)) !== "%PDF") throw new Error("NOT_A_PDF"); return (await pdfPages(bytes)).map((p) => p.text).join("\n\n"); }
-  if (ext === "docx") { if (bytes[0] !== 0x50 || bytes[1] !== 0x4b) throw new Error("NOT_A_DOCX"); return (await mammoth.extractRawText({ buffer: Buffer.from(bytes) })).value; }
+  if (ext === "docx") { if (bytes[0] !== 0x50 || bytes[1] !== 0x4b) throw new Error("NOT_A_DOCX"); assertSafeZip(bytes); return (await mammoth.extractRawText({ buffer: Buffer.from(bytes) })).value; }
   if (ext === "txt" || ext === "md") return new TextDecoder("utf-8", { fatal: false }).decode(bytes);
   throw new Error("UNSUPPORTED_TYPE");
 }
@@ -41,7 +42,7 @@ export async function POST(request: Request) {
   let text: string;
   try { text = await extract(sourceName, bytes); } catch (e: any) {
     const code = String(e?.message ?? "");
-    return reply(422, { ok: false, error: code === "UNSUPPORTED_TYPE" ? "Use a PDF, Word (.docx) or text file." : code.startsWith("NOT_A_") ? "That file does not look like a real document of that type." : "We could not read that file. Try a text copy instead." });
+    return reply(422, { ok: false, error: code === "UNSUPPORTED_TYPE" ? "Use a PDF, Word (.docx) or text file." : code.startsWith("NOT_A_") ? "That file does not look like a real document of that type." : code.startsWith("ZIP_") ? "That file is too large or unusual to read. Save it again from Word, or use a text copy." : code === "PDF_TOO_LONG" ? "That PDF has too many pages (the limit is 400). Split it or use a text copy." : code === "PDF_TIMEOUT" ? "That PDF took too long to read. Try a smaller file or a text copy." : "We could not read that file. Try a text copy instead." });
   }
   const chunks = chunkText(text, MAX_PASSAGES + 1);
   if (chunks.length > MAX_PASSAGES) return reply(413, { ok: false, error: `This document is longer than the limit (about 300 pages of text). Upload the chapters you need as separate documents, or a shorter file.` });

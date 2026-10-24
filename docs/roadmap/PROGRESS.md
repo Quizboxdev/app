@@ -327,3 +327,5 @@ Design canvas: https://claude.ai/artifact/8JyB9ENBGKYpV1ZfGmke7n (5 pages, 19 ar
 - 2026-10-24 Delivery 43: audit findings QB-AUD-007 and QB-AUD-008 closed (no database change).
 
 - 2026-10-24 Delivery 44: nine more exports (docs/release/APPLY_EXPORTS_MORE.md), the server-side sign-in guard behind QB_SERVER_GUARD (docs/release/SERVER_GUARD.md, off by default), and a migration hygiene test.
+
+- 2026-10-24 Delivery 45: audit findings QB-AUD-009, 011, 012, 014, 017 addressed (no database change). Owner choice: whether to tick "Even out the answer positions" when loading questions.

@@ -23,6 +23,6 @@ export async function POST(request: Request) {
     return reply(200, { ok: true, text: text.slice(0, MAX_CHARS), truncated: text.length > MAX_CHARS });
   } catch (e: any) {
     const code = String(e?.message ?? "");
-    return reply(422, { ok: false, error: code === "UNSUPPORTED_TYPE" ? "Use a Word (.docx), PDF or text file." : code.startsWith("NOT_A_") ? "That file does not look like a real document of that type." : "We could not read that file." });
+    return reply(422, { ok: false, error: code === "UNSUPPORTED_TYPE" ? "Use a Word (.docx), PDF or text file." : code.startsWith("NOT_A_") ? "That file does not look like a real document of that type." : code.startsWith("ZIP_") ? "That file is too large or unusual to read. Save it again from Word, or use a text copy." : code === "PDF_TOO_LONG" ? "That PDF has too many pages (the limit is 400). Split it or use a text copy." : code === "PDF_TIMEOUT" ? "That PDF took too long to read. Try a smaller file or a text copy." : "We could not read that file." });
   }
 }
