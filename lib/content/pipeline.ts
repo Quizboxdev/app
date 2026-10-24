@@ -6,6 +6,7 @@ import mammoth from "mammoth";
 import { pdfPages } from "../pdf";
 import { auditQuestion, canonicalGradeCode, educationLevelForGrade, fingerprintQuestion, normalizeGrade, normalizeSubject, normalizeText } from "./normalize";
 import type { AuditedQuestion, NormalizedCurriculumNode, NormalizedQuestion, SourceDocument } from "./types";
+import { assertSafeIfZip, assertSafeZip } from "../uploads/zip-guard";
 
 const supported = new Set([".pdf", ".docx", ".xlsx", ".xls", ".csv", ".json", ".txt"]);
 
@@ -64,9 +65,10 @@ export async function extractText(source: SourceDocument): Promise<string> {
   if (source.extension === ".pdf") {
     return (await pdfPages(buffer)).map((page) => page.text).join("\n\n");
   }
-  if (source.extension === ".docx") return (await mammoth.extractRawText({ buffer })).value;
+  if (source.extension === ".docx") { assertSafeZip(buffer); return (await mammoth.extractRawText({ buffer })).value; }
   if ([".txt", ".csv", ".json"].includes(source.extension)) return buffer.toString("utf8");
   if ([".xlsx", ".xls"].includes(source.extension)) {
+    assertSafeIfZip(buffer);
     const workbook = XLSX.read(buffer);
     return workbook.SheetNames.map((name) => XLSX.utils.sheet_to_csv(workbook.Sheets[name])).join("\n");
   }
@@ -219,6 +221,7 @@ export async function extractStructuredQuestions(source: SourceDocument): Promis
   const buffer = await readFile(source.absolutePath);
   let rows: Record<string, unknown>[] = [];
   if ([".xlsx", ".xls", ".csv"].includes(source.extension)) {
+    assertSafeIfZip(buffer);
     const workbook = XLSX.read(buffer, { type: "buffer" });
     rows = workbook.SheetNames.flatMap((name) => XLSX.utils.sheet_to_json<Record<string, unknown>>(workbook.Sheets[name], { defval: "" }));
   } else if (source.extension === ".json") {

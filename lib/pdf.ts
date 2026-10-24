@@ -15,10 +15,21 @@ async function loadPdfParse() {
   return loader;
 }
 
-export async function pdfPages(data: Buffer | Uint8Array): Promise<PdfPage[]> {
+// Limits so one hostile or enormous PDF cannot tie up the server (audit QB-AUD-014): at most 400 pages and 30 seconds of reading.
+export const PDF_LIMITS = { maxPages: 400, maxMillis: 30000 } as const;
+export async function pdfPages(data: Buffer | Uint8Array, limits: { maxPages: number; maxMillis: number } = PDF_LIMITS): Promise<PdfPage[]> {
   const { PDFParse } = await loadPdfParse();
   const { CanvasFactory } = await import("pdf-parse/worker");
   const parser = new PDFParse({ data, CanvasFactory });
-  try { return (await parser.getText()).pages.map((page) => ({ num: page.num, text: page.text })); }
-  finally { await parser.destroy(); }
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    const work = (async () => {
+      const info = await parser.getInfo();
+      if (info.total > limits.maxPages) throw new Error("PDF_TOO_LONG");
+      return (await parser.getText()).pages.map((page) => ({ num: page.num, text: page.text }));
+    })();
+    const timeout = new Promise<never>((_, reject) => { timer = setTimeout(() => reject(new Error("PDF_TIMEOUT")), limits.maxMillis); });
+    work.catch(() => undefined);                                                           // a late failure after the timeout must not become an unhandled rejection
+    return await Promise.race([work, timeout]);
+  } finally { if (timer) clearTimeout(timer); await parser.destroy().catch(() => undefined); }
 }

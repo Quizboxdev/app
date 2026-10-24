@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { getSupabaseAdminClient } from "@/lib/supabase/server-admin";
 import { validateSubmission } from "@/lib/public/intake-validation";
 import { SITE_URL } from "@/lib/site";
+import { logFallback } from "@/lib/ops/log";
 
 // Public enquiry intake. The browser posts here (never to Supabase). The route is the real gate: same origin, JSON, at most 8 KB, a honeypot,
 // a minimum time-to-submit, strict validation, then a database function with durable rate limits. It answers generically and never echoes input.
@@ -39,8 +40,9 @@ export async function POST(req: Request) {
     if (error) {
       if (/QB_RATE_LIMITED/.test(error.message)) return generic(429, { ok: false, error: "Too many messages. Please try again later." });
       if (/QB_INTAKE_/.test(error.message)) return generic(400, { ok: false, error: "Please check your details and try again." });
+      console.error(`[intake] could not store a message: ${error.message.replace(/\s+/g, " ").slice(0, 160)}`);
       return generic(503, { ok: false, error: "Sending is temporarily unavailable. Please try again later." });
     }
-  } catch { return generic(503, { ok: false, error: "Sending is temporarily unavailable. Please try again later." }); }
+  } catch (e) { logFallback("intake", "could not store a message", e); return generic(503, { ok: false, error: "Sending is temporarily unavailable. Please try again later." }); }
   return generic(202, { ok: true });
 }

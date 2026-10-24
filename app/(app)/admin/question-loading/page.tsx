@@ -5,6 +5,7 @@ import { listApprovedSources, loadCurriculumIndex, runQuestionLoad, type Approve
 import type { CurriculumIndex } from "@/lib/curriculum/verified";
 import { readQuestionFile } from "@/lib/question-loading/read";
 import { buildPlan, describePlan } from "@/lib/question-loading/plan";
+import { balanceAnswerKey } from "@/lib/question-loading/balance";
 import { buildLoadPayload } from "@/lib/question-loading/payload";
 import type { LoadRow } from "@/lib/question-loading/template";
 import { describeErrorMessage } from "@/lib/errors";
@@ -20,7 +21,7 @@ export default function QuestionLoadingPage() {
   const [sources, setSources] = useState<ApprovedSource[]>([]), [chosen, setChosen] = useState<string[]>([]);
   const [index, setIndex] = useState<CurriculumIndex | null>(null);
   const [files, setFiles] = useState<string[]>([]), [rows, setRows] = useState<LoadRow[]>([]), [fileRows, setFileRows] = useState<number[]>([]), [hash, setHash] = useState("");
-  const [busy, setBusy] = useState(false), [error, setError] = useState(""), [progress, setProgress] = useState(""), [result, setResult] = useState<LoadResult | null>(null);
+  const [busy, setBusy] = useState(false), [error, setError] = useState(""), [progress, setProgress] = useState(""), [result, setResult] = useState<LoadResult | null>(null), [balance, setBalance] = useState(false);
   const curriculum = curricula.find((c) => c.id === curriculumId);
 
   useEffect(() => { listAllCurricula().then(setCurricula).catch((e) => setError(describeErrorMessage((e as Error).message))); }, []);
@@ -49,7 +50,11 @@ export default function QuestionLoadingPage() {
     } catch (e) { setRows([]); setFiles([]); setError(describeErrorMessage((e as Error).message)); }
   }
 
-  const plan = useMemo(() => (rows.length && index && hash ? buildPlan({ rows, fileRows, fileSha256: hash, scope: "CURRICULUM", index }) : null), [rows, fileRows, index, hash]);
+  // Answer positions (audit QB-AUD-017): the spread of the correct letters is always shown; evening it out is a choice (it moves whole option texts, never just the letter, and skips questions whose wording points at option positions).
+  const balanced = useMemo(() => (rows.length ? balanceAnswerKey(rows, parseInt(hash.slice(0, 8) || "1", 16) || 1) : null), [rows, hash]);
+  const loadRows = balance && balanced ? balanced.rows : rows;
+  const plan = useMemo(() => (loadRows.length && index && hash ? buildPlan({ rows: loadRows, fileRows, fileSha256: hash, scope: "CURRICULUM", index }) : null), [loadRows, fileRows, index, hash]);
+  const spread = balanced ? balanced.report.before : null, skew = spread && balanced!.report.eligible >= 40 ? Math.max(...Object.values(spread)) / balanced!.report.eligible : 0;
   const noSources = Boolean(curriculumId) && !busy && sources.length === 0;
 
   async function load() {
@@ -57,7 +62,7 @@ export default function QuestionLoadingPage() {
     if (!window.confirm(`Load ${plan.report.rows} questions in ${plan.topics.length} topics? They go to SME review and are not published.`)) return;
     setBusy(true); setError(""); setResult(null);
     try {
-      const payload = buildLoadPayload(plan, rows);
+      const payload = buildLoadPayload(plan, loadRows);
       const r = await runQuestionLoad({ payload, fileName: files.join(", ").slice(0, 280), fileSha256: hash, marketId: curriculum.market_id, curriculumId, sourceIds: chosen,
         onProgress: (d, t) => setProgress(`Loaded ${d} of ${t} questions…`) });
       setResult(r);
@@ -84,6 +89,10 @@ export default function QuestionLoadingPage() {
     </section>
     {plan && <section className="qb-card"><h2>3. Check</h2>
       <ul>{describePlan(plan).map((l, i) => <li key={i}>{l}</li>)}</ul>
+      {balanced && balanced.report.eligible > 0 && <div role="group" aria-label="Answer positions">
+        <p className={skew > 0.32 ? "qb-error" : "qb-muted"} style={{ margin: "8px 0 4px" }}>Correct answer positions in the file: {Object.entries(balanced.report.before).map(([l, n]) => `${l} ${Math.round((100 * n) / balanced.report.eligible)}%`).join(", ")}{skew > 0.32 ? ". One letter is used much more than the others, which can help learners guess." : "."}</p>
+        <label className="qb-check"><input type="checkbox" checked={balance} onChange={(e) => setBalance(e.target.checked)} /> Even out the answer positions before loading{balance ? ` (now ${Object.entries(balanced.report.after).map(([l, n]) => `${l} ${Math.round((100 * n) / balanced.report.eligible)}%`).join(", ")}; ${balanced.report.moved} questions changed${balanced.report.skipped.length ? `, ${balanced.report.skipped.length} left alone because their wording points at option positions` : ""})` : ""}</label>
+      </div>}
       <dl className="qb-stat-list"><div><dt>Clean</dt><dd>{plan.report.cleanRows}</dd></div><div><dt>Warnings</dt><dd>{plan.report.warningRows}</dd></div><div><dt>Errors</dt><dd>{plan.report.errorRows}</dd></div></dl>
       {plan.report.batchFlags.length > 0 && <ul>{plan.report.batchFlags.map((f) => <li key={f.code} className={f.severity === "error" ? "qb-error" : ""}><b>{f.code.replaceAll("_", " ").toLowerCase()}</b>: {f.detail}</li>)}</ul>}
       {plan.report.issues.filter((i) => i.severity === "error").length > 0 && <details open><summary>Rows to fix</summary><ul>
