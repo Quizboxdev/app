@@ -122,7 +122,17 @@ export function describeErrorMessage(message: string): string {
   return code in messages ? messages[code] + (detail.length ? ` (${detail.join(": ")})` : "") : message;
 }
 
+// A dropped connection reaches the app as a failed fetch (TypeError), not as a database error, and the browsers word it differently
+// ("Failed to fetch", "NetworkError when attempting to fetch resource.", "Load failed"). Say so plainly instead of blaming the operation (audit UX-022).
+export const NETWORK_ERROR_MESSAGE = "You seem to be offline, or the connection dropped. Check your connection and try again.";
+const NETWORK_FAILURE = /failed to fetch|networkerror|network request failed|load failed|fetch failed/i;
+export function isNetworkFailure(message: string): boolean {
+  return NETWORK_FAILURE.test(message) || (typeof navigator !== "undefined" && navigator.onLine === false);
+}
+
+export const GENERIC_ERROR_MESSAGE = "The operation could not be completed. Please try again or contact support.";
+
 export function userFacingError(error: unknown): string {
   const message = typeof error === "object" && error !== null && "message" in error ? String(error.message) : String(error);
-  return messages[message.split(":")[0]] ?? "The operation could not be completed. Please try again or contact support.";
+  return messages[message.split(":")[0]] ?? (isNetworkFailure(message) ? NETWORK_ERROR_MESSAGE : GENERIC_ERROR_MESSAGE);
 }

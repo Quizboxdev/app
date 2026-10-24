@@ -10,8 +10,8 @@ export default function FinalCta() {
           <p className="qbp-body">Free to start. Sponsors, schools and subject experts can register interest or apply.</p>
         </div>
         <div className="qbp-actions">
-          <Link className="qbp-btn" href={PUBLIC_LINKS.register}>Get started</Link>
-          <Link className="qbp-btn2" href={PUBLIC_LINKS.login}>Sign in</Link>
+          <Link className="qbp-btn" href={PUBLIC_LINKS.register} prefetch>Get started</Link>
+          <Link className="qbp-btn2" href={PUBLIC_LINKS.login} prefetch>Sign in</Link>
         </div>
       </div>
     </section>

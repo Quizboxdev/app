@@ -5,10 +5,12 @@ import { groupPrices, priceLabel, type PriceRow } from "@/lib/pricing/format";
 
 // The pricing cards. Each section has its own colour band; the best-value card is lifted and carries a badge. A card with a price and a payment link sends the buyer to the
 // gateway; a free card goes to sign-up; one with no price yet says "Price to be announced". Plain markup, works on the public page and inside the app.
-const TONE: Record<string, { band: string; ink: string; soft: string; ring: string }> = {
+// `ring` is also used for small text on `soft`, and `ink` (white) sits on every colour stop of `band`: each pair must stay at 4.5:1 or better (tones.test.ts).
+// The old amber and sky stops gave white text 2.2:1 and 2.8:1; the stops here keep the same hues, darker.
+export const TONE: Record<string, { band: string; ink: string; soft: string; ring: string }> = {
   learners: { band: "linear-gradient(135deg,#2563eb 0%,#7c3aed 100%)", ink: "#ffffff", soft: "#eef2ff", ring: "#7c3aed" },
-  schools: { band: "linear-gradient(135deg,#059669 0%,#0ea5e9 100%)", ink: "#ffffff", soft: "#ecfdf5", ring: "#059669" },
-  sponsors: { band: "linear-gradient(135deg,#f59e0b 0%,#ef4444 100%)", ink: "#ffffff", soft: "#fff7ed", ring: "#ea580c" },
+  schools: { band: "linear-gradient(135deg,#047857 0%,#0369a1 100%)", ink: "#ffffff", soft: "#ecfdf5", ring: "#047857" },
+  sponsors: { band: "linear-gradient(135deg,#c2410c 0%,#b91c1c 100%)", ink: "#ffffff", soft: "#fff7ed", ring: "#c2410c" },
 };
 
 export default function PricingCards({ rows, onPay, payable, busy, registerHref = "/login" }: {

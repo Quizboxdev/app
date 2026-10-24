@@ -191,6 +191,12 @@ button, input, textarea, select { font: inherit; color: inherit; }
 button { cursor: pointer; }
 a { color: inherit; text-decoration: none; }
 a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, summary:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.qb-skip { position: absolute; left: 16px; top: -56px; z-index: 100; background: var(--ink); color: #fff; padding: 10px 14px; border-radius: 8px; font-weight: 700; text-decoration: none; }
+.qb-skip:focus { top: 12px; }
+.qb-conn { position: sticky; top: 0; z-index: 40; padding: 10px 16px; font-weight: 600; text-align: center; }
+.qb-conn.off { background: var(--amber-tint); color: var(--amber-text); border-bottom: 1px solid var(--amber-line); }
+.qb-conn.back { background: var(--green-tint); color: var(--green); border-bottom: 1px solid var(--green-line); }
+.qb-main:focus { outline: none; }
 .qb-sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
 
 /* Display face (Sora) for headings, numerals, metric values and the wordmark; DM Sans everywhere else. */
@@ -273,6 +279,8 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
   transition: background-color .15s, border-color .15s, color .15s;
 }
 .qb-btn:hover:not(:disabled) { background: var(--blue-strong); }
+.qb-btn { transition: background-color .12s ease-out, border-color .12s ease-out, color .12s ease-out, transform .12s ease-out; }
+.qb-btn:active:not(:disabled) { transform: translateY(1px) scale(.99); }
 .qb-btn.secondary, .qb-btn-secondary { background: var(--qb-surface); color: var(--blue-strong); border-color: var(--blue); }
 .qb-btn.secondary:hover:not(:disabled), .qb-btn-secondary:hover:not(:disabled) { background: var(--qb-surface-hover); }
 .qb-btn.ghost { background: transparent; color: var(--ink); border-color: var(--line-control); }
@@ -467,7 +475,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 
 /* Student dashboard */
 .qb-dashboard-hero, .qb-welcome { padding: 24px; margin-bottom: 16px; background: var(--surface); color: var(--ink); border: 1px solid var(--line); border-top: 4px solid var(--role); border-radius: var(--radius-md); }
-.qb-dashboard-hero h2 { margin: 6px 0 8px; font-size: 28px; line-height: 1.25; color: var(--ink); letter-spacing: 0; }
+.qb-dashboard-hero :is(h1, h2) { margin: 6px 0 8px; font-size: 28px; line-height: 1.25; color: var(--ink); letter-spacing: 0; }
 .qb-dashboard-hero p { margin: 8px 0 0; max-width: 720px; color: var(--ink-body); line-height: 1.55; }
 .qb-eyebrow { font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--role); }
 .qb-dashboard-hero .qb-actions { margin-top: 16px; }
@@ -706,7 +714,7 @@ summary.qb-link { display: flex; align-items: center; min-height: 44px; cursor: 
   .qb-topbar-user .qb-btn { padding-inline: 10px; }
   .qb-avatar { width: 38px; height: 38px; }
   .qb-dashboard-hero, .qb-welcome { padding: 18px; }
-  .qb-dashboard-hero h2, .qb-welcome h2 { font-size: 24px; }
+  .qb-dashboard-hero :is(h1, h2), .qb-welcome h2 { font-size: 24px; }
   .qb-welcome-next { flex-basis: 100%; }
   .qb-card, .qb-panel { padding: 14px 16px; }
   .qb-content-filters { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -847,6 +855,7 @@ summary.qb-link { display: flex; align-items: center; min-height: 44px; cursor: 
 .qb-shell .qb-player-dot { width: 40px; min-width: 40px; height: 40px; min-height: 40px; padding: 0; border-radius: var(--radius-sm); border: 1px solid var(--line-control); background: var(--surface); font-weight: 600; font-size: 13px; color: var(--ink); }
 .qb-shell .qb-player-dot.answered { background: var(--blue-tint); border-color: var(--blue); color: var(--blue-strong); }
 .qb-shell .qb-player-dot[aria-current="true"] { background: var(--blue); border-color: var(--blue); color: #fff; }
+.qb-shell .qb-player-dot.unsaved { border-style: dashed; border-color: var(--amber); }
 .qb-feedback.correct { background: var(--green-tint); border-color: var(--green-line); }
 .qb-feedback.incorrect { background: var(--amber-wash); border-color: var(--amber-line); }
 .qb-feedback { margin-top: 0; }
@@ -930,7 +939,7 @@ summary.qb-link { display: flex; align-items: center; min-height: 44px; cursor: 
 
 /* segmented sign-in / register switch */
 .qb-segmented { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-top: 22px; padding: 4px; border-radius: 12px; background: var(--qb-surface-muted, #f1f5f9); border: 1px solid var(--line); }
-.qb-segmented button { min-height: 38px; border: 0; border-radius: 9px; background: transparent; color: var(--ink-body); font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; transition: background-color .15s, color .15s, box-shadow .15s; }
+.qb-segmented button { min-height: 44px; border: 0; border-radius: 9px; background: transparent; color: var(--ink-body); font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; transition: background-color .15s, color .15s, box-shadow .15s; }
 .qb-segmented button.is-active { background: var(--qb-surface); color: var(--ink); box-shadow: 0 1px 2px rgba(15,23,42,.08), 0 1px 1px rgba(15,23,42,.04); }
 .qb-segmented button:focus-visible { outline: none; box-shadow: var(--focus-ring); }
 
@@ -959,7 +968,8 @@ summary.qb-link { display: flex; align-items: center; min-height: 44px; cursor: 
 .qb-auth-alert.is-success { color: #166534; background: var(--qb-success-bg); border-color: color-mix(in srgb, var(--qb-success) 25%, transparent); }
 .qb-auth-alert.is-info { color: var(--blue-strong); background: var(--color-primary-soft); border-color: color-mix(in srgb, var(--blue) 20%, transparent); margin-top: 16px; }
 .qb-btn-block { width: 100%; min-height: 48px; border-radius: 12px; font-size: 15px; }
-.qb-auth-v2 .qb-btn:not(.secondary):not(.ghost) { background: linear-gradient(180deg, #3b82f6, var(--blue)); box-shadow: 0 1px 0 rgba(255,255,255,.2) inset, 0 6px 16px -6px rgba(37,99,235,.55); }
+/* One primary button everywhere: solid blue, 44px, 10px corners (audit UX-025). */
+.qb-auth-v2 .qb-btn { min-height: 44px; border-radius: 10px; }
 .qb-auth-v2 .qb-btn:not(.secondary):not(.ghost):hover:not(:disabled) { background: var(--blue-strong); }
 .qb-auth-v2 .qb-btn:focus-visible { outline: none; box-shadow: var(--focus-ring); }
 .qb-auth-v2 a.qb-btn { color: #fff; text-decoration: none; margin-top: 16px; }
@@ -976,3 +986,5 @@ summary.qb-link { display: flex; align-items: center; min-height: 44px; cursor: 
 .qb-sh-stat { display: grid; gap: 6px; align-content: start; padding: 14px 16px; }
 .qb-sh-stat strong { font-size: 20px; line-height: 1.2; }
 .qb-content .qb-sh-stat .qb-overline { display: flex; align-items: center; gap: 6px; margin: 0; }
+
+@media (prefers-reduced-motion: reduce) { .qb-btn:active:not(:disabled) { transform: none; } }

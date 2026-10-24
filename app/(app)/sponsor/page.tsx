@@ -2,6 +2,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import LoadError from "@/components/LoadError";
 import Link from "next/link";
 import { bootstrapUser } from "@/lib/auth";
 import CompetitionContentScope from "@/components/CompetitionContentScope";
@@ -58,7 +59,7 @@ export default function SponsorPage() {
       .finally(() => setBusy(false));
   }, []);
 
-  if (error) return <div className="qb-card qb-error">{error}</div>;
+  if (error) return <LoadError message={error} onRetry={() => window.location.reload()} />;
   if (busy) return <div className="qb-home-grid" aria-busy="true">{[1, 2, 3, 4].map((i) => <div key={i} className="qb-card qb-skeleton" />)}</div>;
 
   const empty = (title: string, body: string) => <div className="qb-empty"><strong>{title}</strong>{body}</div>;

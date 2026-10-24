@@ -1,7 +1,7 @@
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import type { AttemptPayload } from "@/lib/types";
 import type { PracticeFeedback } from "@/lib/learning/feedback";
-import { userFacingError } from "@/lib/errors";
+import { isNetworkFailure, userFacingError } from "@/lib/errors";
 import { recordFailure } from "@/lib/api/operations";
 
 function unwrapRpc<T>(data: T | null, error: any): T {
@@ -71,6 +71,15 @@ export async function savePracticeResponse(args: { attemptId: string; questionId
   return unwrapRpc<PracticeFeedback>(data, error);
 }
 
+// A failed answer save is reported to operations (audit UX-023), but never more than once every 30 seconds, and never for a lost connection (the report could not be sent anyway).
+let lastSaveFailureLog = 0;
+function logSaveFailure(error: unknown) {
+  const text = String((error as { message?: unknown } | null)?.message ?? "");
+  if (isNetworkFailure(text) || Date.now() - lastSaveFailureLog < 30_000) return;
+  lastSaveFailureLog = Date.now();
+  void recordFailure("ATTEMPT_SAVE", error).catch(() => undefined);   // harmless before the database migration is applied: the database refuses the name and the error is ignored
+}
+
 export async function saveResponse(args: {
   attemptId: string;
   questionId: string;
@@ -88,6 +97,7 @@ export async function saveResponse(args: {
     p_response_seconds: args.responseSeconds ?? 0,
   });
 
+  if (error) logSaveFailure(error);
   return unwrapRpc<any>(data, error);
 }
 

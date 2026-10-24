@@ -1,9 +1,5 @@
 import type { Metadata } from "next";
-import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
-import { authCallbackHref, hasAuthLinkParams } from "@/lib/auth-links";
 import PublicHome from "@/components/public/PublicHome";
-import SessionGate from "@/components/public/SessionGate";
 import { getPublicMarkets } from "@/lib/public/signup-markets";
 import { getPublicPlatformStats } from "@/lib/public/platform-stats";
 
@@ -12,24 +8,20 @@ export const metadata: Metadata = {
   description:
     "QuizBox is a curriculum-aligned learning, assessment and competition platform for students, teachers, schools and sponsors, with content reviewed by qualified subject experts.",
   alternates: { canonical: "/" },
+  twitter: { card: "summary_large_image" },
   openGraph: {
     url: "/",
     title: "QuizBox — Learn. Practise. Compete.",
     description: "Curriculum-aligned practice, assessment and competitions, with SME-reviewed content.",
-    images: [{ url: "/brand/quizbox-app-icon.png", width: 512, height: 512, alt: "QuizBox" }],
   },
 };
 
-// Supabase stores the browser session in sb-<project>-auth-token cookies (optionally chunked).
-const SESSION_COOKIE = /^sb-.+-auth-token(\.\d+)?$/;
+// The home page is static and refreshed every five minutes, so it comes from the edge cache (audit UX-030). The two things that used to make it
+// dynamic now happen in middleware.ts before the page is chosen: an email-link result in the URL is forwarded to the auth callback, and a request
+// that carries a Supabase session cookie is served /opening (the same page behind the session gate, so signed-in users never see the home page flash).
+export const revalidate = 300;
 
-// Supabase sends email links to the Site URL (this page) when the requested redirect is not allow-listed: complete them in the callback.
-export default async function RootPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
-  const params = await searchParams;
-  if (hasAuthLinkParams(params)) redirect(authCallbackHref(params));
-  const [cookieStore, markets, stats] = await Promise.all([cookies(), getPublicMarkets(), getPublicPlatformStats()]);
-  const home = <PublicHome markets={markets} stats={stats} />;
-  // Signed-out visitors get the server-rendered homepage. A session cookie hands off to the
-  // existing bootstrapUser()/role routing without showing the homepage first.
-  return cookieStore.getAll().some((c) => SESSION_COOKIE.test(c.name)) ? <SessionGate>{home}</SessionGate> : home;
+export default async function RootPage() {
+  const [markets, stats] = await Promise.all([getPublicMarkets(), getPublicPlatformStats()]);
+  return <PublicHome markets={markets} stats={stats} />;
 }

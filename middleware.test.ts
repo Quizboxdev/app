@@ -21,6 +21,29 @@ describe("middleware", () => {
     const res = await middleware(req("/some-quiz", { host: "challenge.quizbox.io" }));
     expect(res.status).toBe(307); expect(location(res)).toBe("https://www.quizbox.io/challenges/some-quiz");
   });
+  describe("the static home page (audit UX-030): what used to be decided inside it is decided here", () => {
+    it("forwards an email-link result on / to the auth callback, keeping every parameter", async () => {
+      const res = await middleware(req("/?code=abc&type=recovery"));
+      expect(res.status).toBe(307); expect(location(res)).toBe("https://www.quizbox.io/auth/callback?code=abc&type=recovery");
+    });
+    it("serves /opening to a visitor with a session cookie, without changing the address", async () => {
+      const res = await middleware(req("/", { cookie: true }));
+      expect(res.headers.get("x-middleware-rewrite")).toBe("https://www.quizbox.io/opening"); expect(location(res)).toBeNull();
+    });
+    it("leaves a signed-out visitor on the cached home page", async () => {
+      const res = await middleware(req("/"));
+      expect(res.status).toBe(200); expect(res.headers.get("x-middleware-rewrite")).toBeNull(); expect(getUser).not.toHaveBeenCalled();
+    });
+    it("serves an earlier policy version (?v=2) through the dynamic version page, and the plain policy page untouched", async () => {
+      expect((await middleware(req("/terms?v=2"))).headers.get("x-middleware-rewrite")).toBe("https://www.quizbox.io/policy-version/terms?v=2");
+      expect((await middleware(req("/refunds?v=1"))).headers.get("x-middleware-rewrite")).toBe("https://www.quizbox.io/policy-version/refunds?v=1");
+      expect((await middleware(req("/terms"))).headers.get("x-middleware-rewrite")).toBeNull();
+      expect((await middleware(req("/pricing?v=2"))).headers.get("x-middleware-rewrite")).toBeNull();
+    });
+    it("does not rewrite other pages for cookie holders", async () => {
+      expect((await middleware(req("/pricing", { cookie: true }))).headers.get("x-middleware-rewrite")).toBeNull();
+    });
+  });
   describe("with the guard on", () => {
     beforeEach(() => vi.stubEnv("QB_SERVER_GUARD", "on"));
     it("lets public pages and API routes through untouched, without asking the sign-in service", async () => {

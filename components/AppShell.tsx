@@ -19,6 +19,7 @@ import DraftReminder from "@/components/DraftReminder";
 import PolicyGate from "@/components/policies/PolicyGate";
 import HelpStarter from "@/components/help/HelpStarter";
 import SponsoredCarousel from "@/components/challenges/SponsoredCarousel";
+import ConnectionBanner from "@/components/ConnectionBanner";
 
 type NavItem = [string, string];
 type NavGroup = { label: string; items: NavItem[] };
@@ -228,6 +229,13 @@ export default function AppShell({
     [nav, pathname]
   );
 
+  // The tab title follows the page (audit UX-003): pages here are client components and cannot export metadata.
+  const docTitle = useMemo(() => {
+    const label = nav.find(([href]) => href === activeHref)?.[1];
+    return label ? `${label} | QuizBox` : "QuizBox";
+  }, [nav, activeHref]);
+  useEffect(() => { document.title = docTitle; }, [docTitle]);
+
   useEffect(() => setMoreOpen(false), [pathname]);
   useEffect(() => {
     if (!moreOpen) return;
@@ -299,6 +307,7 @@ export default function AppShell({
 
   return (
     <div className="qb-shell" data-role={roleKey}>
+      <a href="#qb-main" className="qb-skip">Skip to main content</a>
       <aside className="qb-sidebar">
         <div className="qb-brand">
           <BrandLockup variant="compact" size={32} />
@@ -311,7 +320,7 @@ export default function AppShell({
         {["STUDENT", "TEACHER"].includes(String(ctx?.role ?? "").toUpperCase()) && !inSchool && <div className="qb-sidebar-sponsor" style={{ padding: "0 12px 12px" }}><SponsoredCarousel compact showLibrary={false} /></div>}
       </aside>
 
-      <main className="qb-main">
+      <main className="qb-main" id="qb-main" tabIndex={-1}>
         <header className="qb-topbar">
           <BrandLockup variant="mark" size={28} href={getHomeRouteForRole(role)} className="qb-topbar-brand" />
           <strong className="qb-topbar-title">{pageTitle}</strong>
@@ -340,6 +349,7 @@ export default function AppShell({
             </button>
           </div>
         </header>
+        <ConnectionBanner />
 
         <div className="qb-content" ref={contentRef}>
           <SponsorEngineProvider value={sponsorEngine}><WorkspaceProvider>

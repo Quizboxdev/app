@@ -3,7 +3,9 @@ import { ArrowRight } from "lucide-react";
 
 type Action = { label: string; href: string };
 
-export default function DashboardHero({ eyebrow, title, description, primary, secondary, stats }: {
+// `as="h1"` makes the title the page heading; other pages keep their own h1 next to the hero, so the default stays h2.
+export default function DashboardHero({ eyebrow, title, description, primary, secondary, stats, as: Heading = "h2" }: {
+  as?: "h1" | "h2";
   eyebrow: string;
   title: string;
   description: string;
@@ -14,7 +16,7 @@ export default function DashboardHero({ eyebrow, title, description, primary, se
   return (
     <section className="qb-dashboard-hero" aria-label={title}>
       <div className="qb-eyebrow">{eyebrow}</div>
-      <h2>{title}</h2>
+      <Heading>{title}</Heading>
       <p>{description}</p>
       {stats?.length ? <dl className="qb-hero-stats">{stats.map((s) => <div key={s.label}><dd>{s.value}</dd><dt>{s.label}</dt></div>)}</dl> : null}
       <div className="qb-actions">

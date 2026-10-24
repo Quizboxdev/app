@@ -11,7 +11,7 @@ export default function HeroSection() {
         <h1 id="qbp-hero-title" className="qbp-h1">Learn. Practise.<br /><span className="qbp-accent">Compete.</span></h1>
         <p className="qbp-lead">Curriculum-aligned practice for Primary, JHS and SHS learners. Every question is traced to the curriculum and reviewed by a subject expert.</p>
         <div className="qbp-actions">
-          <Link className="qbp-btn" href={PUBLIC_LINKS.registerStudent}>Start practising, free</Link>
+          <Link className="qbp-btn" href={PUBLIC_LINKS.registerStudent} prefetch>Start practising, free</Link>
           <Link className="qbp-btn2" href={PUBLIC_LINKS.registerTeacher}>For teachers and schools</Link>
         </div>
         <p className="qbp-meta" style={{ marginTop: 8 }}>Sponsors and subject experts: <Link className="qbp-link" href={PUBLIC_LINKS.sponsor}>partner with us</Link> or <Link className="qbp-link" href={PUBLIC_LINKS.sme}>join as a subject expert</Link>.</p>

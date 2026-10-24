@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import LoadError from "@/components/LoadError";
 import StatCard from "@/components/StatCard";
 import { getOperationsHealth, listSupportTickets } from "@/lib/api/admin";
 import { enquiryCounts, getClientErrors, type ClientErrorSummary } from "@/lib/api/intake";
@@ -24,7 +25,7 @@ export default function AdminSupportPage() {
   // Browser crashes and new enquiries are optional panels: they load on their own and never block the page.
   useEffect(() => { getClientErrors(24).then(setCrashes).catch(() => setCrashes(null)); enquiryCounts().then((c) => setNewEnquiries(c.new)).catch(() => setNewEnquiries(null)); }, []);
 
-  if (error) return <div className="qb-card qb-error">{error}</div>;
+  if (error) return <LoadError message={error} onRetry={() => window.location.reload()} />;
   if (!health) return <div>Loading support operations…</div>;
 
   return (

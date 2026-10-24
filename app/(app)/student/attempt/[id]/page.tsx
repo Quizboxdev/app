@@ -17,6 +17,8 @@ import { canRevealPracticeFeedback, type PracticeFeedback } from "@/lib/learning
 import ReportQuestion from "@/components/ReportQuestion";
 import { sanitizeLabel } from "@/lib/learning/labels";
 import { Check, ChevronLeft, ChevronRight, CircleAlert, CircleCheck, Clock } from "lucide-react";
+import { createSaveQueue, type SaveQueueState } from "@/lib/assessment/save-queue";
+import { GENERIC_ERROR_MESSAGE, NETWORK_ERROR_MESSAGE } from "@/lib/errors";
 
 // Option keys ("B", ["A","C"]) are shown with their option text where the question carries it.
 function describeAnswer(question: AttemptPayload["questions"][number], raw: unknown): string {
@@ -41,16 +43,41 @@ export default function AttemptPage() {
   const [answers, setAnswers] = useState<Record<string, AnswerState>>({});
   const [index, setIndex] = useState(0);
   const [seconds, setSeconds] = useState(0);
-  const [saving, setSaving] = useState(false);
+  // Answers are saved through a queue that retries failed saves and clears its own warning (audit UX-011).
+  const [queueState, setQueueState] = useState<SaveQueueState>({ saving: false, pending: new Set(), failed: new Set() });
+  const saving = queueState.saving;
   const [error, setError] = useState("");
   const startTimes = useRef<Record<string, number>>({});
-  const pendingSave = useRef<Promise<void>>(Promise.resolve());
+  const queueRef = useRef<ReturnType<typeof createSaveQueue<{ value: AnswerState; seconds: number }>> | null>(null);
   const submitting = useRef(false);
   const [mode, setMode] = useState("ASSESSMENT");
   const [feedback, setFeedback] = useState<Record<string, PracticeFeedback>>({});
   const [confirming, setConfirming] = useState(false);
   const [submitConfirmation, setSubmitConfirmation] = useState(false);
   const [context, setContext] = useState("");
+
+  useEffect(() => {
+    const queue = createSaveQueue<{ value: AnswerState; seconds: number }>({
+      save: async (questionId, { value, seconds }) => {
+        await saveResponse({ attemptId: params.id, questionId, selectedAnswer: value.selectedAnswer ?? null, selectedValue: value.selectedValue ?? null, responseSeconds: seconds });
+      },
+      onChange: setQueueState,
+      // A dropped connection or a passing server fault is retried; anything else (for example "attempt closed") will never save.
+      isRetryable: (e) => e instanceof Error && (e.message === NETWORK_ERROR_MESSAGE || e.message === GENERIC_ERROR_MESSAGE),
+      onReject: (_key, e) => setError(e instanceof Error ? e.message : GENERIC_ERROR_MESSAGE),
+    });
+    queueRef.current = queue;
+    const backOnline = () => { void queue.retryNow(); };
+    const warnBeforeLeaving = (event: BeforeUnloadEvent) => { if (queue.hasUnsaved()) { event.preventDefault(); event.returnValue = ""; } };
+    window.addEventListener("online", backOnline);
+    window.addEventListener("beforeunload", warnBeforeLeaving);
+    return () => { window.removeEventListener("online", backOnline); window.removeEventListener("beforeunload", warnBeforeLeaving); queue.dispose(); queueRef.current = null; };
+  }, [params.id]);
+
+  // The "not saved yet" warnings go away by themselves once every answer is saved.
+  useEffect(() => {
+    if (queueState.pending.size === 0 && queueState.failed.size === 0) setError((prev) => (/not saved yet/.test(prev) ? "" : prev));
+  }, [queueState]);
 
   useEffect(() => {
     Promise.all([getAttempt(params.id), getAttemptMode(params.id)])
@@ -66,6 +93,9 @@ export default function AttemptPage() {
           };
         }
         setAnswers(saved);
+        // Coming back to an unfinished attempt: open on the first question without an answer (or the last one when all are answered).
+        const firstOpen = payload.questions.findIndex((q) => saved[q.question_id] === undefined);
+        setIndex(firstOpen === -1 ? Math.max(0, payload.questions.length - 1) : firstOpen);
       })
       .catch((e) => setError(e.message));
   }, [params.id]);
@@ -107,40 +137,25 @@ export default function AttemptPage() {
     }
   }, [questionId]);
 
-  async function answer(value: AnswerState) {
+  function answer(value: AnswerState) {
     if (!question) return;
     setAnswers((prev) => ({ ...prev, [question.question_id]: value }));
     setFeedback((prev) => { const next = { ...prev }; delete next[question.question_id]; return next; });
-    setSaving(true);
-
     const started = startTimes.current[question.question_id] ?? Date.now();
-    const responseSeconds = Math.max(
-      0,
-      Math.round((Date.now() - started) / 1000)
-    );
-
-    try {
-      const job = pendingSave.current.catch(() => {}).then(async () => { await saveResponse({
-        attemptId: params.id,
-        questionId: question.question_id,
-        selectedAnswer: value.selectedAnswer ?? null,
-        selectedValue: value.selectedValue ?? null,
-        responseSeconds,
-      }); });
-      pendingSave.current = job;
-      await job;
-    } catch (e: any) {
-      setError(e.message);
-    } finally {
-      setSaving(false);
-    }
+    const seconds = Math.max(0, Math.round((Date.now() - started) / 1000));
+    queueRef.current?.enqueue(question.question_id, { value, seconds });
   }
 
   async function submit() {
     if (submitting.current || saving || confirming) return;
     submitting.current = true;
     try {
-      await pendingSave.current;
+      // Every answer must be saved first; if the connection is down they stay on this page and the student can submit again.
+      if (!(await (queueRef.current?.flush() ?? Promise.resolve(true)))) {
+        submitting.current = false;
+        setError("Some answers are not saved yet, so the attempt was not submitted. Check your connection and press Submit again. Your answers are kept on this page.");
+        return;
+      }
       await submitAttempt(params.id);
       router.replace(resultPath);
     } catch (e: any) {
@@ -154,7 +169,7 @@ export default function AttemptPage() {
     setConfirming(true);
     const questionId = question.question_id;
     try {
-      await pendingSave.current;
+      if (!(await (queueRef.current?.flush() ?? Promise.resolve(true)))) { setError("Your answer is not saved yet, so it cannot be checked. Check your connection; we keep trying."); return; }
       const value = answers[questionId] ?? {};
       const response = await savePracticeResponse({ attemptId: params.id, questionId, selectedAnswer: value.selectedAnswer, selectedValue: value.selectedValue });
       setFeedback((prev) => ({ ...prev, [questionId]: response }));
@@ -177,6 +192,7 @@ export default function AttemptPage() {
 
   return (
     <div className="qb-player">
+      <h1 className="qb-sr-only">{practice ? "Practice session" : "Assessment"}</h1>
       <div className="qb-player-bar">
         <div className="qb-player-meta">
           <div className="qb-player-title">
@@ -193,6 +209,10 @@ export default function AttemptPage() {
       </div>
 
       {error && <div className="qb-card qb-error" role="alert">{error}</div>}
+      {queueState.failed.size > 0 && <div className="qb-card" role="status" style={{ background: "var(--amber-wash)", borderColor: "var(--amber-line)", color: "var(--amber-text)" }}>
+        <p style={{ margin: "0 0 8px" }}>Some answers are not saved yet (question {attempt.questions.map((q, i) => (queueState.failed.has(q.question_id) ? i + 1 : 0)).filter(Boolean).join(", ")}). Your choices are kept and we keep trying.</p>
+        <button type="button" className="qb-btn secondary" onClick={() => { void queueRef.current?.retryNow(); }}>Try now</button>
+      </div>}
 
       <section className="qb-player-card" aria-label={`Question ${index + 1}`}>
         <QuestionRenderer question={question} />
@@ -229,7 +249,7 @@ export default function AttemptPage() {
 
       <nav className="qb-card" aria-label="Question navigator">
         <div className="qb-player-dots">
-          {attempt.questions.map((q, i) => <button key={q.question_id} type="button" className={`qb-player-dot${isAnswered(q.question_id) ? " answered" : ""}`} aria-current={i === index ? "true" : undefined} aria-label={`Question ${i + 1}${isAnswered(q.question_id) ? ", answered" : ""}`} onClick={() => setIndex(i)}>{i + 1}</button>)}
+          {attempt.questions.map((q, i) => <button key={q.question_id} type="button" className={`qb-player-dot${isAnswered(q.question_id) ? " answered" : ""}${queueState.pending.has(q.question_id) ? " unsaved" : ""}`} aria-current={i === index ? "true" : undefined} aria-label={`Question ${i + 1}${isAnswered(q.question_id) ? ", answered" : ""}${queueState.pending.has(q.question_id) ? ", not saved yet" : ""}`} onClick={() => setIndex(i)}>{i + 1}</button>)}
         </div>
       </nav>
     </div>

@@ -2,6 +2,7 @@
 "use client";
 
 import { TeacherInsights } from "@/components/Insights";
+import LoadError from "@/components/LoadError";
 import { humanize, isUuid, formatDate } from "@/lib/format";
 import HomeSections from "@/components/HomeSections";
 import { useEffect, useState } from "react";
@@ -51,14 +52,15 @@ export default function TeacherDashboardPage() {
       .then((ctx) => {
         const teacherId = String((ctx.teacherProfile as any)?.id ?? "");
         if (!teacherId) throw new Error("Teacher profile not found.");
-        return Promise.all([getTeacherDashboard(teacherId, ctx.userId), getTeacherAnalytics(teacherId), String((ctx.profile as any)?.full_name ?? "")]);
+        // One failed analytics request must not blank the whole dashboard: show the rest and say what is missing (audit UX-014).
+        return Promise.all([getTeacherDashboard(teacherId, ctx.userId), getTeacherAnalytics(teacherId).catch(() => null), String((ctx.profile as any)?.full_name ?? "")]);
       })
-      .then(([dashboard, analytics, name]) => setData({ ...dashboard, analytics, name }))
+      .then(([dashboard, analytics, name]) => setData({ ...dashboard, analytics: analytics ?? { classes: [], indicators: [], needsAttention: [] }, analyticsFailed: analytics === null, name }))
       .catch((e) => setError(e.message))
       .finally(() => setBusy(false));
   }, []);
 
-  if (error) return <div className="qb-card qb-error">{error}</div>;
+  if (error) return <LoadError message={error} onRetry={() => window.location.reload()} />;
   if (busy) return <div className="qb-home-grid" aria-busy="true">{[1, 2, 3].map((i) => <div key={i} className="qb-card qb-skeleton" />)}</div>;
 
   const now = Date.now();
@@ -75,8 +77,9 @@ export default function TeacherDashboardPage() {
 
   return (
     <>
+      {data.analyticsFailed && <LoadError message="Class performance could not be loaded, so those sections are empty. The rest of your dashboard is shown." onRetry={() => window.location.reload()} />}
       <SponsoredCarousel />
-      <DashboardHero eyebrow="Teacher workspace" title={`${greeting}${firstName ? `, ${firstName}` : ""}`} description={`${data.classes.length} class${data.classes.length === 1 ? "" : "es"} · ${phases[0].rows.length} active assignment${phases[0].rows.length === 1 ? "" : "s"} · ${data.questionBanks.length} question bank${data.questionBanks.length === 1 ? "" : "s"}`} primary={{ label: "Create assignment", href: "/teacher/assignments" }} secondary={{ label: "Question bank", href: "/teacher/question-banks" }} />
+      <DashboardHero as="h1" eyebrow="Teacher workspace" title={`${greeting}${firstName ? `, ${firstName}` : ""}`} description={`${data.classes.length} class${data.classes.length === 1 ? "" : "es"} · ${phases[0].rows.length} active assignment${phases[0].rows.length === 1 ? "" : "s"} · ${data.questionBanks.length} question bank${data.questionBanks.length === 1 ? "" : "s"}`} primary={{ label: "Create assignment", href: "/teacher/assignments" }} secondary={{ label: "Question bank", href: "/teacher/question-banks" }} />
 
       <section className="qb-card" aria-labelledby="th-attention">
         <h2 id="th-attention">Needs your attention</h2>

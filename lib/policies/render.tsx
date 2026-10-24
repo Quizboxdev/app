@@ -49,12 +49,17 @@ export function inline(text: string, keyBase = "i", opts: LinkOptions = {}): Rea
 export const slugOf = (text: string) => text.toLowerCase().replace(/\*\*|\[|\]\([^)]*\)/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 60);
 export const headingsOf = (source: string) => parseBlocks(source).filter((b): b is Extract<Block, { kind: "h" }> => b.kind === "h" && b.level === 2).map((b) => ({ text: b.text.replace(/\*\*/g, ""), id: slugOf(b.text) }));
 
-export function RenderText({ source, helpBase, linkClass }: { source: string } & LinkOptions) {
+// normalizeHeadings: the smallest heading level in the text becomes h2 (right under the page's h1), the next h3, and so on. Help guides are typed with ## for their
+// sections, which would otherwise skip a level (h1 then h3) and fail WCAG heading order (audit UX-007).
+export function RenderText({ source, helpBase, linkClass, normalizeHeadings }: { source: string; normalizeHeadings?: boolean } & LinkOptions) {
   const opts = { helpBase, linkClass };
+  const blocks = parseBlocks(source);
+  const smallest = Math.min(...blocks.flatMap((b) => (b.kind === "h" ? [b.level] : [])), 3);
+  const tagLevel = (level: number) => (normalizeHeadings ? level - smallest + 2 : level + 1);
   return (
     <>
-      {parseBlocks(source).map((b, i) => {
-        if (b.kind === "h") { const Tag = (`h${b.level + 1}` as "h2" | "h3" | "h4"); return <Tag key={i} id={slugOf(b.text)}>{inline(b.text, `h${i}`, opts)}</Tag>; }   // the page title is the h1, so # becomes h2
+      {blocks.map((b, i) => {
+        if (b.kind === "h") { const Tag = (`h${tagLevel(b.level)}` as "h2" | "h3" | "h4"); return <Tag key={i} id={slugOf(b.text)}>{inline(b.text, `h${i}`, opts)}</Tag>; }   // the page title is the h1, so # becomes h2
         if (b.kind === "ul") return <ul key={i}>{b.items.map((t, j) => <li key={j}>{inline(t, `u${i}${j}`, opts)}</li>)}</ul>;
         if (b.kind === "ol") return <ol key={i}>{b.items.map((t, j) => <li key={j}>{inline(t, `o${i}${j}`, opts)}</li>)}</ol>;
         return <p key={i}>{inline(b.text, `p${i}`, opts)}</p>;

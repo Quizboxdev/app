@@ -1,0 +1,198 @@
+[
+ {
+  "version": "20261020100000",
+  "name": "managed_learner_erasure",
+  "chars": 4731,
+  "parts": 1,
+  "note": ""
+ },
+ {
+  "version": "20261021100000",
+  "name": "challenges_foundation",
+  "chars": 31293,
+  "parts": 4,
+  "note": ""
+ },
+ {
+  "version": "20261022100000",
+  "name": "challenges_extensions",
+  "chars": 45348,
+  "parts": 6,
+  "note": ""
+ },
+ {
+  "version": "20261023100000",
+  "name": "challenges_moderation",
+  "chars": 17060,
+  "parts": 3,
+  "note": ""
+ },
+ {
+  "version": "20261024100000",
+  "name": "managed_learner_lifecycle",
+  "chars": 8882,
+  "parts": 2,
+  "note": ""
+ },
+ {
+  "version": "20261025100000",
+  "name": "push_notifications",
+  "chars": 6291,
+  "parts": 1,
+  "note": ""
+ },
+ {
+  "version": "20261026100000",
+  "name": "notification_dismiss",
+  "chars": 3150,
+  "parts": 1,
+  "note": ""
+ },
+ {
+  "version": "20261027100000",
+  "name": "competitions_and_sharing",
+  "chars": 32935,
+  "parts": 5,
+  "note": ""
+ },
+ {
+  "version": "20261028100000",
+  "name": "activity_drafts",
+  "chars": 8479,
+  "parts": 1,
+  "note": ""
+ },
+ {
+  "version": "20261029100000",
+  "name": "quiz_studio",
+  "chars": 39336,
+  "parts": 5,
+  "note": ""
+ },
+ {
+  "version": "20261030100000",
+  "name": "price_list",
+  "chars": 9630,
+  "parts": 2,
+  "note": ""
+ },
+ {
+  "version": "20261031100000",
+  "name": "coin_products",
+  "chars": 9051,
+  "parts": 2,
+  "note": ""
+ },
+ {
+  "version": "20261032100000",
+  "name": "minimum_charge",
+  "chars": 2816,
+  "parts": 1,
+  "note": ""
+ },
+ {
+  "version": "20261033100000",
+  "name": "drop_stale_practice_overloads",
+  "chars": 768,
+  "parts": 1,
+  "note": ""
+ },
+ {
+  "version": "20261034100000",
+  "name": "student_academic_limits",
+  "chars": 8529,
+  "parts": 2,
+  "note": ""
+ },
+ {
+  "version": "20261035100000",
+  "name": "refund_cases",
+  "chars": 13644,
+  "parts": 3,
+  "note": ""
+ },
+ {
+  "version": "20261036100000",
+  "name": "policy_cms",
+  "chars": 22214,
+  "parts": 3,
+  "note": ""
+ },
+ {
+  "version": "20261037100000",
+  "name": "policy_seed_v1",
+  "chars": 16782,
+  "parts": 3,
+  "note": "Seeds the 4 policy drafts; each is inserted only for a document that has no version yet, so running it again is safe and never overwrites an edit."
+ },
+ {
+  "version": "20261038100000",
+  "name": "support_requests",
+  "chars": 22199,
+  "parts": 4,
+  "note": ""
+ },
+ {
+  "version": "20261039100000",
+  "name": "help_centre",
+  "chars": 11370,
+  "parts": 2,
+  "note": ""
+ },
+ {
+  "version": "20261040100000",
+  "name": "help_seed_v1",
+  "chars": 33861,
+  "parts": 5,
+  "note": "Guide seed; each row says 'on conflict do nothing', so a second run keeps edits (a deleted guide would come back)."
+ },
+ {
+  "version": "20261041100000",
+  "name": "challenge_seats",
+  "chars": 14858,
+  "parts": 2,
+  "note": ""
+ },
+ {
+  "version": "20261042100000",
+  "name": "help_seats_guide",
+  "chars": 2527,
+  "parts": 1,
+  "note": "Guide seed, 'on conflict do nothing'."
+ },
+ {
+  "version": "20261043100000",
+  "name": "marketplace",
+  "chars": 67084,
+  "parts": 9,
+  "note": ""
+ },
+ {
+  "version": "20261044100000",
+  "name": "help_marketplace_guides",
+  "chars": 4388,
+  "parts": 1,
+  "note": "Guide seed, 'on conflict do nothing'."
+ },
+ {
+  "version": "20261045100000",
+  "name": "admin_exports",
+  "chars": 34901,
+  "parts": 6,
+  "note": "Do NOT run after 20261046100000: it would put the export list back to 22 datasets."
+ },
+ {
+  "version": "20261046100000",
+  "name": "admin_exports_more",
+  "chars": 20082,
+  "parts": 3,
+  "note": ""
+ },
+ {
+  "version": "20261047100000",
+  "name": "attempt_save_failure_log",
+  "chars": 1471,
+  "parts": 1,
+  "note": "New in this release. Not applied anywhere yet."
+ }
+]

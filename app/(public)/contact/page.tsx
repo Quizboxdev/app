@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import PublicShell from "@/components/public/PublicShell";
 import PageIntro from "@/components/public/PageIntro";
-import SupportContactForm from "@/components/public/SupportContactForm";
+import ContactFormWithType from "@/components/public/ContactFormWithType";
 import { PUBLIC_LINKS } from "@/components/public/links";
 
 export const metadata: Metadata = { title: "Contact | QuizBox", description: "Contact QuizBox about sponsorship, schools, subject expert applications or general enquiries." };
@@ -14,8 +14,9 @@ const ROUTES = [
   { title: "Account support", text: "Trouble signing in? Reset your password.", href: "/auth/forgot-password", cta: "Reset password" },
 ];
 
-export default async function ContactPage({ searchParams }: { searchParams: Promise<{ type?: string }> }) {
-  const initialType = (await searchParams).type;
+export const revalidate = 3600;
+
+export default function ContactPage() {
   return (
     <PublicShell>
       <PageIntro crumb="Contact" title="Contact QuizBox" lead="Choose the route that fits your enquiry." />
@@ -32,7 +33,7 @@ export default async function ContactPage({ searchParams }: { searchParams: Prom
         <div className="qbp-card" style={{ maxWidth: 820 }}>
           <h2 className="qbp-h3">Send us a message</h2>
           <p className="qbp-meta">For general questions, account help, and payments or refunds. You can attach screenshots or a PDF. Sponsors, schools and subject experts: please use the forms above.</p>
-          <SupportContactForm initialType={initialType} />
+          <ContactFormWithType />
         </div>
       </section>
     </PublicShell>

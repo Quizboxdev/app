@@ -26,7 +26,7 @@ export function fixtureMutationAllowed(env: Record<string,string|undefined>, arg
 }
 
 export function sanitizedFailure(operation: string, code: unknown) {
-  const allowed = ["ATTEMPT_COMPLETION", "ATTEMPT_START", "CLASS_JOIN", "GENERATION", "IMPORT", "REVIEW", "EXTRACTION", "SME_REVIEW", "PUBLICATION", "RESULT_PERSISTENCE", "ONBOARDING"];
+  const allowed = ["ATTEMPT_COMPLETION", "ATTEMPT_START", "ATTEMPT_SAVE", "CLASS_JOIN", "GENERATION", "IMPORT", "REVIEW", "EXTRACTION", "SME_REVIEW", "PUBLICATION", "RESULT_PERSISTENCE", "ONBOARDING"];
   if (!allowed.includes(operation)) throw new Error("INVALID_OPERATION");
   const value = String(code);
   // Only canonical upper-case codes survive; free text (which could carry secrets or answers) is dropped.

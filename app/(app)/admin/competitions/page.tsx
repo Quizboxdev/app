@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import LoadError from "@/components/LoadError";
 import Link from "next/link";
 import StatCard from "@/components/StatCard";
 import { useSponsorEngine } from "@/components/SponsorEngineFlag";
@@ -18,7 +19,7 @@ export default function AdminCompetitionsPage() {
       .catch((e) => setError(e.message));
   }, []);
 
-  if (error) return <div className="qb-card qb-error">{error}</div>;
+  if (error) return <LoadError message={error} onRetry={() => window.location.reload()} />;
   if (!m) return <div>Loading competition metrics…</div>;
 
   return (

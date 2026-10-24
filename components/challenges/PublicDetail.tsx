@@ -24,7 +24,7 @@ export async function detailMetadata(slug: string, format: Format): Promise<Meta
     title: `${c.title} | QuizBox ${cap(f.plural)}`, description, alternates: { canonical: url },
     robots: c.visibility === "PUBLIC" ? { index: true, follow: true } : { index: false, follow: false },
     openGraph: { title: c.title, description, url, type: "website", siteName: "QuizBox" },
-    twitter: { card: "summary", title: c.title, description },
+    twitter: { card: "summary_large_image", title: c.title, description },
   };
 }
 

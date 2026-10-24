@@ -3,11 +3,14 @@ import { notFound } from "next/navigation";
 import PublicShell from "@/components/public/PublicShell";
 import PageIntro from "@/components/public/PageIntro";
 import HelpArticleView from "@/components/help/HelpArticleView";
-import { getHelpArticle } from "@/lib/help/server";
+import { getHelpArticle, getHelpList } from "@/lib/help/server";
 import { SITE_URL } from "@/lib/site";
 
 export const revalidate = 60;
 type Props = { params: Promise<{ slug: string }> };
+
+// Build every published guide ahead of time so it comes from the edge cache (audit UX-030). A guide published later is built on its first visit.
+export async function generateStaticParams() { return (await getHelpList()).map((g) => ({ slug: g.slug })); }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const d = await getHelpArticle((await params).slug);

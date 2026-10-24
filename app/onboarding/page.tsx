@@ -59,7 +59,7 @@ export default function OnboardingPage() {
     <div className="qb-auth">
       <div className="qb-auth-card">
         <BrandLockup variant="responsive" href="/" size={36} />
-        <p className="qb-muted">Set up your account</p>
+        <h1 className="qb-muted" style={{ fontSize: "inherit", fontWeight: "inherit", margin: "8px 0" }}>Set up your account</h1>
         <form className="qb-form" onSubmit={submit}>
           <div className="qb-field"><label htmlFor="ob-name">Full name</label><input id="ob-name" value={fullName} onChange={(e) => setFullName(e.target.value)} required/></div>
           <div className="qb-field"><label htmlFor="ob-country">Country</label>

@@ -6,8 +6,9 @@ import PolicyRoute, { policyMetadata } from "@/components/policies/PolicyRoute";
 // Refund terms as decided by the owner on 2026-10-23: 7-day window; duplicate charges are credited back as Coins; a payment that was never applied to an account is refunded in cash
 // only if none of its Coins were used; requests by the contact form, answered within 3 working days. Keep this page and docs/legal/REFUND_POLICY.md in step.
 // Once a Refund Policy is published in Admin, Policies, that text is shown instead of the built-in text below.
-type Props = { searchParams: Promise<{ v?: string }> };
-export const generateMetadata = ({ searchParams }: Props) => policyMetadata("refunds", "Refund policy", searchParams);
+// Static and cached for five minutes; an earlier version (?v=2) is served by /policy-version/[slug] through middleware.ts (audit UX-030).
+export const revalidate = 300;
+export const generateMetadata = () => policyMetadata("refunds", "Refund policy");
 
 function RefundsFallback() {
   return (
@@ -46,6 +47,6 @@ function RefundsFallback() {
   );
 }
 
-export default function RefundsPage({ searchParams }: Props) {
-  return <PolicyRoute slug="refunds" searchParams={searchParams} fallback={<RefundsFallback />} />;
+export default function RefundsPage() {
+  return <PolicyRoute slug="refunds" fallback={<RefundsFallback />} />;
 }

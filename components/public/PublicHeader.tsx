@@ -49,8 +49,8 @@ export default function PublicHeader() {
         </nav>
         <div className="qbp-header-actions">
           {signedIn ? <button type="button" className="qbp-btn" onClick={openWorkspace}>Open my workspace</button> : <>
-            <Link className="qbp-btn2" href={PUBLIC_LINKS.login}>Sign in</Link>
-            <Link className="qbp-btn" href={PUBLIC_LINKS.register}>Get started</Link>
+            <Link className="qbp-btn2" href={PUBLIC_LINKS.login} prefetch>Sign in</Link>
+            <Link className="qbp-btn" href={PUBLIC_LINKS.register} prefetch>Get started</Link>
           </>}
         </div>
         <button type="button" className="qbp-menu-btn" aria-expanded={open} aria-controls="qbp-mobile-menu" aria-label={open ? "Close menu" : "Open menu"} onClick={() => setOpen((v) => !v)}>
@@ -64,8 +64,8 @@ export default function PublicHeader() {
           </nav>
           <div className="qbp-actions">
             {signedIn ? <button type="button" className="qbp-btn" onClick={openWorkspace}>Open my workspace</button> : <>
-              <Link className="qbp-btn2" href={PUBLIC_LINKS.login} onClick={() => setOpen(false)}>Sign in</Link>
-              <Link className="qbp-btn" href={PUBLIC_LINKS.register} onClick={() => setOpen(false)}>Get started</Link>
+              <Link className="qbp-btn2" href={PUBLIC_LINKS.login} prefetch onClick={() => setOpen(false)}>Sign in</Link>
+              <Link className="qbp-btn" href={PUBLIC_LINKS.register} prefetch onClick={() => setOpen(false)}>Get started</Link>
             </>}
           </div>
         </div>
