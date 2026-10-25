@@ -48,3 +48,15 @@ export function subjectCardView(input: SubjectCardInput): SubjectCardView {
   if (Number(input.evidence ?? 0) > 0) return { state: "READY", status: "Ready", tone: "info", action: { label: "Practise", kind: "practise" }, progress: null };
   return { state: "UNSTARTED", status: "Not started", tone: "neutral", action: { label: "Practise", kind: "practise" }, progress: null };
 }
+
+// Teacher view of the same card: what a teacher can act on is whether the subject has published questions to assign from, never the
+// learner's access, attempts or mastery. Same states, same component; only the wording and the action differ.
+//   available  published questions across the subject's readable topics (qb_teacher_topics, already scoped to the class)
+//   loading / error as for learners
+export function teacherSubjectView(input: { loading?: boolean; error?: boolean; available?: number | null; actionLabel?: string }): SubjectCardView {
+  const none = { label: "", kind: "none" as const };
+  if (input.loading) return { state: "LOADING", status: null, tone: "neutral", action: none, progress: null };
+  if (input.error) return { state: "ERROR", status: "Could not load this subject", tone: "danger", action: { label: "Try again", kind: "retry" }, progress: null };
+  if (input.available != null && input.available <= 0) return { state: "CONTENT_UNAVAILABLE", status: "No questions published yet", tone: "neutral", action: none, progress: null };
+  return { state: "READY", status: null, tone: "info", action: { label: input.actionLabel ?? "Assign", kind: "practise" }, progress: null };
+}
