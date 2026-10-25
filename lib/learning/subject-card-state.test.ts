@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { subjectCardView } from "./subject-card-state";
+import { subjectCardView, teacherSubjectView } from "./subject-card-state";
 import type { MyAccess } from "@/lib/api/access";
 
 const access = (over: Partial<MyAccess> = {}): MyAccess => ({ gated: true, free_limit: 3, used: 1, remaining: 2, subscribed: false, exhausted: false, ...over });
@@ -36,5 +36,18 @@ describe("subject card state", () => {
     expect(subjectCardView({ available: 40, weak: true }).state).toBe("REVISION_RECOMMENDED");
     expect(subjectCardView({ available: 40, nextTopic: { id: "t", title: "Fractions" } }).state).toBe("NEXT_TOPIC");
     expect(subjectCardView({ available: 40, evidence: 3 }).state).toBe("READY");
+  });
+
+  it("teacher view: a subject with published questions is assignable, with no learner status, access or mastery claim", () => {
+    const v = teacherSubjectView({ available: 24, actionLabel: "Assign" });
+    expect([v.state, v.status, v.action.label, v.progress]).toEqual(["READY", null, "Assign", null]);
+    expect(teacherSubjectView({}).state).toBe("READY");
+  });
+
+  it("teacher view: zero published questions is content-unavailable (not locked, no notify), and error/loading are recoverable/neutral", () => {
+    const none = teacherSubjectView({ available: 0 });
+    expect([none.state, none.status, none.action.kind]).toEqual(["CONTENT_UNAVAILABLE", "No questions published yet", "none"]);
+    expect(teacherSubjectView({ error: true }).action.kind).toBe("retry");
+    expect(teacherSubjectView({ loading: true }).state).toBe("LOADING");
   });
 });
