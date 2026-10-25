@@ -4,6 +4,12 @@ import { calculateMastery } from "@/lib/learning/mastery";
 // Typed view over public.platform_settings. Keys mirror the migration seed; unknown keys are rejected client-side.
 export const FEATURE_FLAGS = [
   "student_self_pay", "paid_challenges", "offline_learning", "guardian_consent_required", "sponsor_consent_required", "buy_coins_enabled",
+  // Q-Insignia Knowledge Window v0.2 pilot: subject photo cards replace the subject chips/lists (presentation only; data and
+  // business logic are unchanged, so turning it off restores the previous subject UI with nothing lost).
+  "q_insignia_subject_cards_v02",
+  // Lets the pilot show photos whose registry status is still "concept" (review/staging only). Never on in production until
+  // the owner approves the assets and rights are cleared.
+  "q_insignia_concept_photos",
 ] as const;
 export type FeatureFlag = (typeof FEATURE_FLAGS)[number];
 export type FlagMap = Record<FeatureFlag, boolean>;
@@ -11,6 +17,7 @@ export type FlagMap = Record<FeatureFlag, boolean>;
 // Failing closed: until settings load, nothing optional is on.
 export const DEFAULT_FLAGS: FlagMap = {
   student_self_pay: false, paid_challenges: false, offline_learning: false, guardian_consent_required: false, sponsor_consent_required: true, buy_coins_enabled: false,
+  q_insignia_subject_cards_v02: false, q_insignia_concept_photos: false,
 };
 
 export function flagsFromSettings(rows: Array<{ key: string; value: unknown }>): FlagMap {

@@ -10,12 +10,16 @@ import { getMyAccess, isAllowanceExhausted, SUBSCRIBE_PATH, type MyAccess } from
 import SubjectIcon from "@/components/SubjectIcon";
 import { useDraft } from "@/lib/drafts/use-draft";
 import DraftNotice from "@/components/DraftNotice";
+import KnowledgeWindow, { KnowledgeWindowGrid } from "@/components/qinsignia/KnowledgeWindow";
+import { useWorkspaceFlags } from "@/components/WorkspaceProvider";
+import { subjectCardView } from "@/lib/learning/subject-card-state";
 
 // One short screen for learners and teachers alike: subject, then either a random mix or ticked topics, then how many questions, Start.
 // No strands, sub-strands, levels or codes are shown; topics are plain sub-strand names with their question counts. Teachers and admins
 // first choose the grade they are working on; a learner's grade comes from their profile and is enforced on the server.
 export default function QuickPractice() {
   const router = useRouter();
+  const flags = useWorkspaceFlags();
   const [menu, setMenu] = useState<PracticeMenu | null>(null), [grade, setGrade] = useState(""), [subjectId, setSubjectId] = useState("");
   const [mode, setMode] = useState<"random" | "topics" | "study">("random"), [ticked, setTicked] = useState<string[]>([]), [count, setCount] = useState(10);
   const [busy, setBusy] = useState(false), [error, setError] = useState(""), [note, setNote] = useState("");
@@ -33,6 +37,12 @@ export default function QuickPractice() {
   type Held = { grade: string; subjectId: string; mode: "random" | "topics" | "study"; ticked: string[]; studyTopic: string; count: number };
   const draft = useDraft<Held>({ kind: "practice", title: subject?.name ?? "Practice set", path: "/practise", value: { grade, subjectId, mode, ticked, studyTopic, count }, ready: menu !== null,
     empty: !subjectId, apply: (v) => { if (v.grade && menu?.grades) { setGrade(v.grade); load(v.grade); } setSubjectId(v.subjectId ?? ""); setMode(v.mode ?? "random"); setTicked(v.ticked ?? []); setStudyTopic(v.studyTopic ?? ""); if (v.count) setCount(v.count); } });
+  useEffect(() => {
+    if (!flags.q_insignia_subject_cards_v02 || !menu || subjectId || typeof window === "undefined") return;
+    const want = new URLSearchParams(window.location.search).get("pick");
+    if (want && menu.subjects.some((s) => s.id === want)) pick(want);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- run once when the menu arrives
+  }, [menu, flags.q_insignia_subject_cards_v02]);
   useEffect(() => { if (choices.length && !choices.includes(count)) setCount(choices.includes(10) ? 10 : choices[choices.length - 1]); }, [choices, count]);
 
   const pick = (id: string) => { setSubjectId(id); setTicked([]); setStudyTopic(""); setMode("random"); setNote(""); setError(""); const s = menu?.subjects.find((x) => x.id === id); if (s) void getTopicProgress(s.topics.map((t) => t.id)).then(setProgress); };
@@ -71,9 +81,13 @@ export default function QuickPractice() {
     {access?.gated && !access.subscribed && <p className="qb-small qb-muted" role="status">{access.exhausted ? "Your free practice is used up. Starting will take you to subscribe." : `${access.remaining} free practice ${access.remaining === 1 ? "session" : "sessions"} left.`}</p>}
 
     <h3>1. Subject</h3>
-    <div className="qb-chip-row" role="group" aria-label="Subject">
+    {flags.q_insignia_subject_cards_v02 ? <KnowledgeWindowGrid label="Subject">
+      {menu.subjects.map((s) => <KnowledgeWindow key={s.id} variant="selector" name={s.name} selected={subjectId === s.id} onSelect={() => pick(s.id)}
+        meta={`${s.available} question${s.available === 1 ? "" : "s"} · ${s.topics.length} topic${s.topics.length === 1 ? "" : "s"}`}
+        view={{ ...subjectCardView({ available: s.available }), status: null }} />)}
+    </KnowledgeWindowGrid> : <div className="qb-chip-row" role="group" aria-label="Subject">
       {menu.subjects.map((s) => <button type="button" key={s.id} className="qb-chip" aria-pressed={subjectId === s.id} onClick={() => pick(s.id)}><SubjectIcon name={s.name} size={22} />&nbsp;{s.name} <span className="qb-muted">&nbsp;({s.available})</span></button>)}
-    </div>
+    </div>}
 
     {subject && <>
       <h3 style={{ marginTop: 14 }}>2. What to practise</h3>
