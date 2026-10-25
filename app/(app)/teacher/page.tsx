@@ -21,6 +21,9 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import MasteryBar from "@/components/charts/MasteryBar";
 import ReviewerApplyCard from "@/components/ReviewerApplyCard";
 import SponsoredCarousel from "@/components/challenges/SponsoredCarousel";
+import KnowledgeWindow, { KnowledgeWindowGrid } from "@/components/qinsignia/KnowledgeWindow";
+import { useWorkspaceFlags } from "@/components/WorkspaceProvider";
+import { listTeacherClasses } from "@/lib/api/teacher";
 
 type PageData = TeacherDashboardData & { analytics: TeacherAnalytics; analyticsFailed: boolean; name: string };
 // A weak indicator can only be opened when it says which class and curriculum node it belongs to.
@@ -28,6 +31,8 @@ type Drilldown = { row: NeedsAttentionRow & { classId: string; curriculumNodeId:
 type RemedialDraft = { title: string; instructions: string; count: number; minutes: number; attempts: number; preview: boolean };
 
 export default function TeacherDashboardPage() {
+  const cards = useWorkspaceFlags().q_insignia_subject_cards_v02;
+  const [taught, setTaught] = useState<Array<Record<string, any>>>([]);
   const [data, setData] = useState<PageData | null>(null);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(true);
@@ -60,12 +65,14 @@ export default function TeacherDashboardPage() {
         const teacherId = String(ctx.teacherProfile?.id ?? "");
         if (!teacherId) throw new Error("Teacher profile not found.");
         // One failed analytics request must not blank the whole dashboard: show the rest and say what is missing (audit UX-014).
+        // Q-Insignia pilot only: the same class list the assignment builder reads, for the "Subjects you teach" cards.
+        if (cards) void listTeacherClasses(teacherId).then((rows) => setTaught(rows as Array<Record<string, any>>)).catch(() => setTaught([]));
         return Promise.all([getTeacherDashboard(teacherId, ctx.userId), getTeacherAnalytics(teacherId).catch(() => null), String(ctx.profile?.full_name ?? "")]);
       })
       .then(([dashboard, analytics, name]) => setData({ ...dashboard, analytics: analytics ?? { classes: [], indicators: [], needsAttention: [] }, analyticsFailed: analytics === null, name }))
       .catch((e) => setError(errorMessage(e)))
       .finally(() => setBusy(false));
-  }, []);
+  }, [cards]);
 
   if (error) return <LoadError message={error} onRetry={() => window.location.reload()} />;
   if (busy) return <div className="qb-home-grid" aria-busy="true">{[1, 2, 3].map((i) => <div key={i} className="qb-card qb-skeleton" />)}</div>;
@@ -100,6 +107,21 @@ export default function TeacherDashboardPage() {
           <Link className="qb-btn ghost" href="/teacher/gradebook">Results</Link>
         </div>
       </section>
+
+      {cards && (() => {
+        // One card per subject taught; the subject comes from the class's own curriculum link, never guessed.
+        const bySubject = new Map<string, { title: string; classes: string[] }>() as Map<string, { title: string; classes: string[] }>;
+        for (const c of taught) { const t = c.curriculum_nodes?.title; if (!t) continue; const e: { title: string; classes: string[] } = bySubject.get(t) ?? { title: t, classes: [] as string[] }; e.classes.push(String(c.class_name ?? "")); bySubject.set(t, e); }
+        if (!bySubject.size) return null;
+        return <section className="qb-card" style={{ marginTop: 16 }} aria-labelledby="th-subjects">
+          <div className="qb-page-head"><h2 id="th-subjects">Subjects you teach</h2><Link className="qb-link" href="/teacher/assignments">Create assignment</Link></div>
+          <KnowledgeWindowGrid dense label="Subjects you teach">
+            {[...bySubject.values()].map((e) => <KnowledgeWindow key={e.title} variant="compact" name={e.title} href="/teacher/assignments" headingLevel={3}
+              meta={e.classes.filter(Boolean).join(", ") || undefined}
+              view={{ state: "READY", status: null, tone: "neutral", action: { label: "Create assignment", kind: "practise" }, progress: null }} />)}
+          </KnowledgeWindowGrid>
+        </section>;
+      })()}
 
       <section className="qb-card" style={{ marginTop: 16 }} aria-labelledby="th-classes">
         <div className="qb-page-head"><h2 id="th-classes">Class performance</h2><Link className="qb-link" href="/teacher/classes">All classes</Link></div>

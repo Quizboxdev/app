@@ -84,7 +84,7 @@ export default function QuickPractice() {
     {flags.q_insignia_subject_cards_v02 ? <KnowledgeWindowGrid label="Subject">
       {menu.subjects.map((s) => <KnowledgeWindow key={s.id} variant="selector" name={s.name} selected={subjectId === s.id} onSelect={() => pick(s.id)}
         meta={`${s.available} question${s.available === 1 ? "" : "s"} · ${s.topics.length} topic${s.topics.length === 1 ? "" : "s"}`}
-        view={{ ...subjectCardView({ available: s.available }), status: null }} />)}
+        view={(() => { const v = subjectCardView({ available: s.available }); return v.state === "CONTENT_UNAVAILABLE" ? v : { ...v, status: null }; })()} />)}
     </KnowledgeWindowGrid> : <div className="qb-chip-row" role="group" aria-label="Subject">
       {menu.subjects.map((s) => <button type="button" key={s.id} className="qb-chip" aria-pressed={subjectId === s.id} onClick={() => pick(s.id)}><SubjectIcon name={s.name} size={22} />&nbsp;{s.name} <span className="qb-muted">&nbsp;({s.available})</span></button>)}
     </div>}
