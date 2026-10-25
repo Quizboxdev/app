@@ -103,7 +103,7 @@ export default function AssignByTopicPage() {
       <div className="qb-list">
         {readable.map((t) => <label key={t.topic_id} className="qb-row">
           <input type="checkbox" checked={chosen.includes(t.topic_id)} disabled={t.available === 0} onChange={() => toggle(t.topic_id)}/>
-          <span><strong>{t.label}</strong> <span className="qb-muted">· {t.available} question{t.available === 1 ? "" : "s"}{t.hint ? ` · ${t.hint}` : ""}{t.concepts.length ? ` · ${t.concepts.join(", ")}` : ""}</span></span>
+          <span><strong>{t.label}</strong> <span className="qb-muted">· {t.available} question{t.available === 1 ? "" : "s"}{t.concepts.length ? ` · ${t.concepts.join(", ")}` : ""}</span></span>
         </label>)}
       </div>
       {unlabelled.length > 0 && <p className="qb-muted qb-small">{unlabelled.length} more topic{unlabelled.length === 1 ? " is" : "s are"} not shown yet while we finish preparing {unlabelled.length === 1 ? "it" : "them"}.</p>}
