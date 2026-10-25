@@ -62,7 +62,7 @@
     "@types/react-dom": "^19.0.4",
     "@types/web-push": "^3.6.4",
     "eslint": "^9.39.5",
-    "eslint-config-next": "^15.5.26",
+    "eslint-config-next": "^16.4.2",
     "tsx": "^4.23.15",
     "typescript": "^5.8.2",
     "vitest": "^4.1.11"
