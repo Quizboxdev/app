@@ -57,7 +57,7 @@
   "devDependencies": {
     "@electric-sql/pglite": "0.5.8",
     "@types/katex": "^0.16.7",
-    "@types/node": "^22.13.10",
+    "@types/node": "^26.6.5",
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
     "@types/web-push": "^3.6.4",
