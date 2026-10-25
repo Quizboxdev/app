@@ -1,6 +1,7 @@
 // After signing in, a visitor can be sent back to a challenge they opened (deep-link auth return, blueprint test matrix B).
 // Only a short allow-list of in-app paths is accepted, so the parameter can never become an open redirect.
-const SAFE = /^\/(play|challenges|competitions)\/[a-z0-9]+(-[a-z0-9]+)*$/;
+// Challenge links, plus the one fixed page /subscribe (the pricing page's Subscribe button): a person who signs in or signs up from it lands there.
+const SAFE = /^(\/(play|challenges|competitions)\/[a-z0-9]+(-[a-z0-9]+)*|\/subscribe)$/;
 export function safeNextPath(value: unknown): string | null {
   return typeof value === "string" && value.length <= 80 && SAFE.test(value) ? value : null;
 }

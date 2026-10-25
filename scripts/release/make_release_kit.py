@@ -184,7 +184,7 @@ print("data-only (no objects to check):", data_only)
 print("fingerprint A chars:", len((OUT / 'db_fingerprint_A.sql').read_text()), " B chars:", len((OUT / 'db_fingerprint_B.sql').read_text()))
 
 # 3. The named files for the code release (never "git add ."): everything changed or new, minus the unrelated work in the folder and the 16 MB of audit screenshots.
-SKIP = re.compile(r"^(Questions Bank/|Images/|scripts/question-bank/|reports/|scratch/|_work/|docs/ux-audit/evidence/|\.playwright-mcp/|quizbox-expansion-plan)|\.(docx|xlsx|pyc)$")
+SKIP = re.compile(r"^(Questions Bank/|Images/|scripts/question-bank/|reports/|scratch/|_work/|docs/ux-audit/evidence/|\.playwright-mcp/|quizbox-expansion-plan|quizbox-[^/]*\.csv$)|\.(docx|xlsx|pyc)$")
 out = subprocess.run(["git", "status", "--porcelain", "-uall"], cwd=ROOT, capture_output=True, text=True, check=True).stdout.splitlines()
 names = sorted({l[3:].strip().strip('"') for l in out if l[3:] and not SKIP.search(l[3:].strip().strip('"')) and not l.startswith(" D") and not l.startswith("D ")})
 names = sorted(set(names) | {"scripts/release/release-files.txt"})

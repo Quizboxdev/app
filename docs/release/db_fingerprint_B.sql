@@ -43,7 +43,12 @@ with c(v, k, o) as (values
   ('20261046100000','f','public.qb_export_defs_a'),
   ('20261046100000','f','public.qb_export_build_f'),
   ('20261046100000','f','public.qb_export_build_h'),
-  ('20261047100000','p','qb_operation_failure|ATTEMPT_SAVE')), r as (
+  ('20261047100000','p','qb_operation_failure|ATTEMPT_SAVE'),
+  ('20261048100000','t','public.commission_policies'),
+  ('20261048100000','t','public.affiliates'),
+  ('20261048100000','f','public.qb_cm_guard'),
+  ('20261048100000','f','public.qb_referral_capture'),
+  ('20261048100000','f','public.qb_commission_admin_reverse')), r as (
   select v, k, o, case k
     when 't' then to_regclass(o) is not null
     when 'x' then to_regprocedure(o) is null

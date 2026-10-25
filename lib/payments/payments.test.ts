@@ -121,4 +121,26 @@ describe("settlement after a verified callback", () => {
     rpc.mockImplementation(async (name: string) => name === "qb_payment_apply_event" ? { data: { outcome: "credited" }, error: null } : name === "qb_mk_fulfil_purchase" ? { data: null, error: { message: "deadlock detected" } } : { data: {}, error: null });
     expect((await processProviderCallback(admin, "paystack", raw, new Headers({ "x-paystack-signature": sign(raw) }))).status).toBe(500);   // a real failure makes the provider retry
   });
+  it("accrues the affiliate commission after a credited payment and reverses it on a refund", async () => {
+    await run(chargeSuccess(), "credited");
+    expect(rpc).toHaveBeenCalledWith("qb_commission_accrue", { p_reference: "QB-abc" });
+    const order = rpc.mock.calls.map((c) => c[0]);
+    expect(order.indexOf("qb_commission_accrue")).toBeGreaterThan(order.indexOf("qb_fulfil_subscription_payment"));          // only after the subscription was granted
+    const refund = JSON.stringify({ event: "refund.processed", data: { id: 7, transaction_reference: "QB-abc", amount: 1000, currency: "GHS" } });
+    rpc.mockClear(); await run(refund, "refunded");
+    expect(rpc).toHaveBeenCalledWith("qb_commission_reverse", { p_reference: "QB-abc", p_reason: "refunded" });
+    rpc.mockClear(); await run(chargeSuccess(), "amount_mismatch");
+    expect(rpc).not.toHaveBeenCalledWith("qb_commission_accrue", expect.anything());                                             // an unsettled or mismatched payment never earns a commission
+  });
+  it("never blocks a customer's payment on a database that has no affiliate migration yet, but a real commission failure makes the provider retry", async () => {
+    const raw = chargeSuccess();
+    vi.stubGlobal("fetch", live({ status: "success", amount: 1000, currency: "GHS" }));
+    const { processProviderCallback } = await import("./settlement");
+    const send = () => processProviderCallback(admin, "paystack", raw, new Headers({ "x-paystack-signature": sign(raw) }));
+    const failing = (error: Record<string, string>) => rpc.mockImplementation(async (name: string) => name === "qb_payment_apply_event" ? { data: { outcome: "credited" }, error: null } : name === "qb_commission_accrue" ? { data: null, error } : { data: {}, error: null });
+    failing({ code: "PGRST202", message: "Could not find the function public.qb_commission_accrue(p_reference) in the schema cache" });
+    expect((await send()).status).toBe(200);
+    failing({ code: "40P01", message: "deadlock detected" });
+    expect((await send()).status).toBe(500);
+  });
 });

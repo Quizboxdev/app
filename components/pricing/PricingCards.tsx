@@ -13,8 +13,10 @@ export const TONE: Record<string, { band: string; ink: string; soft: string; rin
   sponsors: { band: "linear-gradient(135deg,#c2410c 0%,#b91c1c 100%)", ink: "#ffffff", soft: "#fff7ed", ring: "#c2410c" },
 };
 
-export default function PricingCards({ rows, onPay, payable, busy, registerHref = "/login" }: {
-  rows: PriceRow[]; variant?: "public" | "app"; onPay?: (row: PriceRow) => void; payable?: (row: PriceRow) => boolean; busy?: string; registerHref?: string;
+// subscribeHref: on the public page there is no pay action (payment happens after sign-in on /subscribe), so a priced plan gets a "Subscribe" button to that page
+// instead of "Talk to us". A signed-out visitor is sent to sign in and returned there by the app shell.
+export default function PricingCards({ rows, onPay, payable, busy, registerHref = "/login", subscribeHref }: {
+  rows: PriceRow[]; variant?: "public" | "app"; onPay?: (row: PriceRow) => void; payable?: (row: PriceRow) => boolean; busy?: string; registerHref?: string; subscribeHref?: string;
 }) {
   const groups = groupPrices(rows);
   return (
@@ -50,6 +52,7 @@ export default function PricingCards({ rows, onPay, payable, busy, registerHref 
                         : r.checkout_url ? <a className="qbp-pill-btn" style={{ background: t.band, color: t.ink }} href={r.checkout_url} target="_blank" rel="noopener noreferrer">Pay now</a>
                         : r.kind === "bundle" ? <Link className="qbp-pill-btn" style={{ background: t.band, color: t.ink }} href={registerHref}>Start a quiz</Link>
                         : onPay && (payable ? payable(r) : !p.announced) ? <button className="qbp-pill-btn" style={{ background: t.band, color: t.ink }} disabled={busy === r.code} onClick={() => onPay(r)}>{busy === r.code ? "Opening payment…" : "Pay with mobile money or card"}</button>
+                        : subscribeHref && r.kind === "plan" && r.coins && r.days && !p.announced ? <Link className="qbp-pill-btn" style={{ background: t.band, color: t.ink }} href={subscribeHref}>Subscribe</Link>
                         : <Link className="qbp-pill-link" href="/contact">{p.announced ? "Tell me when it opens" : "Talk to us"}</Link>}
                     </div>
                   </article>);

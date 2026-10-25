@@ -194,5 +194,12 @@
   "chars": 1471,
   "parts": 1,
   "note": "New in this release. Not applied anywhere yet."
+ },
+ {
+  "version": "20261048100000",
+  "name": "affiliate_commission_foundation",
+  "chars": 50989,
+  "parts": 7,
+  "note": ""
  }
 ]

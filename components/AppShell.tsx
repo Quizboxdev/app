@@ -20,6 +20,7 @@ import PolicyGate from "@/components/policies/PolicyGate";
 import HelpStarter from "@/components/help/HelpStarter";
 import SponsoredCarousel from "@/components/challenges/SponsoredCarousel";
 import ConnectionBanner from "@/components/ConnectionBanner";
+import { captureReferralIfAny } from "@/lib/referral/capture";
 
 type NavItem = [string, string];
 type NavGroup = { label: string; items: NavItem[] };
@@ -32,6 +33,7 @@ function navigationIcon(href: string): LucideIcon {
   if (/^\/account/.test(href)) return CircleUser;
   if (/student\/classroom/.test(href)) return FileText;
   if (/competition|creator|challenges|open/.test(href)) return Trophy;
+  if (/affiliate/.test(href)) return Users;
   if (/marketplace|seller/.test(href)) return ShoppingBag;
   if (/classes|classroom|tenants|school/.test(href)) return Users;
   if (/markets|market-setup/.test(href)) return Globe;
@@ -62,6 +64,7 @@ export default function AppShell({
     bootstrapUser()
       .then(async (context) => {
         setCtx(context);
+        void captureReferralIfAny();                                                                 // a visitor who arrived through an affiliate link is attributed once, after sign-in
         // An unapplied foundation migration must not disrupt existing role access.
         try { setSme(await getSmeContext()); } catch { setSme(null); }
       })
@@ -80,11 +83,11 @@ export default function AppShell({
           ? ["/sponsor", "/competition", "/marketplace", "/creator"]
           : ["/student", "/learn", "/practise", "/competition", "/marketplace", "/subscribe", "/creator"];
 
-    allowedPrefixes.push("/account", "/notifications", "/school", "/play", "/open", "/drafts", "/support", "/guides");
+    allowedPrefixes.push("/account", "/notifications", "/school", "/play", "/open", "/drafts", "/support", "/guides", "/affiliate");
     if (sme?.reviewer || sme?.content_admin || sme?.super_admin) allowedPrefixes.push("/review");
     if (sme?.super_admin) allowedPrefixes.push("/admin/markets", "/admin/reviewers", "/admin/compensation", "/admin/policies");
     if (sme?.super_admin || sme?.sme_support) allowedPrefixes.push("/admin/inbox", "/admin/reviewer-applications", "/admin/tickets", "/admin/help");
-    if (sme?.super_admin || sme?.finance_admin) allowedPrefixes.push("/admin/sme-performance", "/admin/payouts", "/admin/payment-checks");
+    if (sme?.super_admin || sme?.finance_admin) allowedPrefixes.push("/admin/sme-performance", "/admin/payouts", "/admin/payment-checks", "/admin/affiliates");
     if (sme?.super_admin || sme?.finance_admin || sme?.content_admin || sme?.sme_support) allowedPrefixes.push("/admin/exports");
 
     const isAllowed = allowedPrefixes.some(
@@ -110,7 +113,7 @@ export default function AppShell({
     // Non-admin accounts can still hold SME super-admin or finance duties.
     const administration: NavItem[] = [
       ...when(sme?.super_admin, [["/admin/markets", "Markets"], ["/admin/curriculum-sources", "Curriculum Sources"], ["/admin/reviewers", "Reviewers"], ["/admin/compensation", "Compensation"], ["/admin/policies", "Policies"], ["/admin/tickets", "Support requests"], ["/admin/help", "Help guides"]]),
-      ...when(sme?.super_admin || sme?.finance_admin, [["/admin/sme-performance", "SME Performance"], ["/admin/payouts", "Payouts"], ["/admin/payment-checks", "Payment checks"]]),
+      ...when(sme?.super_admin || sme?.finance_admin, [["/admin/sme-performance", "SME Performance"], ["/admin/payouts", "Payouts"], ["/admin/payment-checks", "Payment checks"], ["/admin/affiliates", "Affiliates"]]),
       ...when(sme?.super_admin || sme?.finance_admin || sme?.content_admin || sme?.sme_support, [["/admin/exports", "Export data"]]),
       ...when(sme?.sme_support && !sme?.super_admin, [["/admin/inbox", "Enquiry Inbox"], ["/admin/tickets", "Support requests"], ["/admin/help", "Help guides"], ["/admin/reviewer-applications", "Reviewer Applications"]]),
     ];
@@ -163,7 +166,7 @@ export default function AppShell({
         ["/admin/refunds", "Refunds"],
         ["/admin/policies", "Policies"],
         ["/admin/exports", "Export data"],
-        ...when(sme?.super_admin || sme?.finance_admin, [["/admin/payment-checks", "Payment checks"]]),
+        ...when(sme?.super_admin || sme?.finance_admin, [["/admin/payment-checks", "Payment checks"], ["/admin/affiliates", "Affiliates"]]),
       ]);
       add("Marketplace", [["/marketplace", "Catalogue"], ["/marketplace/mine", "My question sets"]]);
       return groups;
