@@ -6,6 +6,8 @@ Scope: `/help` only. Base implementation is `integrate/design-v02` (`6ee40fc`); 
 
 `flags.design_v02_help` uses the existing global platform-settings architecture and defaults to false. Missing, invalid or unreadable settings retain the legacy page. The original HelpHome component and legacy reader are unchanged. The enabled page reads the same `qb_help_list` and `/api/help/search` contracts; the new reader distinguishes a successful empty library from an RPC failure. Search cancellation prevents an obsolete response replacing a cleared query. Support contacts remain visible bracketed placeholders.
 
+A shared footer CSS correction lets its existing tagline wrap when a Windows scrollbar narrows the available space at 320 pixels. This applies in both flag states; no product text or link destination changes.
+
 Canvas 11 was inspected in the authenticated browser at the supplied artifact URL. The HelpCentre, mobile HelpCentre and PublicStates boards informed this implementation. Existing repository categories differ from the illustrated categories: only actual categories containing published articles are offered, and counts/popularity come from returned records. No example articles, guardian guides or popularity figures are added to the application.
 
 ## Actual local results
@@ -48,7 +50,7 @@ Before screenshots run the actual unchanged legacy branch of the route with the 
 
 ## Files and readiness
 
-Application: `app/(public)/help/page.tsx`, `components/help/HelpCentre.tsx`, `components/help/HelpCentre.module.css`, `lib/help/presentation.ts`, `lib/core/config.ts`.
+Application: `app/(public)/help/page.tsx`, `app/(public)/public.css`, `components/help/HelpCentre.tsx`, `components/help/HelpCentre.module.css`, `lib/help/presentation.ts`, `lib/core/config.ts`.
 
 Tests: `components/help/HelpCentre.test.tsx`, `lib/help/presentation.test.ts`. Browser harness: `scripts/qa/fixtures/help.ts`, `scripts/qa/help-server.ts`.
 
