@@ -16,7 +16,7 @@ describe("migration hygiene (refund tools onward)", () => {
     expect(missing).toEqual([]);
   });
   it("every new function is given explicit permissions in its own migration (except trigger functions and replacements of older functions)", () => {
-    const replaced = new Set(["public.qb_payment_intent_create", "public.challenge_join", "public.challenge_start", "public.qb_free_sessions_used"]);
+    const replaced = new Set(["public.qb_payment_intent_create", "public.challenge_join", "public.challenge_start", "public.qb_free_sessions_used", "public.qb_has_subscription"]);
     const missing: string[] = [];
     for (const f of files) {
       const sql = readFileSync(dir + f, "utf8");
