@@ -3,7 +3,7 @@ import { DEFAULT_FLAGS, flagsFromSettings } from "@/lib/core/config";
 
 const { rpc, setting } = vi.hoisted(() => ({ rpc: vi.fn(), setting: vi.fn() }));
 vi.mock("@/lib/supabase/server-admin", () => ({ getSupabaseAdminClient: () => ({ rpc, from: () => ({ select: () => ({ eq: () => ({ eq: () => ({ is: setting }) }) }) }) }) }));
-import { getHelpCentreArticles, helpCentreEnabled } from "./presentation";
+import { getHelpCentreArticles, getPublicHelpArticle, helpCentreEnabled } from "./presentation";
 
 describe("Canvas 11 Help data and flag boundaries", () => {
   beforeEach(() => { vi.resetAllMocks(); });
@@ -31,5 +31,18 @@ describe("Canvas 11 Help data and flag boundaries", () => {
     expect(await getHelpCentreArticles()).toEqual({ guides: [], unavailable: true });
     rpc.mockRejectedValue(new Error("offline"));
     expect(await getHelpCentreArticles()).toEqual({ guides: [], unavailable: true });
+  });
+  it("preserves missing article semantics without claiming unpublished status", async () => {
+    expect(await getPublicHelpArticle("../../private")).toEqual({ status: "not-found" });
+    expect(rpc).not.toHaveBeenCalled();
+    rpc.mockResolvedValue({ data: null, error: null });
+    expect(await getPublicHelpArticle("missing-article")).toEqual({ status: "not-found" });
+    expect(rpc).toHaveBeenCalledWith("qb_help_get", { p_slug: "missing-article" });
+  });
+  it("keeps RPC failures recoverable instead of turning them into a missing article", async () => {
+    rpc.mockResolvedValue({ data: null, error: { message: "offline" } });
+    expect(await getPublicHelpArticle("test-article")).toEqual({ status: "error" });
+    rpc.mockRejectedValue(new Error("offline"));
+    expect(await getPublicHelpArticle("test-article")).toEqual({ status: "error" });
   });
 });
