@@ -35,6 +35,8 @@ Canvas 11 was inspected in the authenticated browser at the supplied artifact UR
 
 The browser applies pixel rounding at some viewport overrides; the measurement files record the observed CSS width. Original JPEG captures are retained without resizing or image edits.
 
+The additional [Windows scrollbar check](evidence/help/windows-scrollbar-320.json) confirms that the enabled page also fits the 305-pixel content area inside a 320-pixel browser viewport. The [footer capture](evidence/help/help-footer-320.jpg) shows its wrapped tagline. The updated 320-pixel after image is a viewport capture; the other main captures include the full page.
+
 ## Before / after
 
 Before screenshots run the actual unchanged legacy branch of the route with the new flag absent. After screenshots run the flagged presentation with the same synthetic article set.
