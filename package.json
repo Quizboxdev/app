@@ -29,7 +29,8 @@
     "content:verify": "tsx scripts/verify-curriculum-import.ts",
     "content:import:dry-run": "tsx scripts/import-content.ts",
     "release:preflight": "tsx scripts/release-preflight.ts",
-    "release:validate": "tsx scripts/release-validate.ts"
+    "release:validate": "tsx scripts/release-validate.ts",
+    "env:audit": "tsx scripts/audit-environment.ts"
   },
   "overrides": {
     "postcss": "8.5.28",
