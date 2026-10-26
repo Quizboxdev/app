@@ -22,16 +22,16 @@ Canvas 11 was inspected in the authenticated browser at the supplied artifact UR
 | --- | --- |
 | Responsive flagged page | CSS viewports 1440, 1024, 768, 390, 360, 320: no horizontal overflow. Raw measurements: [responsive.json](evidence/help/responsive.json). |
 | Flag-off | Same six widths render the legacy `Help` heading; the new component is absent. No horizontal overflow. [flag-off.json](evidence/help/flag-off.json). |
-| Keyboard focus | Tab from search reaches the first topic; a solid blue focus outline is visible. [Focus screenshot](evidence/help/help-focus-390.png). |
+| Keyboard focus | Tab from search reaches the first topic; a solid blue focus outline is visible. [Focus screenshot](evidence/help/help-focus-390.jpg). |
 | Text contrast | 29 visible text elements in the new content measured; minimum **4.76:1**; no result below 4.5:1. [contrast.json](evidence/help/contrast.json). This is a targeted text audit, not a blanket WCAG certification. |
 | Topic selection | Getting started selects its actual article and displays an All topics recovery action. |
 | Successful search | Searching `recovery` displays the matching account article. |
-| Search failure | A failed RPC displays a retry action while browse topics remain available. [Screenshot](evidence/help/help-search-error-390.png). |
-| Empty search | An unmatched query displays a clear-search action, which restores browsing. [Screenshot](evidence/help/help-search-empty-390.png). |
-| Empty library | Successful empty data displays No articles available yet, with no invented popular articles. [Screenshot](evidence/help/help-library-empty-390.png). |
-| Library failure | A failed list RPC displays Help articles could not load and Try again, distinct from empty content. [Screenshot](evidence/help/help-library-error-390.png). |
+| Search failure | A failed RPC displays a retry action while browse topics remain available. [Screenshot](evidence/help/help-search-error-390.jpg). |
+| Empty search | An unmatched query displays a clear-search action, which restores browsing. [Screenshot](evidence/help/help-search-empty-390.jpg). |
+| Empty library | Successful empty data displays No articles available yet, with no invented popular articles. [Screenshot](evidence/help/help-library-empty-390.jpg). |
+| Library failure | A failed list RPC displays Help articles could not load and Try again, distinct from empty content. [Screenshot](evidence/help/help-library-error-390.jpg). |
 
-The browser applies pixel rounding at some viewport overrides; the measurement files record the observed CSS width. Original PNG captures are retained without resizing or image edits.
+The browser applies pixel rounding at some viewport overrides; the measurement files record the observed CSS width. Original JPEG captures are retained without resizing or image edits.
 
 ## Before / after
 
@@ -39,12 +39,12 @@ Before screenshots run the actual unchanged legacy branch of the route with the 
 
 | CSS width | Before (flag off) | After (flag on) |
 | --- | --- | --- |
-| 1440 | [PNG](evidence/help/help-before-flag-off-1440.png) | [PNG](evidence/help/help-after-1440.png) |
-| 1024 | [PNG](evidence/help/help-before-flag-off-1024.png) | [PNG](evidence/help/help-after-1024.png) |
-| 768 | [PNG](evidence/help/help-before-flag-off-768.png) | [PNG](evidence/help/help-after-768.png) |
-| 390 | [PNG](evidence/help/help-before-flag-off-390.png) | [PNG](evidence/help/help-after-390.png) |
-| 360 | [PNG](evidence/help/help-before-flag-off-360.png) | [PNG](evidence/help/help-after-360.png) |
-| 320 | [PNG](evidence/help/help-before-flag-off-320.png) | [PNG](evidence/help/help-after-320.png) |
+| 1440 | [JPEG](evidence/help/help-before-flag-off-1440.jpg) | [JPEG](evidence/help/help-after-1440.jpg) |
+| 1024 | [JPEG](evidence/help/help-before-flag-off-1024.jpg) | [JPEG](evidence/help/help-after-1024.jpg) |
+| 768 | [JPEG](evidence/help/help-before-flag-off-768.jpg) | [JPEG](evidence/help/help-after-768.jpg) |
+| 390 | [JPEG](evidence/help/help-before-flag-off-390.jpg) | [JPEG](evidence/help/help-after-390.jpg) |
+| 360 | [JPEG](evidence/help/help-before-flag-off-360.jpg) | [JPEG](evidence/help/help-after-360.jpg) |
+| 320 | [JPEG](evidence/help/help-before-flag-off-320.jpg) | [JPEG](evidence/help/help-after-320.jpg) |
 
 ## Files and readiness
 
