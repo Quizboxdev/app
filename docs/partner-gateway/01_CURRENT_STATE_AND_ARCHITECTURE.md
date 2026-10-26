@@ -40,18 +40,17 @@ Trust rules built into the database layer (phase 1, delivered and tested):
 7. **Closed tables.** Row-level security on, no grants to `anon` or `authenticated`; staff and partners reach data only through functions.
 
 ## 3. Phases
-
 | Phase | Content | Status |
 |---|---|---|
-| 1 Database foundation | Tables, staff and partner functions, entitlement hook, flag, rollback, 19 database tests | **Done, this branch** |
-| 2 Server layer | `/api/partner/v1` routes (key auth, scope checks, rate limits, error codes), inbound event route (raw-body HMAC, timestamp window, size limit, schema validation), webhook secret encryption helper | Next |
-| 3 SSO | OIDC authorisation-code + PKCE (state, nonce, issuer/audience/signature/expiry validation via the partner JWKS), session creation through Supabase, just-in-time account linking; SAML after a library review | After 2 |
-| 4 Admin UI | `/admin/partners` (directory, detail, contracts, seats, SSO wizard, credentials, events, audit) and navigation entry; partner entry page | After 2 |
-| 5 Docs and evidence | Partner API and webhook references, example code, threat model, E2E and security runs, release guide | With 2-4 |
+| 1 Database foundation | Tables, staff and partner functions, entitlement hook, flag, rollback | Done |
+| 2 Server layer | `/api/partner/v1` (licences, seats, members, health, signed events), key authentication with scopes, rate limits, raw-body HMAC with a 5 minute window, idempotent events, dead letters, error codes | Done, tested |
+| 3 OIDC sign-in | Authorization code + PKCE, state and nonce cookie, full ID token verification, account matching, learner provisioning, hand-over to a single-use QuizBox sign-in link | Done, tested with generated keys; real provider test needs Preview |
+| 4 Admin and entry page | `/admin/partners` (directory, contracts, seats, sign-in wizard, keys and events, delivery log, audit), navigation entry, `/partner/<name>` entry page | Done; browser test needs a Preview super-admin |
+| 5 Docs and evidence | Files 03 to 07 in this folder, examples, parallel-seat proof script | Done; Preview runs are the owner's steps in file 07 |
 
 ## 4. Not decided here (owner decisions)
 - Package catalogue and prices (external; QuizBox only records the reference).
-- Whether staff-role seats (teacher licences) are offered; phase 1 provisions learner seats only. No privileged role is ever granted from a partner claim.
+- Decided by the owner: staff (teacher) seats are offered. They are licence records only and never change a QuizBox role.
 - Grade and curriculum scope are stored on the contract but not yet enforced against a learner's grade (needs the grade source of truth; phase 3).
-- SAML in the first release or OIDC only.
+- Decided by the owner: OpenID Connect only; SAML is not supported in this release.
 - Data processing agreement and partner terms (legal).

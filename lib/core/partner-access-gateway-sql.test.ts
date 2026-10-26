@@ -6,6 +6,8 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 const read = (p: string) => readFileSync(new URL(p, import.meta.url), "utf8");
 const MIGRATION = read("../../supabase/migrations/20261049100000_partner_access_gateway.sql");
 const ROLLBACK = read("../../supabase/rollback/partner_access_gateway.sql");
+const MIGRATION2 = read("../../supabase/migrations/20261049200000_partner_gateway_server_layer.sql");
+const ROLLBACK2 = read("../../supabase/rollback/partner_gateway_server_layer.sql");
 const id = (n: number) => `00000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
 const [OWNER, ADMIN, ADMIN2, TEACHER, S1, S2, S3, MINOR, MANAGED, OTHER] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(id);
 const day = (offset: number) => new Date(Date.now() + offset * 86400000).toISOString().slice(0, 10);
@@ -68,6 +70,7 @@ beforeAll(async () => {
     insert into public.user_capabilities values ('${ADMIN}','super_admin',true),('${ADMIN2}','super_admin',true);
   `);
   await db.exec(MIGRATION);
+  await db.exec(MIGRATION2);
 });
 afterAll(async () => { await db.close(); });
 
@@ -312,6 +315,112 @@ describe("single sign-on linking (after the server has verified the token)", () 
   });
 });
 
+describe("staff seats, slugs, OIDC lookups and rate buckets (phase 2-4 support)", () => {
+  async function staffContract(name: string, seats = 3) {
+    await as(ADMIN);
+    const p = await one("select public.qb_admin_partner_save(null,$1,'school','GH')", [name]);
+    await db.query("select public.qb_admin_partner_set_status($1,'verified','docs checked')", [p.id]);
+    const c = await one("select public.qb_admin_partner_contract_save(null,$1,'staff-pack',array['practice','staff'],'GH','{}','{}',$2::date,$3::date,$4,'INV-S')", [p.id, day(-1), day(30), seats]);
+    await db.query("select public.qb_admin_partner_contract_submit($1)", [c.id]);
+    await as(ADMIN2); await db.query("select public.qb_admin_partner_contract_approve($1,'paid')", [c.id]);
+    return { partner: p.id as string, contract: c.id as string };
+  }
+  it("staff seats share the pool, need the staff capability, are adults only and never grant learner access or a role", async () => {
+    const { partner, contract } = await staffContract("Staff Seats School", 2);
+    const T = await fresh();
+    await server();
+    const a = await one("select public.qb_partner_seat_allocate($1,$2,'teacher-1',$3,'staff')", [partner, contract, T]);
+    expect(a.kind).toBe("staff");
+    expect(await hasSub(T)).toBe(false);
+    expect(await one("select public.qb_partner_staff_seat_active($1)", [T])).toBe(true);
+    expect((await sql("select role from public.profiles where id=$1", [T]))[0].role).toBe("STUDENT");
+    await server();
+    await fails("select public.qb_partner_seat_allocate($1,$2,'teacher-1',null,'learner')", [partner, contract], /QB_PARTNER_SEAT_KIND_CONFLICT/);
+    await fails("select public.qb_partner_seat_allocate($1,$2,'minor-staff',$3,'staff')", [partner, contract, MANAGED], /QB_PARTNER_STAFF_SEAT_ADULT_ONLY/);
+    await db.query("select public.qb_partner_seat_allocate($1,$2,'learner-1',null)", [partner, contract]);
+    await fails("select public.qb_partner_seat_allocate($1,$2,'teacher-2',null,'staff')", [partner, contract], /QB_PARTNER_SEAT_CAPACITY/);
+    const plain = await activePartner("No Staff Cap", 2);
+    await server();
+    await fails("select public.qb_partner_seat_allocate($1,$2,'t',null,'staff')", [plain.partner, plain.contract], /QB_PARTNER_STAFF_SEATS_NOT_IN_CONTRACT/);
+    await fails("select public.qb_partner_seat_allocate($1,$2,'t',null,'principal')", [plain.partner, plain.contract], /QB_PARTNER_INVALID_INPUT/);
+    expect((await one("select public.qb_partner_member_lookup($1,'teacher-1')", [partner]))[0]).toMatchObject({ kind: "staff", status: "active", linked: true, licensed_now: true });
+    expect(await one("select public.qb_partner_member_lookup($1,'teacher-1')", [plain.partner])).toEqual([]);
+    await as(ADMIN);
+    expect(await one("select public.qb_admin_partner_seats($1)", [contract])).toHaveLength(2);
+    const d = await one("select public.qb_admin_partner_detail($1)", [partner]);
+    expect(d.contracts[0]).toMatchObject({ staff_seats: 1, learner_seats: 1 });
+  });
+  it("the entry page shows only the name; the OIDC configuration is complete only when staff finished the wizard", async () => {
+    const { partner } = await activePartner("Entry School", 2);
+    await as(ADMIN);
+    await db.query("select public.qb_admin_partner_slug_set($1,'entry-school')", [partner]);
+    await fails("select public.qb_admin_partner_slug_set($1,'Bad Slug!')", [partner], /partners_slug_format/);
+    await server();
+    expect(await one("select public.qb_partner_public_by_slug('ENTRY-school')")).toEqual({ name: "Entry School", kind: "school", sso_ready: false });
+    expect(await one("select public.qb_partner_oidc_config('entry-school')")).toBeNull();
+    await as(ADMIN);
+    await db.query("select public.qb_admin_partner_identity_save($1,'oidc','https://idp.entry.example','client-1','https://idp.entry.example/jwks','{entry.example}',false,'active')", [partner]);
+    await server();
+    expect(await one("select public.qb_partner_oidc_config('entry-school')")).toBeNull();
+    await as(ADMIN);
+    await db.query("select public.qb_admin_partner_oidc_endpoints_save($1,'https://idp.entry.example/auth','https://idp.entry.example/token','v1:secretciphertext-aaaaaaaaaaaaaaaa')", [partner]);
+    await fails("select public.qb_admin_partner_oidc_endpoints_save($1,'http://idp.entry.example/auth','https://idp.entry.example/token',null)", [partner], /partner_identity_endpoints_https/);
+    await server();
+    const cfg = await one("select public.qb_partner_oidc_config('entry-school')");
+    expect(cfg).toMatchObject({ issuer: "https://idp.entry.example", audience: "client-1", client_secret_enc: "v1:secretciphertext-aaaaaaaaaaaaaaaa", allowed_domains: ["entry.example"] });
+    await as(ADMIN);
+    const det = await one("select public.qb_admin_partner_detail($1)", [partner]);
+    expect(det.identity.has_client_secret).toBe(true);
+    expect(JSON.stringify(det)).not.toContain("secretciphertext");
+    await db.query("select public.qb_admin_partner_set_status($1,'suspended','paused')", [partner]);
+    await server();
+    expect(await one("select public.qb_partner_public_by_slug('entry-school')")).toBeNull();
+    await flag(false);
+    expect(await one("select public.qb_partner_public_by_slug('entry-school')")).toBeNull();
+    await flag(true);
+  });
+  it("accounts are matched by a link, or by a verified address in a staff-approved domain; never by an unverified or look-alike address", async () => {
+    const { partner } = await activePartner("Match School", 2);
+    const U = await fresh();
+    await sql("update public.profiles set email='kofi@match.example' where id=$1", [U]);
+    await sql("insert into public.profiles values ($1,'STUDENT','active','Dup','dup@match.example'),($2,'STUDENT','active','Dup2','dup@match.example'),($3,'ADMIN','active','Boss','boss@match.example'),($4,'TEACHER','active','Cap','cap@match.example')", [id(901), id(902), id(903), id(904)]);
+    await sql("insert into public.user_capabilities values ($1,'finance_admin',true)", [id(904)]);
+    await as(ADMIN);
+    await fails("select public.qb_admin_partner_identity_save($1,'oidc','https://idp.match.example','c',null,'{gmail.com}',false,'active')", [partner], /QB_PARTNER_PUBLIC_DOMAIN/);
+    await fails("select public.qb_admin_partner_identity_save($1,'oidc','https://idp.match.example','c',null,'{not a domain}',false,'active')", [partner], /QB_PARTNER_DOMAIN_INVALID/);
+    await db.query("select public.qb_admin_partner_identity_save($1,'oidc','https://idp.match.example','c',null,'{Match.Example}',false,'active')", [partner]);
+    await server();
+    const f = (email: string | null, verified: boolean, sub = "s-1") => one("select public.qb_partner_sso_find_account($1,'https://idp.match.example',$2,$3,$4)", [partner, sub, email, verified]);
+    expect(await f("kofi@match.example", true)).toEqual({ user_id: U, via: "email_domain" });
+    expect(await f("KOFI@Match.Example", true)).toEqual({ user_id: U, via: "email_domain" });
+    expect(await f("kofi@match.example", false)).toEqual({ user_id: null, via: "none" });
+    expect(await f("kofi@evil-match.example", true)).toEqual({ user_id: null, via: "none" });
+    expect(await f("dup@match.example", true)).toEqual({ user_id: null, via: "none" });
+    expect(await f(null, true)).toEqual({ user_id: null, via: "none" });
+    expect(await f("boss@match.example", true)).toEqual({ user_id: null, via: "none" });   // an administrator is never reachable through a partner's domain
+    expect(await f("cap@match.example", true)).toEqual({ user_id: null, via: "none" });    // nor anyone holding a staff capability
+    await sql("insert into public.partner_identity_links(partner_id, issuer, subject, user_id, external_ref) values ($1,'https://idp.match.example','linked-sub',$2,'r')", [partner, U]);
+    await server();
+    expect(await f("someone-else@x.example", false, "linked-sub")).toEqual({ user_id: U, via: "link" });
+    await sql("update public.partner_identity_links set status='revoked' where subject='linked-sub'");
+    await server();
+    expect(await f("kofi@match.example", true, "linked-sub")).toEqual({ user_id: null, via: "revoked" });
+  });
+  it("rate buckets count per key and window, and the sweep clears old ones", async () => {
+    await server();
+    for (let i = 0; i < 3; i++) expect(await one("select public.qb_partner_rate_check('p:test:api',3,60)")).toBe(true);
+    expect(await one("select public.qb_partner_rate_check('p:test:api',3,60)")).toBe(false);
+    expect(await one("select public.qb_partner_rate_check('p:other:api',3,60)")).toBe(true);
+    await fails("select public.qb_partner_rate_check($1,3,60)", ["x".repeat(201)], /QB_PARTNER_INVALID_INPUT/);
+    await sql("update public.partner_rate_buckets set window_start = now() - interval '2 days'");
+    await server();
+    await db.query("select public.qb_partner_contracts_expire()");
+    expect((await sql("select count(*)::int as n from public.partner_rate_buckets"))[0].n).toBe(0);
+    await as(ADMIN);
+    await fails("select public.qb_partner_rate_check('k',1,1)", [], /permission denied/);
+  });
+});
+
 describe("audit and rollback", () => {
   it("writes admin and partner actions to the audit log with the partner id and no secrets", async () => {
     const rows = await sql("select action, details from public.audit_logs where action like 'partner.%'");
@@ -321,8 +430,12 @@ describe("audit and rollback", () => {
   });
   it("the migration can be run twice and the rollback restores the earlier access answer", async () => {
     await db.exec(MIGRATION);
+    await db.exec(MIGRATION2);
     const { partner, contract } = await activePartner("Rollback School", 2);
     await server(); await db.query("select public.qb_partner_seat_allocate($1,$2,'rb',$3)", [partner, contract, S2]);
+    expect(await hasSub(S2)).toBe(true);
+    await db.exec(ROLLBACK2);
+    await flag(true);
     expect(await hasSub(S2)).toBe(true);
     await db.exec(ROLLBACK);
     expect(await hasSub(S2)).toBe(false);

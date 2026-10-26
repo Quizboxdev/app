@@ -49,8 +49,14 @@ with c(v, k, o) as (values
   ('20261049100000','t','public.partners'),
   ('20261049100000','t','public.partner_identity_configs'),
   ('20261049100000','f','public.qb_pg_is_staff'),
-  ('20261049100000','f','public.qb_admin_partner_contract_amend'),
-  ('20261049100000','f','public.qb_partner_contracts_expire')), r as (
+  ('20261049100000','f','public.qb_admin_partner_contract_set_status'),
+  ('20261049100000','f','public.qb_partner_contracts_expire'),
+  ('20261049200000','t','public.partner_rate_buckets'),
+  ('20261049200000','f','public.qb_partner_staff_seat_active'),
+  ('20261049200000','f','public.qb_admin_partner_seats'),
+  ('20261049200000','f','public.qb_partner_rate_check'),
+  ('20261049200000','c','public.partners.slug'),
+  ('20261049200000','c','public.partner_identity_configs.authorization_endpoint')), r as (
   select v, k, o, case k
     when 't' then to_regclass(o) is not null
     when 'x' then to_regprocedure(o) is null
