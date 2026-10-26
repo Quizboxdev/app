@@ -6,6 +6,9 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import StatusBadge from "@/components/StatusBadge";
 import MasteryBadge from "@/components/MasteryBadge";
 import ProgressCard from "@/components/ProgressCard";
+import KnowledgeWindow, { KnowledgeWindowGrid } from "@/components/qinsignia/KnowledgeWindow";
+import { useWorkspaceFlags } from "@/components/WorkspaceProvider";
+import { subjectCardView } from "@/lib/learning/subject-card-state";
 import { formatDateTime, isUuid } from "@/lib/format";
 import { getMyResultsPage } from "@/lib/api/assessment";
 import { studentInsights } from "@/lib/api/platform";
@@ -16,6 +19,7 @@ import { classifyProficiency } from "@/lib/learning/proficiency";
 // Progress: QuizBox mastery by subject and topic (server-derived by qb_student_insights) plus the submitted-result history.
 // Insights currently report subject and topic; strand / sub-strand grouping needs the server to return those levels.
 export default function ProgressPage() {
+  const cards = useWorkspaceFlags().q_insignia_subject_cards_v02;
   const [insights, setInsights] = useState<Record<string, any> | null>(null);
   const [rows, setRows] = useState<any[]>([]);
   const [error, setError] = useState("");
@@ -47,6 +51,11 @@ export default function ProgressPage() {
         </div>
         <p className="qb-level-legend">{MASTERY_LEVELS.map((level) => <span key={level}>{level}: <strong>{insights ? counts[level] : "—"}</strong></span>)}</p>
         {!insights ? <div className="qb-subject-list" aria-busy="true">{[1, 2].map((i) => <div key={i} className="qb-subject qb-skeleton" style={{ minHeight: 96 }} />)}</div>
+          : subjects.length && cards ? <KnowledgeWindowGrid dense>{subjects.map((s) => { const evidence = s.topics != null ? Number(s.topics) : undefined;
+              // Mastery (practice-driven) only; accuracy, proficiency and points stay in their own places on this page.
+              return <KnowledgeWindow key={s.label} variant="progress" name={s.label} href={practiseHref(s.subject)} headingLevel={3}
+                meta={`${s.mastery}% mastery${s.topics != null ? ` · ${s.topics} topic${Number(s.topics) === 1 ? "" : "s"}` : ""}`}
+                measure={<MasteryBadge percentage={s.mastery} evidence={evidence} />} view={{ ...subjectCardView({ evidence: evidence ?? 1 }), status: null }} />; })}</KnowledgeWindowGrid>
           : subjects.length ? <div className="qb-subject-list">{subjects.map((s) => <ProgressCard key={s.label} name={s.label} percentage={s.mastery} evidence={s.topics != null ? Number(s.topics) : undefined} detail={s.topics != null ? `${s.topics} topic${Number(s.topics) === 1 ? "" : "s"}` : undefined} href={practiseHref(s.subject)} />)}</div>
             : <div className="qb-empty"><strong>No mastery data yet</strong>Practise or complete an assessment to see where you stand.</div>}
       </section>

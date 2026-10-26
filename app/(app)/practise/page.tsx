@@ -16,6 +16,9 @@ import BrandBanner from "@/components/BrandBanner";
 import { getMyAccess, isAllowanceExhausted, SUBSCRIBE_PATH } from "@/lib/api/access";
 import { gradeVariants, studentGrade } from "@/lib/learning/student-scope";
 import { errorMessage } from "@/lib/errors";
+import KnowledgeWindow from "@/components/qinsignia/KnowledgeWindow";
+import { useWorkspaceFlags } from "@/components/WorkspaceProvider";
+import { subjectCardView } from "@/lib/learning/subject-card-state";
 import type { AvailableAssessment, MyAttempt, StudentAssignmentTarget } from "@/lib/api/student-types";
 
 type PracticeSet = AvailableAssessment;
@@ -25,6 +28,7 @@ const setTitle = (row: PracticeSet) => sanitizeLabel(row.subject_name ?? row.sub
 function PractiseInner() {
   const router = useRouter();
   const params = useSearchParams();
+  const flags = useWorkspaceFlags();
   const [sets, setSets] = useState<PracticeSet[] | null>(null);
   const [attempts, setAttempts] = useState<MyAttempt[]>([]);
   const [assigned, setAssigned] = useState<StudentAssignmentTarget[]>([]);
@@ -70,6 +74,19 @@ function PractiseInner() {
       <BrandBanner src="/brand/pages/practise-banner.webp" />
       <div className="qb-page-head"><div><h1>Practise</h1><p>Short practice sets with instant feedback. Practising builds mastery and earns XP.</p></div><HelpLink slug="practice-session" label="How to start a practice session" /></div>
       {error && <div className="qb-card qb-error" role="alert">{error}</div>}
+
+      {flags.q_insignia_subject_cards_v02 && resumable.length > 0 && (() => {
+        // Returning learner: the stored IN_PROGRESS attempt, opened by id (never a new attempt). Answer counts are not in
+        // qb_my_attempts_page, so no progress figure is shown rather than an invented one.
+        const a = resumable[0]; const set = (sets ?? []).find((x) => x.id === a.assessment_id);
+        const name = set ? setTitle(set) : "Practice";
+        return <section aria-labelledby="pr-resume" style={{ marginBottom: 16 }}>
+          <h2 id="pr-resume" className="qb-sr-only">Continue where you left off</h2>
+          <KnowledgeWindow variant="returning" name={name} headingLevel={3} href={`/student/attempt/${a.id}`}
+            meta={`Started ${formatDate(a.started_at)}${resumable.length > 1 ? ` · ${resumable.length - 1} more unfinished` : ""}`}
+            view={subjectCardView({ attempt: { id: a.id } })} />
+        </section>;
+      })()}
 
       <QuickPractice />
 
