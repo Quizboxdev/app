@@ -12,12 +12,16 @@ const ready = subjectCardView({ available: 24 });
 describe("KnowledgeWindow", () => {
   beforeEach(() => { flags = { ...DEFAULT_FLAGS }; });
 
-  it("never shows concept photos by default: the letter-tile fallback renders and the card still works", () => {
-    const html = renderToStaticMarkup(<KnowledgeWindow name="Mathematics" href="/practise?pick=m" view={ready} />);
-    expect(html).toContain('data-photo="unavailable"');
-    expect(html).not.toContain("concept-v0.2");
-    expect(html).toContain('href="/practise?pick=m"');
-    expect(html).toContain(">Practise");
+  it("shows the rights-cleared photo by default, and a subject without a photo still renders the letter-tile fallback", () => {
+    const photo = renderToStaticMarkup(<KnowledgeWindow name="Mathematics" href="/practise?pick=m" view={ready} />);
+    expect(photo).toContain('data-photo="ready"');
+    expect(photo).toContain("mathematics-discovery-960x600.webp");
+    expect(photo).toContain('href="/practise?pick=m"');
+    expect(photo).toContain(">Practise");
+    const tile = renderToStaticMarkup(<KnowledgeWindow name="French" href="/practise?pick=f" view={ready} />);
+    expect(tile).toContain('data-photo="unavailable"');
+    expect(tile).not.toContain("/brand/subjects/photos/");
+    expect(tile).toContain('href="/practise?pick=f"');
   });
 
   it("with concept photos allowed, serves the 8:5 photo with a square mobile source, decorative alt and focal point", () => {
