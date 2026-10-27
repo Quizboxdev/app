@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import fs from "node:fs";
 import path from "node:path";
 import sharp from "sharp";
-import { SUBJECT_PHOTOS, photoRecord, subjectPhoto } from "./subject-photography";
+import { SUBJECT_PHOTOS, photoRecord, photoVisible, subjectPhoto } from "./subject-photography";
 import { SUBJECT_VISUALS } from "./subject-visuals";
 
 const PUBLIC = path.join(__dirname, "../../public");
@@ -19,10 +19,21 @@ describe("Q-Insignia subject photography registry", () => {
     }
   });
 
-  it("keeps concept assets out of production: nothing is approved or rights-cleared yet", () => {
-    for (const r of SUBJECT_PHOTOS) { expect(r.assetStatus).toBe("concept"); expect(r.rightsStatus).toBe("pending"); expect(r.assetVersion).toBe("0.2"); }
-    expect(subjectPhoto("Mathematics", { allowConcept: false })).toBeNull();
+  it("records the owner's rights clearance: every pilot photo is approved and cleared, so it shows whenever the subject cards are on", () => {
+    for (const r of SUBJECT_PHOTOS) { expect(r.assetStatus).toBe("approved"); expect(r.rightsStatus).toBe("cleared"); expect(r.assetVersion).toBe("0.2"); }
+    expect(subjectPhoto("Mathematics", { allowConcept: false })?.canonicalSlug).toBe("mathematics");
     expect(subjectPhoto("Mathematics", { allowConcept: true })?.canonicalSlug).toBe("mathematics");
+  });
+
+  it("still never shows a photo whose status or rights are not both cleared (concept, pending, refused, rejected)", () => {
+    expect(photoVisible({ assetStatus: "approved", rightsStatus: "cleared" }, false)).toBe(true);
+    expect(photoVisible({ assetStatus: "approved", rightsStatus: "pending" }, false)).toBe(false);
+    expect(photoVisible({ assetStatus: "approved", rightsStatus: "pending" }, true)).toBe(false);
+    expect(photoVisible({ assetStatus: "approved", rightsStatus: "refused" }, true)).toBe(false);
+    expect(photoVisible({ assetStatus: "concept", rightsStatus: "pending" }, false)).toBe(false);
+    expect(photoVisible({ assetStatus: "concept", rightsStatus: "pending" }, true)).toBe(true);   // review flag only
+    expect(photoVisible({ assetStatus: "rejected", rightsStatus: "cleared" }, true)).toBe(false);
+    expect(photoVisible({ assetStatus: "pending", rightsStatus: "cleared" }, true)).toBe(false);
   });
 
   it("resolves curriculum spellings through the existing aliases and falls back for unknown or unphotographed subjects", () => {

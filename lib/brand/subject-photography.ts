@@ -35,7 +35,8 @@ const files = (slug: string) => ({
 const label = (slug: string) => SUBJECT_VISUALS.find((s) => s.slug === slug)?.label ?? slug;
 
 type Seed = Pick<SubjectPhotoRecord, "canonicalSlug" | "category" | "applicableGrades" | "focalPoint" | "altText"> & { sourceSlug?: string };
-// Concept assets from QuizBox_Q-Insignia_Subject-Photography_v0.2 (AI-generated, owner approval and rights review pending).
+// Assets from QuizBox_Q-Insignia_Subject-Photography_v0.2 (AI-generated). The owner cleared the rights on 2026-10-27, so all eight are recorded as approved and cleared.
+// The folder keeps its original "concept-v0.2" name so no file or URL moved.
 const SEEDS: Seed[] = [
   { canonicalSlug: "english-language", category: "languages", applicableGrades: ["P", "JHS", "SHS"], focalPoint: "62% 55%", altText: "A student writes in a notebook with a fountain pen beside an open book on a wooden classroom desk." },
   { canonicalSlug: "computing", category: "technology", applicableGrades: ["P", "JHS", "SHS"], focalPoint: "60% 50%", altText: "A student types code on a laptop in a school computer lab next to a single-board computer and breadboard." },
@@ -49,7 +50,7 @@ const SEEDS: Seed[] = [
 
 export const SUBJECT_PHOTOS: readonly SubjectPhotoRecord[] = Object.freeze(SEEDS.map((s) => ({
   subjectId: s.canonicalSlug, canonicalSlug: s.canonicalSlug, displayName: label(s.canonicalSlug), category: s.category, applicableGrades: s.applicableGrades,
-  ...files(s.canonicalSlug), focalPoint: s.focalPoint, altText: s.altText, assetVersion: "0.2", assetStatus: "concept" as AssetStatus, rightsStatus: "pending" as RightsStatus,
+  ...files(s.canonicalSlug), focalPoint: s.focalPoint, altText: s.altText, assetVersion: "0.2", assetStatus: "approved" as AssetStatus, rightsStatus: "cleared" as RightsStatus,
   ...(s.sourceSlug ? { sourceSlug: s.sourceSlug } : {}),
 })));
 
@@ -59,11 +60,14 @@ export function photoRecord(slug: string | null | undefined): SubjectPhotoRecord
   return slug ? BY_SLUG.get(slug) ?? null : null;
 }
 
+// The one rule for showing a photo: approved AND rights cleared, or a concept asset where concept photos are explicitly allowed.
+export function photoVisible(r: Pick<SubjectPhotoRecord, "assetStatus" | "rightsStatus">, allowConcept: boolean): boolean {
+  if (r.assetStatus === "approved" && r.rightsStatus === "cleared") return true;
+  return r.assetStatus === "concept" && allowConcept;
+}
+
 // The photo to show for a subject name as the curriculum spells it, or null for the fallback tile.
 export function subjectPhoto(name: string | null | undefined, opts: { allowConcept: boolean }): SubjectPhotoRecord | null {
   const record = photoRecord(subjectSlug(name));
-  if (!record) return null;
-  if (record.assetStatus === "approved" && record.rightsStatus === "cleared") return record;
-  if (record.assetStatus === "concept" && opts.allowConcept) return record;
-  return null;
+  return record && photoVisible(record, opts.allowConcept) ? record : null;
 }
