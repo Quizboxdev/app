@@ -19,16 +19,15 @@ describe("Q-Insignia subject photography registry", () => {
     }
   });
 
-  it("keeps concept assets out of production: nothing is approved or rights-cleared yet", () => {
-    for (const r of SUBJECT_PHOTOS) { expect(r.assetStatus).toBe("concept"); expect(r.rightsStatus).toBe("pending"); expect(r.assetVersion).toBe("0.2"); }
-    expect(subjectPhoto("Mathematics", { allowConcept: false })).toBeNull();
-    expect(subjectPhoto("Mathematics", { allowConcept: true })?.canonicalSlug).toBe("mathematics");
+  it("marks the eight user-approved v0.2 images cleared while leaving feature flags as the rollout gate", () => {
+    for (const r of SUBJECT_PHOTOS) { expect(r.assetStatus).toBe("approved"); expect(r.rightsStatus).toBe("cleared"); expect(r.assetVersion).toBe("0.2"); }
+    expect(subjectPhoto("Mathematics", { allowConcept: false })?.canonicalSlug).toBe("mathematics");
   });
 
-  it("resolves curriculum spellings through the existing aliases and falls back for unknown or unphotographed subjects", () => {
-    expect(subjectPhoto("Creative Arts and Design", { allowConcept: true })?.canonicalSlug).toBe("creative-arts");
+  it("resolves approved aliases and falls back for unknown or unphotographed subjects", () => {
+    expect(subjectPhoto("Creative Arts and Design", { allowConcept: false })?.canonicalSlug).toBe("creative-arts");
     expect(photoRecord("creative-arts")?.sourceSlug).toBe("creative-arts-and-design");
-    expect(subjectPhoto("English", { allowConcept: true })?.canonicalSlug).toBe("english-language");
+    expect(subjectPhoto("English", { allowConcept: false })?.canonicalSlug).toBe("english-language");
     expect(subjectPhoto("French", { allowConcept: true })).toBeNull();          // real subject, no photo yet
     expect(subjectPhoto("Integrated Science", { allowConcept: true })).toBeNull(); // not an alias today: fallback, not a guess
     expect(subjectPhoto(null, { allowConcept: true })).toBeNull();

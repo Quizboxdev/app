@@ -23,6 +23,8 @@ describe("configuration", () => {
   it("fails closed and ignores unknown or non-boolean flags", () => {
     expect(flagsFromSettings([{ key: "flags.buy_coins_enabled", value: true }, { key: "flags.nope", value: true }, { key: "flags.paid_challenges", value: "yes" }]))
       .toEqual({ ...DEFAULT_FLAGS, buy_coins_enabled: true });
+    expect(DEFAULT_FLAGS.q_insignia_backend_subject_photos).toBe(false);
+    expect(flagsFromSettings([{ key: "flags.q_insignia_backend_subject_photos", value: true }]).q_insignia_backend_subject_photos).toBe(true);
   });
   it("keeps the existing Ghana CCP classification at every boundary and honours custom bands", () => {
     const expected: Array<[number, string]> = [[100, "Highly Proficient"], [80, "Highly Proficient"], [79.9, "Proficient"], [68, "Proficient"], [67, "Approaching Proficiency"], [54, "Approaching Proficiency"], [53, "Developing"], [40, "Developing"], [39, "Emerging"], [0, "Emerging"], [Number.NaN, "Emerging"]];

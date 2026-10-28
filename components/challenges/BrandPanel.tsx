@@ -20,7 +20,7 @@ export default function BrandPanel({ id, brand, onChanged, onError }: { id: stri
     <div className="qb-card qb-form">
       <h2>Look and feel</h2>
       <p className="qb-muted">Shown on the public page of your challenge and while people play.</p>
-      <LogoPicker value={b.logo} onChange={(logo) => setB((x) => ({ ...x, logo }))} onError={onError} />
+      <LogoPicker campaignId={id} value={b.logo} onChange={(logo) => setB((x) => ({ ...x, logo }))} onError={onError} />
       <div className="qb-grid cols-3">
         <label className="qb-field">Organiser name<input maxLength={60} value={b.organiser_name ?? ""} onChange={(e) => setB({ ...b, organiser_name: e.target.value })} placeholder="Accra Academy" /></label>
         <label className="qb-field">Tagline<input maxLength={120} value={b.tagline ?? ""} onChange={(e) => setB({ ...b, tagline: e.target.value })} placeholder="Think fast, think smart" /></label>

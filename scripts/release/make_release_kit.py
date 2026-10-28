@@ -73,6 +73,7 @@ NOTES = {
     "20261044100000": "Guide seed, 'on conflict do nothing'.",
     "20261045100000": "Do NOT run after 20261046100000: it would put the export list back to 22 datasets.",
     "20261047100000": "New in this release. Not applied anywhere yet.",
+    "20261050100000": "New dynamic image storage. Subject images stay hidden by default; enable only after upload review and rights clearance. Not applied anywhere yet.",
 }
 
 # 1. Parts

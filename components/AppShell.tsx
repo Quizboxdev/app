@@ -131,6 +131,7 @@ export default function AppShell({
       ]);
       add("Content & curriculum", [
         ["/admin/content", "Content Operations"],
+        ["/admin/subject-images", "Subject Images"],
         ...when(sme?.super_admin || sme?.content_admin, [["/admin/content-factory", "Content Factory"]]),
         ...when(sme?.super_admin, [["/admin/curriculum-sources", "Curriculum Sources"], ["/admin/curriculum-structure", "Curriculum Structure"]]),
         ...when(sme?.super_admin || sme?.content_admin, [["/admin/question-loading", "Load Questions"]]),

@@ -1,14 +1,30 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { ArrowRight, Check } from "lucide-react";
 import SubjectIcon from "@/components/SubjectIcon";
 import { BRAND_ICON } from "@/lib/public/brand";
 import { subjectHue } from "@/lib/brand/subjects";
 import { subjectPhoto } from "@/lib/brand/subject-photography";
+import { subjectSlug } from "@/lib/brand/subjects";
 import type { SubjectCardView } from "@/lib/learning/subject-card-state";
 import { useWorkspaceFlags } from "@/components/WorkspaceProvider";
+
+type DynamicVisual = { slug: string; discovery: { src: string; width: number; height: number }; mobile: { src: string; width: number; height: number }; focalPoint: string; version: string };
+let visualManifest: Promise<Map<string, DynamicVisual>> | null = null;
+let visualManifestAt = 0;
+function loadVisualManifest() {
+  if (!visualManifest || Date.now() - visualManifestAt > 60_000) {
+    visualManifestAt = Date.now();
+    visualManifest = fetch("/api/subject-visuals", { cache: "no-store" }).then(async (r) => {
+      if (!r.ok) throw new Error("SUBJECT_IMAGES_UNAVAILABLE");
+      const body = await r.json() as { items?: DynamicVisual[] };
+      return new Map((body.items ?? []).map((item) => [item.slug, item]));
+    }).catch(() => new Map());
+  }
+  return visualManifest;
+}
 
 // Q-Insignia Knowledge Window (v0.2): the subject photo card. It is presentation only — every word, number and action comes from
 // the caller (which reads the existing practice menu, access, attempt and mastery data) through a SubjectCardView.
@@ -40,8 +56,19 @@ const TONE: Record<SubjectCardView["tone"], string> = { info: "", success: "succ
 export function KnowledgeWindowArt({ name, square, view, small }: { name: string; square?: boolean; view?: SubjectCardView; small?: boolean }) {
   const flags = useWorkspaceFlags();
   const photo = subjectPhoto(name, { allowConcept: flags.q_insignia_concept_photos });
+  const [dynamicPhoto, setDynamicPhoto] = useState<DynamicVisual | null>(null);
+  useEffect(() => {
+    let active = true;
+    setDynamicPhoto(null);
+    setBroken(false);
+    if (flags.q_insignia_backend_subject_photos) void loadVisualManifest().then((manifest) => { const slug = subjectSlug(name); if (active) setDynamicPhoto(slug ? manifest.get(slug) ?? null : null); });
+    return () => { active = false; };
+  }, [flags.q_insignia_backend_subject_photos, name]);
   const [broken, setBroken] = useState(false);
-  const shown = photo && !broken ? photo : null;
+  const shown = !broken && (dynamicPhoto || photo) ? (dynamicPhoto ? {
+    discoveryImage: { webp: dynamicPhoto.discovery.src, jpg: dynamicPhoto.discovery.src, width: dynamicPhoto.discovery.width, height: dynamicPhoto.discovery.height },
+    mobileImage: { webp: dynamicPhoto.mobile.src, jpg: dynamicPhoto.mobile.src, width: dynamicPhoto.mobile.width, height: dynamicPhoto.mobile.height }, focalPoint: dynamicPhoto.focalPoint,
+  } : photo) : null;
   const hue = subjectHue(name);
   const progress = view?.progress;
   return <div className={`qi-kw-art${shown ? " has-photo" : ""}${square ? " is-square" : ""}`} data-photo={shown ? "ready" : "unavailable"}
@@ -49,7 +76,7 @@ export function KnowledgeWindowArt({ name, square, view, small }: { name: string
     {shown ? <picture>
       {!square && <source media="(max-width: 760px)" type="image/webp" srcSet={shown.mobileImage.webp} />}
       <source type="image/webp" srcSet={square ? shown.mobileImage.webp : shown.discoveryImage.webp} />
-      {/* <img> inside <picture> on purpose: static, pre-sized assets; next/image would re-encode the approved files. */}
+      {/* Images are pre-sized WebP assets (static files or bounded server uploads). */}
       <img className="qi-kw-photo" src={square ? shown.mobileImage.jpg : shown.discoveryImage.jpg} alt="" loading="lazy" decoding="async"
         width={square ? 640 : 960} height={square ? 640 : 600} style={{ objectPosition: shown.focalPoint }} onError={() => setBroken(true)} />
     </picture> : <span className="qi-kw-glyph" aria-hidden="true"><SubjectIcon name={name} size={small ? 30 : 44} /></span>}

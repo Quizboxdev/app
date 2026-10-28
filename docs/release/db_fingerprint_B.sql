@@ -2,9 +2,6 @@
 -- Run the same part on BOTH projects (Preview fngdtxayfoiffbcbmcum and Production fmgccmqxfjppqydkhaiu) and compare the 'status' column row by row.
 -- ok = every sampled object of that migration exists; PARTIAL = some do; MISSING = none do (the migration was not applied); data-only = it only inserts rows, so look at the notes.
 with c(v, k, o) as (values
-  ('20261034100000','f','public.qb_owner_is_student'),
-  ('20261034100000','f','public.qb_trg_student_question'),
-  ('20261034100000','f','public.qb_trg_student_prize'),
   ('20261035100000','t','public.refund_cases'),
   ('20261035100000','f','public.qb_admin_payment_facts'),
   ('20261035100000','f','public.qb_admin_refund_case_save'),
@@ -48,7 +45,8 @@ with c(v, k, o) as (values
   ('20261048100000','t','public.affiliates'),
   ('20261048100000','f','public.qb_cm_guard'),
   ('20261048100000','f','public.qb_referral_capture'),
-  ('20261048100000','f','public.qb_commission_admin_reverse')), r as (
+  ('20261048100000','f','public.qb_commission_admin_reverse'),
+  ('20261050100000','t','public.subject_visuals')), r as (
   select v, k, o, case k
     when 't' then to_regclass(o) is not null
     when 'x' then to_regprocedure(o) is null

@@ -10,6 +10,8 @@ export const FEATURE_FLAGS = [
   // Lets the pilot show photos whose registry status is still "concept" (review/staging only). Never on in production until
   // the owner approves the assets and rights are cleared.
   "q_insignia_concept_photos",
+  // Server-hosted subject images; remains off until database migration and review workflow are ready.
+  "q_insignia_backend_subject_photos",
 ] as const;
 export type FeatureFlag = (typeof FEATURE_FLAGS)[number];
 export type FlagMap = Record<FeatureFlag, boolean>;
@@ -17,7 +19,7 @@ export type FlagMap = Record<FeatureFlag, boolean>;
 // Failing closed: until settings load, nothing optional is on.
 export const DEFAULT_FLAGS: FlagMap = {
   student_self_pay: false, paid_challenges: false, offline_learning: false, guardian_consent_required: false, sponsor_consent_required: true, buy_coins_enabled: false,
-  q_insignia_subject_cards_v02: false, q_insignia_concept_photos: false,
+  q_insignia_subject_cards_v02: false, q_insignia_concept_photos: false, q_insignia_backend_subject_photos: false,
 };
 
 export function flagsFromSettings(rows: Array<{ key: string; value: unknown }>): FlagMap {

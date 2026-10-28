@@ -142,7 +142,7 @@ function Studio() {
             <div className="qb-card qb-form">
               <h2>Make it yours</h2>
               <p className="qb-muted">Add your logo and colour so people recognise you. They appear on the card and on your quiz page.</p>
-              <LogoPicker value={brand.logo} onChange={(logo) => setBrandState((b) => ({ ...b, logo }))} onError={setError} />
+              <LogoPicker campaignId={id} value={brand.logo} onChange={(logo) => setBrandState((b) => ({ ...b, logo }))} onError={setError} />
               <div className="qb-grid cols-2">
                 <label className="qb-field">Your name or organisation<input maxLength={60} value={brand.organiser_name ?? ""} onChange={(e) => setBrandState({ ...brand, organiser_name: e.target.value })} placeholder="e.g. Accra Bank" /></label>
                 <label className="qb-field">Your colour<input type="color" value={brand.accent ?? "#1a7f5a"} onChange={(e) => setBrandState({ ...brand, accent: e.target.value })} /></label>

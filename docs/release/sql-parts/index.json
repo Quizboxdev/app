@@ -201,5 +201,12 @@
   "chars": 50989,
   "parts": 7,
   "note": ""
+ },
+ {
+  "version": "20261050100000",
+  "name": "dynamic_brand_images",
+  "chars": 4022,
+  "parts": 1,
+  "note": "New dynamic image storage. Subject images stay hidden by default; enable only after upload review and rights clearance. Not applied anywhere yet."
  }
 ]
