@@ -24,3 +24,8 @@ Thumbs.db
 
 supabase/.temp/
 supabase/prod_dump/
+
+# Question-bank working files are data, not source (the README stays tracked)
+/Questions Bank/*
+!/Questions Bank/README.txt
+/scratch/

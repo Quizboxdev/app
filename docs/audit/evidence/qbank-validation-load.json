@@ -1,0 +1,337 @@
+{
+ "files": [
+  {
+   "file": "_load/B4_Computing_new_1350.csv",
+   "rows": 1350,
+   "declared_in_name": 1350,
+   "name_matches": true,
+   "answer_dist": {
+    "B": 335,
+    "D": 313,
+    "C": 314,
+    "A": 388
+   },
+   "max_key_share": 0.287,
+   "difficulty": {
+    "easy": 405,
+    "medium": 540,
+    "hard": 405
+   },
+   "issues": {
+    "MISSING_OPTION": 82,
+    "NON_SINGLE_CHOICE": 82,
+    "KEY_IS_OUTLIER_LONGEST": 20
+   },
+   "first_row_example": {
+    "MISSING_OPTION": 7,
+    "NON_SINGLE_CHOICE": 7,
+    "KEY_IS_OUTLIER_LONGEST": 863
+   }
+  },
+  {
+   "file": "_load/B4_Creative-Arts_new_1350.csv",
+   "rows": 1350,
+   "declared_in_name": 1350,
+   "name_matches": true,
+   "answer_dist": {
+    "D": 297,
+    "A": 441,
+    "B": 306,
+    "C": 306
+   },
+   "max_key_share": 0.327,
+   "difficulty": {
+    "easy": 405,
+    "medium": 540,
+    "hard": 405
+   },
+   "issues": {
+    "MISSING_OPTION": 117,
+    "NON_SINGLE_CHOICE": 117
+   },
+   "first_row_example": {
+    "MISSING_OPTION": 5,
+    "NON_SINGLE_CHOICE": 5
+   }
+  },
+  {
+   "file": "_load/B4_English-Language_new_6500.csv",
+   "rows": 6500,
+   "declared_in_name": 6500,
+   "name_matches": true,
+   "answer_dist": {
+    "A": 1695,
+    "D": 1560,
+    "C": 1561,
+    "B": 1684
+   },
+   "max_key_share": 0.261,
+   "difficulty": {
+    "easy": 1950,
+    "medium": 2600,
+    "hard": 1950
+   },
+   "issues": {
+    "KEY_IS_OUTLIER_LONGEST": 61
+   },
+   "first_row_example": {
+    "KEY_IS_OUTLIER_LONGEST": 1281
+   }
+  },
+  {
+   "file": "_load/B4_FRENCH_new_1050.csv",
+   "rows": 1050,
+   "declared_in_name": 1050,
+   "name_matches": true,
+   "answer_dist": {
+    "C": 252,
+    "B": 273,
+    "A": 273,
+    "D": 252
+   },
+   "max_key_share": 0.26,
+   "difficulty": {
+    "easy": 315,
+    "medium": 420,
+    "hard": 315
+   },
+   "issues": {
+    "KEY_IS_OUTLIER_LONGEST": 2
+   },
+   "first_row_example": {
+    "KEY_IS_OUTLIER_LONGEST": 280
+   }
+  },
+  {
+   "file": "_load/B4_Ghanaian-Language_new_1500.csv",
+   "rows": 1500,
+   "declared_in_name": 1500,
+   "name_matches": true,
+   "answer_dist": {
+    "A": 455,
+    "D": 337,
+    "B": 362,
+    "C": 346
+   },
+   "max_key_share": 0.303,
+   "difficulty": {
+    "easy": 450,
+    "medium": 600,
+    "hard": 450
+   },
+   "issues": {
+    "MISSING_OPTION": 97,
+    "NON_SINGLE_CHOICE": 97,
+    "KEY_IS_OUTLIER_LONGEST": 2
+   },
+   "first_row_example": {
+    "MISSING_OPTION": 4,
+    "NON_SINGLE_CHOICE": 4,
+    "KEY_IS_OUTLIER_LONGEST": 22
+   }
+  },
+  {
+   "file": "_load/B4_Religious-and-Moral-Education_new_650.csv",
+   "rows": 650,
+   "declared_in_name": 650,
+   "name_matches": true,
+   "answer_dist": {
+    "A": 191,
+    "C": 153,
+    "D": 143,
+    "B": 163
+   },
+   "max_key_share": 0.294,
+   "difficulty": {
+    "easy": 195,
+    "medium": 260,
+    "hard": 195
+   },
+   "issues": {
+    "MISSING_OPTION": 42,
+    "NON_SINGLE_CHOICE": 42,
+    "KEY_IS_OUTLIER_LONGEST": 7
+   },
+   "first_row_example": {
+    "MISSING_OPTION": 11,
+    "NON_SINGLE_CHOICE": 11,
+    "KEY_IS_OUTLIER_LONGEST": 11
+   }
+  },
+  {
+   "file": "_load/B5_English-Language_new_1400.csv",
+   "rows": 1400,
+   "declared_in_name": 1400,
+   "name_matches": true,
+   "answer_dist": {
+    "B": 348,
+    "A": 389,
+    "C": 335,
+    "D": 328
+   },
+   "max_key_share": 0.278,
+   "difficulty": {
+    "easy": 420,
+    "medium": 560,
+    "hard": 420
+   },
+   "issues": {
+    "MISSING_OPTION": 64,
+    "NON_SINGLE_CHOICE": 64,
+    "KEY_IS_OUTLIER_LONGEST": 16
+   },
+   "first_row_example": {
+    "MISSING_OPTION": 3,
+    "NON_SINGLE_CHOICE": 3,
+    "KEY_IS_OUTLIER_LONGEST": 6
+   }
+  },
+  {
+   "file": "_load/B5_Mathematics_new_1200.csv",
+   "rows": 1200,
+   "declared_in_name": 1200,
+   "name_matches": true,
+   "answer_dist": {
+    "B": 295,
+    "C": 275,
+    "A": 366,
+    "D": 264
+   },
+   "max_key_share": 0.305,
+   "difficulty": {
+    "easy": 360,
+    "medium": 480,
+    "hard": 360
+   },
+   "issues": {
+    "MISSING_OPTION": 84,
+    "NON_SINGLE_CHOICE": 84,
+    "KEY_IS_OUTLIER_LONGEST": 42
+   },
+   "first_row_example": {
+    "MISSING_OPTION": 8,
+    "NON_SINGLE_CHOICE": 8,
+    "KEY_IS_OUTLIER_LONGEST": 9
+   }
+  },
+  {
+   "file": "_load/B6_FRENCH_new_650.csv",
+   "rows": 650,
+   "declared_in_name": 650,
+   "name_matches": true,
+   "answer_dist": {
+    "D": 144,
+    "B": 152,
+    "C": 149,
+    "A": 205
+   },
+   "max_key_share": 0.315,
+   "difficulty": {
+    "easy": 195,
+    "medium": 260,
+    "hard": 195
+   },
+   "issues": {
+    "MISSING_OPTION": 49,
+    "NON_SINGLE_CHOICE": 49,
+    "KEY_IS_OUTLIER_LONGEST": 8
+   },
+   "first_row_example": {
+    "MISSING_OPTION": 13,
+    "NON_SINGLE_CHOICE": 13,
+    "KEY_IS_OUTLIER_LONGEST": 46
+   }
+  },
+  {
+   "file": "_load/SHS-1_Applied-Technology_new_1000.csv",
+   "rows": 1000,
+   "declared_in_name": 1000,
+   "name_matches": true,
+   "answer_dist": {
+    "A": 306,
+    "B": 253,
+    "D": 220,
+    "C": 221
+   },
+   "max_key_share": 0.306,
+   "difficulty": {
+    "easy": 300,
+    "medium": 400,
+    "hard": 300
+   },
+   "issues": {
+    "INDICATOR_GRADE_MISMATCH": 1000,
+    "MISSING_OPTION": 80,
+    "NON_SINGLE_CHOICE": 80,
+    "KEY_IS_OUTLIER_LONGEST": 14
+   },
+   "first_row_example": {
+    "INDICATOR_GRADE_MISMATCH": 2,
+    "MISSING_OPTION": 3,
+    "NON_SINGLE_CHOICE": 3,
+    "KEY_IS_OUTLIER_LONGEST": 24
+   }
+  },
+  {
+   "file": "_load/SHS-1_Art-And-Design-Studio_new_750.csv",
+   "rows": 750,
+   "declared_in_name": 750,
+   "name_matches": true,
+   "answer_dist": {
+    "A": 210,
+    "B": 209,
+    "C": 165,
+    "D": 166
+   },
+   "max_key_share": 0.28,
+   "difficulty": {
+    "easy": 225,
+    "medium": 300,
+    "hard": 225
+   },
+   "issues": {
+    "MISSING_OPTION": 60,
+    "NON_SINGLE_CHOICE": 60,
+    "INDICATOR_GRADE_MISMATCH": 750,
+    "KEY_IS_OUTLIER_LONGEST": 30
+   },
+   "first_row_example": {
+    "MISSING_OPTION": 2,
+    "NON_SINGLE_CHOICE": 2,
+    "INDICATOR_GRADE_MISMATCH": 2,
+    "KEY_IS_OUTLIER_LONGEST": 3
+   }
+  },
+  {
+   "file": "_load/SHS-1_Chemistry_new_350.csv",
+   "rows": 350,
+   "declared_in_name": 350,
+   "name_matches": true,
+   "answer_dist": {
+    "A": 99,
+    "B": 97,
+    "D": 77,
+    "C": 77
+   },
+   "max_key_share": 0.283,
+   "difficulty": {
+    "easy": 105,
+    "medium": 140,
+    "hard": 105
+   },
+   "issues": {
+    "MISSING_OPTION": 28,
+    "NON_SINGLE_CHOICE": 28,
+    "INDICATOR_GRADE_MISMATCH": 350,
+    "KEY_IS_OUTLIER_LONGEST": 14
+   },
+   "first_row_example": {
+    "MISSING_OPTION": 2,
+    "NON_SINGLE_CHOICE": 2,
+    "INDICATOR_GRADE_MISMATCH": 2,
+    "KEY_IS_OUTLIER_LONGEST": 3
+   }
+  }
+ ],
+ "total_rows": 17750
+}
