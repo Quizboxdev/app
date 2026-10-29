@@ -25,7 +25,24 @@ Thumbs.db
 supabase/.temp/
 supabase/prod_dump/
 
-# Question-bank working files are data, not source (the README stays tracked)
+# Content and exports live OUTSIDE the repository (see AGENTS.md). These patterns are a safety net so a careless `git add .` can never stage them.
 /Questions Bank/*
 !/Questions Bank/README.txt
+/Questions/
 /scratch/
+/_work/
+/Images/
+/QuizBox_Complete_Claude_Design_Export_2026/
+/*.zip
+/*.docx
+/*.xlsx
+/quizbox-*.csv
+/*_FINAL_CHECKLIST*.csv
+/DESIGN_COVERAGE_MATRIX_UPDATE.csv
+/ROUTE_MAPPING.md
+/missing-screens-route-mapping.md
+/04_BLOCKERS*.md
+
+# Python bytecode is generated, never committed
+__pycache__/
+*.pyc

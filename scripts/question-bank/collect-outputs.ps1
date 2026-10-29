@@ -6,7 +6,9 @@
 param([Parameter(Mandatory = $true)][string]$Vault)
 $ErrorActionPreference = "Stop"
 $repo = Resolve-Path (Join-Path $PSScriptRoot "..\..")
-$returns = Join-Path $repo "Questions Bank\_work\returns"
+# Content lives outside the repository: set QUIZBOX_CONTENT to the folder that contains "Questions Bank" (default: the repo root).
+$content = if ($env:QUIZBOX_CONTENT) { $env:QUIZBOX_CONTENT } else { $repo }
+$returns = Join-Path $content "Questions Bank\_work\returns"
 $done = Join-Path $returns "_done"
 New-Item -ItemType Directory -Force $returns, $done | Out-Null
 $outputs = Join-Path $Vault "_outputs"

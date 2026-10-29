@@ -13,12 +13,15 @@ Also writes:  _work/reports/<Grade>_<Subject>_report.txt, _work/rejects/<unit>_r
 This is the pre-load gate. The source-quote check against the PDF is still done by scripts/check-question-file.ts before loading.
 Standard library only.
 """
+import os
 import csv, hashlib, io, random, re, shutil, sys
 from collections import Counter, defaultdict
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
-BANK = REPO / "Questions Bank"; WORK = BANK / "_work"
+# The question bank is content, not code, and lives outside the repository. Point QUIZBOX_CONTENT at the folder that contains "Questions Bank" (default: the repo root, as before).
+CONTENT = Path(os.environ.get("QUIZBOX_CONTENT") or REPO)
+BANK = CONTENT / "Questions Bank"; WORK = BANK / "_work"
 COLS = "level,grade,subject,strand,sub_strand,indicator_code,topic,concept,difficulty,cognitive_level,answer_type,question_text,option_a,option_b,option_c,option_d,correct_answer,explanation,source_reference,source_quote".split(",")
 LEVELS = {"PRIMARY": "Primary", "JHS": "JHS", "SHS": "SHS"}
 PER_TOPIC, MIX = 50, {"easy": 15, "medium": 20, "hard": 15}

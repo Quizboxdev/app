@@ -7,6 +7,7 @@ QuizBox is a learning and assessment platform (Next.js 15, Supabase, Vercel, Pay
 ## 1. One source of truth
 - The only source of truth is **https://github.com/Quizboxdev/app**, branch `main`. What is on `main` is what Production runs.
 - Work in a **clean clone** of that repository, never in a folder that also holds question banks, exports or scratch files. Content (question banks, design exports, source images) lives **outside** the repository.
+- The question bank, design exports, source images and other content live in a **separate content folder**, never in the repository. Question-bank scripts read it from the environment variable `QUIZBOX_CONTENT` (the folder that contains `Questions Bank`); if it is unset they fall back to the repo root.
 - Each agent works in its **own git worktree** with its own branch, so two agents never share a working folder:
   `git worktree add -b <branch> <folder> origin/main`
 
