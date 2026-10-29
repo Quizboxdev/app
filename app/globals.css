@@ -988,3 +988,70 @@ summary.qb-link { display: flex; align-items: center; min-height: 44px; cursor: 
 .qb-content .qb-sh-stat .qb-overline { display: flex; align-items: center; gap: 6px; margin: 0; }
 
 @media (prefers-reduced-motion: reduce) { .qb-btn:active:not(:disabled) { transform: none; } }
+
+/* ---------- Q-Insignia Knowledge Window v0.2 (components/qinsignia) ----------
+   Scoped .qi-* classes, only rendered when flags.q_insignia_subject_cards_v02 is on. Ported from the approved canvas
+   (q-insignia.css v0.2) onto the app tokens. Nothing here restyles existing .qb-* components. */
+.qi-kw { display: flex; flex-direction: column; min-width: 0; width: 100%; margin: 0; padding: 0; border: 1px solid var(--line); border-radius: 16px; background: var(--surface); overflow: hidden; color: var(--ink); text-decoration: none; text-align: left; font: inherit; transition: border-color .15s, box-shadow .15s; }
+a.qi-kw:hover, button.qi-kw:hover:not(:disabled) { border-color: var(--qi-line, var(--blue-line)); box-shadow: 0 0 0 1px var(--qi-line, var(--blue-line)); }
+a.qi-kw:focus-visible, button.qi-kw:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+button.qi-kw { cursor: pointer; }
+button.qi-kw:disabled { cursor: not-allowed; }
+.qi-kw.is-selected { border-color: var(--qi-accent, var(--blue)); box-shadow: 0 0 0 2px var(--qi-accent, var(--blue)); }
+.qi-kw-art { position: relative; aspect-ratio: 8 / 5; overflow: hidden; isolation: isolate; background: var(--blue-deep); flex: none; }
+.qi-kw-art.is-square { aspect-ratio: 1 / 1; }
+.qi-kw-art picture { position: absolute; inset: 0; }
+.qi-kw-photo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; z-index: 0; }
+.qi-kw-glyph { position: absolute; left: 14px; bottom: 12px; display: flex; }
+.qi-kw-corner { position: absolute; top: 0; right: 0; z-index: 2; width: 76px; height: 76px; pointer-events: none;
+  background: linear-gradient(225deg, rgba(19, 34, 61, .9) 0 46%, transparent 46% 51%, rgba(255, 255, 255, .55) 51% 52.5%, transparent 52.5%); }
+.qi-kw-q { position: absolute; z-index: 3; top: 8px; right: 8px; width: 30px; height: 30px; border-radius: 8px; overflow: hidden; background: #05070d; box-shadow: 0 0 0 1px rgba(255, 255, 255, .6); }
+.qi-kw-q img { width: 100%; height: 100%; object-fit: contain; display: block; }
+.qi-kw-prog { position: absolute; left: 0; right: 0; bottom: 0; z-index: 2; height: 6px; background: rgba(15, 23, 42, .6); }
+.qi-kw-prog > span { display: block; height: 100%; background: var(--qi-accent, var(--blue)); box-shadow: 0 0 0 1px rgba(255, 255, 255, .35) inset; }
+.qi-kw-body { display: flex; flex-direction: column; gap: 6px; padding: 14px 16px 16px; flex: 1; min-width: 0; }
+.qi-kw-title { margin: 0; font-family: var(--font-display); font-weight: 700; font-size: 16px; line-height: 1.25; color: var(--ink); overflow-wrap: anywhere; }
+.qi-kw-meta { font-size: 13px; color: var(--ink-muted); overflow-wrap: anywhere; }
+.qi-kw-measure { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.qi-kw-foot { margin-top: auto; padding-top: 6px; display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.qi-kw-foot .qb-pill { white-space: normal; }
+.qi-kw-action { display: inline-flex; align-items: center; gap: 4px; font-weight: 700; font-size: 14px; color: var(--qi-accent-strong, var(--blue-strong)); }
+.qi-kw.is-locked .qi-kw-photo { filter: brightness(.82); }
+.qi-kw.is-off .qi-kw-photo { filter: grayscale(1) brightness(.85); }
+.qi-kw.is-off .qi-kw-action { color: var(--ink-muted); }
+/* Role identity: Teacher uses the approved deep-blue role token (Student keeps the default blue). Only accents change; layout is shared. */
+[data-role="teacher"] .qi-kw { --qi-accent: var(--role-teacher); --qi-accent-strong: var(--role-teacher); --qi-line: var(--blue-line); }
+/* selector (assignment builder): a choice control, so the selected state is a ring plus a check, never colour alone */
+.qi-kw-selector.is-selected .qi-kw-action { color: var(--qi-accent-strong, var(--blue-strong)); }
+.qi-kw-selector:disabled { opacity: 1; }
+/* strip layouts: compact tile and returning-learner card */
+.qi-kw-strip { flex-direction: row; align-items: stretch; }
+.qi-kw-strip .qi-kw-art { width: 104px; }
+.qi-kw-returning .qi-kw-art { width: 132px; }
+.qi-kw-strip .qi-kw-body { padding: 12px 14px; justify-content: center; }
+.qi-kw-strip .qi-kw-corner { width: 46px; height: 46px; }
+.qi-kw-strip .qi-kw-q { width: 22px; height: 22px; top: 4px; right: 4px; border-radius: 6px; }
+.qi-kw-strip .qi-kw-glyph { left: 10px; bottom: 10px; }
+/* grids: 4 / 3 / 2 columns, one column under 360px; mobile cards use the square crop */
+.qi-kw-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+.qi-kw-grid.is-dense { grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); gap: 12px; }
+.qi-kw-section + .qi-kw-section { margin-top: 16px; }
+@media (max-width: 1100px) { .qi-kw-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } .qi-kw-grid.is-dense { grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr)); } }
+@media (max-width: 760px) {
+  .qi-kw-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .qi-kw-grid .qi-kw-art:not(.is-square) { aspect-ratio: 1 / 1; }
+  .qi-kw-body { padding: 12px; }
+  .qi-kw-title { font-size: 15px; }
+  .qi-kw-corner { width: 60px; height: 60px; }
+  .qi-kw-q { width: 26px; height: 26px; top: 6px; right: 6px; }
+}
+@media (max-width: 359px) {
+  .qi-kw-grid, .qi-kw-grid.is-dense { grid-template-columns: minmax(0, 1fr); }
+  .qi-kw-grid .qi-kw-art:not(.is-square) { aspect-ratio: 8 / 5; }
+  .qi-kw-strip .qi-kw-art, .qi-kw-returning .qi-kw-art { width: 84px; }
+}
+@media (prefers-reduced-motion: reduce) { .qi-kw { transition: none; } }
+
+/* DS fix B (v0.2): under 360px the top-bar wordmark text is hidden and only the Q mark remains, so the bar never scrolls sideways.
+   DS fix A (block link-buttons use border-box) needs no rule here: `* { box-sizing: border-box; }` already covers it. */
+@media (max-width: 359px) { .qb-topbar-brand .qb-lockup-text { display: none; } }

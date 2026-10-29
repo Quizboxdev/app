@@ -24,7 +24,7 @@ STEP 0. Read, in this order, and follow them exactly:
   2. Questions Bank/README.txt
   3. Questions Bank/_work/WORK_QUEUE.csv   (only this account's packs are listed)
 
-STEP 1. Take the rows with status = TODO in file order. Work one pack at a time.
+STEP 1. Take the rows with status = TODO in file order. Work one pack at a time. Skip rows with status DEFERRED (planned for later, once every subject has reached its first target) and DONE.
 
 STEP 2. For each pack:
   a. Read its sheet (the "sheet" column, under Questions Bank/_work/). The sheet is your ONLY source.
@@ -56,6 +56,9 @@ rejects, packs needing review.
 def main():
     rows = list(csv.DictReader(open(WORK / "WORK_QUEUE.csv", encoding="utf-8-sig")))
     if not rows: raise SystemExit("WORK_QUEUE.csv is empty: run make_packs.py first")
+    # A kit carries only the packs still to be written (TODO, or under way). DONE and DEFERRED packs stay out, so a kit is exactly one account's next work, neediest subject first.
+    rows = [r for r in rows if r["status"] in ("TODO", "IN_PROGRESS", "DOING", "NEEDS_REVIEW")]
+    if not rows: raise SystemExit("Nothing to write: every pack is DONE or DEFERRED. Raise the target with make_packs.py --target to plan more.")
     KITS.mkdir(parents=True, exist_ok=True)
     common = [(REPO / "docs/question-bank/PACK_PROMPT.md", "docs/question-bank/PACK_PROMPT.md"),
               (REPO / "scripts/question-bank/bank.py", "scripts/question-bank/bank.py"),

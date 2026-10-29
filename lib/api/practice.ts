@@ -1,7 +1,7 @@
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { userFacingError } from "@/lib/errors";
 
-export type PracticeTopic = { id: string; title: string; strand: string; available: number };
+export type PracticeTopic = { id: string; title: string; available: number };
 export type PracticeSubject = { id: string; name: string; subject_code: string | null; available: number; topics: PracticeTopic[] };
 export type PracticeMenu = { grade: string; subjects: PracticeSubject[]; grades?: string[] };
 
