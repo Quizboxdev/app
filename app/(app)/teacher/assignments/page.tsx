@@ -11,9 +11,12 @@ import StatusBadge from "@/components/StatusBadge";
 import CurriculumBrowser from "@/components/CurriculumBrowser";
 import { objectiveLabel } from "@/lib/curriculum/display";
 import { assignmentPhase } from "@/lib/learning/analytics";
+import KnowledgeWindow, { KnowledgeWindowGrid } from "@/components/qinsignia/KnowledgeWindow";
+import { useWorkspaceFlags } from "@/components/WorkspaceProvider";
 import { getQuestionAvailability, listApprovedQuestionsForNode, listCurriculumNodes } from "@/lib/api/curriculum";
 
 export default function TeacherAssignmentsPage() {
+  const cards = useWorkspaceFlags().q_insignia_subject_cards_v02;
   const [ctx, setCtx] = useState<any>(null), [classes, setClasses] = useState<any[]>([]), [rows, setRows] = useState<any[]>([]), [objectives, setObjectives] = useState<any[]>([]), [availability, setAvailability] = useState<any>(null), [questions, setQuestions] = useState<any[]>([]), [selectedIds, setSelectedIds] = useState<string[]>([]), [publishing, setPublishing] = useState(false), [run, setRun] = useState(0);
   const [gradeOverride, setGradeOverride] = useState(false), [overrideReason, setOverrideReason] = useState("");
   const [error, setError] = useState(""), [notice, setNotice] = useState(""), [classId, setClassId] = useState(""), [nodeId, setNodeId] = useState(""), [title, setTitle] = useState(""), [description, setDescription] = useState(""), [difficulty, setDifficulty] = useState(""), [count, setCount] = useState(5), [attempts, setAttempts] = useState(1), [minutes, setMinutes] = useState(30), [dueAt, setDueAt] = useState(""), [mode, setMode] = useState<"PRACTICE"|"ASSESSMENT">("ASSESSMENT"), [selectionMode, setSelectionMode] = useState<"AUTOMATIC"|"MANUAL">("AUTOMATIC");
@@ -54,7 +57,11 @@ export default function TeacherAssignmentsPage() {
 
   const steps = [
     { id: "class", title: "Class", description: "Who is this for?", isValid: Boolean(classId), content:
-      <div className="qb-field"><label htmlFor="asg-class">Class</label><select id="asg-class" value={classId} onChange={(e) => setClassId(e.target.value)}><option value="">Select class</option>{classes.map((row) => <option key={row.id} value={row.id}>{row.class_name} · {row.grade}</option>)}</select></div> },
+      cards ? <div className="qb-field"><span id="asg-class-label" className="qb-label">Class</span>
+        <div role="group" aria-labelledby="asg-class-label"><KnowledgeWindowGrid dense>{classes.map((row) => <KnowledgeWindow key={row.id} variant="selector" name={row.curriculum_nodes?.title ?? row.class_name} displayName={String(row.class_name ?? "")}
+          meta={[row.grade, row.curriculum_nodes?.title].filter(Boolean).join(" · ")} selected={classId === row.id} onSelect={() => setClassId(row.id)}
+          view={{ state: "READY", status: null, tone: "neutral", action: { label: "Choose", kind: "practise" }, progress: null }} />)}</KnowledgeWindowGrid></div></div>
+      : <div className="qb-field"><label htmlFor="asg-class">Class</label><select id="asg-class" value={classId} onChange={(e) => setClassId(e.target.value)}><option value="">Select class</option>{classes.map((row) => <option key={row.id} value={row.id}>{row.class_name} · {row.grade}</option>)}</select></div> },
     { id: "scope", title: "Scope", description: "Choose the curriculum objective the questions come from.", isValid: Boolean(nodeId), content: !selectedClass ? <p className="qb-muted">Select a class first.</p> : subjectRoot ? (
       <>
         <CurriculumBrowser curriculumId={selectedClass.curriculum_id} root={subjectRoot} rootLabel={subjectRoot.title}

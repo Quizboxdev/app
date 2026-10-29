@@ -16,7 +16,10 @@ import { assignmentPhase, buildAttentionQueue } from "@/lib/learning/analytics";
 import { classifyProficiency } from "@/lib/learning/proficiency";
 import DashboardHero from "@/components/DashboardHero";
 import { bootstrapUser } from "@/lib/auth";
-import { getTeacherAnalytics, getTeacherDashboard, listIndicatorLearners, listIndicatorLearnersPage, publishAssignment } from "@/lib/api/teacher";
+import { getTeacherAnalytics, getTeacherDashboard, listIndicatorLearners, listIndicatorLearnersPage, listTeacherClasses, publishAssignment } from "@/lib/api/teacher";
+import KnowledgeWindow, { KnowledgeWindowGrid } from "@/components/qinsignia/KnowledgeWindow";
+import { useWorkspaceFlags } from "@/components/WorkspaceProvider";
+import { teacherSubjectView } from "@/lib/learning/subject-card-state";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import MasteryBar from "@/components/charts/MasteryBar";
 import ReviewerApplyCard from "@/components/ReviewerApplyCard";
@@ -41,6 +44,18 @@ export default function TeacherDashboardPage() {
   
   const classId = drilldown?.row.classId;
   const nodeId = drilldown?.row.curriculumNodeId;
+
+  // Q-Insignia pilot (flag q_insignia_subject_cards_v02): the subjects this teacher's classes are set up for, from the same class list the
+  // builders use (class -> subject node). Nothing is fetched while the flag is off, and no figure below is anything but a count of real rows.
+  const cards = useWorkspaceFlags().q_insignia_subject_cards_v02;
+  const [taught, setTaught] = useState<Array<{ classId: string; subject: string }> | null | "error">(null);
+  const loadTaught = () => {
+    setTaught(null);
+    bootstrapUser().then((ctx) => listTeacherClasses(String(ctx.teacherProfile?.id ?? "")))
+      .then((rows) => setTaught(rows.flatMap((c: { id: string; curriculum_nodes?: { title?: string | null } | null }) => c.curriculum_nodes?.title ? [{ classId: c.id, subject: c.curriculum_nodes.title }] : [])))
+      .catch(() => setTaught("error"));
+  };
+  useEffect(() => { if (cards) loadTaught(); }, [cards]);
   
   useEffect(() => { setLearnerPage(1); }, [classId, nodeId]);
   
@@ -110,6 +125,8 @@ export default function TeacherDashboardPage() {
             detail={`${cls.completionRate}% completion${top?.count ? ` · most learners ${top.label}` : ""}`} href="/teacher/gradebook" action="Results" />;
         })}</div> : <div className="qb-empty"><strong>No class results yet</strong>Class averages appear after learners complete an assessment.</div>}
       </section>
+
+      {cards && <TeachingSubjects taught={taught} assignments={phases[0].rows} onRetry={loadTaught} />}
 
       <section className="qb-card" style={{ marginTop: 16 }} aria-labelledby="th-assignments">
         <div className="qb-page-head"><h2 id="th-assignments">Assignments</h2><Link className="qb-link" href="/teacher/assignments">Manage</Link></div>
@@ -269,4 +286,23 @@ export default function TeacherDashboardPage() {
       <TeacherInsights/>
     </>
   );
+}
+
+// Q-Insignia pilot: small subject identities for the teacher's workspace, one compact tile per subject taught. Operational first: the
+// tile says how many classes and active assignments the subject has and opens the assignment builder; there is no photo banner here.
+function TeachingSubjects({ taught, assignments, onRetry }: { taught: Array<{ classId: string; subject: string }> | null | "error"; assignments: Array<{ class_id?: string | null }>; onRetry: () => void }) {
+  const subjects = Array.isArray(taught) ? [...new Set(taught.map((t) => t.subject))].map((name) => {
+    const ids = new Set(taught.filter((t) => t.subject === name).map((t) => t.classId));
+    return { name, classes: ids.size, active: assignments.filter((a) => a.class_id && ids.has(a.class_id)).length };
+  }) : [];
+  return <section className="qb-card" style={{ marginTop: 16 }} aria-labelledby="th-subjects">
+    <div className="qb-page-head"><h2 id="th-subjects">Subjects you teach</h2><Link className="qb-link" href="/teacher/assignments/by-topic">Assign by topic</Link></div>
+    {taught === null ? <KnowledgeWindowGrid dense>{[1, 2, 3].map((i) => <div key={i} className="qi-kw qb-skeleton" style={{ minHeight: 88 }} aria-hidden="true" />)}</KnowledgeWindowGrid>
+      : taught === "error" ? <div className="qb-empty"><strong>Subjects could not load</strong><button type="button" className="qb-btn secondary" onClick={onRetry}>Try again</button></div>
+      : !subjects.length ? <div className="qb-empty"><strong>No subjects yet</strong>A class shows its subject here once it is set up with one.</div>
+      : <KnowledgeWindowGrid dense label="Subjects you teach">
+        {subjects.map((s) => <KnowledgeWindow key={s.name} variant="compact" name={s.name} href="/teacher/assignments/by-topic" headingLevel={3}
+          meta={`${s.classes} class${s.classes === 1 ? "" : "es"} · ${s.active} active assignment${s.active === 1 ? "" : "s"}`} view={teacherSubjectView({ actionLabel: "Assign" })} />)}
+      </KnowledgeWindowGrid>}
+  </section>;
 }
