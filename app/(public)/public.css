@@ -115,6 +115,7 @@
 .qbp-footer-row { display: flex; flex-wrap: wrap; gap: 24px 56px; padding-top: 32px; padding-bottom: 20px; }
 .qbp-footer-row > div, .qbp-footer-row > nav { display: grid; gap: 8px; align-content: start; }
 .qbp-footer-brand { flex: 1 1 260px; max-width: 360px; }
+.qbp-footer .qb-lockup-desc { white-space: normal; }
 .qbp-footer a { font-size: 14px; color: var(--muted); text-decoration: none; }
 .qbp-footer a:hover { color: var(--blue); }
 .qbp-footer h2 { font-size: 14px; margin: 0; }

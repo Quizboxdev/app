@@ -5,9 +5,15 @@ import HelpHome from "@/components/help/HelpHome";
 import { audienceForRole, type HelpMeta } from "@/lib/help/categories";
 import { bootstrapUser } from "@/lib/auth";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
+import { useWorkspaceFlags } from "@/components/WorkspaceProvider";
+import GuidesDesign from "@/components/help/GuidesDesign";
 
 // Help inside the app, for everyone signed in: the guides for your role come first, the rest are found by search. Administrator workflows are not part of Help.
 export default function GuidesPage() {
+  return useWorkspaceFlags().design_v02_help ? <GuidesDesign /> : <LegacyGuidesPage />;
+}
+
+function LegacyGuidesPage() {
   const [guides, setGuides] = useState<HelpMeta[] | null>(null), [audience, setAudience] = useState<string | null>(null);
   useEffect(() => {
     let alive = true;

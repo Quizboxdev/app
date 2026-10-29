@@ -34,7 +34,7 @@ export const FIXTURE_URL = `http://127.0.0.1:${FIXTURE_PORT}`;
 
 export type FixtureServer = { server: Server; unhandled: string[]; mutations: string[]; close: () => Promise<void> };
 
-export async function startFixtureServer(fixture: QaFixture, origin: string): Promise<FixtureServer> {
+export async function startFixtureServer(fixture: QaFixture, origin: string, port = FIXTURE_PORT): Promise<FixtureServer> {
   const unhandled: string[] = [], mutations: string[] = [];
   const authUser = { id: fixture.user.id, aud: "authenticated", role: "authenticated", email: fixture.user.email, email_confirmed_at: "2026-01-01T00:00:00Z", app_metadata: {}, user_metadata: {}, created_at: "2026-01-01T00:00:00Z" };
   const server = createServer(async (request, response) => {
@@ -50,6 +50,16 @@ export async function startFixtureServer(fixture: QaFixture, origin: string): Pr
     const raw = Buffer.concat(chunks).toString("utf8");
     const send = (status: number, body: unknown, headers: Record<string, string> = {}) => { response.writeHead(status, { "Content-Type": "application/json", ...headers }); response.end(JSON.stringify(body)); };
 
+    // Browser-UI QA can establish the same synthetic session as the CLI harness
+    // without CDP cookie injection. This server binds loopback and never forwards.
+    if (url.pathname === "/__qa/session" && request.method === "GET") {
+      if (!/^http:\/\/(localhost|127\.0\.0\.1):\d+$/.test(origin)) return send(403, { message: "QA session requires a loopback origin" });
+      const cookie = sessionCookie(fixture);
+      const first = fixture.routes[0];
+      const path = typeof first === "string" ? first : first.path;
+      response.writeHead(302, { "Set-Cookie": `${cookie.name}=${cookie.value}; Path=/; SameSite=Lax`, Location: `${origin}${path}` });
+      response.end(); return;
+    }
     if (url.pathname === "/auth/v1/user") return send(200, authUser);
     if (url.pathname === "/auth/v1/token") return send(200, { access_token: "qa", refresh_token: "qa", token_type: "bearer", expires_in: 3600, expires_at: Math.floor(Date.now() / 1000) + 3600, user: authUser });
     if (url.pathname === "/auth/v1/logout") { response.writeHead(204); response.end(); return; }
@@ -59,7 +69,7 @@ export async function startFixtureServer(fixture: QaFixture, origin: string): Pr
       const handler = fixture.rpc[rpc[1]];
       if (!handler) { unhandled.push(`rpc ${rpc[1]}`); return send(404, { code: "PGRST202", message: `QA fixture has no rpc ${rpc[1]}` }); }
       let args: any = {}; try { args = raw ? JSON.parse(raw) : {}; } catch { /* empty */ }
-      try { return send(200, handler(args) ?? null); } catch (error) { return send(400, { code: "P0001", message: (error as Error).message }); }
+      try { return send(200, (await handler(args)) ?? null); } catch (error) { return send(400, { code: "P0001", message: (error as Error).message }); }
     }
     const table = url.pathname.match(/^\/rest\/v1\/(\w+)$/);
     if (table) {
@@ -78,7 +88,7 @@ export async function startFixtureServer(fixture: QaFixture, origin: string): Pr
     unhandled.push(`${request.method} ${url.pathname}`);
     send(404, { message: "QA fixture: unhandled" });
   });
-  await new Promise<void>((resolve, reject) => { server.once("error", reject); server.listen(FIXTURE_PORT, "127.0.0.1", resolve); });
+  await new Promise<void>((resolve, reject) => { server.once("error", reject); server.listen(port, "127.0.0.1", resolve); });
   return { server, unhandled, mutations, close: () => new Promise((resolve) => server.close(() => resolve())) };
 }
 

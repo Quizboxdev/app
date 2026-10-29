@@ -2,7 +2,7 @@ import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { describeErrorMessage } from "@/lib/errors";
 
 export type TeacherTopic = {
-  topic_id: string; title: string; subject: string; grade: string; strand: string | null; sub_strand: string | null;
+  topic_id: string; title: string; subject: string; grade: string;
   indicator_code: string; indicator: string; concepts: string[]; available: number; easy: number; medium: number; hard: number;
 };
 export type TopicShare = { topic_id: string; title: string; share: number; available: number; easy: number; medium: number; hard: number };

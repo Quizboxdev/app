@@ -1,0 +1,56 @@
+[
+  {
+    "requestedWidth": 1440,
+    "catalogue": 1168,
+    "catalogueWidth": 1168,
+    "clientWidth": 1440,
+    "heading": "Step-by-step guides",
+    "scrollWidth": 1440,
+    "width": 1440
+  },
+  {
+    "requestedWidth": 1024,
+    "catalogue": 752,
+    "catalogueWidth": 752,
+    "clientWidth": 1024,
+    "heading": "Step-by-step guides",
+    "scrollWidth": 1024,
+    "width": 1024
+  },
+  {
+    "requestedWidth": 768,
+    "catalogue": 736,
+    "catalogueWidth": 736,
+    "clientWidth": 768,
+    "heading": "Step-by-step guides",
+    "scrollWidth": 768,
+    "width": 768
+  },
+  {
+    "requestedWidth": 390,
+    "catalogue": 343,
+    "catalogueWidth": 343,
+    "clientWidth": 375,
+    "heading": "Step-by-step guides",
+    "scrollWidth": 375,
+    "width": 390
+  },
+  {
+    "requestedWidth": 360,
+    "catalogue": 313,
+    "catalogueWidth": 313,
+    "clientWidth": 345,
+    "heading": "Step-by-step guides",
+    "scrollWidth": 345,
+    "width": 360
+  },
+  {
+    "requestedWidth": 320,
+    "catalogue": 273,
+    "catalogueWidth": 273,
+    "clientWidth": 305,
+    "heading": "Step-by-step guides",
+    "scrollWidth": 305,
+    "width": 320
+  }
+]

@@ -4,7 +4,7 @@ import { getSupabaseAdminClient } from "@/lib/supabase/server-admin";
 // Help search for the public and in-app Help pages. Public by design (it returns only published guides). The text is limited, the database ignores wildcards, and the answer is never cached
 // for long so a newly published guide is found within a minute.
 export const runtime = "nodejs";
-const out = (status: number, body: unknown) => NextResponse.json(body, { status, headers: { "Cache-Control": "public, max-age=30" } });
+const out = (status: number, body: unknown) => NextResponse.json(body, { status, headers: { "Cache-Control": status >= 400 ? "no-store" : "public, max-age=30" } });
 
 export async function GET(req: Request) {
   const url = new URL(req.url), q = (url.searchParams.get("q") ?? "").trim().slice(0, 100), audience = url.searchParams.get("audience");
