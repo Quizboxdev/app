@@ -21,6 +21,14 @@ import InstallPrompt from "@/components/InstallPrompt";
 import SponsoredCarousel from "@/components/challenges/SponsoredCarousel";
 import { levelFromGrade } from "@/lib/challenges/content-types";
 import { errorMessage } from "@/lib/errors";
+import KnowledgeWindow, { KnowledgeWindowGrid } from "@/components/qinsignia/KnowledgeWindow";
+import MasteryBadge from "@/components/MasteryBadge";
+import { useWorkspaceFlags } from "@/components/WorkspaceProvider";
+import { subjectCardView } from "@/lib/learning/subject-card-state";
+import { subjectSlug } from "@/lib/brand/subjects";
+import { getPracticeMenu, type PracticeMenu } from "@/lib/api/practice";
+import { getMyAttemptsPage } from "@/lib/api/assessment";
+import type { MyAttempt } from "@/lib/api/student-types";
 import type { BadgeTier } from "@/components/achievements/AchievementBadge";
 import type { Achievement, AvailableAssessment, CompetitionAnalytics, StudentDashboardData } from "@/lib/api/student-types";
 import type { AssignmentLike } from "@/lib/learning/home";
@@ -39,6 +47,18 @@ export default function StudentHomePage() {
   const [access, setAccess] = useState<MyAccess | null>(null);
   const [coins, setCoins] = useState<number | null>(null);
   const [qpoints, setQpoints] = useState<number | null>(null);
+  const flags = useWorkspaceFlags();
+  const cards = flags.q_insignia_subject_cards_v02;
+  const [menu, setMenu] = useState<PracticeMenu | null | "error">(null);
+  const [sets, setSets] = useState<AvailableAssessment[]>([]);
+  const [unfinished, setUnfinished] = useState<MyAttempt | null>(null);
+  // Q-Insignia pilot only: the same practice menu and attempts the Practise page reads. Nothing is fetched while the flag is off.
+  const loadMenu = () => { setMenu(null); getPracticeMenu().then(setMenu).catch(() => setMenu("error")); };
+  useEffect(() => {
+    if (!cards) return;
+    loadMenu();
+    getMyAttemptsPage(1).then((r) => setUnfinished(r.rows.find((a) => String(a.status).toUpperCase() === "IN_PROGRESS") ?? null)).catch(() => setUnfinished(null));
+  }, [cards]);
 
   useEffect(() => {
     bootstrapUser().then(async (ctx) => {
@@ -52,6 +72,7 @@ export default function StudentHomePage() {
         listAvailableAssessments().catch(() => []),
       ]);
       setData(dash); setComp(c); setAchievements(a);
+      setSets(available);
       setPractice(available.find((row) => String(row.assessment_type).toUpperCase() === "PRACTICE") ?? null);
       void getMyAccess().then(setAccess);
       void getMyWallet(ctx.userId).then((w) => setCoins(w ? Number(w.purchased_balance) + Number(w.promotional_balance) : 0)).catch(() => setCoins(null));
@@ -146,6 +167,7 @@ export default function StudentHomePage() {
         {coins !== null && coins > 0 && <div className="qb-card qb-sh-stat"><p className="qb-overline"><Coins size={14} aria-hidden="true" /> Coins</p><strong>{coins.toLocaleString()}</strong><span className="qb-muted qb-small">Your balance</span></div>}
         {qpoints !== null && qpoints > 0 && <div className="qb-card qb-sh-stat"><p className="qb-overline"><Star size={14} aria-hidden="true" /> QPoints</p><strong>{qpoints.toLocaleString()}</strong><span className="qb-muted qb-small">Earned for mastery</span></div>}
       </section>
+      {cards && <SubjectWindows menu={menu} sets={sets} unfinished={unfinished} subjects={subjects} onRetry={loadMenu} />}
       <div className="qb-sh-grid">
         <div className="qb-sh-main">
           <div className="qb-sh-pair">
@@ -196,7 +218,11 @@ export default function StudentHomePage() {
 
           <section className="qb-card" aria-labelledby="sh-subjects">
             <div className="qb-page-head"><h2 id="sh-subjects">Subject progress</h2><Link className="qb-link" href="/student/results">Full progress</Link></div>
-            {subjects.length ? <div className="qb-subject-list">
+            {subjects.length && cards ? <KnowledgeWindowGrid dense>
+              {subjects.slice(0, 6).map((s) => <KnowledgeWindow key={s.name} variant="compact" name={s.name} href={practiseHref(s.code)} headingLevel={3}
+                meta={`${s.percentage}% average · ${s.count} result${s.count === 1 ? "" : "s"}`} measure={<MasteryBadge percentage={s.percentage} evidence={s.evidence || s.count} />}
+                view={{ ...subjectCardView({ evidence: s.evidence || s.count }), status: null }} />)}
+            </KnowledgeWindowGrid> : subjects.length ? <div className="qb-subject-list">
               {subjects.slice(0, 6).map((s) => <ProgressCard key={s.name} name={s.name} percentage={s.percentage} detail={`${s.count} result${s.count === 1 ? "" : "s"}`} evidence={s.evidence || s.count} href={practiseHref(s.code)} icon={<SubjectIcon name={s.name} size={24} />} />)}
             </div> : <div className="qb-empty"><strong>No mastery data yet</strong>Complete a practice set or assessment to see progress by subject.</div>}
           </section>
@@ -234,4 +260,27 @@ export default function StudentHomePage() {
       </div>
     </>
   );
+}
+
+// Q-Insignia Knowledge Window pilot (flag q_insignia_subject_cards_v02): an unfinished attempt first, then the subjects the
+// learner can practise now. Cards open the existing builder with the subject chosen; topics are still picked there.
+function SubjectWindows({ menu, sets, unfinished, subjects, onRetry }: { menu: PracticeMenu | null | "error"; sets: AvailableAssessment[]; unfinished: MyAttempt | null; subjects: Subject[]; onRetry: () => void }) {
+  const resumeSet = unfinished ? sets.find((x) => x.id === unfinished.assessment_id) : undefined;
+  const bySlug = new Map(subjects.map((s) => [subjectSlug(s.name), s]));
+  return <section className="qb-card" aria-labelledby="sh-explore">
+    <div className="qb-page-head"><h2 id="sh-explore">Your subjects</h2><Link className="qb-link" href="/practise">Build a practice</Link></div>
+    {unfinished && <div style={{ marginBottom: 14 }}>
+      <KnowledgeWindow variant="returning" name={sanitizeLabel(resumeSet?.subject_name ?? resumeSet?.subject_code ?? "Practice")} href={`/student/attempt/${unfinished.id}`}
+        meta={unfinished.started_at ? `Unfinished · started ${formatDate(String(unfinished.started_at))}` : "Unfinished practice"} view={subjectCardView({ attempt: { id: unfinished.id } })} />
+    </div>}
+    {menu === null ? <KnowledgeWindowGrid>{[1, 2, 3, 4].map((i) => <div key={i} className="qi-kw qb-skeleton" style={{ minHeight: 200 }} aria-hidden="true" />)}</KnowledgeWindowGrid>
+      : menu === "error" ? <div className="qb-empty"><strong>Subjects could not load</strong><button type="button" className="qb-btn secondary" onClick={onRetry}>Try again</button></div>
+      : !menu.subjects.length ? <div className="qb-empty"><strong>No subjects yet</strong>Questions for {menu.grade || "your class"} are being added. Check back soon.</div>
+      : <KnowledgeWindowGrid label="Subjects you can practise">
+        {menu.subjects.map((s) => { const mine = bySlug.get(subjectSlug(s.name));
+          const view = subjectCardView({ available: s.available, evidence: mine ? mine.evidence || mine.count : 0, weak: !!mine && mine.percentage < 68 });
+          return <KnowledgeWindow key={s.id} name={s.name} href={`/practise?pick=${encodeURIComponent(s.id)}`}
+            meta={`${s.topics.length} topic${s.topics.length === 1 ? "" : "s"} · ${s.available} question${s.available === 1 ? "" : "s"}`} view={view} />; })}
+      </KnowledgeWindowGrid>}
+  </section>;
 }

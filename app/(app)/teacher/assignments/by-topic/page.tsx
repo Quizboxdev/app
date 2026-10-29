@@ -8,6 +8,9 @@ import { describeErrorMessage } from "@/lib/errors";
 import { splitTopicsForTeacher } from "@/lib/curriculum/display";
 import { useDraft } from "@/lib/drafts/use-draft";
 import DraftNotice from "@/components/DraftNotice";
+import KnowledgeWindow, { KnowledgeWindowGrid } from "@/components/qinsignia/KnowledgeWindow";
+import { useWorkspaceFlags } from "@/components/WorkspaceProvider";
+import { teacherSubjectView } from "@/lib/learning/subject-card-state";
 
 type ClassRow = { id: string; class_name: string; grade?: string | null };
 
@@ -52,6 +55,15 @@ export default function AssignByTopicPage() {
   }, [classId]);
 
   const subjects = useMemo(() => [...new Set(topics.map((t) => t.subject))], [topics]);
+  // Q-Insignia pilot (flag q_insignia_subject_cards_v02): the subject choice becomes photo cards. Same data, same handler, same draft;
+  // the counts are the readable topics' approved questions from qb_teacher_topics, the numbers the topic list below already shows.
+  const cards = useWorkspaceFlags().q_insignia_subject_cards_v02;
+  const subjectStats = useMemo(() => subjects.map((name) => {
+    const { shown } = splitTopicsForTeacher(topics.filter((t) => t.subject === name));
+    return { name, topics: shown.length, available: shown.reduce((n, t) => n + t.available, 0) };
+  }), [subjects, topics]);
+  // Choosing the subject already selected changes nothing (a native select never fires for it either); a different one clears only the ticked topics.
+  const pickSubject = (name: string) => { if (name === subject) return; setSubject(name); setChosen([]); };
   const visible = useMemo(() => topics.filter((t) => !subject || t.subject === subject), [topics, subject]);
   // Only topics with readable names are offered; a topic whose name is still a code is held back (reported to admins), never grouped as "Other".
   const { shown: readable, unlabelled } = useMemo(() => splitTopicsForTeacher(visible), [visible]);
@@ -91,10 +103,18 @@ export default function AssignByTopicPage() {
         <div className="qb-field"><label htmlFor="bt-class">Class</label>
           <select id="bt-class" value={classId} onChange={(e) => setClassId(e.target.value)}><option value="">Select class</option>
             {classes.map((c) => <option key={c.id} value={c.id}>{c.class_name}</option>)}</select></div>
-        <div className="qb-field"><label htmlFor="bt-subject">Subject</label>
-          <select id="bt-subject" value={subject} onChange={(e) => { setSubject(e.target.value); setChosen([]); }} disabled={subjects.length === 0}>
-            {subjects.length === 0 ? <option value="">No topics are open yet</option> : subjects.map((s) => <option key={s} value={s}>{s}</option>)}</select></div>
+        {!cards && <div className="qb-field"><label htmlFor="bt-subject">Subject</label>
+          <select id="bt-subject" value={subject} onChange={(e) => pickSubject(e.target.value)} disabled={subjects.length === 0}>
+            {subjects.length === 0 ? <option value="">No topics are open yet</option> : subjects.map((s) => <option key={s} value={s}>{s}</option>)}</select></div>}
       </div>
+      {cards && <div className="qb-field" style={{ marginTop: 12 }}>
+        <p id="bt-subject-label" className="qb-overline" style={{ margin: "0 0 8px" }}>Subject</p>
+        {subjectStats.length === 0 ? <p className="qb-muted">No topics are open yet</p>
+          : <KnowledgeWindowGrid dense label="Subject for this assignment">
+            {subjectStats.map((s) => <KnowledgeWindow key={s.name} variant="selector" name={s.name} selected={s.name === subject} onSelect={() => pickSubject(s.name)}
+              meta={`${s.topics} topic${s.topics === 1 ? "" : "s"} · ${s.available} question${s.available === 1 ? "" : "s"}`} view={teacherSubjectView({ available: s.available, actionLabel: "Choose" })} />)}
+          </KnowledgeWindowGrid>}
+      </div>}
       {classId && topics.length === 0 && <p className="qb-muted">No topics are open for this class yet. Topics open when enough approved questions exist.</p>}
     </section>
 
@@ -103,7 +123,7 @@ export default function AssignByTopicPage() {
       <div className="qb-list">
         {readable.map((t) => <label key={t.topic_id} className="qb-row">
           <input type="checkbox" checked={chosen.includes(t.topic_id)} disabled={t.available === 0} onChange={() => toggle(t.topic_id)}/>
-          <span><strong>{t.label}</strong> <span className="qb-muted">· {t.available} question{t.available === 1 ? "" : "s"}{t.hint ? ` · ${t.hint}` : ""}{t.concepts.length ? ` · ${t.concepts.join(", ")}` : ""}</span></span>
+          <span><strong>{t.label}</strong> <span className="qb-muted">· {t.available} question{t.available === 1 ? "" : "s"}{t.concepts.length ? ` · ${t.concepts.join(", ")}` : ""}</span></span>
         </label>)}
       </div>
       {unlabelled.length > 0 && <p className="qb-muted qb-small">{unlabelled.length} more topic{unlabelled.length === 1 ? " is" : "s are"} not shown yet while we finish preparing {unlabelled.length === 1 ? "it" : "them"}.</p>}

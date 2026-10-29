@@ -1,0 +1,50 @@
+[
+  {
+    "requestedWidth": 1440,
+    "clientWidth": 1425,
+    "newDesign": false,
+    "scrollWidth": 1425,
+    "width": 1440,
+    "captured": true
+  },
+  {
+    "requestedWidth": 1024,
+    "clientWidth": 1009,
+    "newDesign": false,
+    "scrollWidth": 1009,
+    "width": 1024,
+    "captured": true
+  },
+  {
+    "requestedWidth": 768,
+    "clientWidth": 753,
+    "newDesign": false,
+    "scrollWidth": 753,
+    "width": 768,
+    "captured": true
+  },
+  {
+    "requestedWidth": 390,
+    "clientWidth": 375,
+    "newDesign": false,
+    "scrollWidth": 375,
+    "width": 390,
+    "captured": true
+  },
+  {
+    "requestedWidth": 360,
+    "clientWidth": 345,
+    "newDesign": false,
+    "scrollWidth": 345,
+    "width": 360,
+    "captured": true
+  },
+  {
+    "requestedWidth": 320,
+    "clientWidth": 305,
+    "newDesign": false,
+    "scrollWidth": 305,
+    "width": 320,
+    "captured": true
+  }
+]

@@ -61,7 +61,7 @@ export default function TeacherQuestionBanksPage() {
       <table className="qb-table"><thead><tr><th>Question</th><th>Curriculum</th><th>Difficulty</th><th>Type</th><th>Status</th></tr></thead>
         <tbody>{result.rows.map((row) => <tr key={row.id}>
           <td><strong>{row.question_text}</strong><br /><span className="qb-muted">{shortenIds(row.question_code ?? row.id)}</span></td>
-          <td>{row.grade} · {row.subject_code}<br /><span className="qb-muted">{curriculumTrail([row.strand_name, row.substrand_name])}</span></td>
+          <td>{row.grade} · {row.subject_code}<br /><span className="qb-muted">{curriculumTrail([row.substrand_name])}</span></td>
           <td>{row.difficulty_label ? humanize(row.difficulty_label) : "Not set"}</td><td>{row.answer_type ? humanize(row.answer_type) : "Not set"}</td><td><StatusBadge status={row.status} /></td>
         </tr>)}</tbody></table>
       {!result.rows.length && !loading && !error && <div className="qb-empty"><strong>No questions match</strong>Widen the curriculum scope or clear a filter.</div>}
