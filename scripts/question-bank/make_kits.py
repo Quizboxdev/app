@@ -7,12 +7,14 @@ files from different accounts can be copied into the main Questions Bank without
 
 Usage: python scripts/question-bank/make_kits.py      (run make_packs.py first)
 """
+import os
 import csv, zipfile
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
-WORK = REPO / "Questions Bank" / "_work"
-KITS = REPO / "Questions Bank" / "_kits"
+CONTENT = Path(os.environ.get("QUIZBOX_CONTENT") or REPO)   # folder that contains "Questions Bank" (default: the repo root)
+WORK = CONTENT / "Questions Bank" / "_work"
+KITS = CONTENT / "Questions Bank" / "_kits"
 
 START = """START HERE  (QuizBox question generation kit, ACCOUNT = {acct})
 

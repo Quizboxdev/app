@@ -19,12 +19,14 @@ Usage:  python scripts/question-bank/make_packs.py [--target 5000] [--all] [--dr
         --dry-run  print the plan and write nothing
 After it runs: python scripts/question-bank/make_kits.py   (rebuilds the account kits from the new queue)
 """
+import os
 import argparse, csv, re, sys
 from collections import defaultdict
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
-BANK = REPO / "Questions Bank"
+CONTENT = Path(os.environ.get("QUIZBOX_CONTENT") or REPO)   # folder that contains "Questions Bank" (default: the repo root)
+BANK = CONTENT / "Questions Bank"
 SOURCES = [("Primary", "Primary_indicators_reconciled.csv"), ("Primary", "Primary_English_Ghanaian_reconciled.csv"),
            ("Primary", "Primary_Creative_Arts_reconciled.csv"), ("JHS", "JHS_indicators_verified.csv"), ("SHS", "SHS_indicators_verified.csv")]
 PER_TOPIC = 50
