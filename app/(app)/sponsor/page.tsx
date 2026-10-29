@@ -2,6 +2,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import LoadError from "@/components/LoadError";
 import Link from "next/link";
 import { bootstrapUser } from "@/lib/auth";
 import CompetitionContentScope from "@/components/CompetitionContentScope";
@@ -20,15 +21,17 @@ import {
   getSponsorQuestionPerformance
 } from "@/lib/api/sponsor";
 import { ResponsiveContainer, Tooltip, BarChart, Bar, CartesianGrid, XAxis, YAxis } from "recharts";
+import { errorMessage } from "@/lib/errors";
+import type { DemographicItem, ParticipationFunnel, QuestionPerformanceRow, ScoreBucket, SponsorCompetitionRow, SponsorDemographics, SponsorProfile } from "@/lib/api/sponsor-types";
 
 export default function SponsorPage() {
   const sponsorEngine = useSponsorEngine();
-  const [profile, setProfile] = useState<any>(null);
-  const [rows, setRows] = useState<any[]>([]);
-  const [funnel, setFunnel] = useState<any>(null);
-  const [scoreDist, setScoreDist] = useState<any>([]);
-  const [demographics, setDemographics] = useState<any>(null);
-  const [questionPerf, setQuestionPerf] = useState<any>([]);
+  const [profile, setProfile] = useState<SponsorProfile | null>(null);
+  const [rows, setRows] = useState<SponsorCompetitionRow[]>([]);
+  const [funnel, setFunnel] = useState<ParticipationFunnel | null>(null);
+  const [scoreDist, setScoreDist] = useState<ScoreBucket[]>([]);
+  const [demographics, setDemographics] = useState<SponsorDemographics | null>(null);
+  const [questionPerf, setQuestionPerf] = useState<QuestionPerformanceRow[]>([]);
   
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(true);
@@ -54,16 +57,17 @@ export default function SponsorPage() {
         setDemographics(d);
         setQuestionPerf(qp);
       })
-      .catch((e) => setError(e.message))
+      .catch((e) => setError(errorMessage(e)))
       .finally(() => setBusy(false));
   }, []);
 
-  if (error) return <div className="qb-card qb-error">{error}</div>;
+  if (error) return <LoadError message={error} onRetry={() => window.location.reload()} />;
   if (busy) return <div className="qb-home-grid" aria-busy="true">{[1, 2, 3, 4].map((i) => <div key={i} className="qb-card qb-skeleton" />)}</div>;
 
+  if (!profile) return null;
   const empty = (title: string, body: string) => <div className="qb-empty"><strong>{title}</strong>{body}</div>;
   const pct = (part: number, whole: number) => (whole > 0 ? Math.round((part / whole) * 100) : 0);
-  const toRows = (items: any[] | undefined) => (items ?? []).map((item: any) => ({ name: String(item.label ?? item.name ?? "Unknown"), value: Number(item.value ?? item.count ?? 0) }));
+  const toRows = (items: DemographicItem[] | undefined) => (items ?? []).map((item) => ({ name: String(item.label ?? item.name ?? "Unknown"), value: Number(item.value ?? item.count ?? 0) }));
 
   return (
     <>
@@ -86,7 +90,7 @@ export default function SponsorPage() {
       <div className="qb-grid cols-2">
         <section className="qb-card">
           <h2>Participation funnel</h2>
-          {funnel && funnel.registrations > 0 ? (
+          {funnel && Number(funnel.registrations) > 0 ? (
             <ol className="qb-funnel">
               {[
                 { name: "Registered", value: Number(funnel.registrations) },
@@ -126,7 +130,7 @@ export default function SponsorPage() {
       <div className="qb-grid cols-2">
         <section className="qb-card">
           <h2>Reach by market and institution</h2>
-          {demographics && (demographics.markets?.length > 0 || demographics.institutions?.length > 0) ? (
+          {demographics && ((demographics.markets?.length ?? 0) > 0 || (demographics.institutions?.length ?? 0) > 0) ? (
             <div className="qb-split">
               <div><h3 className="qb-overline">Markets</h3><DistributionBars rows={toRows(demographics.markets)} empty="No market data yet." /></div>
               <div><h3 className="qb-overline">Institutions</h3><DistributionBars rows={toRows(demographics.institutions).slice(0, 6)} empty="No institution data yet." /></div>
@@ -138,7 +142,7 @@ export default function SponsorPage() {
           <h2>Question performance</h2>
           {questionPerf && questionPerf.length > 0 ? (
             <div className="qb-list">
-              {questionPerf.slice(0, 5).map((q: any, idx: number) => (
+              {questionPerf.slice(0, 5).map((q, idx) => (
                 <div key={idx} className="qb-row">
                   <div className="qb-row-main">
                     <strong>{q.label}</strong>

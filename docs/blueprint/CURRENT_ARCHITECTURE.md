@@ -1,5 +1,7 @@
 # Current architecture
 
+> **Historic (2026-10-14).** Superseded for the overall picture by `docs/DILIGENCE_OVERVIEW.md` (2026-10-25). Since this note: payments (Paystack), the sign-in guard and middleware, the marketplace, admin exports, challenges and competitions, the Help and support centre and the policy system were added. Kept for its table of unknowns at that date.
+
 Confirmed from the repository on 2026-10-14. **UNKNOWN** marks anything not found in code, schema or config.
 
 ## Stack

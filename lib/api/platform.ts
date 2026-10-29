@@ -1,4 +1,5 @@
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
+import type { StudentInsights } from "@/lib/api/student-types";
 import { userFacingError } from "@/lib/errors";
 
 // Thin clients for server-derived platform endpoints. All authorization and aggregation is server-side.
@@ -23,7 +24,7 @@ export const clearNotifications = (readOnly: boolean) => call<{ ok: true; cleare
 export const search = (query: string) => call<SearchHit[]>("qb_search", { p_query: query, p_limit: 8 });
 export const contentQuality = <T>(action: string, data: Record<string, unknown> = {}) => call<T>("qb_content_quality", { p_action: action, p_data: data });
 export const reportQuestion = (question: string, reason: string) => call("qb_report_question", { p_question: question, p_reason: reason });
-export const studentInsights = (studentId?: string) => call<Record<string, any>>("qb_student_insights", studentId ? { p_student_id: studentId } : {});
+export const studentInsights = (studentId?: string) => call<StudentInsights>("qb_student_insights", studentId ? { p_student_id: studentId } : {});
 export const teacherInsights = () => call<Record<string, any>>("qb_teacher_insights");
 export const platformInsights = () => call<Record<string, any>>("qb_platform_insights");
 export const schoolAction = <T>(action: string, data: Record<string, unknown> = {}) => call<T>("qb_school", { p_action: action, p_data: data });

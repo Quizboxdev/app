@@ -2,7 +2,7 @@ import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { describeErrorMessage } from "@/lib/errors";
 
 export type TeacherTopic = {
-  topic_id: string; title: string; subject: string; grade: string; strand: string | null; sub_strand: string | null;
+  topic_id: string; title: string; subject: string; grade: string;
   indicator_code: string; indicator: string; concepts: string[]; available: number; easy: number; medium: number; hard: number;
 };
 export type TopicShare = { topic_id: string; title: string; share: number; available: number; easy: number; medium: number; hard: number };
@@ -28,5 +28,5 @@ export const publishTopicAssignment = (args: {
 export async function listClassLearners(classId: string): Promise<Array<{ user_id: string; name: string }>> {
   const { data, error } = await getSupabaseBrowserClient().from("class_memberships").select("student_user_id,student_name,status").eq("class_id", classId).eq("status", "active").order("student_name");
   if (error) throw new Error(describeErrorMessage(error.message));
-  return (data ?? []).filter((r: any) => r.student_user_id).map((r: any) => ({ user_id: r.student_user_id, name: r.student_name || "Learner" }));
+  return (data ?? []).flatMap((r: { student_user_id?: string | null; student_name?: string | null }) => (r.student_user_id ? [{ user_id: r.student_user_id, name: r.student_name || "Learner" }] : []));
 }

@@ -47,7 +47,7 @@ describe("school performance migration rollback", () => {
   it("the rollback restores the exact original function and removes only the helper", async () => {
     await db.exec("reset role");
     await db.exec(read("../../supabase/rollback/school_performance.sql"));
-    expect(await def()).toBe(original);
+    expect((await def()).replace(/\r\n/g, "\n")).toBe(original.replace(/\r\n/g, "\n"));
     expect(await exists("select 1 from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='quizbox_ops' and p.proname='school_performance'")).toBe(false);
     // Pre-existing objects the migration never touched are still there.
     expect(await exists("select 1 from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='quizbox_ops' and p.proname='school_admin'")).toBe(true);

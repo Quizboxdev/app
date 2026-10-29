@@ -10,7 +10,7 @@ export default function HelpArticleView({ detail, inApp }: { detail: HelpDetail;
     <article>
       <p className={inApp ? "qb-muted qb-small" : "qbp-meta"}><Link className={link} href={base}>All guides</Link> · {categoryLabel(a.category)}</p>
       <div className={inApp ? "qb-card" : "qbp-prose"} style={inApp ? undefined : { maxWidth: 760 }}>
-        <div className={inApp ? "qbp-prose" : undefined} style={{ maxWidth: 760 }}><RenderText source={withoutTitleLine(a.body)} helpBase={base} linkClass={link} /></div>
+        <div className={inApp ? "qbp-prose" : undefined} style={{ maxWidth: 760 }}><RenderText source={withoutTitleLine(a.body)} helpBase={base} linkClass={link} normalizeHeadings /></div>
       </div>
       <div style={{ maxWidth: 760 }}><HelpFooter slug={a.slug} title={a.title} category={a.category} inApp={inApp} /></div>
       {detail.related.length > 0 && (

@@ -1,6 +1,6 @@
 // Pure helpers for the Student Home: today's goal, the day streak and what to do next. No data fetching here, so each rule is tested on its own.
 export type ResultLike = { submitted_at?: string | null; percentage?: number | string | null; subject_code?: string | null };
-export type AssignmentLike = { id?: string; assignments?: { title?: string | null; due_at?: string | null; subject_code?: string | null } | null };
+export type AssignmentLike = { id?: string | number; assignment_id?: string; class_id?: string | null; assignments?: { assessment_id?: string; title?: string | null; due_at?: string | null; subject_code?: string | null } | null };
 
 export const DAILY_GOAL_SESSIONS = 1;   // hypothetical default while the system is in development; one finished practice or assessment a day
 

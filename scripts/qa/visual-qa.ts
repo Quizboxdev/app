@@ -101,7 +101,9 @@ async function main() {
       for (let i = 0; i < 90 && !ready; i++) { await sleep(500); try { ready = await cdp.eval<boolean>(`!!document.querySelector('.qb-content h1, .qb-content h2, .qb-content .qb-player, main#main h1') && !document.querySelector('.qb-skeleton, [aria-busy="true"]')`); } catch { /* navigating */ } }
       let stepError = ""; try { for (const step of route.steps ?? []) await runStep(cdp, step); } catch (e) { stepError = (e as Error).message; }
       await cdp.eval(`(() => { const s = document.createElement('style'); s.textContent = '*,*::before,*::after{animation:none!important;transition:none!important;caret-color:transparent!important}'; document.head.appendChild(s); })()`);
-      await sleep(400);
+      // Walk down the page so loading="lazy" images below the fold are fetched before the full-page screenshot.
+      await cdp.eval(`(async () => { const h = document.documentElement.scrollHeight; for (let y = 0; y < h; y += 500) { window.scrollTo(0, y); await new Promise((r) => setTimeout(r, 120)); } window.scrollTo(0, 0); })()`);
+      await sleep(600);
       const m = await cdp.eval<any>(measureScript(width));
       const shot = await cdp.send("Page.captureScreenshot", { format: "png", captureBeyondViewport: true, clip: { x: 0, y: 0, width, height: Math.min(m.height, 6000), scale: 1 } });
       const file = join(outDir, `${label}-${width}.png`);

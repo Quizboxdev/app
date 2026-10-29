@@ -115,6 +115,7 @@
 .qbp-footer-row { display: flex; flex-wrap: wrap; gap: 24px 56px; padding-top: 32px; padding-bottom: 20px; }
 .qbp-footer-row > div, .qbp-footer-row > nav { display: grid; gap: 8px; align-content: start; }
 .qbp-footer-brand { flex: 1 1 260px; max-width: 360px; }
+.qbp-footer .qb-lockup-desc { white-space: normal; }
 .qbp-footer a { font-size: 14px; color: var(--muted); text-decoration: none; }
 .qbp-footer a:hover { color: var(--blue); }
 .qbp-footer h2 { font-size: 14px; margin: 0; }
@@ -173,3 +174,12 @@ main:focus { outline: none; }
 
 /* Header: between 961px and 1200px the full nav is visible, so the logo drops to symbol + QUIZBOX. */
 @media (min-width: 961px) and (max-width: 1200px) { .qbp-header .qb-lockup-desc { display: none; } }
+
+/* Links in guides and policy pages: at least 24px tall so neighbours are easy to tap (WCAG 2.5.8, audit UX-006). */
+.qbp-prose li a, .qbp-prose p a, li > .qbp-link { display: inline-block; padding-block: 4px; }   /* 17.9px of text + 8px = 26px: above the 24px minimum, including the "More in" lists under each guide */
+.qbp-prose li { margin-block: 4px; }
+
+/* Press and hover feedback for the main buttons (audit UX-026). The global reduced-motion rule in the app does not load here, so it is repeated. */
+.qbp-btn, .qbp-btn2 { transition: background-color .12s ease-out, border-color .12s ease-out, color .12s ease-out, transform .12s ease-out; }
+.qbp-btn:active, .qbp-btn2:active { transform: translateY(1px) scale(.99); }
+@media (prefers-reduced-motion: reduce) { .qbp-btn, .qbp-btn2 { transition: none; } .qbp-btn:active, .qbp-btn2:active { transform: none; } }

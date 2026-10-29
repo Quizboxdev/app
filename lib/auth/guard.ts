@@ -3,7 +3,7 @@
 // It is OFF unless the environment variable QB_SERVER_GUARD is "on", so it can be tried on a Preview deployment first. It fails OPEN when the sign-in service cannot be reached, so an outage never locks everyone out.
 
 // Every top-level section inside app/(app). A test compares this list with the folders, so a new section cannot be forgotten.
-export const PROTECTED_PREFIXES = ["account", "admin", "competition", "creator", "drafts", "guides", "learn", "marketplace", "notifications", "open", "play", "practise", "review", "school", "seller", "sponsor", "student", "subscribe", "support", "teacher"] as const;
+export const PROTECTED_PREFIXES = ["account", "admin", "affiliate", "competition", "creator", "drafts", "guides", "learn", "marketplace", "notifications", "open", "play", "practise", "review", "school", "seller", "sponsor", "student", "subscribe", "support", "teacher"] as const;
 
 export const serverGuardOn = (env: Record<string, string | undefined>) => env.QB_SERVER_GUARD === "on";
 

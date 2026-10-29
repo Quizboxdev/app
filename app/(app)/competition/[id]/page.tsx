@@ -12,18 +12,22 @@ import {
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { bootstrapUser } from "@/lib/auth";
 import LeaderboardPodium from "@/components/achievements/LeaderboardPodium";
+import { errorMessage } from "@/lib/errors";
+import type { CompetitionInstitution, CompetitionTeam, LeaderboardRow } from "@/lib/api/competition-types";
+
+type StudentNameRow = { id: string; auth_users?: { raw_user_meta_data?: { full_name?: string; name?: string } | null } | null };
 
 export default function CompetitionDetailPage() {
   const params = useParams<{ id: string }>();
-  const [teams, setTeams] = useState<any[]>([]);
-  const [leaderboard, setLeaderboard] = useState<any[]>([]);
-  const [institutions, setInstitutions] = useState<any[]>([]);
+  const [teams, setTeams] = useState<CompetitionTeam[]>([]);
+  const [leaderboard, setLeaderboard] = useState<LeaderboardRow[]>([]);
+  const [institutions, setInstitutions] = useState<CompetitionInstitution[]>([]);
   const [studentNames, setStudentNames] = useState<Record<string, string>>({});
   
   const [institutionId, setInstitutionId] = useState("");
   const [teamName, setTeamName] = useState("");
   const [error, setError] = useState("");
-  const [currentUserProfile, setCurrentUserProfile] = useState<any>(null);
+  const [currentUserProfile, setCurrentUserProfile] = useState<Record<string, unknown> | null>(null);
 
   const refresh = useCallback(async () => {
     const [t, l] = await Promise.all([
@@ -34,13 +38,13 @@ export default function CompetitionDetailPage() {
     setLeaderboard(l);
 
     // Resolve USER entity names from student_profiles
-    const userIds = l.filter((r: any) => r.entity_type === 'USER').map((r: any) => r.entity_id);
+    const userIds = l.filter((r) => r.entity_type === 'USER').map((r) => r.entity_id);
     if (userIds.length > 0) {
       const supabase = getSupabaseBrowserClient();
       const { data } = await supabase.from('student_profiles').select('id, user_id, auth_users!student_profiles_user_id_fkey(raw_user_meta_data)').in('id', userIds);
       if (data) {
         const namesMap: Record<string, string> = {};
-        data.forEach((stu: any) => {
+        (data as StudentNameRow[]).forEach((stu) => {
           const meta = stu.auth_users?.raw_user_meta_data || {};
           namesMap[stu.id] = meta.full_name || meta.name || 'Anonymous Student';
         });
@@ -61,10 +65,10 @@ export default function CompetitionDetailPage() {
           .select("*")
           .order("name");
         if (error) throw error;
-        setInstitutions(data ?? []);
+        setInstitutions((data ?? []) as CompetitionInstitution[]);
         await refresh();
-      } catch (e: any) {
-        setError(e.message);
+      } catch (e) {
+        setError(errorMessage(e));
       }
     }
 
@@ -77,20 +81,20 @@ export default function CompetitionDetailPage() {
       await createTeam(params.id, institutionId, teamName);
       setTeamName("");
       await refresh();
-    } catch (e: any) {
-      setError(e.message);
+    } catch (e) {
+      setError(errorMessage(e));
     }
   }
 
   // Helper to resolve entity ID to human readable name
-  const resolveEntityName = (type: string, id: string) => {
+  const resolveEntityName = (type: string, id: string): string => {
     if (type === 'TEAM') {
       const team = teams.find(t => t.id === id);
       return team ? team.team_name : 'Unknown Team';
     }
     if (type === 'SCHOOL' || type === 'INSTITUTION') {
       const inst = institutions.find(i => i.id === id);
-      return inst ? (inst.name || inst.school_name) : 'Unknown School';
+      return inst ? (inst.name || inst.school_name || 'Unknown School') : 'Unknown School';
     }
     if (type === 'USER') {
       return studentNames[id] || 'Loading...';
@@ -132,8 +136,8 @@ export default function CompetitionDetailPage() {
             try {
               await finalizeLeaderboard(params.id);
               await refresh();
-            } catch (e: any) {
-              setError(e.message);
+            } catch (e) {
+              setError(errorMessage(e));
             }
           }}
         >

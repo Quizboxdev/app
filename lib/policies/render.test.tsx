@@ -36,3 +36,21 @@ describe("policy text", () => {
     expect(app).not.toMatch(/href="[^"]*Join_A_Class/);
   });
 });
+
+describe("normalizeHeadings (help guides, audit UX-007)", () => {
+  const guide = "## Your first steps\n\ntext\n\n### A detail\n\n## The menu\n\ntext";
+  it("makes the smallest heading an h2 so the page never jumps from h1 to h3", () => {
+    const out = renderToStaticMarkup(<RenderText source={guide} normalizeHeadings />);
+    expect(out).toContain('<h2 id="your-first-steps">Your first steps</h2>');
+    expect(out).toContain('<h3 id="a-detail">A detail</h3>');
+    expect(out).toContain('<h2 id="the-menu">The menu</h2>');
+    expect(out).not.toContain("<h4");
+  });
+  it("is unchanged for guides already typed with # and for policies (no option)", () => {
+    expect(renderToStaticMarkup(<RenderText source={"# One\n\n## Two"} normalizeHeadings />)).toContain('<h2 id="one">One</h2>');
+    expect(renderToStaticMarkup(<RenderText source={guide} />)).toContain('<h3 id="your-first-steps">');
+  });
+  it("leaves text without headings alone", () => {
+    expect(renderToStaticMarkup(<RenderText source="just a paragraph" normalizeHeadings />)).toBe("<p>just a paragraph</p>");
+  });
+});

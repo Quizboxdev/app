@@ -35,7 +35,7 @@ export function indicatorsFromSummary(rows: IndicatorSummaryRow[]): IndicatorAna
 
 // ---- Teacher home: assignment lifecycle and the "what needs my attention" queue (pure, from rows the dashboard already loads) ----
 export type AssignmentPhase = "Draft" | "Scheduled" | "Active" | "Closed";
-type AssignmentRow = { id?: string; class_id?: string | null; title?: string | null; status?: string | null; start_at?: string | null; opens_at?: string | null; due_at?: string | null };
+export type AssignmentRow = { id?: string; class_id?: string | null; title?: string | null; status?: string | null; start_at?: string | null; opens_at?: string | null; due_at?: string | null };
 
 export function assignmentPhase(row: AssignmentRow, now = Date.now()): AssignmentPhase {
   const status = String(row.status ?? "").toLowerCase();

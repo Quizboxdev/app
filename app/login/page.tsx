@@ -1,7 +1,10 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { parseRegistrationParams } from "@/lib/public/registration-params";
 import { authCallbackHref, hasAuthLinkParams } from "@/lib/auth-links";
 import LoginForm from "./LoginForm";
+
+export const metadata: Metadata = { title: "Sign in | QuizBox" };
 
 // Supports public deep links such as /login?mode=register&role=student&country=GH.
 // Query values are untrusted and validated before they reach the form. Email-link results (?code=, ?error_code=) that land here

@@ -1,0 +1,18 @@
+{
+  "height": 900,
+  "lastCardBottom": 808.4123687744141,
+  "navs": [
+    {
+      "bottom": 0,
+      "class": "qb-nav",
+      "label": "Main",
+      "top": 0
+    },
+    {
+      "bottom": 900.0000076293945,
+      "class": "qb-mobile-nav",
+      "label": "Main",
+      "top": 836.0072631835938
+    }
+  ]
+}

@@ -17,7 +17,7 @@ export default async function PricingPage() {
     <PublicShell>
       <PageIntro crumb="Pricing" title="Pricing" lead="Simple plans for learners, teachers, schools, sponsors and companies. Start free: everyone gets free sessions when they sign up." />
       <section className="qbp-wrap" style={{ paddingBottom: 64, display: "grid", gap: 24 }} data-qb-section="pricing">
-        <PricingCards rows={rows} variant="public" registerHref={PUBLIC_LINKS.register} />
+        <PricingCards rows={rows} variant="public" registerHref={PUBLIC_LINKS.register} subscribeHref="/subscribe" />
         <p className="qbp-meta">{anyPriced ? "Prices are in Ghana cedis." : "Some prices are still being finalised."} To ask about a school plan, or to run a branded quiz for your company, <Link className="qbp-link" href={PUBLIC_LINKS.contact}>contact QuizBox</Link>.</p>
       </section>
     </PublicShell>

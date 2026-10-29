@@ -2,6 +2,7 @@
   "name": "quizbox-batch1",
   "version": "1.0.0",
   "private": true,
+  "license": "UNLICENSED",
   "scripts": {
     "release:verify-security": "tsx scripts/verify-release-security.ts",
     "acceptance:live": "tsx scripts/run-live-acceptance.ts",
