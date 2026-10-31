@@ -225,7 +225,7 @@ describe("API credentials", () => {
     await server();
     const v = await one("select public.qb_partner_credential_verify($1)", [k.secret]);
     expect(v.partner_id).toBe(partner); expect(v.scopes).toEqual(["licence:read", "seats:write"]);
-    await fails("select public.qb_partner_credential_verify($1)", [k.secret.slice(0, -1) + "0"], /QB_PARTNER_AUTH_INVALID/);
+    await fails("select public.qb_partner_credential_verify($1)", [k.secret.slice(0, -1) + (k.secret.endsWith("0") ? "1" : "0")], /QB_PARTNER_AUTH_INVALID/);   // always a different last digit (a fixed "0" left the key unchanged 1 run in 16)
     await fails("select public.qb_partner_credential_verify('qbpk_short')", [], /QB_PARTNER_AUTH_INVALID/);
     await as(ADMIN);
     const n = await one("select public.qb_admin_partner_credential_rotate($1,30)", [k.id]);
