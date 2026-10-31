@@ -26,3 +26,4 @@ When a new migration is added, regenerate the check first (`python scripts/relea
 | Date | Production | Preview | Result | Note |
 |---|---|---|---|---|
 | 2026-10-24 | 28/28 ok | 28/28 ok | identical | Migrations 20261020 to 20261047, parts A and B, after bringing Preview up to Production. Export datasets: Production 31; Preview showed 22 after 45 was re-run and 46 was re-run to restore 31 (confirm 31 at the next check) |
+| 2026-10-31 | 29/29 ok | 29/29 ok | identical | Preview database rebuilt from a Production schema-only dump (218 tables, 596 functions, 172 policies, signup trigger, 4 storage buckets) plus 22 reference tables copied from Production (curriculum, settings, price list, policies, help articles). No people, payment or audit data. Preview has no cron job and no user accounts yet. |
