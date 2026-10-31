@@ -214,10 +214,12 @@ describe("partner sign-in", () => {
     expect(locOf(await callback(cookie, { code: "abc", state: st }, { ...d, nowSeconds: Math.floor(Date.now() / 1000) + 5000 }))).toContain("error=PARTNER_SSO_EXPIRED");
     expect(state.calls.some((c) => c.fn === "qb_partner_sso_link")).toBe(false);
   });
+  // Changes one character in the middle of the signature. The last base64url character of a 256-byte signature carries unused padding bits, so replacing it can leave the decoded bytes unchanged.
+  const flipSignatureChar = (token: string) => { const i = token.length - 20; return token.slice(0, i) + (token[i] === "A" ? "B" : "A") + token.slice(i + 1); };
   it("refuses a forged token: wrong nonce, wrong audience, wrong issuer, bad signature", async () => {
     const { cookie, state: st, nonce } = await begin();
     const now = Math.floor(Date.now() / 1000), good = { iss: ISS, aud: AUD, sub: "x", exp: now + 300, iat: now, nonce };
-    const attempt = async (c: object, tamper = false) => locOf(await callback(cookie, { code: "abc", state: st }, deps(() => ({ id_token: tamper ? idToken(c).replace(/.$/, "A") : idToken(c) }))));
+    const attempt = async (c: object, tamper = false) => locOf(await callback(cookie, { code: "abc", state: st }, deps(() => ({ id_token: tamper ? flipSignatureChar(idToken(c)) : idToken(c) }))));
     expect(await attempt({ ...good, nonce: "replayed" })).toContain("OIDC_NONCE_MISMATCH");
     expect(await attempt({ ...good, aud: "other" })).toContain("OIDC_AUDIENCE_MISMATCH");
     expect(await attempt({ ...good, iss: "https://evil.example" })).toContain("OIDC_ISSUER_MISMATCH");
