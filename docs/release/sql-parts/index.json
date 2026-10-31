@@ -201,5 +201,19 @@
   "chars": 50989,
   "parts": 7,
   "note": ""
+ },
+ {
+  "version": "20261049100000",
+  "name": "partner_access_gateway",
+  "chars": 53598,
+  "parts": 7,
+  "note": ""
+ },
+ {
+  "version": "20261049200000",
+  "name": "partner_gateway_server_layer",
+  "chars": 24858,
+  "parts": 4,
+  "note": ""
  }
 ]

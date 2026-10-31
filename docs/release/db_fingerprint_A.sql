@@ -57,7 +57,10 @@ with c(v, k, o) as (values
   ('20261031100000','c','public.price_list.days'),
   ('20261032100000','p','qb_payment_intent_create|QB_BELOW_MINIMUM_CHARGE'),
   ('20261033100000','x','public.qb_practice_menu()'),
-  ('20261033100000','x','public.qb_start_quick_practice(uuid[],integer)')), r as (
+  ('20261033100000','x','public.qb_start_quick_practice(uuid[],integer)'),
+  ('20261034100000','f','public.qb_owner_is_student'),
+  ('20261034100000','f','public.qb_trg_student_question'),
+  ('20261034100000','f','public.qb_trg_student_prize')), r as (
   select v, k, o, case k
     when 't' then to_regclass(o) is not null
     when 'x' then to_regprocedure(o) is null

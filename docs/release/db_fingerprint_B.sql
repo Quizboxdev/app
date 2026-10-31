@@ -2,9 +2,6 @@
 -- Run the same part on BOTH projects (Preview fngdtxayfoiffbcbmcum and Production fmgccmqxfjppqydkhaiu) and compare the 'status' column row by row.
 -- ok = every sampled object of that migration exists; PARTIAL = some do; MISSING = none do (the migration was not applied); data-only = it only inserts rows, so look at the notes.
 with c(v, k, o) as (values
-  ('20261034100000','f','public.qb_owner_is_student'),
-  ('20261034100000','f','public.qb_trg_student_question'),
-  ('20261034100000','f','public.qb_trg_student_prize'),
   ('20261035100000','t','public.refund_cases'),
   ('20261035100000','f','public.qb_admin_payment_facts'),
   ('20261035100000','f','public.qb_admin_refund_case_save'),
@@ -48,7 +45,18 @@ with c(v, k, o) as (values
   ('20261048100000','t','public.affiliates'),
   ('20261048100000','f','public.qb_cm_guard'),
   ('20261048100000','f','public.qb_referral_capture'),
-  ('20261048100000','f','public.qb_commission_admin_reverse')), r as (
+  ('20261048100000','f','public.qb_commission_admin_reverse'),
+  ('20261049100000','t','public.partners'),
+  ('20261049100000','t','public.partner_identity_configs'),
+  ('20261049100000','f','public.qb_pg_is_staff'),
+  ('20261049100000','f','public.qb_admin_partner_contract_set_status'),
+  ('20261049100000','f','public.qb_partner_contracts_expire'),
+  ('20261049200000','t','public.partner_rate_buckets'),
+  ('20261049200000','f','public.qb_partner_staff_seat_active'),
+  ('20261049200000','f','public.qb_admin_partner_seats'),
+  ('20261049200000','f','public.qb_partner_rate_check'),
+  ('20261049200000','c','public.partners.slug'),
+  ('20261049200000','c','public.partner_identity_configs.authorization_endpoint')), r as (
   select v, k, o, case k
     when 't' then to_regclass(o) is not null
     when 'x' then to_regprocedure(o) is null
