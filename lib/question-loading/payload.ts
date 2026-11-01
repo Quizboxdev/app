@@ -1,5 +1,5 @@
 import { normaliseRow } from "./check";
-import type { LoadPlan } from "./plan";
+import { registryConcept, type LoadPlan } from "./plan";
 import type { LoadRow } from "./template";
 
 // What qb_question_load receives (20261012120000): the topics to register and the rows to import, at most 500 rows per call.
@@ -25,7 +25,7 @@ export function buildLoadPayload(plan: LoadPlan, input: LoadRow[], topicBlock = 
       seen.add(topic.key);
       topics.push({ key: topic.key, indicator_node_id: nodeId, title: topic.title, concepts: topic.concepts, target_questions: topicBlockOf(topicBlock) });
     }
-    out.push({ topic_key: topic.key, concept: r.concept, indicator_node_id: nodeId, subject: topic.indicator.subject, grade: topic.indicator.grade,
+    out.push({ topic_key: topic.key, concept: registryConcept(r.concept), indicator_node_id: nodeId, subject: topic.indicator.subject, grade: topic.indicator.grade,
       question_text: r.question_text, answer_type: r.answer_type, option_a: r.option_a, option_b: r.option_b, option_c: r.option_c, option_d: r.option_d,
       correct_answer: r.correct_answer, explanation: r.explanation, difficulty: r.difficulty, cognitive_level: r.cognitive_level,
       source_reference: (r.source_quote ? `${r.source_reference} | ${r.source_quote}` : r.source_reference).slice(0, 200) });

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { buildIndex, parseVerifiedCsv } from "../curriculum/verified";
-import { buildPlan } from "./plan";
+import { buildPlan, CONCEPT_NAME_MAX, registryConcept } from "./plan";
 import { buildLoadPayload, chunkPayload } from "./payload";
 import type { LoadRow } from "./template";
 
@@ -65,5 +65,31 @@ describe("load payload", () => {
       const used = new Set(c.rows.map((r) => r.topic_key));
       expect(new Set(c.topics.map((t) => t.key))).toEqual(used);
     }
+  });
+});
+
+describe("concept names for the registry", () => {
+  const LONG = "Ancient vs modern communication and tools: talking drums, smoke signals, runners, and stone implements vs telecommunications and metal machinery";
+  it("keeps a name of 120 characters or fewer exactly as written, and cuts a longer one at a word boundary", () => {
+    expect(registryConcept("energy forms")).toBe("energy forms");
+    const short = registryConcept(LONG);
+    expect(LONG.length).toBeGreaterThan(CONCEPT_NAME_MAX);
+    expect(short.length).toBeLessThanOrEqual(CONCEPT_NAME_MAX);
+    expect(short.endsWith("…")).toBe(true);
+    expect(LONG.startsWith(short.slice(0, -1))).toBe(true);
+  });
+  it("uses the same shortened name in the topic's concept list and on every question, so the server can link them", () => {
+    const rows = Array.from({ length: 20 }, (_, i) => row(i, { concept: i % 2 ? LONG : "energy forms" }));
+    const payload = buildLoadPayload(build(rows), rows);
+    expect(payload.topics[0].concepts.every((c) => c.length >= 2 && c.length <= CONCEPT_NAME_MAX)).toBe(true);
+    for (const r of payload.rows) expect(payload.topics[0].concepts).toContain(r.concept);
+    expect(payload.topics[0].concepts).toHaveLength(2);
+  });
+  it("does not turn two different long names that share a long start into extra concepts beyond the limit", () => {
+    const base = "A very long concept name that keeps going and going so that its first one hundred and twenty characters are identical for both";
+    const rows = [...Array.from({ length: 10 }, (_, i) => row(i, { concept: `${base} alpha` })), ...Array.from({ length: 10 }, (_, i) => row(10 + i, { concept: `${base} beta` }))];
+    const payload = buildLoadPayload(build(rows), rows);
+    expect(payload.topics[0].concepts).toHaveLength(1);
+    for (const r of payload.rows) expect(payload.topics[0].concepts).toContain(r.concept);
   });
 });
