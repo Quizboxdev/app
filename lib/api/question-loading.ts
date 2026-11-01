@@ -2,7 +2,7 @@ import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { userFacingError } from "@/lib/errors";
 import { buildIndex, standardCode, type CurriculumIndex, type VerifiedIndicator } from "@/lib/curriculum/verified";
 import type { LoadPayload } from "@/lib/question-loading/payload";
-import { continueFrom, describeLoadFailure, isTransientFailure, sliceCall } from "@/lib/question-loading/resume";
+import { continueFrom, countdown, createPacer, describeLoadFailure, isRateLimited, isTransientFailure, realSleep, sliceCall, type Pacer } from "@/lib/question-loading/resume";
 
 type NodeRow = { id: string; parent_id: string | null; node_type: string; code: string; title: string; subject_code: string | null; canonical_grade_code: string | null; grade_code: string | null; education_level: string | null; metadata: Record<string, unknown> | null };
 
@@ -54,15 +54,19 @@ async function readLoadBatch(id: string): Promise<LoadBatchState | null> {
   return error ? null : ((data ?? null) as LoadBatchState | null);
 }
 
-// Sends the payload in small requests; the first one records the file, the rest continue the same batch. Three safeguards:
+// Sends the payload in small requests; the first one records the file, the rest continue the same batch. Four safeguards:
+//  0. Requests are spaced to stay under the database's 10-a-minute import limit, and a refusal for that reason is waited out and sent again, never reported as a failure.
 //  1. After ANY failure the database is asked how far it really got, because a time-out can arrive after the work was done. Rows it already took are never sent again.
 //  2. Time-outs and dropped connections are retried (twice); a rule the database refused is not, and stops the load with a message that says where and why.
 //  3. A load that stopped partway is continued with `resume` (batch id and the database's own row count), so an interrupted file is finished, never repeated.
 export async function runQuestionLoad(input: {
   payload: LoadPayload; fileName: string; fileSha256: string; marketId: string; curriculumId: string; sourceIds: string[];
   resume?: { batchId: string; fromRow: number }; retryDelayMs?: number; onProgress?: (done: number, total: number) => void;
+  // Spacing under the database's per-minute request limit. Pass one pacer for a whole queue; `onWait` receives the seconds left in a pause.
+  pacer?: Pacer; rateWaitMs?: number; sleep?: (ms: number) => Promise<void>; onWait?: (secondsLeft: number) => void;
 }): Promise<LoadResult> {
   const supabase = getSupabaseBrowserClient(), total = input.payload.rows.length, wait = input.retryDelayMs ?? 1500;
+  const pacer = input.pacer ?? createPacer(), sleep = input.sleep ?? realSleep, rateWait = input.rateWaitMs ?? 20_000;
   let batchId: string | undefined = input.resume?.batchId, offset = continueFrom(input.resume?.fromRow, total), last: any = null;
   let errors: Array<{ row: number; code: string }> = [];
   // A fresh load of a file the database already knows is refused up front, in plain words, instead of failing request by request.
@@ -75,7 +79,8 @@ export async function runQuestionLoad(input: {
   input.onProgress?.(offset, total);
   while (offset < total) {
     const call = sliceCall(input.payload, offset), end = offset + call.rows.length;
-    for (let attempt = 0; ; attempt++) {
+    for (let attempt = 0, rateHits = 0; ; attempt++) {
+      await pacer.wait(input.onWait);
       const { data, error } = await supabase.rpc("qb_question_load", { p: {
         batch_id: batchId, file_name: input.fileName, file_sha256: input.fileSha256, expected_rows: input.payload.expectedRows, scope: "CURRICULUM",
         market_id: input.marketId, curriculum_id: input.curriculumId, source_document_ids: input.sourceIds, topics: call.topics, rows: call.rows } });
@@ -84,6 +89,8 @@ export async function runQuestionLoad(input: {
         errors = errors.concat((data.import?.row_errors ?? []).map((e: { row: number; code: string }) => ({ ...e, row: e.row + offset })));
         offset = end; break;
       }
+      // Over the per-minute limit: nothing was saved by this request, so wait for the window to clear and send the same request again (up to about two minutes).
+      if (isRateLimited(error) && rateHits < 6) { rateHits++; attempt--; await countdown(rateWait, sleep, input.onWait); continue; }
       // Failed: find out what the database actually holds before deciding anything.
       const held = await findLoadBatchByHash(input.fileSha256);
       if (held) {

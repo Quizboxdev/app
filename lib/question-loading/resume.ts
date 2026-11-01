@@ -29,6 +29,32 @@ export function isTransientFailure(error: Failure): boolean {
   return /statement timeout|canceling statement|timed out|timeout|failed to fetch|fetch failed|network|load failed|bad gateway|gateway|temporarily unavailable|connection (reset|closed|terminated)/i.test(message);
 }
 
+// The database takes at most 10 imports per person per minute (QB_CONTENT_RATE_LIMIT). That is a pause, never a failure: the refused request is rolled back whole, so
+// waiting and sending it again loses nothing. The loader stays under the limit by itself (CALLS_PER_MINUTE leaves headroom for anything else the admin is doing).
+export const CALLS_PER_MINUTE = 8;
+export const isRateLimited = (error: Failure): boolean => /QB_CONTENT_RATE_LIMIT|QB_RATE_LIMITED/.test(text(error?.message));
+export const realSleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
+
+// Waits `ms` in one-second steps so the screen can show a countdown.
+export async function countdown(ms: number, sleep: (ms: number) => Promise<void>, onWait?: (secondsLeft: number) => void): Promise<void> {
+  for (let left = ms; left > 0; ) { onWait?.(Math.ceil(left / 1000)); const step = Math.min(1000, left); await sleep(step); left -= step; }
+}
+
+// Spaces requests so no more than `limit` start in any rolling window. One pacer is shared by every file in a queue, because the limit is per person, not per file.
+export type Pacer = { wait: (onWait?: (secondsLeft: number) => void) => Promise<void> };
+export function createPacer(o: { limit?: number; windowMs?: number; now?: () => number; sleep?: (ms: number) => Promise<void> } = {}): Pacer {
+  const limit = o.limit ?? CALLS_PER_MINUTE, windowMs = o.windowMs ?? 60_000, now = o.now ?? Date.now, sleep = o.sleep ?? realSleep, stamps: number[] = [];
+  return { async wait(onWait) {
+    if (limit <= 0) return;
+    for (;;) {
+      const t = now();
+      while (stamps.length && t - stamps[0] >= windowMs) stamps.shift();
+      if (stamps.length < limit) { stamps.push(t); return; }
+      await countdown(stamps[0] + windowMs - t + 250, sleep, onWait);
+    }
+  } };
+}
+
 // What the admin sees when a load stops: the friendly sentence, WHERE it stopped, and the technical reason, so a failure can be reported and understood.
 export function describeLoadFailure(friendly: string, error: Failure, where: { fromRow: number; toRow: number; total: number }): string {
   const tech = [text(error?.code) || (error?.status !== undefined ? `HTTP ${text(error.status)}` : ""), text(error?.message).slice(0, 160)].filter(Boolean).join(" · ");
