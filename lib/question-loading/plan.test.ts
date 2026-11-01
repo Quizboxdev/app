@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { buildIndex, gradeKey, parseVerifiedCsv, resolveIndicator, standardCode, subjectMatches } from "../curriculum/verified";
 import { createHash } from "node:crypto";
-import { buildPlan, describePlan } from "./plan";
+import { buildPlan, describePlan, registryTitle, TOPIC_TITLE_MAX } from "./plan";
 const sha256 = (t: string) => createHash("sha256").update(t).digest("hex");
 import type { LoadRow } from "./template";
 
@@ -155,5 +155,34 @@ describe("indicator codes shared by two subjects", () => {
     expect(plan.topics).toHaveLength(2);
     expect(plan.topics.map((t) => t.indicator.subject).sort()).toEqual(["Biology", "Chemistry"]);
     expect(plan.topics.every((t) => t.rows === 2)).toBe(true);
+  });
+});
+
+describe("topic titles for the registry", () => {
+  it("leaves a title of 160 characters or fewer exactly as written", () => {
+    expect(registryTitle("Examine the Bond of 1844")).toBe("Examine the Bond of 1844");
+    const exact = "a".repeat(TOPIC_TITLE_MAX);
+    expect(registryTitle(exact)).toBe(exact);
+  });
+  it("cuts a longer indicator sentence at a word boundary, within the database limit, and marks the cut", () => {
+    const long = "Identify the role played by some traditional rulers in the national development including Dode Akaibi of Accra, Ndewura Jakpa of Gonja, Nana Yaa Asantewaa of Asante and many other leaders of the period";
+    const short = registryTitle(long);
+    expect(long.length).toBeGreaterThan(TOPIC_TITLE_MAX);
+    expect(short.length).toBeLessThanOrEqual(TOPIC_TITLE_MAX);
+    expect(short.length).toBeGreaterThanOrEqual(3);
+    expect(short.endsWith("…")).toBe(true);
+    expect(long.startsWith(short.slice(0, -1))).toBe(true);
+    expect(short.slice(0, -1).endsWith(" ")).toBe(false);
+  });
+  it("is deterministic, so the same indicator always registers under the same title", () => {
+    const long = "State the factors ".repeat(30);
+    expect(registryTitle(long)).toBe(registryTitle(long));
+  });
+  it("puts the shortened title in the plan while the topic key still comes from the full text", () => {
+    const long = "Forms of energy and how each form is stored, transferred and changed into other forms in everyday life, in machines and in living things, with examples from the home and from industry";
+    const a = buildPlan({ rows: [row({ topic: long })], fileSha256: sha256("a"), scope: "CURRICULUM", index });
+    const b = buildPlan({ rows: [row({ topic: long + " and more" })], fileSha256: sha256("b"), scope: "CURRICULUM", index });
+    expect(a.topics[0].title.length).toBeLessThanOrEqual(TOPIC_TITLE_MAX);
+    expect(a.topics[0].key).not.toBe(b.topics[0].key);
   });
 });

@@ -23,6 +23,17 @@ function commonest(values: string[]): string {
   return [...counts.entries()].sort((a, b) => b[1] - a[1] || b[0].length - a[0].length)[0][0];
 }
 
+// The topic registry accepts titles of 3 to 160 characters (qb_question_load, QB_TOPIC_INVALID_TITLE). A curriculum indicator can be much longer, and a topic's title
+// is that indicator's sentence, so a long title is cut at a word boundary and ends with an ellipsis. The full wording stays on the curriculum indicator itself, and the
+// topic's identity key is built from the full text, so shortening never merges two topics.
+export const TOPIC_TITLE_MAX = 160;
+export function registryTitle(title: string): string {
+  const t = title.trim().replace(/\s+/g, " ");
+  if (t.length <= TOPIC_TITLE_MAX) return t;
+  const cut = t.slice(0, TOPIC_TITLE_MAX - 1), at = cut.lastIndexOf(" ");
+  return (at > TOPIC_TITLE_MAX / 2 ? cut.slice(0, at) : cut).replace(/[\s,;:.\-–]+$/, "") + "…";
+}
+
 // fileSha256 is computed by the caller (node:crypto on the command line, crypto.subtle in the browser) so this module runs in both.
 export function buildPlan(input: { rows: LoadRow[]; fileRows?: number[]; fileSha256: string; scope: "CURRICULUM" | "SPONSOR"; index?: CurriculumIndex; topicBlock?: number }): LoadPlan {
   const fileRows = input.fileRows ?? input.rows.map((_, i) => i + 2);
@@ -55,7 +66,7 @@ export function buildPlan(input: { rows: LoadRow[]; fileRows?: number[]; fileSha
     const concepts: string[] = [], seen = new Set<string>();
     for (const r of g.rows) if (r.concept && !seen.has(keyOf(r.concept))) { seen.add(keyOf(r.concept)); concepts.push(r.concept); }
     const ind = g.indicator;
-    return { key, title: commonest(g.rows.map((r) => r.topic)), concepts, rows: g.rows.length,
+    return { key, title: registryTitle(commonest(g.rows.map((r) => r.topic))), concepts, rows: g.rows.length,
       easy: g.rows.filter((r) => r.difficulty === "easy").length, medium: g.rows.filter((r) => r.difficulty === "medium").length, hard: g.rows.filter((r) => r.difficulty === "hard").length, fileRows: g.fileRows,
       indicator: ind ? { subject: ind.subject, grade: ind.grade, indicator_code: ind.indicator_code, strand: ind.strand, sub_strand: ind.sub_strand, content_standard_code: ind.content_standard_code, indicator: ind.indicator, node_id: ind.node_id }
         : { subject: rows[0]?.subject ?? "", grade: "", indicator_code: "", strand: "", sub_strand: "", content_standard_code: "", indicator: "" } };
