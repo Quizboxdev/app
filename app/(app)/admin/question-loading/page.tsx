@@ -3,7 +3,7 @@ import { Fragment, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { listAllCurricula, type CurriculumChoice } from "@/lib/api/curriculum-structure";
 import { findLoadBatchByHash, listApprovedSources, loadCurriculumIndex, runQuestionLoad, type ApprovedSource, type LoadBatchState } from "@/lib/api/question-loading";
-import { canContinue } from "@/lib/question-loading/resume";
+import { CALL_ROWS, CALLS_PER_MINUTE, canContinue, createPacer } from "@/lib/question-loading/resume";
 import { jobView, summarise } from "@/lib/question-loading/queue";
 import type { CurriculumIndex } from "@/lib/curriculum/verified";
 import { readQuestionFile } from "@/lib/question-loading/read";
@@ -122,8 +122,10 @@ export default function QuestionLoadingPage() {
 
   async function runAll() {
     if (!curriculum?.market_id || !canRun) return;
-    if (!window.confirm(`Load ${summary.files} file${summary.files === 1 ? "" : "s"} (${n(summary.questions)} questions)? They go to SME review and are not published. If anything stops, you can continue from where it stopped.`)) return;
+    const minutes = Math.max(1, Math.ceil((Math.ceil(summary.questions / CALL_ROWS) + summary.files) / CALLS_PER_MINUTE));
+    if (!window.confirm(`Load ${summary.files} file${summary.files === 1 ? "" : "s"} (${n(summary.questions)} questions)? This takes about ${minutes} minute${minutes === 1 ? "" : "s"}: the system accepts a limited number of requests a minute, so the page paces itself. Keep this page open. They go to SME review and are not published. If anything stops, you can continue from where it stopped.`)) return;
     setRunning(true); setError("");
+    const pacer = createPacer();   // one pacer for the whole queue: the limit is per person, not per file
     let failed = false;
     for (const { job } of views.filter((v) => v.view.runnable)) {
       patch(job.key, { running: true, outcome: null, progress: "" });
@@ -131,7 +133,8 @@ export default function QuestionLoadingPage() {
         const held = await findLoadBatchByHash(job.hash), total = job.loadRows.length;
         const resume = held && canContinue(held, total) ? { batchId: held.id, fromRow: held.rows_total } : undefined;
         const r = await runQuestionLoad({ payload: buildLoadPayload(job.plan!, job.loadRows), fileName: job.name.slice(0, 280), fileSha256: job.hash, marketId: curriculum.market_id, curriculumId,
-          sourceIds: job.sourceIds, resume, onProgress: (d, t) => patch(job.key, { progress: `${n(d)} of ${n(t)}` }) });
+          sourceIds: job.sourceIds, resume, pacer, onProgress: (d, t) => patch(job.key, { progress: `${n(d)} of ${n(t)}` }),
+          onWait: (s) => patch(job.key, { progress: `Pausing ${s} s: the system accepts a limited number of requests a minute. It continues by itself.` }) });
         const ok = r.status === "LOADED" || r.status === "PARTIAL";
         const notes = [r.rows_rejected ? `${n(r.rows_rejected)} rejected` : "", ...r.row_errors.slice(0, 3).map((e) => `row ${e.row}: ${describeErrorMessage(e.code)}`)].filter(Boolean).join("; ");
         patch(job.key, { running: false, earlier: await findLoadBatchByHash(job.hash), outcome: { ok, rowsLoaded: r.rows_loaded, rowsTotal: r.rows_total, message: ok ? notes : `Nothing usable was loaded. ${notes}` } });
@@ -174,7 +177,10 @@ export default function QuestionLoadingPage() {
           <tr>
             <td>{job.name}</td>
             <td>{n(job.loadRows.length)}{job.plan ? <span className="qb-muted qb-small" style={{ display: "block" }}>{job.plan.topics.length} topics</span> : null}</td>
-            <td className="qb-small">{job.sourceIds.length ? sources.filter((s) => job.sourceIds.includes(s.id)).map((s) => s.title.replace(/\s+B\d.*$/, "")).join(", ") : <span className="qb-muted">none</span>}</td>
+            <td className="qb-small"><select aria-label={`Source for ${job.name}`} value={job.sourceIds.length === 1 ? job.sourceIds[0] : ""} disabled={job.running || ["done", "loaded-before"].includes(view.phase)}
+              onChange={(e) => patch(job.key, { manualSource: true, sourceIds: e.target.value ? [e.target.value] : [] })}>
+              <option value="">{job.sourceIds.length > 1 ? `${job.sourceIds.length} sources ticked` : "Choose a source"}</option>
+              {sources.map((s) => <option key={s.id} value={s.id}>{s.title.replace(/\s+B\d.*$/, "")}</option>)}</select></td>
             <td><span className={`qb-pill${view.tone === "ok" ? " success" : ""}`}>{view.label}</span>{job.running && job.progress ? <span className="qb-muted qb-small" style={{ display: "block" }}>{job.progress}</span> : null}
               {view.detail ? <span className={`qb-small ${view.tone === "bad" ? "qb-error" : "qb-muted"}`} style={{ display: "block" }}>{view.detail}</span> : null}</td>
             <td><button type="button" className="qb-link-btn" onClick={() => patch(job.key, { open: !job.open })}>{job.open ? "Hide details" : "Details"}</button></td>
@@ -182,6 +188,9 @@ export default function QuestionLoadingPage() {
           {job.open && <tr><td colSpan={5}>
             <fieldset><legend>Source this file was written from</legend>
               {sources.map((s) => <label key={s.id}><input type="checkbox" checked={job.sourceIds.includes(s.id)} onChange={(e) => patch(job.key, { manualSource: true, sourceIds: e.target.checked ? [...job.sourceIds, s.id] : job.sourceIds.filter((x) => x !== s.id) })} />{s.title}</label>)}
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                <button type="button" className="qb-link-btn" onClick={() => patch(job.key, { manualSource: true, sourceIds: [] })}>Untick all</button>
+                <button type="button" className="qb-link-btn" onClick={() => patch(job.key, { manualSource: false, sourceIds: sourcesForSubjects(sources, job.subjects) })}>Pick automatically</button></div>
               {job.sourceIds.length > 1 && <p className="qb-error" role="alert">{job.sourceIds.length} sources are ticked. Every question in this file will record all of them. Tick only the source(s) it was written from.</p>}
             </fieldset>
             {job.plan && <>

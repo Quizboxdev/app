@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { alreadyLoaded, CALL_ROWS, canContinue, continueFrom, describeLoadFailure, isTransientFailure, sliceCall } from "./resume";
+import { alreadyLoaded, CALL_ROWS, canContinue, continueFrom, createPacer, describeLoadFailure, isRateLimited, isTransientFailure, sliceCall } from "./resume";
 import type { LoadPayload, LoadRowPayload, LoadTopic } from "./payload";
 
 const topic = (n: number): LoadTopic => ({ key: `t${n}`, indicator_node_id: `n${n}`, title: `Topic ${n}`, concepts: ["c"], target_questions: 50 });
@@ -77,5 +77,28 @@ describe("what the admin is told, and how a load continues", () => {
     expect(alreadyLoaded({ id: "b", status: "LOADED", rows_total: 2600 }, 2600)).toBe(true);
     expect(alreadyLoaded({ id: "b", status: "LOADING", rows_total: 1000 }, 2600)).toBe(false);
     expect(alreadyLoaded(null, 2600)).toBe(false);
+  });
+});
+
+describe("the per-minute request limit", () => {
+  it("recognises the database's limit, and never confuses it with a failure to retry blindly", () => {
+    expect(isRateLimited({ message: "QB_CONTENT_RATE_LIMIT", code: "P0001" })).toBe(true);
+    expect(isRateLimited({ message: "QB_RATE_LIMITED" })).toBe(true);
+    expect(isRateLimited({ message: "QB_TOPIC_INVALID_CONCEPTS", code: "P0001" })).toBe(false);
+    expect(isRateLimited(null)).toBe(false);
+    expect(isTransientFailure({ message: "QB_CONTENT_RATE_LIMIT", code: "P0001" })).toBe(false);
+  });
+  it("lets a burst through, then makes the next request wait for the window to clear", async () => {
+    let clock = 0; const slept: number[] = [];
+    const pacer = createPacer({ limit: 3, windowMs: 60_000, now: () => clock, sleep: async (ms) => { slept.push(ms); clock += ms; } });
+    for (let i = 0; i < 3; i++) await pacer.wait();
+    expect(slept).toEqual([]);
+    await pacer.wait();
+    expect(slept.reduce((a, b) => a + b, 0)).toBe(60_250);
+    expect(clock).toBe(60_250);
+  });
+  it("is switched off by a limit of 0", async () => {
+    const pacer = createPacer({ limit: 0, sleep: async () => { throw new Error("must not wait"); } });
+    for (let i = 0; i < 50; i++) await pacer.wait();
   });
 });
