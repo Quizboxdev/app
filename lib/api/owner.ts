@@ -17,7 +17,7 @@ export const grantSubscription = (email: string, days: number, plan: string, not
   rpc("qb_admin_grant_subscription_email", { p_email: email, p_days: days, p_plan: plan, p_note: note });
 export const revokeSubscription = (id: string, note: string) => rpc("qb_admin_revoke_subscription", { p_id: id, p_note: note });
 
-export type LoadBatch = { id: string; file_name: string; status: string; rows_total: number; rows_loaded: number; rows_rejected: number; created_at: string };
+export type LoadBatch = { id: string; file_name: string; status: string; rows_total: number; rows_loaded: number; rows_rejected: number; created_at: string; report?: Record<string, unknown> | null };
 export type BatchApproval = { id: string; batch_id: string; status: string; questions_approved: number; questions_skipped: number; sample_reviewed: number; note: string; created_at: string; revoked_at: string | null };
 export type SampleQuestion = { id: string; question: string; a: string | null; b: string | null; c: string | null; d: string | null; correct: string; difficulty: string | null };
 export type BatchPreview = { batch_id: string; file: string; batch_status: string; questions_found: number; by_state: Record<string, number>; would_approve: number;
@@ -25,7 +25,7 @@ export type BatchPreview = { batch_id: string; file: string; batch_status: strin
 
 export async function listLoadBatches(): Promise<LoadBatch[]> {
   const { data, error } = await getSupabaseBrowserClient().from("question_load_batches")
-    .select("id,file_name,status,rows_total,rows_loaded,rows_rejected,created_at").order("created_at", { ascending: false }).limit(100);
+    .select("id,file_name,status,rows_total,rows_loaded,rows_rejected,created_at,report").order("created_at", { ascending: false }).limit(100);
   if (error) throw new Error(userFacingError(error));
   return (data ?? []) as LoadBatch[];
 }
@@ -35,6 +35,8 @@ export async function listBatchApprovals(): Promise<BatchApproval[]> {
   if (error) return [];   // the approvals table arrives with migration 20261014110000; before that, nothing is approved
   return (data ?? []) as BatchApproval[];
 }
+// Withdraw a batch that cannot be finished (stopped partway, failed, or not wanted) and free its file to be loaded again. Refused while the batch is live for learners.
+export const discardBatch = (batchId: string, note: string) => rpc<{ batch_id: string; withdrawn: number }>("qb_owner_batch_discard", { p_batch: batchId, p_note: note });
 export const previewBatch = (batchId: string) => rpc<BatchPreview>("qb_owner_batch_preview", { p_batch: batchId });
 export const approveBatch = (batchId: string, note: string, sampleRead: number) =>
   rpc<{ approval_id: string; questions_found: number; approved: number; skipped: number; published: boolean }>("qb_owner_approve_batch", { p_batch: batchId, p_note: note, p_sample_reviewed: sampleRead, p_publish: true });
