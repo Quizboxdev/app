@@ -139,3 +139,16 @@ export function userFacingError(error: unknown): string {
   const message = typeof error === "object" && error !== null && "message" in error ? String(error.message) : String(error);
   return messages[message.split(":")[0]] ?? (isNetworkFailure(message) ? NETWORK_ERROR_MESSAGE : GENERIC_ERROR_MESSAGE);
 }
+
+// For admin screens that need to be diagnosable: the same friendly sentence, and when the database's reason is not one we have a sentence for, its technical code and text
+// after it, so a report can say what happened instead of only "could not be completed". A database time-out gets its own plain sentence.
+export const TIMEOUT_ERROR_MESSAGE = "The database took too long to finish this. Nothing was lost; try again.";
+export function userFacingErrorWithDetail(error: unknown): string {
+  const friendly = userFacingError(error);
+  if (friendly !== GENERIC_ERROR_MESSAGE) return friendly;
+  const o = (typeof error === "object" && error !== null ? error : {}) as { code?: unknown; message?: unknown };
+  const code = o.code === undefined || o.code === null ? "" : String(o.code), message = o.message === undefined || o.message === null ? (typeof error === "string" ? error : "") : String(o.message);
+  const timeout = code === "57014" || /statement timeout|canceling statement/i.test(message);
+  const detail = [code, message].filter(Boolean).join(" · ").slice(0, 200);
+  return `${timeout ? TIMEOUT_ERROR_MESSAGE : GENERIC_ERROR_MESSAGE}${detail ? ` (Technical detail: ${detail})` : ""}`;
+}
