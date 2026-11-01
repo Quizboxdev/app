@@ -1,11 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { adminGuide, adminGuides, deleteGuide, saveGuide, setGuideState, type AdminGuide } from "@/lib/api/help";
 import { categoryLabel, HELP_AUDIENCES, HELP_CATEGORIES } from "@/lib/help/categories";
 import { RenderText } from "@/lib/policies/render";
 import ExportLink from "@/components/admin/ExportLink";
+import DraftNotice from "@/components/DraftNotice";
+import { useScreenDraft } from "@/lib/drafts/use-screen-draft";
 
 // Admin, Help. Write, preview and publish the guides people see at Help (/help on the website, Help inside the app). Guides are for learners, teachers, schools and sponsors; administrator workflows
 // do not belong here. Link to another guide with [words](help:web-name). A guide that is switched back to draft disappears from Help at once.
@@ -52,19 +54,23 @@ function Editor({ form, onChange, onSaved, onError, onNotice }: { form: Form; on
 
 export default function AdminHelpPage() {
   const [rows, setRows] = useState<AdminGuide[] | null>(null), [form, setForm] = useState<Form | null>(null), [error, setError] = useState(""), [notice, setNotice] = useState(""), [filter, setFilter] = useState<"all" | "published" | "draft">("all");
+  // An unfinished guide is kept in Unfinished work, so leaving this page by mistake loses nothing. `baseline` is how the form looked when it was opened.
+  const baseline = useRef<Form | null>(null);
+  const draft = useScreenDraft<Form>({ screen: "help", label: "Help guide", detail: form?.title, value: form, baseline: baseline.current, apply: (f) => setForm({ ...blank, ...f }) });
   const load = useCallback(() => adminGuides().then(setRows).catch((e) => { setError(e.message); setRows([]); }), []);
   useEffect(() => { void load(); }, [load]);
   async function open(id: string) {
     setError(""); setNotice("");
-    try { const g = await adminGuide(id); setForm({ id: g.id, slug: g.slug, title: g.title, summary: g.summary, body: g.body, category: g.category, audiences: g.audiences, sort: g.sort_order, state: g.state }); } catch (e: any) { setError(e.message); }
+    try { const g = await adminGuide(id); const f: Form = { id: g.id, slug: g.slug, title: g.title, summary: g.summary, body: g.body, category: g.category, audiences: g.audiences, sort: g.sort_order, state: g.state }; baseline.current = f; setForm(f); } catch (e: any) { setError(e.message); }
   }
   const shown = (rows ?? []).filter((r) => filter === "all" || r.state === filter);
   return (
     <>
       <div className="qb-page-head"><div><h1>Help guides</h1><p>The guides people read at <Link className="qb-link" href="/guides">Help</Link> and on the website. Write, preview, publish. Learners, teachers, schools and sponsors only: no administrator workflows.</p></div>
-        <ExportLink dataset="help_articles" /><button className="qb-btn" onClick={() => { setForm({ ...blank }); setNotice(""); setError(""); }}>New guide</button></div>
+        <ExportLink dataset="help_articles" /><button className="qb-btn" onClick={() => { baseline.current = { ...blank }; setForm({ ...blank }); setNotice(""); setError(""); }}>New guide</button></div>
       {error && <div className="qb-card qb-error" role="alert">{error}</div>}
       {notice && <div className="qb-card" role="status"><strong>{notice}</strong></div>}
+      {form && <DraftNotice restored={!!draft.restored} expiresAt={draft.expiresAt} noun="guide" onDiscard={() => { void draft.finish(); baseline.current = null; setForm(null); }} />}
       <nav aria-label="Filter" style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>{(["all", "published", "draft"] as const).map((f) => <button key={f} className={`qb-btn${filter === f ? "" : " qb-btn-secondary"}`} onClick={() => setFilter(f)}>{f === "all" ? "All" : f === "published" ? "Published" : "Drafts"}</button>)}</nav>
       <div className="qb-card">
         {rows === null ? <p className="qb-muted">Loading…</p> : shown.length === 0 ? <p className="qb-muted">No guides here yet.</p> : (
@@ -73,7 +79,7 @@ export default function AdminHelpPage() {
           </tbody></table>
         )}
       </div>
-      {form && <Editor key={form.id ?? "new"} form={form} onChange={setForm} onError={setError} onNotice={setNotice} onSaved={(id) => { void load(); if (id) void open(id); else setForm(null); }} />}
+      {form && <Editor key={form.id ?? "new"} form={form} onChange={setForm} onError={setError} onNotice={setNotice} onSaved={(id) => { void draft.finish(); void load(); if (id) void open(id); else setForm(null); }} />}
     </>
   );
 }

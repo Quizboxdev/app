@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { listAllCurricula, type CurriculumChoice } from "@/lib/api/curriculum-structure";
 import { listApprovedSources, loadCurriculumIndex, runQuestionLoad, type ApprovedSource, type LoadResult } from "@/lib/api/question-loading";
 import type { CurriculumIndex } from "@/lib/curriculum/verified";
@@ -11,6 +11,9 @@ import { buildLoadPayload } from "@/lib/question-loading/payload";
 import type { LoadRow } from "@/lib/question-loading/template";
 import { describeErrorMessage } from "@/lib/errors";
 import ExportLink from "@/components/admin/ExportLink";
+import DraftNotice from "@/components/DraftNotice";
+import { useScreenDraft } from "@/lib/drafts/use-screen-draft";
+import { clearFiles, getFiles, putFiles } from "@/lib/drafts/local-files";
 
 const sha256Hex = async (bytes: Uint8Array) => [...new Uint8Array(await crypto.subtle.digest("SHA-256", bytes as BufferSource))].map((b) => b.toString(16).padStart(2, "0")).join("");
 
@@ -25,31 +28,48 @@ export default function QuestionLoadingPage() {
   const [busy, setBusy] = useState(false), [error, setError] = useState(""), [progress, setProgress] = useState(""), [result, setResult] = useState<LoadResult | null>(null), [balance, setBalance] = useState(false);
   const curriculum = curricula.find((c) => c.id === curriculumId);
 
+  // Leaving this page by mistake loses nothing: the curriculum, the ticked sources and the file names are kept as a draft in Unfinished work, and the chosen files themselves are
+  // kept in this browser only (never sent anywhere) so the same files come back selected. The draft is removed once the load has finished.
+  const FILE_KEY = "question-loading";
+  const restored = useRef<{ chosen: string[]; files: string[] } | null>(null), keepChosen = useRef(false), triedFiles = useRef(false);
+  const draft = useScreenDraft<{ curriculumId: string; chosen: string[]; balance: boolean; files: string[] }>({ screen: "question-loading", label: "Load questions", detail: files.join(", "),
+    value: { curriculumId, chosen, balance, files }, baseline: { curriculumId: "", chosen: [], balance: false, files: [] },
+    apply: (v) => { restored.current = { chosen: v.chosen ?? [], files: v.files ?? [] }; setBalance(Boolean(v.balance)); setCurriculumId(v.curriculumId ?? ""); } });
+
   useEffect(() => { listAllCurricula().then(setCurricula).catch((e) => setError(describeErrorMessage((e as Error).message))); }, []);
   useEffect(() => {
     setSources([]); setChosen([]); setIndex(null); setResult(null);
     if (!curriculumId) return;
     setBusy(true);
     Promise.all([listApprovedSources(curriculumId), loadCurriculumIndex(curriculumId)])
-      .then(([s, i]) => { setSources(s); setChosen([]); setIndex(i); })
+      .then(([s, i]) => { setSources(s); setChosen((restored.current?.chosen ?? []).filter((id) => s.some((x) => x.id === id))); setIndex(i); })
       .catch((e) => setError(describeErrorMessage((e as Error).message))).finally(() => setBusy(false));
   }, [curriculumId]);
 
-  async function choose(list: FileList | null) {
+  async function choose(list: File[], fromDraft = false) {
     setError(""); setResult(null);
-    if (!list?.length) return;
+    if (!list.length) return;
     try {
       const all: LoadRow[] = [], buffers: Uint8Array[] = []; let single: number[] = [];
-      for (const f of Array.from(list)) {
+      for (const f of list) {
         const bytes = new Uint8Array(await f.arrayBuffer());
         const parsed = await readQuestionFile(f.name, bytes);
         buffers.push(bytes); all.push(...parsed.rows); single = parsed.fileRows;
       }
       const joined = new Uint8Array(buffers.reduce((n, b) => n + b.length, 0)); let at = 0;
       for (const b of buffers) { joined.set(b, at); at += b.length; }
-      setFiles(Array.from(list).map((f) => f.name)); setRows(all); setFileRows(list.length === 1 ? single : all.map((_, i) => i + 1)); setHash(await sha256Hex(joined));
+      keepChosen.current = fromDraft;   // files brought back from a draft keep the sources that were ticked, instead of re-picking from the file's subject
+      if (!fromDraft) void putFiles(FILE_KEY, list);
+      setFiles(list.map((f) => f.name)); setRows(all); setFileRows(list.length === 1 ? single : all.map((_, i) => i + 1)); setHash(await sha256Hex(joined));
     } catch (e) { setRows([]); setFiles([]); setError(describeErrorMessage((e as Error).message)); }
   }
+
+  useEffect(() => {
+    if (!index || triedFiles.current || files.length > 0 || !restored.current?.files.length) return;
+    triedFiles.current = true;
+    void getFiles(FILE_KEY).then((fs) => { if (fs.length) void choose(fs, true); });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [index]);
 
   // Every ticked source is recorded on every question in the file, so only the source(s) the file was written from should be ticked. Once a file is chosen,
   // the source matching its subject column is ticked for the admin; the admin can still change it.
@@ -57,6 +77,7 @@ export default function QuestionLoadingPage() {
   const [autoPicked, setAutoPicked] = useState(false);
   useEffect(() => {
     if (!sources.length || !fileSubjects.length) { setAutoPicked(false); return; }
+    if (keepChosen.current) { keepChosen.current = false; return; }
     const picked = sourcesForSubjects(sources, fileSubjects);
     setChosen(picked); setAutoPicked(picked.length > 0);
   }, [sources, fileSubjects]);
@@ -77,6 +98,7 @@ export default function QuestionLoadingPage() {
       const r = await runQuestionLoad({ payload, fileName: files.join(", ").slice(0, 280), fileSha256: hash, marketId: curriculum.market_id, curriculumId, sourceIds: chosen,
         onProgress: (d, t) => setProgress(`Loaded ${d} of ${t} questions…`) });
       setResult(r);
+      if (r.status === "LOADED") { void draft.finish(); void clearFiles(FILE_KEY); }   // finished: nothing left to come back to
     } catch (e) { setError(describeErrorMessage((e as Error).message)); }
     finally { setBusy(false); setProgress(""); }
   }
@@ -85,6 +107,9 @@ export default function QuestionLoadingPage() {
     <div className="qb-page-head"><div><h1>Load questions</h1>
       <p>Check a question file against a curriculum and load it into SME review. The curriculum structure must already be loaded, and the curriculum needs at least one approved source.</p></div><ExportLink dataset="question_batches" /></div>
     {error && <p className="qb-error" role="alert">{error}</p>}
+    {(curriculumId || files.length > 0) && <DraftNotice restored={!!draft.restored} expiresAt={draft.expiresAt} noun="question load" onDiscard={() => {
+      void draft.finish(); void clearFiles(FILE_KEY); restored.current = null; triedFiles.current = false;
+      setFiles([]); setRows([]); setFileRows([]); setHash(""); setChosen([]); setBalance(false); setResult(null); setCurriculumId(""); }} />}
     <section className="qb-card"><h2>1. Curriculum and approved sources</h2>
       <label>Curriculum<select value={curriculumId} onChange={(e) => setCurriculumId(e.target.value)}><option value="">Select a curriculum</option>
         {curricula.map((c) => <option key={c.id} value={c.id}>{c.code} · {c.name} ({c.version})</option>)}</select></label>
@@ -102,7 +127,7 @@ export default function QuestionLoadingPage() {
     </section>
     <section className="qb-card"><h2>2. Question file</h2>
       <p className="qb-muted">One or more .csv, .txt or .xlsx files in the QuizBox question template. Several batch files of one source can be chosen together.</p>
-      <label>Files<input type="file" multiple accept=".csv,.txt,.xlsx" disabled={!index || index.all.length === 0} onChange={(e) => void choose(e.target.files)}/></label>
+      <label>Files<input type="file" multiple accept=".csv,.txt,.xlsx" disabled={!index || index.all.length === 0} onChange={(e) => void choose(Array.from(e.target.files ?? []))}/></label>
       {files.length > 0 && <p className="qb-muted">{files.join(", ")} · {rows.length} questions</p>}
     </section>
     {plan && <section className="qb-card"><h2>3. Check</h2>
