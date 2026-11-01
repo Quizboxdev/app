@@ -27,3 +27,16 @@ describe("userFacingError", () => {
     expect(userFacingError({ message: "AUTH_REQUIRED" })).toBe("Please sign in again.");
   });
 });
+
+describe("userFacingErrorWithDetail", () => {
+  it("keeps the friendly sentence for a known reason, with no technical text", async () => {
+    const { userFacingErrorWithDetail } = await import("./errors");
+    expect(userFacingErrorWithDetail({ message: "QB_BATCH_IS_LIVE", code: "P0001" })).toBe(userFacingError({ message: "QB_BATCH_IS_LIVE" }));
+  });
+  it("names a database time-out in plain words, and shows the code for anything unknown", async () => {
+    const { userFacingErrorWithDetail } = await import("./errors");
+    expect(userFacingErrorWithDetail({ code: "57014", message: "canceling statement due to statement timeout" })).toMatch(/took too long.*57014/);
+    expect(userFacingErrorWithDetail({ code: "23514", message: "violates check constraint" })).toBe("The operation could not be completed. Please try again or contact support. (Technical detail: 23514 · violates check constraint)");
+    expect(userFacingErrorWithDetail("odd")).toBe("The operation could not be completed. Please try again or contact support. (Technical detail: odd)");
+  });
+});

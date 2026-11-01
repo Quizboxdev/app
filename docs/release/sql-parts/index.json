@@ -229,5 +229,12 @@
   "chars": 2872,
   "parts": 1,
   "note": ""
+ },
+ {
+  "version": "20261052100000",
+  "name": "owner_batch_steps",
+  "chars": 11813,
+  "parts": 2,
+  "note": "Replaces the discard function from 20261051100000 (which could not work on the real tables) and makes approve, revoke and discard run in small steps. Safe to run again."
  }
 ]

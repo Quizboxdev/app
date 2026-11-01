@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { CheckCircle2, RotateCcw, Eye, Trash2 } from "lucide-react";
-import { approveBatch, discardBatch, listBatchApprovals, listLoadBatches, previewBatch, revokeBatchApproval, type BatchApproval, type BatchPreview, type LoadBatch } from "@/lib/api/owner";
+import { approveBatch, discardBatch, finishApproval, listBatchApprovals, listLoadBatches, previewBatch, revokeBatchApproval, type BatchApproval, type BatchPreview, type LoadBatch } from "@/lib/api/owner";
 import { formatDate } from "@/lib/format";
 import ExportLink from "@/components/admin/ExportLink";
 import Link from "next/link";
@@ -17,7 +17,7 @@ export default function QuestionBatchesPage() {
   const [preview, setPreview] = useState<BatchPreview | null>(null);
   const [read, setRead] = useState<string[]>([]);
   const [note, setNote] = useState("");
-  const [busy, setBusy] = useState(false), [error, setError] = useState(""), [done, setDone] = useState("");
+  const [busy, setBusy] = useState(false), [error, setError] = useState(""), [done, setDone] = useState(""), [progress, setProgress] = useState("");
 
   const load = () => Promise.all([listLoadBatches(), listBatchApprovals()]).then(([b, a]) => { setBatches(b); setApprovals(a); }).catch((e) => { setError(e.message); setBatches([]); });
   useEffect(() => { void load(); }, []);
@@ -32,19 +32,25 @@ export default function QuestionBatchesPage() {
     if (!preview) return;
     setBusy(true); setError("");
     try {
-      const r = await approveBatch(preview.batch_id, note, read.length);
+      const r = await approveBatch(preview.batch_id, note, read.length, (n) => setProgress(`${n} of ${preview.would_approve} approved…`));
       setDone(`Approved ${r.approved} questions (${r.skipped} left in review because they failed validation). They are live for learners now.`);
-      setOpen(""); setPreview(null); await load();
-    } catch (e: any) { setError(e.message); }
-    setBusy(false);
+      setOpen(""); setPreview(null);
+    } catch (e: any) { setError(`${e.message} Nothing is repeated if you press the same button again: it carries on from where it stopped.`); }
+    setProgress(""); await load(); setBusy(false);
+  }
+  async function finish(b: LoadBatch) {
+    setBusy(true); setError(""); setDone("");
+    try { const r = await finishApproval(b.id, (n) => setProgress(`${n} approved…`)); setDone(`Approval finished: ${r.approved} questions are live for learners.`); }
+    catch (e: any) { setError(e.message); }
+    setProgress(""); await load(); setBusy(false);
   }
   async function revoke(a: BatchApproval) {
     const why = window.prompt("Why are you revoking this approval? (at least 10 characters)");
     if (!why) return;
     setBusy(true); setError("");
-    try { const r = await revokeBatchApproval(a.id, why); setDone(`${r.returned_to_review} questions taken offline and returned to review.`); await load(); }
-    catch (e: any) { setError(e.message); }
-    setBusy(false);
+    try { const r = await revokeBatchApproval(a.id, why, (n) => setProgress(`${n} taken offline…`)); setDone(`${r.returned_to_review} questions taken offline and returned to review.`); }
+    catch (e: any) { setError(`${e.message} Press Revoke again to carry on from where it stopped.`); }
+    setProgress(""); await load(); setBusy(false);
   }
   // A batch that cannot be finished, or is not wanted, is withdrawn here instead of sitting in review for ever. Its file can then be loaded again.
   async function discard(b: LoadBatch) {
@@ -53,9 +59,9 @@ export default function QuestionBatchesPage() {
 Why? (at least 10 characters)`);
     if (!why) return;
     setBusy(true); setError("");
-    try { const r = await discardBatch(b.id, why); setDone(`Discarded. ${r.withdrawn} questions were withdrawn. The file can be loaded again from Load questions.`); await load(); }
-    catch (e: any) { setError(e.message); }
-    setBusy(false);
+    try { const r = await discardBatch(b.id, why, (n) => setProgress(`${n} withdrawn…`)); setDone(`Discarded. ${r.withdrawn} questions were withdrawn. The file can be loaded again from Load questions.`); }
+    catch (e: any) { setError(`${e.message} Press Discard again to carry on from where it stopped.`); }
+    setProgress(""); await load(); setBusy(false);
   }
   const need = preview?.min_sample_required ?? 20;
   const canApprove = useMemo(() => !!preview && read.length >= need && note.trim().length >= 10 && preview.would_approve > 0, [preview, read, need, note]);
@@ -66,18 +72,20 @@ Why? (at least 10 characters)`);
         <p>Read a random sample of each loaded batch, then approve it to make its questions available to learners. You can revoke any approval.</p></div><ExportLink dataset="question_batches" /></div>
       {error && <div className="qb-card qb-error" role="alert">{error}</div>}
       {done && <div className="qb-card" role="status"><CheckCircle2 size={16} aria-hidden="true" /> {done}</div>}
+      {busy && progress && <div className="qb-card" role="status">Working: {progress} This takes a few seconds for a big batch. Keep this page open.</div>}
 
       <section className="qb-card">
         <h2>Loaded batches</h2>
         {batches === null ? <p className="qb-muted">Loading…</p> : !batches.length ? <p className="qb-muted">No batches loaded yet. Load a file on Load Questions first.</p> :
           <div className="qb-table-wrap"><table className="qb-table"><thead><tr><th>File</th><th>Loaded</th><th>Status</th><th>Approval</th><th>Action</th></tr></thead><tbody>
-            {batches.map((b) => { const a = activeApproval(b.id), v = batchView(b, Boolean(a)); return <tr key={b.id}>
+            {batches.map((b) => { const a = activeApproval(b.id), v = batchView(b, Boolean(a), Boolean(a?.in_progress)); return <tr key={b.id}>
               <td>{b.file_name}<div className="qb-small qb-muted">{formatDate(b.created_at)}</div></td>
               <td>{v.progress}{b.rows_rejected ? ` (${b.rows_rejected} rejected)` : ""}</td>
               <td><span className={`qb-pill${v.tone === "ok" ? " success" : ""}`}>{v.label}</span><div className="qb-small qb-muted">{v.hint}</div></td>
-              <td>{a ? <span className="qb-pill success">Approved: {a.questions_approved} live</span> : <span className="qb-pill">Not approved</span>}</td>
+              <td>{a ? <span className={`qb-pill${a.in_progress ? "" : " success"}`}>{a.in_progress ? `Unfinished: ${a.questions_approved} live so far` : `Approved: ${a.questions_approved} live`}</span> : <span className="qb-pill">Not approved</span>}</td>
               <td style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                {v.action === "revoke" && a && <button className="qb-btn secondary" disabled={busy} onClick={() => void revoke(a)}><RotateCcw size={14} aria-hidden="true" /> Revoke</button>}
+                {v.action === "finish" && <button className="qb-btn" disabled={busy} onClick={() => void finish(b)}><CheckCircle2 size={14} aria-hidden="true" /> Finish approval</button>}
+                {["revoke", "finish"].includes(v.action) && a && <button className="qb-btn secondary" disabled={busy} onClick={() => void revoke(a)}><RotateCcw size={14} aria-hidden="true" /> Revoke</button>}
                 {v.action === "review" && <button className="qb-btn" disabled={busy} onClick={() => void openBatch(b.id)}><Eye size={14} aria-hidden="true" /> Review sample</button>}
                 {v.action === "continue" && <Link className="qb-btn" href="/admin/question-loading">Continue loading</Link>}
                 {["review", "continue", "discard"].includes(v.action) && <button className="qb-btn secondary" disabled={busy} onClick={() => void discard(b)}><Trash2 size={14} aria-hidden="true" /> Discard</button>}

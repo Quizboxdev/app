@@ -65,15 +65,18 @@ export function summarise(items: Array<{ view: JobView; rowsCount: number; saved
 
 // What each loaded batch is, and the one thing to do next. Every state has a way forward; none ends in a dead label.
 export type BatchRow = { status: string; rows_total: number; rows_loaded: number; rows_rejected: number; report?: Record<string, unknown> | null };
-export type BatchAction = "review" | "continue" | "discard" | "revoke" | "none";
-export function batchView(b: BatchRow, approved: boolean): { label: string; tone: Tone; progress: string; action: BatchAction; hint: string } {
+export type BatchAction = "review" | "continue" | "discard" | "revoke" | "finish" | "none";
+export function batchView(b: BatchRow, approved: boolean, approvalUnfinished = false): { label: string; tone: Tone; progress: string; action: BatchAction; hint: string } {
   const expected = Math.max(Number((b.report as { expected_rows?: unknown } | null | undefined)?.expected_rows) || 0, b.rows_total);
   const progress = `${n(b.rows_loaded)} of ${n(expected)}`;
+  // An approval that was cut off partway: some questions are live, the rest are not. It is finished (or revoked), never left looking complete.
+  if (approved && approvalUnfinished) return { label: "Approval unfinished", tone: "warn", progress, action: "finish", hint: "Approving was interrupted, so only some questions are live. Press Finish approval (nothing is repeated), or revoke it." };
   if (approved) return { label: "Live for learners", tone: "ok", progress, action: "revoke", hint: "Approved. Revoke to take it back to review." };
   switch (b.status) {
     case "LOADED": return { label: "Ready to review", tone: "info", progress, action: "review", hint: "Read a sample, then approve." };
     case "PARTIAL": return { label: "Ready to review (some rejected)", tone: "warn", progress, action: "review", hint: `${n(b.rows_rejected)} questions were rejected while loading. Review the rest.` };
     case "LOADING": return { label: "Stopped partway", tone: "warn", progress, action: "continue", hint: "Choose the same file again in Load questions and press Continue, or discard this batch." };
+    case "DISCARDING": return { label: "Being discarded", tone: "warn", progress, action: "discard", hint: "Discarding was interrupted. Press Discard again to finish withdrawing its questions." };
     case "DISCARDED": return { label: "Discarded", tone: "muted", progress, action: "none", hint: "Its questions were withdrawn. The file can be loaded again." };
     case "FAILED": return { label: "Failed", tone: "bad", progress, action: "discard", hint: "Nothing usable was loaded. Discard it, then load the file again." };
     default: return { label: "Not started", tone: "muted", progress, action: "discard", hint: "This batch never started loading." };

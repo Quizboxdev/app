@@ -97,3 +97,14 @@ describe("the batch list: every state has a way forward", () => {
     }
   });
 });
+
+describe("batches with an interrupted action", () => {
+  const b = (status: string) => ({ status, rows_total: 1250, rows_loaded: 1250, rows_rejected: 0, report: { expected_rows: 1250 } });
+  it("an approval cut off partway is never shown as complete: it offers Finish approval", () => {
+    expect(batchView(b("LOADED"), true, true)).toMatchObject({ label: "Approval unfinished", action: "finish", tone: "warn" });
+    expect(batchView(b("LOADED"), true, false)).toMatchObject({ label: "Live for learners", action: "revoke" });
+  });
+  it("a discard cut off partway offers Discard again", () => {
+    expect(batchView(b("DISCARDING"), false)).toMatchObject({ label: "Being discarded", action: "discard" });
+  });
+});
