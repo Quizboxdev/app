@@ -27,12 +27,18 @@ function commonest(values: string[]): string {
 // is that indicator's sentence, so a long title is cut at a word boundary and ends with an ellipsis. The full wording stays on the curriculum indicator itself, and the
 // topic's identity key is built from the full text, so shortening never merges two topics.
 export const TOPIC_TITLE_MAX = 160;
-export function registryTitle(title: string): string {
-  const t = title.trim().replace(/\s+/g, " ");
-  if (t.length <= TOPIC_TITLE_MAX) return t;
-  const cut = t.slice(0, TOPIC_TITLE_MAX - 1), at = cut.lastIndexOf(" ");
-  return (at > TOPIC_TITLE_MAX / 2 ? cut.slice(0, at) : cut).replace(/[\s,;:.\-–]+$/, "") + "…";
+export const CONCEPT_NAME_MAX = 120;
+function shortenAtWord(text: string, max: number): string {
+  const t = text.trim().replace(/\s+/g, " ");
+  if (t.length <= max) return t;
+  const cut = t.slice(0, max - 1), at = cut.lastIndexOf(" ");
+  return (at > max / 2 ? cut.slice(0, at) : cut).replace(/[\s,;:.\-–]+$/, "") + "…";
 }
+export const registryTitle = (title: string): string => shortenAtWord(title, TOPIC_TITLE_MAX);
+// A concept name must be 2 to 120 characters, and the database reports a longer one with the same "needs 1 to 12 concepts" message as a bad count.
+// Questions are linked to their concept by name, so the shortened name is used both in the topic's concept list and on every question row.
+export const registryConcept = (concept: string): string => shortenAtWord(concept, CONCEPT_NAME_MAX);
+
 
 // fileSha256 is computed by the caller (node:crypto on the command line, crypto.subtle in the browser) so this module runs in both.
 export function buildPlan(input: { rows: LoadRow[]; fileRows?: number[]; fileSha256: string; scope: "CURRICULUM" | "SPONSOR"; index?: CurriculumIndex; topicBlock?: number }): LoadPlan {
@@ -64,7 +70,7 @@ export function buildPlan(input: { rows: LoadRow[]; fileRows?: number[]; fileSha
 
   const topics: PlannedTopic[] = [...groups.entries()].map(([key, g]) => {
     const concepts: string[] = [], seen = new Set<string>();
-    for (const r of g.rows) if (r.concept && !seen.has(keyOf(r.concept))) { seen.add(keyOf(r.concept)); concepts.push(r.concept); }
+    for (const r of g.rows) { const c = registryConcept(r.concept ?? ""); if (c && !seen.has(keyOf(c))) { seen.add(keyOf(c)); concepts.push(c); } }
     const ind = g.indicator;
     return { key, title: registryTitle(commonest(g.rows.map((r) => r.topic))), concepts, rows: g.rows.length,
       easy: g.rows.filter((r) => r.difficulty === "easy").length, medium: g.rows.filter((r) => r.difficulty === "medium").length, hard: g.rows.filter((r) => r.difficulty === "hard").length, fileRows: g.fileRows,

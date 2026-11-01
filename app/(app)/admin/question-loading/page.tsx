@@ -6,6 +6,7 @@ import type { CurriculumIndex } from "@/lib/curriculum/verified";
 import { readQuestionFile } from "@/lib/question-loading/read";
 import { buildPlan, describePlan } from "@/lib/question-loading/plan";
 import { balanceAnswerKey } from "@/lib/question-loading/balance";
+import { sourcesForSubjects } from "@/lib/question-loading/sources";
 import { buildLoadPayload } from "@/lib/question-loading/payload";
 import type { LoadRow } from "@/lib/question-loading/template";
 import { describeErrorMessage } from "@/lib/errors";
@@ -30,7 +31,7 @@ export default function QuestionLoadingPage() {
     if (!curriculumId) return;
     setBusy(true);
     Promise.all([listApprovedSources(curriculumId), loadCurriculumIndex(curriculumId)])
-      .then(([s, i]) => { setSources(s); setChosen(s.map((x) => x.id)); setIndex(i); })
+      .then(([s, i]) => { setSources(s); setChosen([]); setIndex(i); })
       .catch((e) => setError(describeErrorMessage((e as Error).message))).finally(() => setBusy(false));
   }, [curriculumId]);
 
@@ -49,6 +50,16 @@ export default function QuestionLoadingPage() {
       setFiles(Array.from(list).map((f) => f.name)); setRows(all); setFileRows(list.length === 1 ? single : all.map((_, i) => i + 1)); setHash(await sha256Hex(joined));
     } catch (e) { setRows([]); setFiles([]); setError(describeErrorMessage((e as Error).message)); }
   }
+
+  // Every ticked source is recorded on every question in the file, so only the source(s) the file was written from should be ticked. Once a file is chosen,
+  // the source matching its subject column is ticked for the admin; the admin can still change it.
+  const fileSubjects = useMemo(() => [...new Set(rows.map((r) => r.subject).filter(Boolean))], [rows]);
+  const [autoPicked, setAutoPicked] = useState(false);
+  useEffect(() => {
+    if (!sources.length || !fileSubjects.length) { setAutoPicked(false); return; }
+    const picked = sourcesForSubjects(sources, fileSubjects);
+    setChosen(picked); setAutoPicked(picked.length > 0);
+  }, [sources, fileSubjects]);
 
   // Answer positions (audit QB-AUD-017): the spread of the correct letters is always shown; evening it out is a choice (it moves whole option texts, never just the letter, and skips questions whose wording points at option positions).
   const balanced = useMemo(() => (rows.length ? balanceAnswerKey(rows, parseInt(hash.slice(0, 8) || "1", 16) || 1) : null), [rows, hash]);
@@ -80,6 +91,13 @@ export default function QuestionLoadingPage() {
       {index && <p className="qb-muted">{index.all.length} learning indicators loaded for this curriculum{index.all.length === 0 ? ". Load its structure first (Curriculum Structure)." : "."}</p>}
       {noSources && <p className="qb-error" role="alert">This curriculum has no approved source yet. Approve one under Curriculum Sources first.</p>}
       {sources.length > 0 && <fieldset><legend>Approved sources the questions come from</legend>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center", margin: "0 0 8px" }}>
+          <button type="button" className="qb-btn secondary" onClick={() => { setChosen([]); setAutoPicked(false); }} disabled={chosen.length === 0}>Clear all</button>
+          <button type="button" className="qb-btn secondary" onClick={() => { setChosen(sources.map((x) => x.id)); setAutoPicked(false); }} disabled={chosen.length === sources.length}>Select all</button>
+          <span className="qb-muted">{chosen.length} of {sources.length} ticked</span></div>
+        {rows.length > 0 && chosen.length === 0 && <p className="qb-error" role="alert">No source matches this file’s subject ({fileSubjects.join(", ")}). Tick the source the questions were written from.</p>}
+        {autoPicked && chosen.length > 0 && <p className="qb-muted">Ticked from the file’s subject ({fileSubjects.join(", ")}). Change it if the file was written from other sources.</p>}
+        {chosen.length > 1 && <p className="qb-error" role="alert">{chosen.length} sources are ticked. Every question in the file will record all {chosen.length} of them. Tick only the source(s) it was written from.</p>}
         {sources.map((s) => <label key={s.id}><input type="checkbox" checked={chosen.includes(s.id)} onChange={(e) => setChosen(e.target.checked ? [...chosen, s.id] : chosen.filter((x) => x !== s.id))}/>{s.title}</label>)}</fieldset>}
     </section>
     <section className="qb-card"><h2>2. Question file</h2>
