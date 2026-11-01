@@ -19,6 +19,8 @@ export const LOADER_MESSAGES: Record<string, string> = {
   QL_LOAD_INVALID_TOPICS: "A load call must carry 1 to 100 topics.", QL_LOAD_UNKNOWN_TOPIC: "A question refers to a topic that was not sent.",
   QL_LOAD_BATCH_NOT_FOUND: "That load was not found.", QL_LOAD_BATCH_CLOSED: "That load is already complete.", QL_LOAD_SCOPE_UNSUPPORTED: "Only curriculum files can be loaded here.",
   QB_TOPIC_ACCESS_DENIED: "Only content administrators can manage topics.", QB_TOPIC_INVALID_INDICATOR: "A topic must belong to an active learning indicator.",
-  QB_TOPIC_INVALID_TITLE: "A topic title must be 3 to 160 characters.", QB_TOPIC_INVALID_CONCEPTS: "A topic needs 1 to 12 concepts.",
+  QB_TOPIC_INVALID_TITLE: "A topic title must be 3 to 160 characters.", QB_TOPIC_INVALID_CONCEPTS: "A topic needs 1 to 12 concepts, and each concept name must be 2 to 120 characters.",
+  QB_BATCH_NOT_FOUND: "That batch was not found.", QB_BATCH_IS_LIVE: "This batch is live for learners. Revoke its approval first, then discard it.",
+  QB_BATCH_ALREADY_DISCARDED: "This batch was already discarded.", QB_APPROVAL_NOTE_REQUIRED: "Write a reason of at least 10 characters.",
   QB_TOPIC_NOT_READY: "This topic does not have enough approved questions yet.", QB_TOPIC_NOT_FOUND: "Topic not found.", QB_TOPIC_INVALID_STATUS: "That topic status is not allowed.",
 };

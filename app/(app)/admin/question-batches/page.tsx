@@ -1,10 +1,12 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { CheckCircle2, RotateCcw, Eye } from "lucide-react";
-import { approveBatch, listBatchApprovals, listLoadBatches, previewBatch, revokeBatchApproval, type BatchApproval, type BatchPreview, type LoadBatch } from "@/lib/api/owner";
-import { formatDate, humanize } from "@/lib/format";
+import { CheckCircle2, RotateCcw, Eye, Trash2 } from "lucide-react";
+import { approveBatch, discardBatch, listBatchApprovals, listLoadBatches, previewBatch, revokeBatchApproval, type BatchApproval, type BatchPreview, type LoadBatch } from "@/lib/api/owner";
+import { formatDate } from "@/lib/format";
 import ExportLink from "@/components/admin/ExportLink";
+import Link from "next/link";
+import { batchView } from "@/lib/question-loading/queue";
 
 // Owner-approved batches (the interim review step until reviewers are onboarded). Read the random sample, tick each question you checked,
 // then approve. Approved questions are labelled OWNER_BATCH, never "reviewed by subject experts", and one click revokes the whole batch.
@@ -44,6 +46,17 @@ export default function QuestionBatchesPage() {
     catch (e: any) { setError(e.message); }
     setBusy(false);
   }
+  // A batch that cannot be finished, or is not wanted, is withdrawn here instead of sitting in review for ever. Its file can then be loaded again.
+  async function discard(b: LoadBatch) {
+    const why = window.prompt(`Discard "${b.file_name}"? Its ${b.rows_loaded} saved questions are withdrawn from review (nothing is deleted) and the file can be loaded again.
+
+Why? (at least 10 characters)`);
+    if (!why) return;
+    setBusy(true); setError("");
+    try { const r = await discardBatch(b.id, why); setDone(`Discarded. ${r.withdrawn} questions were withdrawn. The file can be loaded again from Load questions.`); await load(); }
+    catch (e: any) { setError(e.message); }
+    setBusy(false);
+  }
   const need = preview?.min_sample_required ?? 20;
   const canApprove = useMemo(() => !!preview && read.length >= need && note.trim().length >= 10 && preview.would_approve > 0, [preview, read, need, note]);
 
@@ -58,14 +71,18 @@ export default function QuestionBatchesPage() {
         <h2>Loaded batches</h2>
         {batches === null ? <p className="qb-muted">Loading…</p> : !batches.length ? <p className="qb-muted">No batches loaded yet. Load a file on Load Questions first.</p> :
           <div className="qb-table-wrap"><table className="qb-table"><thead><tr><th>File</th><th>Loaded</th><th>Status</th><th>Approval</th><th>Action</th></tr></thead><tbody>
-            {batches.map((b) => { const a = activeApproval(b.id); return <tr key={b.id}>
+            {batches.map((b) => { const a = activeApproval(b.id), v = batchView(b, Boolean(a)); return <tr key={b.id}>
               <td>{b.file_name}<div className="qb-small qb-muted">{formatDate(b.created_at)}</div></td>
-              <td>{b.rows_loaded} of {b.rows_total}{b.rows_rejected ? ` (${b.rows_rejected} rejected)` : ""}</td>
-              <td>{humanize(b.status)}</td>
+              <td>{v.progress}{b.rows_rejected ? ` (${b.rows_rejected} rejected)` : ""}</td>
+              <td><span className={`qb-pill${v.tone === "ok" ? " success" : ""}`}>{v.label}</span><div className="qb-small qb-muted">{v.hint}</div></td>
               <td>{a ? <span className="qb-pill success">Approved: {a.questions_approved} live</span> : <span className="qb-pill">Not approved</span>}</td>
-              <td>{a ? <button className="qb-btn secondary" disabled={busy} onClick={() => void revoke(a)}><RotateCcw size={14} aria-hidden="true" /> Revoke</button>
-                : ["LOADED", "PARTIAL"].includes(b.status) ? <button className="qb-btn" disabled={busy} onClick={() => void openBatch(b.id)}><Eye size={14} aria-hidden="true" /> Review sample</button>
-                : <span className="qb-muted qb-small">Not ready</span>}</td></tr>; })}
+              <td style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                {v.action === "revoke" && a && <button className="qb-btn secondary" disabled={busy} onClick={() => void revoke(a)}><RotateCcw size={14} aria-hidden="true" /> Revoke</button>}
+                {v.action === "review" && <button className="qb-btn" disabled={busy} onClick={() => void openBatch(b.id)}><Eye size={14} aria-hidden="true" /> Review sample</button>}
+                {v.action === "continue" && <Link className="qb-btn" href="/admin/question-loading">Continue loading</Link>}
+                {["review", "continue", "discard"].includes(v.action) && <button className="qb-btn secondary" disabled={busy} onClick={() => void discard(b)}><Trash2 size={14} aria-hidden="true" /> Discard</button>}
+                {v.action === "none" && <span className="qb-muted qb-small">Nothing more to do</span>}
+              </td></tr>; })}
           </tbody></table></div>}
       </section>
 

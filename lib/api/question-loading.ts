@@ -1,7 +1,8 @@
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { userFacingError } from "@/lib/errors";
 import { buildIndex, standardCode, type CurriculumIndex, type VerifiedIndicator } from "@/lib/curriculum/verified";
-import { chunkPayload, type LoadPayload } from "@/lib/question-loading/payload";
+import type { LoadPayload } from "@/lib/question-loading/payload";
+import { continueFrom, describeLoadFailure, isTransientFailure, sliceCall } from "@/lib/question-loading/resume";
 
 type NodeRow = { id: string; parent_id: string | null; node_type: string; code: string; title: string; subject_code: string | null; canonical_grade_code: string | null; grade_code: string | null; education_level: string | null; metadata: Record<string, unknown> | null };
 
@@ -41,20 +42,63 @@ export async function listApprovedSources(curriculumId: string): Promise<Approve
 
 export type LoadResult = { batch_id: string; status: string; rows_total: number; rows_loaded: number; rows_rejected: number; row_errors: Array<{ row: number; code: string }> };
 
-// Sends the payload in calls of at most 500 rows; the first call records the file, the rest continue the same batch.
+// An earlier load of exactly this file, if any: the database's own record of how far it got (rows_total counts the rows it has taken).
+export type LoadBatchState = { id: string; status: string; rows_total: number; rows_loaded: number; rows_rejected: number; file_name: string };
+const BATCH_COLUMNS = "id,status,rows_total,rows_loaded,rows_rejected,file_name";
+export async function findLoadBatchByHash(fileSha256: string): Promise<LoadBatchState | null> {
+  const { data, error } = await getSupabaseBrowserClient().from("question_load_batches").select(BATCH_COLUMNS).eq("file_sha256", fileSha256).order("created_at", { ascending: false }).limit(1).maybeSingle();
+  return error ? null : ((data ?? null) as LoadBatchState | null);
+}
+async function readLoadBatch(id: string): Promise<LoadBatchState | null> {
+  const { data, error } = await getSupabaseBrowserClient().from("question_load_batches").select(BATCH_COLUMNS).eq("id", id).maybeSingle();
+  return error ? null : ((data ?? null) as LoadBatchState | null);
+}
+
+// Sends the payload in small requests; the first one records the file, the rest continue the same batch. Three safeguards:
+//  1. After ANY failure the database is asked how far it really got, because a time-out can arrive after the work was done. Rows it already took are never sent again.
+//  2. Time-outs and dropped connections are retried (twice); a rule the database refused is not, and stops the load with a message that says where and why.
+//  3. A load that stopped partway is continued with `resume` (batch id and the database's own row count), so an interrupted file is finished, never repeated.
 export async function runQuestionLoad(input: {
-  payload: LoadPayload; fileName: string; fileSha256: string; marketId: string; curriculumId: string; sourceIds: string[]; onProgress?: (done: number, total: number) => void;
+  payload: LoadPayload; fileName: string; fileSha256: string; marketId: string; curriculumId: string; sourceIds: string[];
+  resume?: { batchId: string; fromRow: number }; retryDelayMs?: number; onProgress?: (done: number, total: number) => void;
 }): Promise<LoadResult> {
-  const supabase = getSupabaseBrowserClient(), calls = chunkPayload(input.payload, 500);
-  let batchId: string | undefined, last: any, errors: Array<{ row: number; code: string }> = [], offset = 0;
-  for (const call of calls) {
-    const { data, error } = await supabase.rpc("qb_question_load", { p: {
-      batch_id: batchId, file_name: input.fileName, file_sha256: input.fileSha256, expected_rows: input.payload.expectedRows, scope: "CURRICULUM",
-      market_id: input.marketId, curriculum_id: input.curriculumId, source_document_ids: input.sourceIds, topics: call.topics, rows: call.rows } });
-    if (error) throw new Error(userFacingError(error));
-    last = data; batchId = data.batch_id;
-    errors = errors.concat((data.import?.row_errors ?? []).map((e: { row: number; code: string }) => ({ ...e, row: e.row + offset })));
-    offset += call.rows.length; input.onProgress?.(offset, input.payload.expectedRows);
+  const supabase = getSupabaseBrowserClient(), total = input.payload.rows.length, wait = input.retryDelayMs ?? 1500;
+  let batchId: string | undefined = input.resume?.batchId, offset = continueFrom(input.resume?.fromRow, total), last: any = null;
+  let errors: Array<{ row: number; code: string }> = [];
+  // A fresh load of a file the database already knows is refused up front, in plain words, instead of failing request by request.
+  if (!input.resume) {
+    const earlier = await findLoadBatchByHash(input.fileSha256);
+    if (earlier) throw new Error(earlier.status === "LOADING"
+      ? `This file was loaded before and stopped after ${earlier.rows_total} of ${total} questions. Choose Continue to finish it.`
+      : `This exact file was already loaded (status ${earlier.status}, ${earlier.rows_total} questions). Nothing was sent.`);
   }
-  return { batch_id: last.batch_id, status: last.status, rows_total: last.rows_total, rows_loaded: last.rows_loaded, rows_rejected: last.rows_rejected, row_errors: errors };
+  input.onProgress?.(offset, total);
+  while (offset < total) {
+    const call = sliceCall(input.payload, offset), end = offset + call.rows.length;
+    for (let attempt = 0; ; attempt++) {
+      const { data, error } = await supabase.rpc("qb_question_load", { p: {
+        batch_id: batchId, file_name: input.fileName, file_sha256: input.fileSha256, expected_rows: input.payload.expectedRows, scope: "CURRICULUM",
+        market_id: input.marketId, curriculum_id: input.curriculumId, source_document_ids: input.sourceIds, topics: call.topics, rows: call.rows } });
+      if (!error) {
+        last = data; batchId = data.batch_id;
+        errors = errors.concat((data.import?.row_errors ?? []).map((e: { row: number; code: string }) => ({ ...e, row: e.row + offset })));
+        offset = end; break;
+      }
+      // Failed: find out what the database actually holds before deciding anything.
+      const held = await findLoadBatchByHash(input.fileSha256);
+      if (held) {
+        batchId = held.id;
+        // Only a time-out or dropped connection can mean "the work was done but the answer was lost"; a refusal never does.
+        if (isTransientFailure(error) && held.rows_total >= end) { offset = end; break; }
+        if (held.rows_total < offset) throw new Error(describeLoadFailure("The database holds fewer questions than this load expected, so it was stopped to avoid a gap.", error, { fromRow: offset, toRow: end, total }));
+      }
+      if (attempt < 2 && isTransientFailure(error)) { if (wait > 0) await new Promise((r) => setTimeout(r, wait * (attempt + 1))); continue; }
+      throw new Error(describeLoadFailure(userFacingError(error), error, { fromRow: offset, toRow: end, total }));
+    }
+    input.onProgress?.(offset, total);
+  }
+  const final = batchId ? await readLoadBatch(batchId) : null;
+  const status = final?.status ?? last?.status ?? "LOADING";
+  return { batch_id: batchId ?? last?.batch_id, status, rows_total: final?.rows_total ?? last?.rows_total ?? offset, rows_loaded: final?.rows_loaded ?? last?.rows_loaded ?? 0,
+    rows_rejected: final?.rows_rejected ?? last?.rows_rejected ?? 0, row_errors: errors };
 }
