@@ -27,10 +27,9 @@ export type SubjectPhotoRecord = {
   sourceSlug?: string;        // the slug used in the delivery package when it differs from the canonical one
 };
 
-const BASE = "/brand/subjects/photos/concept-v0.2";
-const files = (slug: string) => ({
-  discoveryImage: { webp: `${BASE}/${slug}-discovery-960x600.webp`, jpg: `${BASE}/${slug}-discovery-960x600.jpg`, width: 960 as const, height: 600 as const },
-  mobileImage: { webp: `${BASE}/${slug}-mobile-640x640.webp`, jpg: `${BASE}/${slug}-mobile-640x640.jpg`, width: 640 as const, height: 640 as const },
+const files = (slug: string, base = "/brand/subjects/photos/concept-v0.2") => ({
+  discoveryImage: { webp: `${base}/${slug}-discovery-960x600.webp`, jpg: `${base}/${slug}-discovery-960x600.jpg`, width: 960 as const, height: 600 as const },
+  mobileImage: { webp: `${base}/${slug}-mobile-640x640.webp`, jpg: `${base}/${slug}-mobile-640x640.jpg`, width: 640 as const, height: 640 as const },
 });
 const label = (slug: string) => SUBJECT_VISUALS.find((s) => s.slug === slug)?.label ?? slug;
 
@@ -48,11 +47,26 @@ const SEEDS: Seed[] = [
   { canonicalSlug: "social-studies", category: "humanities", applicableGrades: ["JHS", "SHS"], focalPoint: "40% 50%", altText: "Students with a teacher take notes and water samples beside a community river." },
 ];
 
-export const SUBJECT_PHOTOS: readonly SubjectPhotoRecord[] = Object.freeze(SEEDS.map((s) => ({
+// Second set (v0.3, AI-generated): the subjects that had no photo. Recorded as concept / rights pending, so they show only where concept photos
+// are switched on (Preview). To release one, the owner clears its rights and its two fields below change to "approved" and "cleared".
+const CONCEPT_SEEDS: Seed[] = [
+  { canonicalSlug: "history", category: "humanities", applicableGrades: ["P", "SHS"], focalPoint: "50% 50%", altText: "A teacher and pupils study a replica map and a hand-drawn timeline of Ghana's history on a classroom table." },
+  { canonicalSlug: "our-world-our-people", category: "humanities", applicableGrades: ["P"], focalPoint: "50% 55%", altText: "Pupils and a teacher look at a model village of clay houses and a tree on a table at sunrise." },
+  { canonicalSlug: "physical-education", category: "sciences", applicableGrades: ["P", "JHS", "SHS"], focalPoint: "50% 50%", altText: "Pupils run a relay race on a school field while a teacher blows a whistle." },
+  { canonicalSlug: "french", category: "languages", applicableGrades: ["P", "JHS", "SHS"], focalPoint: "55% 50%", altText: "Pupils role-play a market conversation with fruit and a basket while their teacher listens." },
+  { canonicalSlug: "ghanaian-language", category: "languages", applicableGrades: ["P", "JHS"], focalPoint: "60% 50%", altText: "An elder teacher plays a drum and tells a story to pupils clapping along under a tree." },
+];
+
+const record = (s: Seed, version: string, base: string, assetStatus: AssetStatus, rightsStatus: RightsStatus): SubjectPhotoRecord => ({
   subjectId: s.canonicalSlug, canonicalSlug: s.canonicalSlug, displayName: label(s.canonicalSlug), category: s.category, applicableGrades: s.applicableGrades,
-  ...files(s.canonicalSlug), focalPoint: s.focalPoint, altText: s.altText, assetVersion: "0.2", assetStatus: "approved" as AssetStatus, rightsStatus: "cleared" as RightsStatus,
+  ...files(s.canonicalSlug, base), focalPoint: s.focalPoint, altText: s.altText, assetVersion: version, assetStatus, rightsStatus,
   ...(s.sourceSlug ? { sourceSlug: s.sourceSlug } : {}),
-})));
+});
+
+export const SUBJECT_PHOTOS: readonly SubjectPhotoRecord[] = Object.freeze([
+  ...SEEDS.map((s) => record(s, "0.2", "/brand/subjects/photos/concept-v0.2", "approved", "cleared")),
+  ...CONCEPT_SEEDS.map((s) => record(s, "0.3", "/brand/subjects/photos/concept-v0.3", "concept", "pending")),
+]);
 
 const BY_SLUG = new Map(SUBJECT_PHOTOS.map((r) => [r.canonicalSlug, r]));
 
