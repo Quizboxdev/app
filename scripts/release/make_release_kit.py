@@ -73,6 +73,8 @@ NOTES = {
     "20261044100000": "Guide seed, 'on conflict do nothing'.",
     "20261045100000": "Do NOT run after 20261046100000: it would put the export list back to 22 datasets.",
     "20261047100000": "New in this release. Not applied anywhere yet.",
+    "20261052100000": "Replaces the discard function from 20261051100000 (which could not work on the real tables) and makes approve, revoke and discard run in small steps. Safe to run again.",
+    "20261053100000": "Makes the learner's subject list and the practice builders fast with tens of thousands of questions. Replaces four functions with the same names and shapes, so it is safe to run again. Apply to Preview first and time the subject list.",
 }
 
 # 1. Parts

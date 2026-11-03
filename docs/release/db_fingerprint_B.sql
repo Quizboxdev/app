@@ -56,7 +56,8 @@ with c(v, k, o) as (values
   ('20261049200000','f','public.qb_admin_partner_seats'),
   ('20261049200000','f','public.qb_partner_rate_check'),
   ('20261049200000','c','public.partners.slug'),
-  ('20261049200000','c','public.partner_identity_configs.authorization_endpoint')), r as (
+  ('20261049200000','c','public.partner_identity_configs.authorization_endpoint'),
+  ('20261053100000','f','public.qb_question_is_listable')), r as (
   select v, k, o, case k
     when 't' then to_regclass(o) is not null
     when 'x' then to_regprocedure(o) is null
