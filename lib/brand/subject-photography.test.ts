@@ -8,9 +8,11 @@ import { SUBJECT_VISUALS } from "./subject-visuals";
 const PUBLIC = path.join(__dirname, "../../public");
 
 describe("Q-Insignia subject photography registry", () => {
-  it("holds the 8 pilot subjects, each keyed by an existing taxonomy slug (no parallel identities)", () => {
-    expect(SUBJECT_PHOTOS.map((r) => r.canonicalSlug).sort()).toEqual(
+  it("holds the 8 pilot subjects and 5 concept subjects, each keyed by an existing taxonomy slug (no parallel identities)", () => {
+    expect(SUBJECT_PHOTOS.filter((r) => r.assetStatus === "approved").map((r) => r.canonicalSlug).sort()).toEqual(
       ["career-technology", "computing", "creative-arts", "english-language", "mathematics", "religious-and-moral-education", "science", "social-studies"]);
+    expect(SUBJECT_PHOTOS.filter((r) => r.assetStatus === "concept").map((r) => r.canonicalSlug).sort()).toEqual(
+      ["french", "ghanaian-language", "history", "our-world-our-people", "physical-education"]);
     for (const r of SUBJECT_PHOTOS) {
       const visual = SUBJECT_VISUALS.find((s) => s.slug === r.canonicalSlug);
       expect(visual, r.canonicalSlug).toBeTruthy();
@@ -20,9 +22,17 @@ describe("Q-Insignia subject photography registry", () => {
   });
 
   it("records the owner's rights clearance: every pilot photo is approved and cleared, so it shows whenever the subject cards are on", () => {
-    for (const r of SUBJECT_PHOTOS) { expect(r.assetStatus).toBe("approved"); expect(r.rightsStatus).toBe("cleared"); expect(r.assetVersion).toBe("0.2"); }
+    for (const r of SUBJECT_PHOTOS.filter((x) => x.assetVersion === "0.2")) { expect(r.assetStatus).toBe("approved"); expect(r.rightsStatus).toBe("cleared"); }
     expect(subjectPhoto("Mathematics", { allowConcept: false })?.canonicalSlug).toBe("mathematics");
     expect(subjectPhoto("Mathematics", { allowConcept: true })?.canonicalSlug).toBe("mathematics");
+  });
+
+  it("keeps the v0.3 photos to review only: hidden everywhere until the owner clears their rights", () => {
+    for (const name of ["History", "Our World Our People", "Physical Education", "French", "Ghanaian Language"]) {
+      expect(subjectPhoto(name, { allowConcept: false }), name).toBeNull();
+      expect(subjectPhoto(name, { allowConcept: true }), name).not.toBeNull();
+    }
+    for (const r of SUBJECT_PHOTOS.filter((x) => x.assetVersion === "0.3")) { expect(r.assetStatus).toBe("concept"); expect(r.rightsStatus).toBe("pending"); }
   });
 
   it("still never shows a photo whose status or rights are not both cleared (concept, pending, refused, rejected)", () => {
@@ -40,7 +50,7 @@ describe("Q-Insignia subject photography registry", () => {
     expect(subjectPhoto("Creative Arts and Design", { allowConcept: true })?.canonicalSlug).toBe("creative-arts");
     expect(photoRecord("creative-arts")?.sourceSlug).toBe("creative-arts-and-design");
     expect(subjectPhoto("English", { allowConcept: true })?.canonicalSlug).toBe("english-language");
-    expect(subjectPhoto("French", { allowConcept: true })).toBeNull();          // real subject, no photo yet
+    expect(subjectPhoto("Geography", { allowConcept: true })).toBeNull();       // real subject, no photo yet
     expect(subjectPhoto("Integrated Science", { allowConcept: true })).toBeNull(); // not an alias today: fallback, not a guess
     expect(subjectPhoto(null, { allowConcept: true })).toBeNull();
   });
