@@ -243,5 +243,12 @@
   "chars": 18997,
   "parts": 3,
   "note": "Makes the learner's subject list and the practice builders fast with tens of thousands of questions. Replaces four functions with the same names and shapes, so it is safe to run again. Apply to Preview first and time the subject list."
- }
+ },
+{
+ "version": "20261054100000",
+ "name": "practice_legacy_grade",
+ "chars": 16117,
+ "parts": 3,
+ "note": "Fixes an empty subject list for a learner stored with the legacy level code B10 (the same year as SHS1). Replaces three functions with the same names and shapes, so it is safe to run again."
+}
 ]
