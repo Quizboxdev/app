@@ -1,12 +1,7 @@
--- Practice across several subjects. A learner preparing for an exam can build one practice set from more than one subject, each with its own number of questions and
--- either chosen topics or any topic of the subject (qb_start_mixed_practice). Until now a set was limited to one subject (QB_PRACTICE_ONE_SUBJECT).
--- Rules: only Primary (B1 to B6) and JHS (B7 to B9) learners may mix subjects (a Senior High learner keeps one subject at a time, as decided for combined tests);
--- 1 to 8 sections, one section per subject, 3 to 30 questions in all; every subject and topic must be one the learner may practise (their own level and market);
--- the free allowance, grade and market limits are exactly those of qb_start_quick_practice. A section that holds fewer questions than asked gives what it has and is
--- reported ("requested" and "given" per subject), so the learner is never silently given a different mix; if nothing at all is available it refuses.
--- The expensive per-question availability check runs only on a few more candidates than each section needs (see 20261053100000). Optionally the paper is grouped by subject.
--- Additive: qb_start_quick_practice is untouched. Rollback: supabase/rollback/mixed_practice.sql.
 begin;
+-- Practice across several subjects (qb_start_mixed_practice): a Primary or JHS learner builds one set from two or more subjects, each with its own number of
+-- questions and optional topics. Senior High keeps one subject. 1 to 8 sections, one per subject, 3 to 30 questions in all; own level, market and free allowance
+-- as qb_start_quick_practice. A thin subject gives what it has and is reported (requested and given). Additive. Rollback: supabase/rollback/mixed_practice.sql.
 
 create or replace function public.qb_start_mixed_practice(p_sections jsonb, p_grade text default null, p_order text default 'MIXED') returns jsonb
 language plpgsql security definer set search_path = '' as $fn$
@@ -41,7 +36,7 @@ begin
   else
     raise exception 'QB_STUDENT_REQUIRED' using errcode = '42501';
   end if;
-  -- Mixing subjects is for Primary and JHS only.
+  -- Primary and JHS only.
   if v_n > 1 and quizbox_topic.class_level(g, null) not in ('PRIMARY', 'JHS') then raise exception 'QB_COMBINED_LEVEL_NOT_ALLOWED'; end if;
 
   -- Every chosen subject must be one of this learner's subjects.
@@ -70,9 +65,7 @@ begin
      and q.status::text = 'active' and lower(coalesce(q.validation_status, '')) in ('approved', 'validated') and public.qb_question_is_listable(q)
      and coalesce(q.source_type, '') not like 'DEV\_%';
 
-  -- Within a subject the questions are taken round-robin across its topics (one from each before a second from any). The candidates (a few more than each subject's
-  -- quota) are fixed in a statement of their own, and only then is the expensive full availability check run on them: written as one statement the database applies
-  -- the check to the whole pool first (it cannot apply the quota cut-off, which depends on a join, before it).
+  -- Round-robin across a subject's topics. Candidates (a few more than the quota) are fixed in their own statement; only then is the expensive full check run on them.
   create temporary table qb_mix_cand on commit drop as
   with ranked as (select p.question_id, p.subject_id, row_number() over (partition by p.subject_id order by p.rn, random()) as sr from qb_mix_pool p)
   select k.question_id, k.subject_id, k.sr, sc.quota, sc.pos from ranked k join qb_mix_sections sc on sc.subject_id = k.subject_id where k.sr <= sc.quota * 3 + 10;
