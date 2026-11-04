@@ -10,13 +10,15 @@ const LABELS = read("../../supabase/migrations/20261018110000_readable_topic_lab
 const STUDY = read("../../supabase/migrations/20261019140000_study_mode.sql");
 const FAST = read("../../supabase/migrations/20261053100000_fast_subject_list.sql");
 const ROLLBACK = read("../../supabase/rollback/fast_subject_list.sql");
+const LEGACY = read("../../supabase/migrations/20261054100000_practice_legacy_grade.sql");
+const LEGACY_ROLLBACK = read("../../supabase/rollback/practice_legacy_grade.sql");
 const id = (n: number) => `00000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
 let db: PGlite;
 const as = (n: number) => db.exec(`select set_config('request.jwt.claim.sub','${id(n)}',false)`);
 const one = async (sql: string, params: unknown[] = []) => (await db.query<Record<string, any>>(sql, params)).rows[0] ?? {};
 const calls = async () => Number((await one("select count(*) n from public.avail_calls")).n);
 const reset = () => db.exec("truncate public.avail_calls");
-const TOPIC = id(302), BIG = id(305);
+const TOPIC = id(302), BIG = id(305), SHS = id(331);
 const pick = (count: number, topic = BIG) => one("select public.qb_start_quick_practice(array[$1]::uuid[], $2, null) v", [topic, count]);
 
 // The full availability check is replaced by a stand-in that counts its calls and refuses the questions listed in public.bad_questions.
@@ -56,17 +58,21 @@ describe("subject list and practice builders no longer run the full check on eve
         answer_type_snapshot text, answer_spec_snapshot jsonb);
       create table public.attempts(id uuid primary key default gen_random_uuid(), student_user_id uuid);
       create table public.responses(id uuid primary key default gen_random_uuid(), attempt_id uuid, question_id uuid, is_correct boolean);
-      insert into public.profiles values('${id(1)}','${id(100)}','STUDENT'),('${id(2)}','${id(100)}','STUDENT');
-      insert into public.student_profiles(user_id,grade,grade_code) values('${id(1)}','B4','B4'),('${id(2)}','B7','B7');
+      insert into public.profiles values('${id(1)}','${id(100)}','STUDENT'),('${id(2)}','${id(100)}','STUDENT'),('${id(5)}','${id(100)}','STUDENT'),('${id(6)}','${id(100)}','STUDENT');
+      insert into public.student_profiles(user_id,grade,grade_code) values('${id(1)}','B4','B4'),('${id(2)}','B7','B7'),('${id(5)}','B10','B10'),('${id(6)}','SHS1','SHS1');
       insert into public.market_curricula values('${id(200)}','${id(100)}',true);
       insert into public.curriculum_nodes(id,curriculum_id,parent_id,node_type,title,subject_code,grade_code,canonical_grade_code,sort_order) values
         ('${id(300)}','${id(200)}',null,'subject','Computing','Computing','B4','B4',0),
         ('${TOPIC}','${id(200)}','${id(300)}','sub_strand','Slides',null,null,null,0),
         ('${id(304)}','${id(200)}','${TOPIC}','learning_indicator','Add a slide',null,null,null,0),
         ('${BIG}','${id(200)}','${id(300)}','sub_strand','Pool',null,null,null,1),
-        ('${id(306)}','${id(200)}','${BIG}','learning_indicator','Many questions',null,null,null,0);
+        ('${id(306)}','${id(200)}','${BIG}','learning_indicator','Many questions',null,null,null,0),
+        ('${id(330)}','${id(200)}',null,'subject','Mathematics','Mathematics','B10','SHS1',0),
+        ('${SHS}','${id(200)}','${id(330)}','sub_strand','Algebra',null,null,null,0),
+        ('${id(332)}','${id(200)}','${SHS}','learning_indicator','Solve equations',null,null,null,0);
       insert into public.questions(curriculum_node_id, question_text, option_a, option_b, correct_answer, difficulty_label)
         select '${id(304)}', d || ' ' || g, 'A', 'B', 'A', d from unnest(array['hard','easy','medium']) d, generate_series(1,4) g;
+      insert into public.questions(curriculum_node_id, question_text, option_a, option_b, correct_answer, difficulty_label) select '${id(332)}', 'shs ' || g, 'A', 'B', 'A', 'easy' from generate_series(1,20) g;
       insert into public.questions(curriculum_node_id, question_text, option_a, option_b, correct_answer, difficulty_label) select '${id(306)}', 'pool ' || g, 'A', 'B', 'A', 'easy' from generate_series(1,400) g;
       -- not servable, so no version of the menu may count them: archived, in review, and one owned by a tenant the learner does not belong to
       insert into public.questions(curriculum_node_id, question_text, status) values ('${id(306)}', 'archived', 'archived');
@@ -135,6 +141,29 @@ describe("subject list and practice builders no longer run the full check on eve
   it("keeps the learner to their own grade", async () => {
     await as(2);
     await expect(pick(5)).rejects.toThrow("QB_PRACTICE_NO_QUESTIONS");
+  });
+
+  it("a learner stored with the legacy code B10 saw nothing; after the alias they see what an SHS1 learner sees and can build a practice", async () => {
+    await as(5);
+    expect(((await one("select public.qb_practice_menu() v")).v).subjects).toEqual([]);
+    await db.exec(LEGACY);
+    await as(5); const legacy = (await one("select public.qb_practice_menu() v")).v;
+    await as(6); const shs = (await one("select public.qb_practice_menu() v")).v;
+    expect(legacy.subjects.map((x: any) => [x.name, x.available])).toEqual([["Mathematics", 20]]);
+    expect(legacy).toEqual({ ...shs, grade: "SHS1" });
+    await as(5);
+    expect((await pick(5, SHS)).v).toMatchObject({ subject: "Mathematics", question_count: 5, short: false });
+    expect((await one("select public.qb_start_study_session($1, 5) v", [SHS])).v).toMatchObject({ subject: "Mathematics", question_count: 5 });
+    await as(1);
+    expect((await one("select public.qb_practice_menu() v")).v).toEqual(menuBefore);   // other learners are unaffected
+  });
+
+  it("rolls the alias back to the previous functions", async () => {
+    await db.exec(LEGACY_ROLLBACK);
+    await as(5);
+    expect(((await one("select public.qb_practice_menu() v")).v).subjects).toEqual([]);
+    await as(6);
+    expect(((await one("select public.qb_practice_menu() v")).v).subjects).toHaveLength(1);
   });
 
   it("rolls back to the full check on every question, and removes the helper", async () => {
