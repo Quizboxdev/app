@@ -61,7 +61,9 @@ with c(v, k, o) as (values
   ('20261055100000','t','public.assignment_sections'),
   ('20261055100000','f','public.qb_blueprint_plan'),
   ('20261055100000','f','public.qb_publish_blueprint_assignment'),
-  ('20261055100000','f','public.qb_attempt_breakdown')), r as (
+  ('20261055100000','f','public.qb_attempt_breakdown'),
+  ('20261056100000','f','public.qb_topics_overview'),
+  ('20261056100000','f','public.qb_topics_set_open')), r as (
   select v, k, o, case k
     when 't' then to_regclass(o) is not null
     when 'x' then to_regprocedure(o) is null

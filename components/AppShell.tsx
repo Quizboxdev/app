@@ -136,6 +136,7 @@ export default function AppShell({
         ...when(sme?.super_admin, [["/admin/curriculum-sources", "Curriculum Sources"], ["/admin/curriculum-structure", "Curriculum Structure"]]),
         ...when(sme?.super_admin || sme?.content_admin, [["/admin/question-loading", "Load Questions"]]),
         ...when(sme?.super_admin, [["/admin/question-batches", "Approve Batches"]]),
+        ...when(sme?.super_admin || sme?.content_admin, [["/admin/topics", "Topics for Teachers"]]),
         ["/admin/quality", "Content Quality"],
         ["/admin/marketplace", "Marketplace Governance"],
       ]);
