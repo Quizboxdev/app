@@ -29,11 +29,15 @@ export async function buildMixedPractice(sections: MixedSection[], order: "MIXED
   return data as MixedPracticeResult;
 }
 
-// The counts a learner can pick: 5, 10, 15, 20 and 30, never more than the ticked topics can supply (a smaller option is offered instead).
+// A practice set holds 3 to 100 questions (the database enforces the same limits), never more than the ticked topics can supply.
+export const MIN_PRACTICE_QUESTIONS = 3, MAX_PRACTICE_QUESTIONS = 100;
+export const maxPracticeCount = (available: number) => Math.min(MAX_PRACTICE_QUESTIONS, Math.max(0, Math.floor(available)));
+// Quick choices: 5, 10, 15, 20, 30, 50 and 100 that the topics can supply (a smaller option is offered instead). Any number from 3 to the maximum can be typed.
 export function countChoices(available: number): number[] {
-  if (available < 3) return [];
-  const steps = [5, 10, 15, 20, 30].filter((n) => n <= available);
-  return steps.length ? steps : [Math.max(3, available)];
+  if (available < MIN_PRACTICE_QUESTIONS) return [];
+  const max = maxPracticeCount(available);
+  const steps = [5, 10, 15, 20, 30, 50, 100].filter((n) => n <= max);
+  return steps.length ? steps : [Math.max(MIN_PRACTICE_QUESTIONS, max)];
 }
 
 export type StaffPreviewQuestion = { n: number; question: string; a: string | null; b: string | null; c: string | null; d: string | null; correct: string;

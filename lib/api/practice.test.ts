@@ -3,7 +3,9 @@ import { countChoices } from "./practice";
 
 describe("quick practice count choices", () => {
   it("offers 5, 10, 15, 20 and 30 up to what the ticked topics can supply", () => {
-    expect(countChoices(100)).toEqual([5, 10, 15, 20, 30]);
+    expect(countChoices(100)).toEqual([5, 10, 15, 20, 30, 50, 100]);
+    expect(countChoices(60)).toEqual([5, 10, 15, 20, 30, 50]);
+    expect(countChoices(5000)).toEqual([5, 10, 15, 20, 30, 50, 100]);   // never more than 100 in one set
     expect(countChoices(18)).toEqual([5, 10, 15]);
     expect(countChoices(7)).toEqual([5]);
   });

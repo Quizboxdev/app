@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Play, Shuffle, ListChecks, GraduationCap } from "lucide-react";
-import { buildQuickPractice, buildStudySession, countChoices, getPracticeMenu, getTopicProgress, type PracticeMenu, type TopicProgress } from "@/lib/api/practice";
+import { buildQuickPractice, buildStudySession, countChoices, getPracticeMenu, getTopicProgress, maxPracticeCount, MIN_PRACTICE_QUESTIONS, type PracticeMenu, type TopicProgress } from "@/lib/api/practice";
 import { startAttempt } from "@/lib/api/assessment";
 import { gradeSort } from "@/lib/sme/catalogue";
 import { getMyAccess, isAllowanceExhausted, SUBSCRIBE_PATH, type MyAccess } from "@/lib/api/access";
@@ -33,7 +33,9 @@ export default function QuickPractice() {
   const subject = menu?.subjects.find((s) => s.id === subjectId);
   const effective = useMemo(() => subject ? (mode === "random" ? subject.topics.map((t) => t.id) : mode === "study" ? (studyTopic ? [studyTopic] : []) : ticked) : [], [subject, mode, ticked, studyTopic]);
   const pool = useMemo(() => subject ? subject.topics.filter((t) => effective.includes(t.id)).reduce((n, t) => n + t.available, 0) : 0, [subject, effective]);
-  const choices = countChoices(pool);
+  const choices = countChoices(pool), maxCount = maxPracticeCount(pool);
+  const [custom, setCustom] = useState("");   // a number typed by the learner or teacher (any whole number from 3 to the maximum)
+  const customN = Number(custom), customInvalid = custom !== "" && !(Number.isInteger(customN) && customN >= MIN_PRACTICE_QUESTIONS && customN <= maxCount);
   // The choices made so far are kept as a draft, so leaving the page by mistake does not lose them.
   type Held = { grade: string; subjectId: string; mode: "random" | "topics" | "study"; ticked: string[]; studyTopic: string; count: number };
   const draft = useDraft<Held>({ kind: "practice", title: subject?.name ?? "Practice set", path: "/practise", value: { grade, subjectId, mode, ticked, studyTopic, count }, ready: menu !== null,
@@ -44,7 +46,7 @@ export default function QuickPractice() {
     if (want && menu.subjects.some((s) => s.id === want)) pick(want);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- run once when the menu arrives
   }, [menu, flags.q_insignia_subject_cards_v02]);
-  useEffect(() => { if (choices.length && !choices.includes(count)) setCount(choices.includes(10) ? 10 : choices[choices.length - 1]); }, [choices, count]);
+  useEffect(() => { if (maxCount >= MIN_PRACTICE_QUESTIONS && (count < MIN_PRACTICE_QUESTIONS || count > maxCount)) setCount(maxCount >= 10 ? 10 : maxCount); }, [maxCount, count]);
 
   const pick = (id: string) => { setSubjectId(id); setTicked([]); setStudyTopic(""); setMode("random"); setNote(""); setError(""); const s = menu?.subjects.find((x) => x.id === id); if (s) void getTopicProgress(s.topics.map((t) => t.id)).then(setProgress); };
   async function start() {
@@ -121,11 +123,17 @@ export default function QuickPractice() {
       <h3 style={{ marginTop: 14 }}>3. How many questions?</h3>
       {choices.length === 0 ? <p className="qb-muted">{mode === "study" ? "Pick a topic to study." : "Tick at least one topic that has questions."}</p> :
         <div className="qb-chip-row" role="group" aria-label="Number of questions">
-          {choices.map((n) => <button type="button" key={n} className="qb-chip" aria-pressed={count === n} onClick={() => setCount(n)}>{n}</button>)}
+          {choices.map((n) => <button type="button" key={n} className="qb-chip" aria-pressed={count === n && custom === ""} onClick={() => { setCount(n); setCustom(""); }}>{n}</button>)}
         </div>}
+      {choices.length > 0 && <div className="qb-field" style={{ marginTop: 8, maxWidth: 260 }}>
+        <label htmlFor="qp-custom">Or type a number ({MIN_PRACTICE_QUESTIONS} to {maxCount})</label>
+        <input id="qp-custom" type="number" inputMode="numeric" min={MIN_PRACTICE_QUESTIONS} max={maxCount} value={custom} placeholder={String(count)}
+          onChange={(e) => { setCustom(e.target.value); const n = Number(e.target.value); if (Number.isInteger(n) && n >= MIN_PRACTICE_QUESTIONS && n <= maxCount) setCount(n); }}/>
+        {customInvalid && <span className="qb-error qb-small" role="alert">Enter a whole number from {MIN_PRACTICE_QUESTIONS} to {maxCount} (that is how many questions these topics have, up to 100).</span>}
+      </div>}
 
       <div style={{ marginTop: 16 }}>
-        <button className="qb-btn" disabled={busy || !choices.length} onClick={() => void start()}><Play size={14} aria-hidden="true" /> {busy ? "Getting your questions…" : mode === "study" ? `Start studying ${choices.length ? count : ""} questions` : `Start ${choices.length ? count : ""} questions`}</button>
+        <button className="qb-btn" disabled={busy || !choices.length || customInvalid} onClick={() => void start()}><Play size={14} aria-hidden="true" /> {busy ? "Getting your questions…" : mode === "study" ? `Start studying ${choices.length ? count : ""} questions` : `Start ${choices.length ? count : ""} questions`}</button>
       </div>
     </>}
   </section></>;

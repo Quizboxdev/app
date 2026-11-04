@@ -7,6 +7,8 @@ const FAST = read("../../supabase/migrations/20261053100000_fast_subject_list.sq
 const BLUEPRINT = read("../../supabase/migrations/20261055100000_assessment_blueprint.sql");
 const MIGRATION = read("../../supabase/migrations/20261057100000_mixed_practice.sql");
 const ROLLBACK = read("../../supabase/rollback/mixed_practice.sql");
+const LIMIT = read("../../supabase/migrations/20261058100000_practice_question_limit.sql");
+const LIMIT_ROLLBACK = read("../../supabase/rollback/practice_question_limit.sql");
 const id = (n: number) => `00000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
 let db: PGlite;
 const as = (n: number, exhausted = false) => db.exec(`select set_config('request.jwt.claim.sub','${id(n)}',false), set_config('test.exhausted','${exhausted ? "on" : "off"}',false)`);
@@ -155,6 +157,23 @@ describe("what is refused", () => {
     await expect(mix([{ subject: "not-an-id", quota: 5 }])).rejects.toThrow("QB_BLUEPRINT_INVALID");
     await expect(mix([sec(300, 0)])).rejects.toThrow("QB_BLUEPRINT_INVALID");
     await expect(mix([sec(300, 5)], "SIDEWAYS")).rejects.toThrow("QB_BLUEPRINT_INVALID");
+  });
+});
+
+describe("a larger practice set", () => {
+  it("allows up to 100 questions in all once the limit is raised, and goes back to 30 on rollback", async () => {
+    await as(L_PRIMARY);
+    await expect(mix([sec(300, 20), sec(320, 20)])).rejects.toThrow("QB_PRACTICE_COUNT_INVALID");
+    await db.exec(LIMIT);
+    await as(L_PRIMARY);
+    const r = await mix([sec(300, 40), sec(320, 30, [0])]);                       // 70 in all
+    expect(r).toMatchObject({ question_count: 70, requested: 70, short: false });
+    expect(r.sections).toEqual([{ subject: "Computing", requested: 40, given: 40 }, { subject: "Science", requested: 30, given: 30 }]);
+    await expect(mix([sec(300, 60), sec(320, 41)])).rejects.toThrow("QB_PRACTICE_COUNT_INVALID");   // 101
+    expect((await mix([sec(300, 60)])).question_count).toBe(60);                  // one subject, 60 (the subject holds 60)
+    await db.exec(LIMIT_ROLLBACK);
+    await as(L_PRIMARY);
+    await expect(mix([sec(300, 20), sec(320, 20)])).rejects.toThrow("QB_PRACTICE_COUNT_INVALID");
   });
 });
 
