@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 import { getSupabaseAdminClient } from "@/lib/supabase/server-admin";
 import { resolveSellablePlan } from "@/lib/payments/plans";
 import { createPaystackProvider } from "@/lib/payments/paystack";
-import { SITE_URL } from "@/lib/site";
+import { returnOrigin } from "@/lib/site";
 
 // Start a subscription payment. The caller's own session token (Authorization: Bearer) is used for the intent, so the database applies its rules:
 // payments must be switched on, the provider enabled, a unit price set, and a payer may fund another learner only with permission.
@@ -61,7 +61,7 @@ export async function POST(request: Request) {
   if (Number(intent.amount_minor) !== price) return refuse(500, "PRICE_MISMATCH", "We could not start the payment. Please try again.", `db=${intent.amount_minor} route=${price}`);      // the database and this route must agree on the price
   try {
     if (!topup) await getSupabaseAdminClient().rpc("qb_set_payment_plan", { p_reference: intent.reference, p_plan: plan.id, p_days: plan.days });
-    const origin = new URL(SITE_URL).origin;
+    const origin = returnOrigin(request.url);
     // After paying for Coins, the buyer comes back to the quiz they were setting up (only a quiz page of their own on this site, never an outside address).
     const back = topup && typeof body.returnTo === "string" && /^\/creator\/[0-9a-f-]{36}$/i.test(body.returnTo) ? `${body.returnTo}?topup=${encodeURIComponent(intent.reference)}` : `/subscribe?reference=${encodeURIComponent(intent.reference)}`;
     const started = await createPaystackProvider(key).initialize({ email: who.user.email, amountMinor: price, currency: "GHS", reference: intent.reference,

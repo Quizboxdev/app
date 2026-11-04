@@ -2,7 +2,7 @@ import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 import { getSupabaseAdminClient } from "@/lib/supabase/server-admin";
 import { createPaystackProvider } from "@/lib/payments/paystack";
-import { SITE_URL } from "@/lib/site";
+import { returnOrigin } from "@/lib/site";
 
 // Buy one Marketplace question set. The cart is priced HERE from the database (the browser sends only the set's id), recorded on the payment, and sent to Paystack as the
 // payment's metadata, so the merchant account shows exactly what was bought, from which school and by which teacher. When Paystack confirms the payment, the webhook records the sale
@@ -59,7 +59,7 @@ export async function POST(request: Request) {
   try {
     const marked = await getSupabaseAdminClient().rpc("qb_mk_set_payment_item", { p_reference: intent.reference, p_item: cart.item_id, p_price_minor: price });
     if (marked.error) return refuse(409, "CART_NOT_RECORDED", "We could not start the payment. Please try again.", marked.error.message.slice(0, 120));
-    const origin = new URL(SITE_URL).origin;
+    const origin = returnOrigin(request.url);
     // What the merchant account shows for this payment: the set, its source (subject, school, class) and the teacher.
     const metadata = { purpose: "marketplace", item_id: cart.item_id, item_title: cart.title, subject: cart.subject, school: cart.school, grade: cart.grade, seller: cart.seller, seller_id: cart.seller_id, price_minor: price,
       custom_fields: [{ display_name: "Question set", variable_name: "item", value: cart.title }, { display_name: "Source", variable_name: "source", value: `${cart.subject} · ${cart.school}` }, { display_name: "Class", variable_name: "grade", value: cart.grade }, { display_name: "Teacher", variable_name: "seller", value: cart.seller }] };
