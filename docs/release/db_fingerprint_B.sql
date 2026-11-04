@@ -57,7 +57,11 @@ with c(v, k, o) as (values
   ('20261049200000','f','public.qb_partner_rate_check'),
   ('20261049200000','c','public.partners.slug'),
   ('20261049200000','c','public.partner_identity_configs.authorization_endpoint'),
-  ('20261053100000','f','public.qb_question_is_listable')), r as (
+  ('20261053100000','f','public.qb_question_is_listable'),
+  ('20261055100000','t','public.assignment_sections'),
+  ('20261055100000','f','public.qb_blueprint_plan'),
+  ('20261055100000','f','public.qb_publish_blueprint_assignment'),
+  ('20261055100000','f','public.qb_attempt_breakdown')), r as (
   select v, k, o, case k
     when 't' then to_regclass(o) is not null
     when 'x' then to_regprocedure(o) is null
