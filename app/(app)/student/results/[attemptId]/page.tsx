@@ -1,6 +1,7 @@
 "use client";
 
 import ReportQuestion from "@/components/ReportQuestion";
+import ResultBreakdown from "@/components/ResultBreakdown";
 import MasteryBadge from "@/components/MasteryBadge";
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -64,6 +65,8 @@ export default function AttemptResultPage() {
           <div><dt>XP earned</dt><dd>+{stat(summary.xpEarned)}</dd></div>
         </dl>
       </section>
+
+      <ResultBreakdown attemptId={params.attemptId} />
 
       <div className="qb-grid cols-2" style={{ marginTop: 16 }}>
         <section className="qb-card" aria-labelledby="rs-strong">

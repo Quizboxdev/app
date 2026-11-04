@@ -6,4 +6,10 @@ export const TOPIC_ASSIGNMENT_MESSAGES: Record<string, string> = {
   QB_TOPIC_UNAVAILABLE: "One of the chosen topics is not open for assignments in this class.",
   QB_TOPIC_SHORT: "A topic does not have enough approved questions for its share. Reduce the total, remove that topic, or choose mixed difficulty",
   CLASS_NOT_FOUND: "That class was not found.",
+  QB_COMBINED_LEVEL_NOT_ALLOWED: "A test with more than one subject is for Primary and JHS classes. For a Senior High class, choose one subject.",
+  QB_BLUEPRINT_SECTIONS_INVALID: "Add between 1 and 8 subjects.",
+  QB_BLUEPRINT_DUPLICATE_SUBJECT: "Each subject can appear only once. Put all of its topics in that subject's section.",
+  QB_BLUEPRINT_INVALID: "Each subject needs a number of questions, at least 1.",
+  QB_BLUEPRINT_QUOTA_TOO_SMALL: "A subject needs at least one question for every topic ticked. Raise its questions or untick topics.",
+  QB_BLUEPRINT_ONE_GRADE: "One test uses topics from one grade. Choose topics of the same grade for every subject.",
 };
