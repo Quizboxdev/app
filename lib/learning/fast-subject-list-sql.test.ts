@@ -12,6 +12,8 @@ const FAST = read("../../supabase/migrations/20261053100000_fast_subject_list.sq
 const ROLLBACK = read("../../supabase/rollback/fast_subject_list.sql");
 const LEGACY = read("../../supabase/migrations/20261054100000_practice_legacy_grade.sql");
 const LEGACY_ROLLBACK = read("../../supabase/rollback/practice_legacy_grade.sql");
+const LIMIT = read("../../supabase/migrations/20261058100000_practice_question_limit.sql");
+const LIMIT_ROLLBACK = read("../../supabase/rollback/practice_question_limit.sql");
 const id = (n: number) => `00000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
 let db: PGlite;
 const as = (n: number) => db.exec(`select set_config('request.jwt.claim.sub','${id(n)}',false)`);
@@ -164,6 +166,23 @@ describe("subject list and practice builders no longer run the full check on eve
     expect(((await one("select public.qb_practice_menu() v")).v).subjects).toEqual([]);
     await as(6);
     expect(((await one("select public.qb_practice_menu() v")).v).subjects).toHaveLength(1);
+  });
+
+  it("allows a practice set of up to 100 questions once the limit is raised, and goes back to 30 on rollback", async () => {
+    await db.exec("truncate public.bad_questions");
+    await as(1);
+    await expect(pick(40)).rejects.toThrow("QB_PRACTICE_COUNT_INVALID");
+    await db.exec(LIMIT);
+    await as(1); await reset();
+    expect((await pick(40)).v).toMatchObject({ question_count: 40, requested: 40, short: false });
+    expect((await pick(100)).v).toMatchObject({ question_count: 100, short: false });          // the topic holds 400
+    expect(await calls()).toBeLessThanOrEqual(40 * 3 + 10 + 100 * 3 + 10);                      // still only candidates are checked
+    await expect(pick(101)).rejects.toThrow("QB_PRACTICE_COUNT_INVALID");
+    await expect(pick(2)).rejects.toThrow("QB_PRACTICE_COUNT_INVALID");
+    expect((await one("select public.qb_start_study_session($1, 50) v", [TOPIC])).v).toMatchObject({ question_count: 12, requested: 50, short: true });   // the topic holds 12
+    await db.exec(LIMIT_ROLLBACK);
+    await as(1);
+    await expect(pick(40)).rejects.toThrow("QB_PRACTICE_COUNT_INVALID");
   });
 
   it("rolls back to the full check on every question, and removes the helper", async () => {

@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Layers, Play } from "lucide-react";
-import { buildMixedPractice, getPracticeMenu, type PracticeMenu } from "@/lib/api/practice";
+import { buildMixedPractice, getPracticeMenu, MAX_PRACTICE_QUESTIONS, MIN_PRACTICE_QUESTIONS, type PracticeMenu } from "@/lib/api/practice";
 import { startAttempt } from "@/lib/api/assessment";
 import { getMyAccess, isAllowanceExhausted, SUBSCRIBE_PATH, type MyAccess } from "@/lib/api/access";
 import { canCombineSubjects, classLevel, splitEvenly } from "@/lib/learning/blueprint";
@@ -11,7 +11,7 @@ import { niceTitle } from "@/lib/curriculum/display";
 import SubjectIcon from "@/components/SubjectIcon";
 
 type Pick = { quota: number; topics: string[] | null };   // topics null = any topic of the subject
-const MIN_TOTAL = 3, MAX_TOTAL = 30;
+const MIN_TOTAL = MIN_PRACTICE_QUESTIONS, MAX_TOTAL = MAX_PRACTICE_QUESTIONS;
 
 // Prepare across subjects (Primary and JHS learners): tick two or more subjects, say how many questions from each and, if you like, which topics.
 // One practice set is built from all of them and the result page shows how you did in each subject and topic.

@@ -271,5 +271,12 @@
  "chars": 8943,
  "parts": 2,
  "note": "Practice across several subjects for Primary and JHS learners (one new function). Safe to run again."
+},
+{
+ "version": "20261058100000",
+ "name": "practice_question_limit",
+ "chars": 20668,
+ "parts": 4,
+ "note": "Raises the practice set limit from 30 to 100 questions (replaces three functions with the same names and shapes). Safe to run again."
 }
 ]

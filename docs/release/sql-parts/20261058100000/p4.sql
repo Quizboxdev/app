@@ -1,0 +1,1 @@
+grant execute on function public.qb_start_quick_practice(uuid[], integer, text), public.qb_start_study_session(uuid, integer, text), public.qb_start_mixed_practice(jsonb, text, text) to authenticated;
