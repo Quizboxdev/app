@@ -11,6 +11,7 @@ import PrizesPanel from "@/components/challenges/PrizesPanel";
 import BrandPanel from "@/components/challenges/BrandPanel";
 import AnalyticsPanel from "@/components/challenges/AnalyticsPanel";
 import AudiencePanel from "@/components/challenges/AudiencePanel";
+import BankPicker from "@/components/challenges/BankPicker";
 import ShareBar from "@/components/challenges/ShareBar";
 import SeatsPanel from "@/components/challenges/SeatsPanel";
 import { FORMATS, formatOf } from "@/lib/challenges/types";
@@ -84,13 +85,18 @@ export default function CreatorEditPage({ params }: { params: Promise<{ id: stri
                 <h2>Add questions</h2>
                 {stageCount > 1 && <label className="qb-field">Add to round<select value={stage} onChange={(e) => setStage(Number(e.target.value))}>{Array.from({ length: stageCount }, (_, i) => i + 1).map((g) => <option key={g} value={g}>Round {g}{stages.find((s) => s.stage_no === g) ? `: ${stages.find((s) => s.stage_no === g)!.title}` : ""}</option>)}</select></label>}
                 <h3>From the QuizBox bank</h3>
-                <p className="qb-muted">Random approved questions are copied in, so later changes to the bank never alter your challenge. Use the subject code, for example MATH or ENG.</p>
-                <div className="qb-grid cols-3">
-                  <label className="qb-field">Subject code<input value={subject} onChange={(e) => setSubject(e.target.value.trim().toUpperCase())} placeholder="MATH" /></label>
-                  <label className="qb-field">Grade<select value={grade} onChange={(e) => setGrade(e.target.value)}>{GRADES.map((g) => <option key={g} value={g}>{g || "Any"}</option>)}</select></label>
-                  <label className="qb-field">How many<input type="number" min={1} max={100} value={count} onChange={(e) => setCount(Number(e.target.value))} /></label>
-                </div>
-                <button className="qb-btn" disabled={busy || !subject} onClick={() => run(async () => { const r = await pullBank(id, subject, grade || null, count, stage); return r.added ? `${r.added} questions added (${r.total} in total).` : "No more matching questions were found."; })}>Add from the bank</button>
+                <p className="qb-muted">Approved questions are copied in at random, so later changes to the bank never alter your {fmt.noun}. Choose the class level, then the subjects, how many questions from each and, if you like, the topics. Add again to take more, even from another level.</p>
+                <BankPicker campaignId={id} stage={stage} busy={busy} run={run} />
+                <details>
+                  <summary>Add by subject code instead</summary>
+                  <p className="qb-muted">For one subject at a time. Use the subject code, for example MATH or ENG.</p>
+                  <div className="qb-grid cols-3">
+                    <label className="qb-field">Subject code<input value={subject} onChange={(e) => setSubject(e.target.value.trim().toUpperCase())} placeholder="MATH" /></label>
+                    <label className="qb-field">Grade<select value={grade} onChange={(e) => setGrade(e.target.value)}>{GRADES.map((g) => <option key={g} value={g}>{g || "Any"}</option>)}</select></label>
+                    <label className="qb-field">How many<input type="number" min={1} max={100} value={count} onChange={(e) => setCount(Number(e.target.value))} /></label>
+                  </div>
+                  <button className="qb-btn" disabled={busy || !subject} onClick={() => run(async () => { const r = await pullBank(id, subject, grade || null, count, stage); return r.added ? `${r.added} questions added (${r.total} in total).` : "No more matching questions were found."; })}>Add from the bank</button>
+                </details>
               </div>
               {limited ? <div className="qb-card" role="note"><strong>Curriculum questions only.</strong> As a learner you build your quiz from approved QuizBox questions, for your friends and classmates. It is shared by link or code and is not listed publicly.</div> : <div className="qb-card qb-form">
                 <h3>Paste your own questions</h3>

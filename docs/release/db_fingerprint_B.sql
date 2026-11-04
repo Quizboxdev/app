@@ -64,7 +64,10 @@ with c(v, k, o) as (values
   ('20261055100000','f','public.qb_attempt_breakdown'),
   ('20261056100000','f','public.qb_topics_overview'),
   ('20261056100000','f','public.qb_topics_set_open'),
-  ('20261057100000','f','public.qb_start_mixed_practice')), r as (
+  ('20261057100000','f','public.qb_start_mixed_practice'),
+  ('20261059100000','f','public.qb_bank_subjects'),
+  ('20261059100000','f','public.qb_challenge_bank_menu'),
+  ('20261059100000','f','public.challenge_pull_bank_sections')), r as (
   select v, k, o, case k
     when 't' then to_regclass(o) is not null
     when 'x' then to_regprocedure(o) is null
