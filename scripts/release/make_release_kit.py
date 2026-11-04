@@ -80,6 +80,7 @@ NOTES = {
     "20261056100000": "Admin functions to open topics to teachers in bulk (per subject and grade) and an overview of what is ready. Adds two functions; safe to run again.",
     "20261057100000": "Practice across several subjects for Primary and JHS learners (one new function). Safe to run again.",
     "20261058100000": "Raises the practice set limit from 30 to 100 questions (replaces three functions with the same names and shapes). Safe to run again.",
+    "20261059100000": "Challenge and competition questions from the bank by class level, subject and topic (three new functions) and the older subject-code pull now takes approved questions only. Safe to run again.",
 }
 
 # 1. Parts

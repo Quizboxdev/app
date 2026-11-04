@@ -1,5 +1,6 @@
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { userFacingError } from "@/lib/errors";
+import type { PracticeMenu } from "@/lib/api/practice";
 import type { Analytics, AttemptResult, Award, Brand, FeaturedQuiz, Format, LibraryStats, Material, SectionRead, ContentAsset, EditableQuestion, LeaderRow, MyCampaign, Passage, Prize, StageInfo, StageProgress, StartedAttempt } from "@/lib/challenges/types";
 
 // Participants and creators call the database functions directly; every rule (who may create, one scored submission, locked after going live) is enforced there.
@@ -19,6 +20,11 @@ const CODES: Record<string, string> = {
   READER_CLOSED: "The reading material is closed right now.", NO_READABLE_SECTIONS: "Choose at least one chapter that people can read.", READER_NEEDS_OPENING_TIME: "Set an opening time to close reading when the competition opens.",
   INVALID_READER: "Choose when reading closes.", INVALID_TARGET: "Choose from the levels shown.", INVALID_CONTENT: "That document could not be used. Check the type and try again.",
   INVALID_BRAND: "Check the colour (like #1a7f5a) and the lengths of the texts.",
+  BANK_PICK_INVALID: "Choose 1 to 8 subjects, each with a number of questions, and at most 100 questions in all.",
+  BANK_GRADE_REQUIRED: "Choose the class level first.",
+  BANK_SUBJECT_UNAVAILABLE: "One of the subjects is not available for that class level.",
+  BANK_COMBINED_LEVEL_NOT_ALLOWED: "More than one subject at a time is for Primary and JHS. For Senior High, choose one subject.",
+  BANK_CAMPAIGN_FULL: "A challenge can hold at most 300 questions. Remove some before adding more.",
 };
 async function call<T>(fn: string, args: Record<string, unknown> = {}): Promise<T> {
   const { data, error } = await getSupabaseBrowserClient().rpc(fn, args);
@@ -32,6 +38,14 @@ export const getCampaignForEdit = (id: string) => call<{ campaign: Record<string
 export const updateCampaign = (id: string, patch: Record<string, unknown>) => call<{ ok: true }>("challenge_update", { p_id: id, p_patch: patch });
 export const setQuestions = (id: string, questions: EditableQuestion[]) => call<{ ok: true; count: number }>("challenge_set_questions", { p_id: id, p_questions: questions.map(({ question_text, options, correct_index, explanation, stage_no, source_chunk_id, source_quote, source_question_id }) => ({ question_text, options, correct_index, explanation, stage_no: stage_no ?? 1, source_chunk_id: source_chunk_id ?? null, source_quote: source_quote ?? null, source_question_id: source_question_id ?? null })) });
 export const pullBank = (id: string, subjectCode: string, grade: string | null, count: number, stage = 1) => call<{ added: number; total: number }>("challenge_pull_bank", { p_id: id, p_subject_code: subjectCode, p_grade: grade, p_count: count, p_stage: stage });
+// Questions from the QuizBox bank by class level, subject and topic. Several subjects at once are for Primary and JHS; the database enforces it.
+export const getBankMenu = async (grade?: string): Promise<PracticeMenu> => {
+  const data = await call<PracticeMenu>("qb_challenge_bank_menu", grade ? { p_grade: grade } : {});
+  return { grade: String(data?.grade ?? ""), subjects: Array.isArray(data?.subjects) ? data.subjects : [], grades: Array.isArray(data?.grades) ? data.grades : undefined };
+};
+export type BankSection = { subject: string; quota: number; topic_ids?: string[] };
+export type BankPullResult = { added: number; total: number; requested: number; sections: Array<{ subject: string; requested: number; given: number }> };
+export const pullBankSections = (id: string, sections: BankSection[], grade: string | null, stage = 1) => call<BankPullResult>("challenge_pull_bank_sections", { p_id: id, p_sections: sections, p_grade: grade, p_stage: stage });
 export const publishCampaign = (id: string) => call<{ ok: true; slug: string }>("challenge_publish", { p_id: id });
 export const setCampaignStatus = (id: string, status: "PAUSED" | "COMPLETED" | "ARCHIVED") => call<{ ok: true }>("challenge_set_status", { p_id: id, p_status: status });
 export const startChallenge = (slug: string, code?: string, stage = 1) => call<StartedAttempt>("challenge_start", { p_slug: slug, p_code: code || null, p_stage: stage });

@@ -278,5 +278,12 @@
  "chars": 20668,
  "parts": 4,
  "note": "Raises the practice set limit from 30 to 100 questions (replaces three functions with the same names and shapes). Safe to run again."
+},
+{
+ "version": "20261059100000",
+ "name": "challenge_bank_sections",
+ "chars": 14990,
+ "parts": 3,
+ "note": "Challenge and competition questions from the bank by class level, subject and topic (three new functions) and the older subject-code pull now takes approved questions only. Safe to run again."
 }
 ]
