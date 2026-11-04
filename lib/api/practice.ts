@@ -19,6 +19,16 @@ export async function buildQuickPractice(topicIds: string[], count: number, grad
   return data as { assessment_id: string; subject: string; question_count: number; requested: number; short: boolean };
 }
 
+// Practice across several subjects (Primary and JHS learners): each section is a subject node id with a number of questions and, optionally, the topics to use.
+// A section that holds fewer questions than asked gives what it has; `sections` reports requested and given per subject.
+export type MixedSection = { subject: string; quota: number; topic_ids?: string[] };
+export type MixedPracticeResult = { assessment_id: string; subject: string; question_count: number; requested: number; short: boolean; sections: Array<{ subject: string; requested: number; given: number }> };
+export async function buildMixedPractice(sections: MixedSection[], order: "MIXED" | "BY_SUBJECT" = "MIXED", grade?: string): Promise<MixedPracticeResult> {
+  const { data, error } = await getSupabaseBrowserClient().rpc("qb_start_mixed_practice", { p_sections: sections, p_grade: grade ?? null, p_order: order });
+  if (error) throw new Error(userFacingError(error));
+  return data as MixedPracticeResult;
+}
+
 // The counts a learner can pick: 5, 10, 15, 20 and 30, never more than the ticked topics can supply (a smaller option is offered instead).
 export function countChoices(available: number): number[] {
   if (available < 3) return [];
