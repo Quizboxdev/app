@@ -264,5 +264,12 @@
  "chars": 5298,
  "parts": 1,
  "note": "Admin functions to open topics to teachers in bulk (per subject and grade) and an overview of what is ready. Adds two functions; safe to run again."
+},
+{
+ "version": "20261057100000",
+ "name": "mixed_practice",
+ "chars": 9988,
+ "parts": 3,
+ "note": "Practice across several subjects for Primary and JHS learners (one new function). Safe to run again."
 }
 ]

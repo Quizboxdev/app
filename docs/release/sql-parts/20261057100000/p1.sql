@@ -1,0 +1,8 @@
+-- Practice across several subjects. A learner preparing for an exam can build one practice set from more than one subject, each with its own number of questions and
+-- either chosen topics or any topic of the subject (qb_start_mixed_practice). Until now a set was limited to one subject (QB_PRACTICE_ONE_SUBJECT).
+-- Rules: only Primary (B1 to B6) and JHS (B7 to B9) learners may mix subjects (a Senior High learner keeps one subject at a time, as decided for combined tests);
+-- 1 to 8 sections, one section per subject, 3 to 30 questions in all; every subject and topic must be one the learner may practise (their own level and market);
+-- the free allowance, grade and market limits are exactly those of qb_start_quick_practice. A section that holds fewer questions than asked gives what it has and is
+-- reported ("requested" and "given" per subject), so the learner is never silently given a different mix; if nothing at all is available it refuses.
+-- The expensive per-question availability check runs only on a few more candidates than each section needs (see 20261053100000). Optionally the paper is grouped by subject.
+-- Additive: qb_start_quick_practice is untouched. Rollback: supabase/rollback/mixed_practice.sql.

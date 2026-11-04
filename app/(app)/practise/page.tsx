@@ -12,6 +12,7 @@ import { sanitizeLabel, subjectLabel } from "@/lib/learning/labels";
 import HelpLink from "@/components/help/HelpLink";
 import { formatDate } from "@/lib/format";
 import QuickPractice from "@/components/QuickPractice";
+import MixedPractice from "@/components/MixedPractice";
 import BrandBanner from "@/components/BrandBanner";
 import { getMyAccess, isAllowanceExhausted, SUBSCRIBE_PATH } from "@/lib/api/access";
 import { gradeVariants, studentGrade } from "@/lib/learning/student-scope";
@@ -89,6 +90,7 @@ function PractiseInner() {
       })()}
 
       <QuickPractice />
+      <MixedPractice />
 
       <section className="qb-card" aria-labelledby="pr-shortcuts" style={{ marginTop: 16 }}>
         <h2 id="pr-shortcuts">Jump back in</h2>

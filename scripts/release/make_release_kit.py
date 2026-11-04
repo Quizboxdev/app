@@ -78,6 +78,7 @@ NOTES = {
     "20261054100000": "Fixes an empty subject list for a learner stored with the legacy level code B10 (the same year as SHS1). Replaces three functions with the same names and shapes, so it is safe to run again.",
     "20261055100000": "Combined tests by subject and topic (Primary and JHS), a per-subject result breakdown, and a faster teacher topic list. Adds a table and functions and replaces qb_teacher_topics with the same output. Apply to Preview first.",
     "20261056100000": "Admin functions to open topics to teachers in bulk (per subject and grade) and an overview of what is ready. Adds two functions; safe to run again.",
+    "20261057100000": "Practice across several subjects for Primary and JHS learners (one new function). Safe to run again.",
 }
 
 # 1. Parts
