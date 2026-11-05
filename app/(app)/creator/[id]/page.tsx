@@ -86,7 +86,7 @@ export default function CreatorEditPage({ params }: { params: Promise<{ id: stri
                 {stageCount > 1 && <label className="qb-field">Add to round<select value={stage} onChange={(e) => setStage(Number(e.target.value))}>{Array.from({ length: stageCount }, (_, i) => i + 1).map((g) => <option key={g} value={g}>Round {g}{stages.find((s) => s.stage_no === g) ? `: ${stages.find((s) => s.stage_no === g)!.title}` : ""}</option>)}</select></label>}
                 <h3>From the QuizBox bank</h3>
                 <p className="qb-muted">Approved questions are copied in at random, so later changes to the bank never alter your {fmt.noun}. Choose the class level, then the subjects, how many questions from each and, if you like, the topics. Add again to take more, even from another level.</p>
-                <BankPicker campaignId={id} stage={stage} busy={busy} run={run} />
+                <BankPicker campaignId={id} stage={stage} busy={busy} run={run} remaining={Math.max(0, needed(stage) - have(stage))} roundName={stageCount > 1 ? `Round ${stage}` : undefined} />
                 <details>
                   <summary>Add by subject code instead</summary>
                   <p className="qb-muted">For one subject at a time. Use the subject code, for example MATH or ENG.</p>
