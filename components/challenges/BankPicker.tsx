@@ -8,7 +8,8 @@ import SubjectQuotaPicker, { pickedOrder, pickedTotal, type Picked } from "@/com
 
 // Add questions to a draft from the QuizBox bank: class level, one or more subjects (several only at Primary and JHS), how many from each, and optionally the topics.
 // A learner's class level is their own. Pulling again adds more, so one challenge can take questions from other levels too.
-export default function BankPicker({ campaignId, stage, busy, run }: { campaignId: string; stage: number; busy: boolean; run: (work: () => Promise<string | void>) => Promise<void> }) {
+// `remaining` is how many more questions the chosen round still needs; it is filled in for the person, who can change it. `roundName` is shown on the button when there are several rounds.
+export default function BankPicker({ campaignId, stage, busy, run, remaining = 0, roundName }: { campaignId: string; stage: number; busy: boolean; run: (work: () => Promise<string | void>) => Promise<void>; remaining?: number; roundName?: string }) {
   const [menu, setMenu] = useState<PracticeMenu | null>(null), [grades, setGrades] = useState<string[] | null>(null), [grade, setGrade] = useState(""), [picked, setPicked] = useState<Picked>({}), [loadError, setLoadError] = useState("");
   const [loading, setLoading] = useState(true);
   useEffect(() => {
@@ -52,10 +53,11 @@ export default function BankPicker({ campaignId, stage, busy, run }: { campaignI
     {loading && !menu && <p className="qb-muted" role="status">Loading subjects…</p>}
     {menu?.grade && subjects.length === 0 && !loading && <p className="qb-muted">There are no approved questions for {menu.grade} yet.</p>}
     {menu?.grade && subjects.length > 0 && <>
-      <p className="qb-muted qb-small">{multi ? `Tick one or more subjects for ${menu.grade}, and say how many questions from each.` : `Choose a subject for ${menu.grade}. Senior High challenges use one subject at a time; add again for another subject.`}</p>
-      <SubjectQuotaPicker subjects={subjects} picked={picked} onChange={setPicked} multi={multi} maxTotal={MAX_TOTAL} idPrefix="bk" defaultQuota={multi ? 5 : 10} />
+      {remaining > 0 && <p><strong>{roundName ?? "This"} still needs {remaining} question{remaining === 1 ? "" : "s"}.</strong> We fill that number in for you below. You can change it.</p>}
+      <p className="qb-muted qb-small">{multi ? `Tick one or more subjects for ${menu.grade}. If you tick several, the questions are shared between them, and you can change each number.` : `Choose a subject for ${menu.grade}. Senior High challenges use one subject at a time; add again for another subject.`}</p>
+      <SubjectQuotaPicker subjects={subjects} picked={picked} onChange={setPicked} multi={multi} maxTotal={MAX_TOTAL} idPrefix="bk" defaultQuota={multi ? 5 : 10} detailsFrom={1} target={remaining > 0 ? remaining : undefined} />
       {problems.map((p) => <p key={p} className="qb-error" role="alert">{p}</p>)}
-      <button className="qb-btn" disabled={busy || order.length === 0 || problems.length > 0} onClick={() => void add()}>{order.length ? `Add ${total} question${total === 1 ? "" : "s"} from the bank` : "Add from the bank"}</button>
+      <button className="qb-btn" disabled={busy || order.length === 0 || problems.length > 0} onClick={() => void add()}>{order.length ? `Add ${total} question${total === 1 ? "" : "s"}${roundName ? ` to ${roundName}` : ""}` : "Add from the bank"}</button>
     </>}
   </div>;
 }
