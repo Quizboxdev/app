@@ -2,7 +2,7 @@
 
 import { Suspense, use, useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import { getCampaignForEdit, publishCampaign, pullBank, setCampaignStatus, setQuestions } from "@/lib/api/challenges";
+import { getCampaignForEdit, publishCampaign, setCampaignStatus, setQuestions } from "@/lib/api/challenges";
 import { parseQuestionCsv } from "@/lib/challenges/csv";
 import type { EditableQuestion, Passage, Prize, StageInfo } from "@/lib/challenges/types";
 import StagesPanel from "@/components/challenges/StagesPanel";
@@ -18,7 +18,6 @@ import { FORMATS, formatOf } from "@/lib/challenges/types";
 import { humanize } from "@/lib/format";
 
 // Edit one challenge. Questions can be typed in, pasted as CSV, or snapshotted from the QuizBox bank; they are locked once the challenge goes live.
-const GRADES = ["", "B1", "B2", "B3", "B4", "B5", "B6", "B7", "B8", "B9", "SHS1", "SHS2", "SHS3"];
 const TABS = ["Questions", "Rounds", "People", "Share", "Source", "Prizes", "Look and feel", "Results"] as const;
 type Tab = (typeof TABS)[number];
 
@@ -28,7 +27,7 @@ export default function CreatorEditPage({ params }: { params: Promise<{ id: stri
   useEffect(() => { if (new URLSearchParams(window.location.search).has("topup")) setTab("People"); }, []);   // back from paying for Coins: show the seats again
   const [campaign, setCampaign] = useState<Record<string, any> | null>(null), [questions, setQ] = useState<EditableQuestion[]>([]), [stages, setStagesState] = useState<StageInfo[]>([]), [prizes, setPrizesState] = useState<Prize[]>([]);
   const [error, setError] = useState(""), [notice, setNotice] = useState(""), [busy, setBusy] = useState(false);
-  const [csv, setCsv] = useState(""), [subject, setSubject] = useState(""), [grade, setGrade] = useState(""), [count, setCount] = useState(10), [stage, setStage] = useState(1), [passage, setPassage] = useState<Passage | null>(null);
+  const [csv, setCsv] = useState(""), [stage, setStage] = useState(1), [passage, setPassage] = useState<Passage | null>(null);
   const load = useCallback(() => getCampaignForEdit(id).then((r) => { setCampaign(r.campaign); setLimited(!!r.student_limited); setQ(r.questions); setStagesState(r.stages); setPrizesState(r.prizes); }).catch((e) => setError(e.message)), [id]);
   useEffect(() => { void load(); }, [load]);
   const [limited, setLimited] = useState(false);          // a learner: approved curriculum questions only
@@ -85,18 +84,8 @@ export default function CreatorEditPage({ params }: { params: Promise<{ id: stri
                 <h2>Add questions</h2>
                 {stageCount > 1 && <label className="qb-field">Add to round<select value={stage} onChange={(e) => setStage(Number(e.target.value))}>{Array.from({ length: stageCount }, (_, i) => i + 1).map((g) => <option key={g} value={g}>Round {g}{stages.find((s) => s.stage_no === g) ? `: ${stages.find((s) => s.stage_no === g)!.title}` : ""}</option>)}</select></label>}
                 <h3>From the QuizBox bank</h3>
-                <p className="qb-muted">Approved questions are copied in at random, so later changes to the bank never alter your {fmt.noun}. Choose the class level, then the subjects, how many questions from each and, if you like, the topics. Add again to take more, even from another level.</p>
+                <p className="qb-muted">Approved questions are copied in at random, so later changes to the bank never alter your {fmt.noun}. Choose the class level, then the subjects, how many questions from each and, if you like, the topics. Only levels and subjects that have approved questions are listed. Add again to take more, even from another level.</p>
                 <BankPicker campaignId={id} stage={stage} busy={busy} run={run} remaining={Math.max(0, needed(stage) - have(stage))} roundName={stageCount > 1 ? `Round ${stage}` : undefined} />
-                <details>
-                  <summary>Add by subject code instead</summary>
-                  <p className="qb-muted">For one subject at a time. Use the subject code, for example MATH or ENG.</p>
-                  <div className="qb-grid cols-3">
-                    <label className="qb-field">Subject code<input value={subject} onChange={(e) => setSubject(e.target.value.trim().toUpperCase())} placeholder="MATH" /></label>
-                    <label className="qb-field">Grade<select value={grade} onChange={(e) => setGrade(e.target.value)}>{GRADES.map((g) => <option key={g} value={g}>{g || "Any"}</option>)}</select></label>
-                    <label className="qb-field">How many<input type="number" min={1} max={100} value={count} onChange={(e) => setCount(Number(e.target.value))} /></label>
-                  </div>
-                  <button className="qb-btn" disabled={busy || !subject} onClick={() => run(async () => { const r = await pullBank(id, subject, grade || null, count, stage); return r.added ? `${r.added} questions added (${r.total} in total).` : "No more matching questions were found."; })}>Add from the bank</button>
-                </details>
               </div>
               {limited ? <div className="qb-card" role="note"><strong>Curriculum questions only.</strong> As a learner you build your quiz from approved QuizBox questions, for your friends and classmates. It is shared by link or code and is not listed publicly.</div> : <div className="qb-card qb-form">
                 <h3>Paste your own questions</h3>
