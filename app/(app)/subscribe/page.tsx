@@ -52,7 +52,7 @@ function SubscribeInner() {
       <BrandBanner src="/brand/pages/subscribe-hero.webp" />
       <div className="qb-page-head"><div>
         <h1>{returned ? "Thank you" : reason === "free_used" || access?.exhausted ? "You have used your free practice" : "Subscribe to QuizBox"}</h1>
-        <p>{returned ? "We are confirming your payment." : reason === "free_used" || access?.exhausted
+        <p>{returned ? (access?.subscribed ? "Your payment is confirmed." : "We are confirming your payment.") : reason === "free_used" || access?.exhausted
           ? "Well done on the practice so far. Subscribe to keep building your own practice sessions with no limit."
           : "Unlimited practice across all subjects for your grade."}</p>
       </div><HelpLink slug="subscribe-and-coins" label="How Coins and paying work" /></div>
