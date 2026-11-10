@@ -292,5 +292,12 @@
  "chars": 2201,
  "parts": 1,
  "note": "The class levels offered for adding bank questions to a challenge are now only those that have approved questions (one function replaced, same name and shape). Safe to run again."
+},
+{
+ "version": "20261061100000",
+ "name": "challenge_bank_levels_fast",
+ "chars": 3533,
+ "parts": 1,
+ "note": "Faster class-level list for adding bank questions to a challenge (one function replaced, same name and shape). Safe to run again."
 }
 ]

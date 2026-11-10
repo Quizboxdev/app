@@ -10,7 +10,8 @@ const BLUEPRINT = read("../../supabase/migrations/20261055100000_assessment_blue
 const MIGRATION = read("../../supabase/migrations/20261059100000_challenge_bank_sections.sql");
 const LEVELS = read("../../supabase/migrations/20261060100000_challenge_bank_levels_with_questions.sql");
 const ROLLBACK = read("../../supabase/rollback/challenge_bank_sections.sql");
-const LEVELS_ROLLBACK = read("../../supabase/rollback/challenge_bank_levels_with_questions.sql");
+const FAST_LEVELS = read("../../supabase/migrations/20261061100000_challenge_bank_levels_fast.sql");
+const FAST_LEVELS_ROLLBACK = read("../../supabase/rollback/challenge_bank_levels_fast.sql");
 const id = (n: number) => `00000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
 const [OWNER, TEACHER, LEARNER, SPONSOR, YOUNG] = [1, 2, 3, 4, 5];
 let db: PGlite;
@@ -104,11 +105,12 @@ beforeAll(async () => {
   for (const sql of CHAIN) await db.exec(sql);
   await db.exec(MIGRATION);
   await db.exec(LEVELS);
+  await db.exec(FAST_LEVELS);
 }, 120_000);
 afterAll(async () => { await db?.close(); });
 
 describe("what a creator can pick from", () => {
-  it("re-applies cleanly", async () => { await db.exec(MIGRATION); await db.exec(LEVELS); await db.exec(LEVELS); });
+  it("re-applies cleanly", async () => { await db.exec(MIGRATION); await db.exec(LEVELS); await db.exec(FAST_LEVELS); await db.exec(FAST_LEVELS); });
 
   it("a teacher or sponsor chooses a grade; the list counts only usable questions", async () => {
     await as(TEACHER);
@@ -121,13 +123,19 @@ describe("what a creator can pick from", () => {
     expect((await rpc("select public.qb_challenge_bank_menu('SHS1')")).subjects.map((s: any) => s.name)).toEqual(["Mathematics", "Physics"]);
   });
 
-  it("only class levels that have usable questions are offered, and the choice goes back when rolled back", async () => {
-    await asOwner(() => db.exec(`insert into public.curriculum_nodes(id, curriculum_id, node_type, title, subject_code, grade_code, canonical_grade_code) values ('${id(990)}','${id(200)}','subject','Art','ART','B9','B9')`));   // a level whose subject has no questions at all
+  it("only class levels that have usable questions are offered, found by looking for one question per level, and the choice goes back when rolled back", async () => {
+    await asOwner(() => db.exec(`
+      insert into public.curriculum_nodes(id, curriculum_id, node_type, title, subject_code, grade_code, canonical_grade_code) values ('${id(990)}','${id(200)}','subject','Art','ART','B9','B9'), ('${id(992)}','${id(200)}','subject','Music','MUS','B8','B8');   -- B9: no questions at all
+      insert into public.curriculum_nodes(id, curriculum_id, parent_id, node_type, title) values ('${id(993)}','${id(200)}','${id(992)}','learning_indicator','Music indicator');                                       -- B8: a question that sits under no topic
+      insert into public.questions(curriculum_node_id, question_text, option_a, option_b, option_c, option_d, correct_answer) values ('${id(993)}', 'Music with no topic', 'A', 'B', 'C', 'D', 'A');`));
     await as(TEACHER);
+    await resetCalls();
     expect((await rpc("select public.qb_challenge_bank_menu()")).grades).toEqual(["B4", "B7", "SHS1"]);
-    await asOwner(() => db.exec(LEVELS_ROLLBACK));
-    expect((await rpc("select public.qb_challenge_bank_menu()")).grades).toEqual(["B4", "B7", "B9", "SHS1"]);
-    await asOwner(async () => { await db.exec(LEVELS); await db.exec(`delete from public.curriculum_nodes where id = '${id(990)}'`); });
+    expect(await calls()).toBeLessThanOrEqual(6);   // one usable question per level is enough; the whole bank is not walked
+    expect((await rpc("select public.qb_challenge_bank_menu('B8')")).subjects).toEqual([]);   // the level list and the subject list agree
+    await asOwner(() => db.exec(FAST_LEVELS_ROLLBACK));
+    expect((await rpc("select public.qb_challenge_bank_menu()")).grades).toEqual(["B4", "B7", "B8", "B9", "SHS1"]);
+    await asOwner(async () => { await db.exec(FAST_LEVELS); await db.exec(`delete from public.questions where curriculum_node_id = '${id(993)}'; delete from public.curriculum_nodes where id in ('${id(990)}','${id(992)}','${id(993)}')`); });
     expect((await rpc("select public.qb_challenge_bank_menu()")).grades).toEqual(["B4", "B7", "SHS1"]);
   });
 
