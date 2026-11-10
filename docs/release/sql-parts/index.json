@@ -285,5 +285,12 @@
  "chars": 14990,
  "parts": 3,
  "note": "Challenge and competition questions from the bank by class level, subject and topic (three new functions) and the older subject-code pull now takes approved questions only. Safe to run again."
+},
+{
+ "version": "20261060100000",
+ "name": "challenge_bank_levels_with_questions",
+ "chars": 2201,
+ "parts": 1,
+ "note": "The class levels offered for adding bank questions to a challenge are now only those that have approved questions (one function replaced, same name and shape). Safe to run again."
 }
 ]

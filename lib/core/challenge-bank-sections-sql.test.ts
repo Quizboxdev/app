@@ -8,7 +8,9 @@ const CHAIN = ["20261021100000_challenges_foundation", "20261022100000_challenge
 const FAST = read("../../supabase/migrations/20261053100000_fast_subject_list.sql");
 const BLUEPRINT = read("../../supabase/migrations/20261055100000_assessment_blueprint.sql");
 const MIGRATION = read("../../supabase/migrations/20261059100000_challenge_bank_sections.sql");
+const LEVELS = read("../../supabase/migrations/20261060100000_challenge_bank_levels_with_questions.sql");
 const ROLLBACK = read("../../supabase/rollback/challenge_bank_sections.sql");
+const LEVELS_ROLLBACK = read("../../supabase/rollback/challenge_bank_levels_with_questions.sql");
 const id = (n: number) => `00000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
 const [OWNER, TEACHER, LEARNER, SPONSOR, YOUNG] = [1, 2, 3, 4, 5];
 let db: PGlite;
@@ -101,11 +103,12 @@ beforeAll(async () => {
   await db.exec(BLUEPRINT.slice(BLUEPRINT.indexOf("create or replace function quizbox_topic.class_level"), BLUEPRINT.indexOf("-- Questions of a topic by plain column checks")));
   for (const sql of CHAIN) await db.exec(sql);
   await db.exec(MIGRATION);
+  await db.exec(LEVELS);
 }, 120_000);
 afterAll(async () => { await db?.close(); });
 
 describe("what a creator can pick from", () => {
-  it("re-applies cleanly", async () => { await db.exec(MIGRATION); });
+  it("re-applies cleanly", async () => { await db.exec(MIGRATION); await db.exec(LEVELS); await db.exec(LEVELS); });
 
   it("a teacher or sponsor chooses a grade; the list counts only usable questions", async () => {
     await as(TEACHER);
@@ -116,6 +119,16 @@ describe("what a creator can pick from", () => {
     expect(menu.subjects[0].topics.map((t: any) => [t.title, t.available])).toEqual([["Fonts", 30], ["Slides", 30]]);
     await as(SPONSOR);
     expect((await rpc("select public.qb_challenge_bank_menu('SHS1')")).subjects.map((s: any) => s.name)).toEqual(["Mathematics", "Physics"]);
+  });
+
+  it("only class levels that have usable questions are offered, and the choice goes back when rolled back", async () => {
+    await asOwner(() => db.exec(`insert into public.curriculum_nodes(id, curriculum_id, node_type, title, subject_code, grade_code, canonical_grade_code) values ('${id(990)}','${id(200)}','subject','Art','ART','B9','B9')`));   // a level whose subject has no questions at all
+    await as(TEACHER);
+    expect((await rpc("select public.qb_challenge_bank_menu()")).grades).toEqual(["B4", "B7", "SHS1"]);
+    await asOwner(() => db.exec(LEVELS_ROLLBACK));
+    expect((await rpc("select public.qb_challenge_bank_menu()")).grades).toEqual(["B4", "B7", "B9", "SHS1"]);
+    await asOwner(async () => { await db.exec(LEVELS); await db.exec(`delete from public.curriculum_nodes where id = '${id(990)}'`); });
+    expect((await rpc("select public.qb_challenge_bank_menu()")).grades).toEqual(["B4", "B7", "SHS1"]);
   });
 
   it("a learner sees their own grade whatever the screen asks for; a young learner managed by an adult is refused", async () => {
