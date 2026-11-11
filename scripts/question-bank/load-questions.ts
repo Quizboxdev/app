@@ -90,7 +90,7 @@ async function main() {
   const files = (await readdir(dir)).filter((f) => /\.(csv|txt|xlsx)$/i.test(f)).sort((a, b) => a.localeCompare(b, "en", { numeric: true }));
   if (!files.length) { console.error(`No .csv, .txt or .xlsx files in ${dir}`); return quit(2); }
 
-  console.log("Loader version: waits for the hourly import allowance by itself (2026-11-11 c)");
+  console.log("Loader version: waits for the hourly import allowance by itself (2026-11-11 d: also retries a slow-database request)");
   console.log(`Target: ${target.toUpperCase()} (${ref})   files: ${files.length} in ${resolve(dir)}   mode: ${doLoad ? "LOAD (after you confirm)" : "CHECK ONLY (nothing is written)"}`);
   const db = createClient(url, anonKey, { auth: { persistSession: false, autoRefreshToken: true } });
   const email = await ask("Admin e-mail: "), password = await ask("Password (hidden): ", true);
@@ -187,11 +187,13 @@ Supabase rejected the key. Copy the publishable (sb_publishable_...) or anon (ey
 
   for (const j of jobs.filter((x) => x.view.runnable)) {
     process.stdout.write(`\n${j.name}\n`);
-    for (let waits = 0; ; waits++) {
+    for (let waits = 0, slow = 0; ; waits++) {
       try {
         if (await loadOne(j)) loaded++; else failed = true;
         break;
       } catch (e) {
+        // A request the database cancelled for taking over its time limit (57014) saved nothing; give it a minute and send the same request again, a few times at most.
+        if (/57014|statement timeout/i.test((e as Error)?.message ?? "") && slow++ < 4) { console.log(`  The database was too slow for one request (nothing from it was saved). Waiting 60 seconds, then trying again (${slow} of 4).`); await new Promise((r) => setTimeout(r, 60_000)); continue; }
         if (hourLimit(e) && waits < 6) { console.log(`  Paused: ${(e as Error).message.split(" (Technical")[0]}`); await waitForNextHour(); console.log(`  Continuing ${j.name}`); continue; }
         console.error(`  STOPPED: ${(e as Error).message}`); failed = true; break;
       }
