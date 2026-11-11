@@ -61,6 +61,9 @@ function ask(question: string, hidden = false): Promise<string> {
   });
 }
 
+// Leaves cleanly: exiting while the keyboard handle is still closing crashes Node on Windows.
+const quit = (code: number): Promise<never> => { process.stdin.pause(); setTimeout(() => process.exit(code), 150); return new Promise<never>(() => {}); };
+
 async function main() {
   if (flag("--help") || flag("-h")) usage();
   const target = option("--target") as Target | undefined, dir = option("--dir");
@@ -77,43 +80,49 @@ async function main() {
     // The key is public (every page of the site carries it): Supabase dashboard > Project Settings > API Keys, the "anon" / publishable key of the ${target} project.
     console.log(`The env file does not point at the ${target.toUpperCase()} project (${ref}); it has ${envUrl || "no URL"}.`);
     anonKey = await ask(`Public (anon) key of the ${target.toUpperCase()} project: `, true);
-    if (!anonKey) { console.error("No key given."); process.exit(2); }
   }
+  anonKey = (anonKey ?? "").replace(/\s+/g, "").replace(/^["']|["']$/g, "");
+  if (!anonKey) { console.error("No key given."); return quit(2); }
+  const keyKind = anonKey.startsWith("sb_publishable_") ? "publishable key" : anonKey.startsWith("eyJ") ? "legacy anon JWT" : anonKey.startsWith("sb_secret_") ? "SECRET key (wrong one!)" : "unknown format";
+  console.log(`Key received: ${anonKey.length} characters, ${keyKind}.`);
+  if (/^sb_secret_/.test(anonKey)) { console.error("That is a secret key. Use the public one (publishable / anon) instead."); return quit(2); }
 
   const files = (await readdir(dir)).filter((f) => /\.(csv|txt|xlsx)$/i.test(f)).sort((a, b) => a.localeCompare(b, "en", { numeric: true }));
-  if (!files.length) { console.error(`No .csv, .txt or .xlsx files in ${dir}`); process.exit(2); }
+  if (!files.length) { console.error(`No .csv, .txt or .xlsx files in ${dir}`); return quit(2); }
 
+  console.log("Loader version: waits for the hourly import allowance by itself (2026-11-11 d: also retries a slow-database request)");
   console.log(`Target: ${target.toUpperCase()} (${ref})   files: ${files.length} in ${resolve(dir)}   mode: ${doLoad ? "LOAD (after you confirm)" : "CHECK ONLY (nothing is written)"}`);
   const db = createClient(url, anonKey, { auth: { persistSession: false, autoRefreshToken: true } });
   const email = await ask("Admin e-mail: "), password = await ask("Password (hidden): ", true);
   const signedIn = await db.auth.signInWithPassword({ email, password });
-  if (signedIn.error) { console.error(`Could not sign in: ${signedIn.error.message}`); process.exit(1); }
+  if (signedIn.error) { console.error(`Could not sign in: ${signedIn.error.message}${/api key/i.test(signedIn.error.message) ? `
+Supabase rejected the key. Copy the publishable (sb_publishable_...) or anon (eyJ...) key of project ${ref} from Project Settings > API Keys; a key from another project, or a disabled legacy key, is refused.` : ""}`); return quit(1); }
   const aal = await db.auth.mfa.getAuthenticatorAssuranceLevel();
   if (aal.data && aal.data.nextLevel === "aal2" && aal.data.currentLevel !== "aal2") {
     const factor = (await db.auth.mfa.listFactors()).data?.totp?.[0];
-    if (!factor) { console.error("This account requires a second step but has no authenticator app set up."); process.exit(1); }
+    if (!factor) { console.error("This account requires a second step but has no authenticator app set up."); return quit(1); }
     const code = await ask("Authenticator code: ");
     const verified = await db.auth.mfa.challengeAndVerify({ factorId: factor.id, code });
-    if (verified.error) { console.error(`The code was refused: ${verified.error.message}`); process.exit(1); }
+    if (verified.error) { console.error(`The code was refused: ${verified.error.message}`); return quit(1); }
   }
 
   const curricula = await db.rpc("qb_market_setup", { p_action: "curricula", p_data: {} });
-  if (curricula.error) { console.error(`Could not read the curricula (is this account a content admin?): ${curricula.error.message}`); process.exit(1); }
+  if (curricula.error) { console.error(`Could not read the curricula (is this account a content admin?): ${curricula.error.message}`); return quit(1); }
   const list = (curricula.data ?? []) as Array<{ curriculum_id: string; code: string; name: string; version: string; market_id: string | null; nodes: number | null; approved_sources: number | null }>;
   const chosen = option("--curriculum");
   const curriculum = list.find((c) => c.curriculum_id === chosen);
   if (!curriculum) {
     console.log(chosen ? `\nNo curriculum with id ${chosen}.` : "\nChoose a curriculum with --curriculum <id>:");
     for (const c of list) console.log(`  ${c.curriculum_id}  ${c.code} · ${c.name} (${c.version})   ${n(Number(c.nodes ?? 0))} nodes, ${n(Number(c.approved_sources ?? 0))} approved sources${c.market_id ? "" : "   NO MARKET"}`);
-    process.exit(chosen ? 1 : 0);
+    return quit(chosen ? 1 : 0);
   }
-  if (!curriculum.market_id) { console.error("This curriculum is not attached to a market, so questions cannot be loaded for it."); process.exit(1); }
+  if (!curriculum.market_id) { console.error("This curriculum is not attached to a market, so questions cannot be loaded for it."); return quit(1); }
   console.log(`Curriculum: ${curriculum.code} · ${curriculum.name} (${curriculum.version})`);
 
   const index = await loadCurriculumIndex(curriculum.curriculum_id, db);
   const sources = await listApprovedSources(curriculum.curriculum_id, db);
   console.log(`${n(index.all.length)} learning indicators, ${sources.length} approved source${sources.length === 1 ? "" : "s"}.\n`);
-  if (!index.all.length) { console.error("This curriculum has no learning indicators loaded."); process.exit(1); }
+  if (!index.all.length) { console.error("This curriculum has no learning indicators loaded."); return quit(1); }
 
   // One job per distinct file, planned and judged exactly as the admin screen does.
   type Job = { name: string; hash: string; rows: Awaited<ReturnType<typeof readQuestionFile>>["rows"]; plan: ReturnType<typeof buildPlan> | null; sourceIds: string[]; view: JobView; readError?: string };
@@ -148,25 +157,51 @@ async function main() {
   }
 
   const pacer = createPacer();   // one pacer for the whole queue: the database limit is per person, not per file
-  let loaded = 0, failed = false, lastPause = 0;
+  let loaded = 0, failed = false, lastPrint = 0;
+
+  // The database also allows only 30 import requests per person per clock hour (qb_factory_import). That is a pause, not a failure: the refused request saved nothing, so wait for the
+  // next hour to begin and send the same request again. The file's own saved-row count (not this program) decides where to continue.
+  const hourLimit = (e: unknown) => /QB_RATE_LIMITED|QB_CONTENT_RATE_LIMIT|Too many requests/i.test((e as Error)?.message ?? "");
+  async function waitForNextHour() {
+    const now = Date.now(), next = (Math.floor(now / 3_600_000) + 1) * 3_600_000 + 20_000;
+    console.log(`  The hour's allowance of 30 import requests is used up. Waiting until ${new Date(next).toISOString().slice(11, 16)} UTC (about ${Math.ceil((next - now) / 60_000)} minutes), then continuing by itself. Keep this window open and the computer awake.`);
+    let lastNote = Date.now();
+    for (let left = next - Date.now(); left > 0; left = next - Date.now()) {
+      await new Promise((r) => setTimeout(r, Math.min(30_000, left)));
+      if (Date.now() - lastNote >= 600_000 && next - Date.now() > 0) { lastNote = Date.now(); console.log(`  still waiting, about ${Math.ceil((next - Date.now()) / 60_000)} minutes left`); }
+    }
+  }
+
+  async function loadOne(j: Job): Promise<boolean> {
+    const held = await findLoadBatchByHash(j.hash, db), total = j.rows.length;
+    const resume = held && canContinue(held, total) ? { batchId: held.id, fromRow: held.rows_total } : undefined;
+    const r = await runQuestionLoad({ payload: buildLoadPayload(j.plan!, j.rows), fileName: j.name.slice(0, 280), fileSha256: j.hash, marketId: curriculum!.market_id!, curriculumId: curriculum!.curriculum_id,
+      sourceIds: j.sourceIds, resume, pacer, db,
+      onProgress: (d, t) => console.log(`  ${n(d)} of ${n(t)}`),
+      onWait: (s) => { if (Date.now() - lastPrint > 25_000) { lastPrint = Date.now(); console.log(`  pausing (${s}s): the database accepts a limited number of requests a minute`); } } });
+    const ok = r.status === "LOADED" || r.status === "PARTIAL";
+    const notes = [r.rows_rejected ? `${n(r.rows_rejected)} rejected` : "", ...r.row_errors.slice(0, 5).map((e) => `row ${e.row}: ${e.code}`)].filter(Boolean).join("; ");
+    console.log(`  ${ok ? "OK" : "NOTHING USABLE LOADED"}: ${r.status}, ${n(r.rows_loaded)} of ${n(r.rows_total)} in review${notes ? `  (${notes})` : ""}`);
+    return ok;
+  }
+
   for (const j of jobs.filter((x) => x.view.runnable)) {
     process.stdout.write(`\n${j.name}\n`);
-    try {
-      const held = await findLoadBatchByHash(j.hash, db), total = j.rows.length;
-      const resume = held && canContinue(held, total) ? { batchId: held.id, fromRow: held.rows_total } : undefined;
-      const r = await runQuestionLoad({ payload: buildLoadPayload(j.plan!, j.rows), fileName: j.name.slice(0, 280), fileSha256: j.hash, marketId: curriculum.market_id!, curriculumId: curriculum.curriculum_id,
-        sourceIds: j.sourceIds, resume, pacer, db,
-        onProgress: (d, t) => console.log(`  ${n(d)} of ${n(t)}`),
-        onWait: (s) => { if (s % 15 === 0 && s !== lastPause) { lastPause = s; console.log(`  pausing (${s}s left): the database accepts a limited number of requests a minute`); } } });
-      const ok = r.status === "LOADED" || r.status === "PARTIAL";
-      const notes = [r.rows_rejected ? `${n(r.rows_rejected)} rejected` : "", ...r.row_errors.slice(0, 5).map((e) => `row ${e.row}: ${e.code}`)].filter(Boolean).join("; ");
-      console.log(`  ${ok ? "OK" : "NOTHING USABLE LOADED"}: ${r.status}, ${n(r.rows_loaded)} of ${n(r.rows_total)} in review${notes ? `  (${notes})` : ""}`);
-      if (!ok) { failed = true; break; }
-      loaded++;
-    } catch (e) { console.error(`  STOPPED: ${(e as Error).message}`); failed = true; break; }
+    for (let waits = 0, slow = 0; ; waits++) {
+      try {
+        if (await loadOne(j)) loaded++; else failed = true;
+        break;
+      } catch (e) {
+        // A request the database cancelled for taking over its time limit (57014) saved nothing; give it a minute and send the same request again, a few times at most.
+        if (/57014|statement timeout/i.test((e as Error)?.message ?? "") && slow++ < 4) { console.log(`  The database was too slow for one request (nothing from it was saved). Waiting 60 seconds, then trying again (${slow} of 4).`); await new Promise((r) => setTimeout(r, 60_000)); continue; }
+        if (hourLimit(e) && waits < 6) { console.log(`  Paused: ${(e as Error).message.split(" (Technical")[0]}`); await waitForNextHour(); console.log(`  Continuing ${j.name}`); continue; }
+        console.error(`  STOPPED: ${(e as Error).message}`); failed = true; break;
+      }
+    }
+    if (failed) break;
   }
   console.log(`\n${loaded} of ${summary.files} file(s) loaded into SME review.${failed ? " Stopped at the first problem: fix it (or send the message above), then run the same command again; finished files are skipped." : " Next: review and approve them in Admin > Question batches."}`);
   if (failed) process.exitCode = 1;
 }
 
-main().catch((e) => { console.error(e instanceof Error ? e.message : e); process.exit(1); });
+main().catch((e) => { console.error(e instanceof Error ? e.message : e); void quit(1); });
