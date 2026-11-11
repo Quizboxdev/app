@@ -61,6 +61,9 @@ function ask(question: string, hidden = false): Promise<string> {
   });
 }
 
+// Leaves cleanly: exiting while the keyboard handle is still closing crashes Node on Windows.
+const quit = (code: number): Promise<never> => { process.stdin.pause(); setTimeout(() => process.exit(code), 150); return new Promise<never>(() => {}); };
+
 async function main() {
   if (flag("--help") || flag("-h")) usage();
   const target = option("--target") as Target | undefined, dir = option("--dir");
@@ -77,43 +80,48 @@ async function main() {
     // The key is public (every page of the site carries it): Supabase dashboard > Project Settings > API Keys, the "anon" / publishable key of the ${target} project.
     console.log(`The env file does not point at the ${target.toUpperCase()} project (${ref}); it has ${envUrl || "no URL"}.`);
     anonKey = await ask(`Public (anon) key of the ${target.toUpperCase()} project: `, true);
-    if (!anonKey) { console.error("No key given."); process.exit(2); }
   }
+  anonKey = (anonKey ?? "").replace(/\s+/g, "").replace(/^["']|["']$/g, "");
+  if (!anonKey) { console.error("No key given."); return quit(2); }
+  const keyKind = anonKey.startsWith("sb_publishable_") ? "publishable key" : anonKey.startsWith("eyJ") ? "legacy anon JWT" : anonKey.startsWith("sb_secret_") ? "SECRET key (wrong one!)" : "unknown format";
+  console.log(`Key received: ${anonKey.length} characters, ${keyKind}.`);
+  if (/^sb_secret_/.test(anonKey)) { console.error("That is a secret key. Use the public one (publishable / anon) instead."); return quit(2); }
 
   const files = (await readdir(dir)).filter((f) => /\.(csv|txt|xlsx)$/i.test(f)).sort((a, b) => a.localeCompare(b, "en", { numeric: true }));
-  if (!files.length) { console.error(`No .csv, .txt or .xlsx files in ${dir}`); process.exit(2); }
+  if (!files.length) { console.error(`No .csv, .txt or .xlsx files in ${dir}`); return quit(2); }
 
   console.log(`Target: ${target.toUpperCase()} (${ref})   files: ${files.length} in ${resolve(dir)}   mode: ${doLoad ? "LOAD (after you confirm)" : "CHECK ONLY (nothing is written)"}`);
   const db = createClient(url, anonKey, { auth: { persistSession: false, autoRefreshToken: true } });
   const email = await ask("Admin e-mail: "), password = await ask("Password (hidden): ", true);
   const signedIn = await db.auth.signInWithPassword({ email, password });
-  if (signedIn.error) { console.error(`Could not sign in: ${signedIn.error.message}`); process.exit(1); }
+  if (signedIn.error) { console.error(`Could not sign in: ${signedIn.error.message}${/api key/i.test(signedIn.error.message) ? `
+Supabase rejected the key. Copy the publishable (sb_publishable_...) or anon (eyJ...) key of project ${ref} from Project Settings > API Keys; a key from another project, or a disabled legacy key, is refused.` : ""}`); return quit(1); }
   const aal = await db.auth.mfa.getAuthenticatorAssuranceLevel();
   if (aal.data && aal.data.nextLevel === "aal2" && aal.data.currentLevel !== "aal2") {
     const factor = (await db.auth.mfa.listFactors()).data?.totp?.[0];
-    if (!factor) { console.error("This account requires a second step but has no authenticator app set up."); process.exit(1); }
+    if (!factor) { console.error("This account requires a second step but has no authenticator app set up."); return quit(1); }
     const code = await ask("Authenticator code: ");
     const verified = await db.auth.mfa.challengeAndVerify({ factorId: factor.id, code });
-    if (verified.error) { console.error(`The code was refused: ${verified.error.message}`); process.exit(1); }
+    if (verified.error) { console.error(`The code was refused: ${verified.error.message}`); return quit(1); }
   }
 
   const curricula = await db.rpc("qb_market_setup", { p_action: "curricula", p_data: {} });
-  if (curricula.error) { console.error(`Could not read the curricula (is this account a content admin?): ${curricula.error.message}`); process.exit(1); }
+  if (curricula.error) { console.error(`Could not read the curricula (is this account a content admin?): ${curricula.error.message}`); return quit(1); }
   const list = (curricula.data ?? []) as Array<{ curriculum_id: string; code: string; name: string; version: string; market_id: string | null; nodes: number | null; approved_sources: number | null }>;
   const chosen = option("--curriculum");
   const curriculum = list.find((c) => c.curriculum_id === chosen);
   if (!curriculum) {
     console.log(chosen ? `\nNo curriculum with id ${chosen}.` : "\nChoose a curriculum with --curriculum <id>:");
     for (const c of list) console.log(`  ${c.curriculum_id}  ${c.code} · ${c.name} (${c.version})   ${n(Number(c.nodes ?? 0))} nodes, ${n(Number(c.approved_sources ?? 0))} approved sources${c.market_id ? "" : "   NO MARKET"}`);
-    process.exit(chosen ? 1 : 0);
+    return quit(chosen ? 1 : 0);
   }
-  if (!curriculum.market_id) { console.error("This curriculum is not attached to a market, so questions cannot be loaded for it."); process.exit(1); }
+  if (!curriculum.market_id) { console.error("This curriculum is not attached to a market, so questions cannot be loaded for it."); return quit(1); }
   console.log(`Curriculum: ${curriculum.code} · ${curriculum.name} (${curriculum.version})`);
 
   const index = await loadCurriculumIndex(curriculum.curriculum_id, db);
   const sources = await listApprovedSources(curriculum.curriculum_id, db);
   console.log(`${n(index.all.length)} learning indicators, ${sources.length} approved source${sources.length === 1 ? "" : "s"}.\n`);
-  if (!index.all.length) { console.error("This curriculum has no learning indicators loaded."); process.exit(1); }
+  if (!index.all.length) { console.error("This curriculum has no learning indicators loaded."); return quit(1); }
 
   // One job per distinct file, planned and judged exactly as the admin screen does.
   type Job = { name: string; hash: string; rows: Awaited<ReturnType<typeof readQuestionFile>>["rows"]; plan: ReturnType<typeof buildPlan> | null; sourceIds: string[]; view: JobView; readError?: string };
@@ -169,4 +177,4 @@ async function main() {
   if (failed) process.exitCode = 1;
 }
 
-main().catch((e) => { console.error(e instanceof Error ? e.message : e); process.exit(1); });
+main().catch((e) => { console.error(e instanceof Error ? e.message : e); void quit(1); });
