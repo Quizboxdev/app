@@ -4,11 +4,14 @@ import { buildIndex, standardCode, type CurriculumIndex, type VerifiedIndicator 
 import type { LoadPayload } from "@/lib/question-loading/payload";
 import { continueFrom, countdown, createPacer, describeLoadFailure, isRateLimited, isTransientFailure, realSleep, sliceCall, type Pacer } from "@/lib/question-loading/resume";
 
+// The database client the loader talks to. The admin screen uses the browser client; a command-line load passes its own signed-in client.
+export type LoadDb = { from: (table: string) => any; rpc: (fn: string, args?: Record<string, unknown>) => any };
+
 type NodeRow = { id: string; parent_id: string | null; node_type: string; code: string; title: string; subject_code: string | null; canonical_grade_code: string | null; grade_code: string | null; education_level: string | null; metadata: Record<string, unknown> | null };
 
 // The curriculum as loaded in the database: every active learning indicator with its strand, sub-strand and content standard.
-export async function loadCurriculumIndex(curriculumId: string): Promise<CurriculumIndex> {
-  const supabase = getSupabaseBrowserClient(), nodes = new Map<string, NodeRow>();
+export async function loadCurriculumIndex(curriculumId: string, db?: LoadDb): Promise<CurriculumIndex> {
+  const supabase: LoadDb = db ?? getSupabaseBrowserClient(), nodes = new Map<string, NodeRow>();
   for (let from = 0; ; from += 1000) {
     const { data, error } = await supabase.from("curriculum_nodes")
       .select("id,parent_id,node_type,code,title,subject_code,canonical_grade_code,grade_code,education_level,metadata")
@@ -33,8 +36,8 @@ export async function loadCurriculumIndex(curriculumId: string): Promise<Curricu
 }
 
 export type ApprovedSource = { id: string; title: string };
-export async function listApprovedSources(curriculumId: string): Promise<ApprovedSource[]> {
-  const { data, error } = await getSupabaseBrowserClient().from("source_documents").select("id,title")
+export async function listApprovedSources(curriculumId: string, db?: LoadDb): Promise<ApprovedSource[]> {
+  const { data, error } = await (db ?? getSupabaseBrowserClient()).from("source_documents").select("id,title")
     .eq("curriculum_id", curriculumId).eq("validation_status", "approved").eq("rights_confirmed", true).order("title");
   if (error) throw new Error(userFacingError(error));
   return (data ?? []) as ApprovedSource[];
@@ -45,12 +48,12 @@ export type LoadResult = { batch_id: string; status: string; rows_total: number;
 // An earlier load of exactly this file, if any: the database's own record of how far it got (rows_total counts the rows it has taken).
 export type LoadBatchState = { id: string; status: string; rows_total: number; rows_loaded: number; rows_rejected: number; file_name: string };
 const BATCH_COLUMNS = "id,status,rows_total,rows_loaded,rows_rejected,file_name";
-export async function findLoadBatchByHash(fileSha256: string): Promise<LoadBatchState | null> {
-  const { data, error } = await getSupabaseBrowserClient().from("question_load_batches").select(BATCH_COLUMNS).eq("file_sha256", fileSha256).order("created_at", { ascending: false }).limit(1).maybeSingle();
+export async function findLoadBatchByHash(fileSha256: string, db?: LoadDb): Promise<LoadBatchState | null> {
+  const { data, error } = await (db ?? getSupabaseBrowserClient()).from("question_load_batches").select(BATCH_COLUMNS).eq("file_sha256", fileSha256).order("created_at", { ascending: false }).limit(1).maybeSingle();
   return error ? null : ((data ?? null) as LoadBatchState | null);
 }
-async function readLoadBatch(id: string): Promise<LoadBatchState | null> {
-  const { data, error } = await getSupabaseBrowserClient().from("question_load_batches").select(BATCH_COLUMNS).eq("id", id).maybeSingle();
+async function readLoadBatch(id: string, db?: LoadDb): Promise<LoadBatchState | null> {
+  const { data, error } = await (db ?? getSupabaseBrowserClient()).from("question_load_batches").select(BATCH_COLUMNS).eq("id", id).maybeSingle();
   return error ? null : ((data ?? null) as LoadBatchState | null);
 }
 
@@ -64,14 +67,15 @@ export async function runQuestionLoad(input: {
   resume?: { batchId: string; fromRow: number }; retryDelayMs?: number; onProgress?: (done: number, total: number) => void;
   // Spacing under the database's per-minute request limit. Pass one pacer for a whole queue; `onWait` receives the seconds left in a pause.
   pacer?: Pacer; rateWaitMs?: number; sleep?: (ms: number) => Promise<void>; onWait?: (secondsLeft: number) => void;
+  db?: LoadDb;   // default: the browser client (the admin screen); the command-line loader passes its own
 }): Promise<LoadResult> {
-  const supabase = getSupabaseBrowserClient(), total = input.payload.rows.length, wait = input.retryDelayMs ?? 1500;
+  const supabase: LoadDb = input.db ?? getSupabaseBrowserClient(), total = input.payload.rows.length, wait = input.retryDelayMs ?? 1500;
   const pacer = input.pacer ?? createPacer(), sleep = input.sleep ?? realSleep, rateWait = input.rateWaitMs ?? 20_000;
   let batchId: string | undefined = input.resume?.batchId, offset = continueFrom(input.resume?.fromRow, total), last: any = null;
   let errors: Array<{ row: number; code: string }> = [];
   // A fresh load of a file the database already knows is refused up front, in plain words, instead of failing request by request.
   if (!input.resume) {
-    const earlier = await findLoadBatchByHash(input.fileSha256);
+    const earlier = await findLoadBatchByHash(input.fileSha256, supabase);
     if (earlier) throw new Error(earlier.status === "LOADING"
       ? `This file was loaded before and stopped after ${earlier.rows_total} of ${total} questions. Choose Continue to finish it.`
       : `This exact file was already loaded (status ${earlier.status}, ${earlier.rows_total} questions). Nothing was sent.`);
@@ -92,7 +96,7 @@ export async function runQuestionLoad(input: {
       // Over the per-minute limit: nothing was saved by this request, so wait for the window to clear and send the same request again (up to about two minutes).
       if (isRateLimited(error) && rateHits < 6) { rateHits++; attempt--; await countdown(rateWait, sleep, input.onWait); continue; }
       // Failed: find out what the database actually holds before deciding anything.
-      const held = await findLoadBatchByHash(input.fileSha256);
+      const held = await findLoadBatchByHash(input.fileSha256, supabase);
       if (held) {
         batchId = held.id;
         // Only a time-out or dropped connection can mean "the work was done but the answer was lost"; a refusal never does.
@@ -104,7 +108,7 @@ export async function runQuestionLoad(input: {
     }
     input.onProgress?.(offset, total);
   }
-  const final = batchId ? await readLoadBatch(batchId) : null;
+  const final = batchId ? await readLoadBatch(batchId, supabase) : null;
   const status = final?.status ?? last?.status ?? "LOADING";
   return { batch_id: batchId ?? last?.batch_id, status, rows_total: final?.rows_total ?? last?.rows_total ?? offset, rows_loaded: final?.rows_loaded ?? last?.rows_loaded ?? 0,
     rows_rejected: final?.rows_rejected ?? last?.rows_rejected ?? 0, row_errors: errors };

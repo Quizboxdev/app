@@ -137,3 +137,15 @@ describe("loading a large file", () => {
     expect(h.state.stored).toEqual(ALL);
   });
 });
+
+// The command-line loader (scripts/question-bank/load-questions.ts) signs in on its own client and hands it in; the browser client must not be touched then.
+describe("loading through a client that is handed in", () => {
+  it("sends every request, and every look-up, through that client and never through the browser client", async () => {
+    const seen = { rpc: 0, from: 0 }, own = { ...h.client, rpc: (fn: string, args?: Record<string, unknown>) => { seen.rpc++; return h.client.rpc(fn, args as { p: any }); }, from: () => { seen.from++; return h.client.from(); } };
+    const r = await load({ db: own });
+    expect(r).toMatchObject({ status: "LOADED", rows_total: 2600 });
+    expect(seen.rpc).toBe(11);
+    expect(seen.from).toBeGreaterThan(0);
+    expect(await findLoadBatchByHash("a".repeat(64), own)).toMatchObject({ rows_total: 2600 });
+  });
+});
