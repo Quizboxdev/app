@@ -17,7 +17,7 @@ import { sourcesForSubjects } from "../../lib/question-loading/sources";
 //
 // Usage: npx tsx scripts/question-bank/load-questions.ts --target production|preview --dir <folder of .csv files> [--curriculum <id>] [--load]
 //        [--env-file .env.local]   where the project's public URL and key are read from (default .env.local); the URL must belong to --target
-//        [--anon-key <key>]        the project's public (anon) key, if the env file does not hold it
+//        [--anon-key <key>]        the project's public (anon) key; asked for when the env file does not hold the key of --target
 // Without --load it only checks: it signs in as you, reads the curriculum, plans every file and prints what would happen. Nothing is written.
 // With --load it asks you to type a confirmation phrase, then loads the files one after another. Stopped part-way? Run it again: finished files are skipped and an interrupted
 // file continues from where the database says it stopped (the same file is recognised by its content hash, also by the admin screen).
@@ -72,10 +72,12 @@ async function main() {
   const envUrl = env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
   const url = `https://${ref}.supabase.co`;
   const envMatches = envUrl.includes(`${ref}.`);
-  const anonKey = option("--anon-key") ?? (envMatches ? (env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) : undefined);
+  let anonKey = option("--anon-key") ?? (envMatches ? (env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) : undefined);
   if (!anonKey) {
-    console.error(`No public key for the ${target.toUpperCase()} project (${ref}). The env file points at ${envUrl || "(nothing)"}. Pass --anon-key <key> or --env-file <file for ${target}>.`);
-    process.exit(2);
+    // The key is public (every page of the site carries it): Supabase dashboard > Project Settings > API Keys, the "anon" / publishable key of the ${target} project.
+    console.log(`The env file does not point at the ${target.toUpperCase()} project (${ref}); it has ${envUrl || "no URL"}.`);
+    anonKey = await ask(`Public (anon) key of the ${target.toUpperCase()} project: `, true);
+    if (!anonKey) { console.error("No key given."); process.exit(2); }
   }
 
   const files = (await readdir(dir)).filter((f) => /\.(csv|txt|xlsx)$/i.test(f)).sort((a, b) => a.localeCompare(b, "en", { numeric: true }));
