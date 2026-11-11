@@ -90,6 +90,7 @@ async function main() {
   const files = (await readdir(dir)).filter((f) => /\.(csv|txt|xlsx)$/i.test(f)).sort((a, b) => a.localeCompare(b, "en", { numeric: true }));
   if (!files.length) { console.error(`No .csv, .txt or .xlsx files in ${dir}`); return quit(2); }
 
+  console.log("Loader version: waits for the hourly import allowance by itself (2026-11-11 c)");
   console.log(`Target: ${target.toUpperCase()} (${ref})   files: ${files.length} in ${resolve(dir)}   mode: ${doLoad ? "LOAD (after you confirm)" : "CHECK ONLY (nothing is written)"}`);
   const db = createClient(url, anonKey, { auth: { persistSession: false, autoRefreshToken: true } });
   const email = await ask("Admin e-mail: "), password = await ask("Password (hidden): ", true);
