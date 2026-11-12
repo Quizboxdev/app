@@ -5,7 +5,7 @@ import AuthShell from "@/components/auth/AuthShell";
 import PasswordUpdateForm from "@/components/auth/PasswordUpdateForm";
 import { FormEvent, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { passwordChecks, PASSWORD_REQUIREMENTS, browserRecoveryStorage, initializePasswordRecovery, recoveryErrorMessage, recoveryFailureMessage, recoveryFailureOf, RESET_SUCCESS_MESSAGE, updateRecoveryPassword, validateResetPasswords } from "@/lib/auth-recovery";
+import { passwordChecks, PASSWORD_REQUIREMENTS, browserRecoveryStorage, initializePasswordRecovery, recoveryErrorMessage, recoveryFailureMessage, recoveryFailureOf, RESET_PASSWORD_PATH, RESET_SUCCESS_MESSAGE, updateRecoveryPassword, validateResetPasswords } from "@/lib/auth-recovery";
 
 // Canonical password-recovery screen. A valid recovery session (the PASSWORD_RECOVERY event for this link, or the same verified
 // user resuming after a refresh) is required before the form appears; anything else shows why the link cannot be used.
@@ -24,7 +24,8 @@ export default function UpdatePasswordPage() {
   useEffect(() => {
     let active = true;
     recovery.current ??= initializePasswordRecovery(new URL(window.location.href), browserRecoveryStorage, () => new URL(window.location.href));
-    void recovery.current.then(id => { if (active) setUserId(id); }).catch(cause => { if (active) setFailure(recoveryFailureMessage(cause)); }).finally(() => { if (active) setChecking(false); });
+    // The one-time token is spent once verified: take it out of the address bar so a refresh resumes this recovery instead of replaying a used link.
+    void recovery.current.then(id => { if (new URL(window.location.href).searchParams.has("token_hash")) window.history.replaceState(null, "", RESET_PASSWORD_PATH); if (active) setUserId(id); }).catch(cause => { if (active) setFailure(recoveryFailureMessage(cause)); }).finally(() => { if (active) setChecking(false); });
     return () => { active = false; };
   }, []);
   useEffect(() => {
