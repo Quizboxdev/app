@@ -108,7 +108,7 @@ export default function PlayPage({ params }: { params: Promise<{ slug: string }>
 
   return (
     <>
-      <div className="qb-page-head" style={accent ? { borderTop: `6px solid ${accent}` } : undefined}><div>{card.brand?.organiser_name && <p className="qb-eyebrow">{card.brand.organiser_name}{card.brand.tagline ? ` · ${card.brand.tagline}` : ""}</p>}<h1>{card.title}</h1><p>{card.private ? `This is a private ${fmt.noun}. Enter the access code you were given.` : card.summary}</p></div></div>
+      <div className="qb-page-head" style={accent ? { borderTop: `6px solid ${accent}` } : undefined}><div>{card.brand?.organiser_name && <p className="qb-eyebrow">{card.brand.organiser_name}{card.brand.tagline ? ` · ${card.brand.tagline}` : ""}</p>}<h1>{card.title}</h1>{card.audience === "SCHOOL" && card.category === "sponsor" && card.brand?.organiser_name && <p className="qb-small qb-muted">Sponsored by {card.brand.organiser_name}.</p>}<p>{card.private ? `This is a private ${fmt.noun}. Enter the access code you were given.` : card.summary}</p></div></div>
       {error && <div className="qb-card qb-error" role="alert">{error}</div>}
       <div className="qb-card">
         {!card.private && <p>{card.question_count} questions · {formatDuration(card.time_limit_seconds * 1000)} · {card.max_attempts} attempt{card.max_attempts === 1 ? "" : "s"}. The timer starts when you press Start, and answers are scored on the server.</p>}

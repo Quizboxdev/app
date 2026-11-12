@@ -334,5 +334,12 @@
  "chars": 7032,
  "parts": 1,
  "note": "A signed-in learner can edit their own class level, school and subjects, twice in any six months (adds one table and two functions). Safe to run again."
+},
+{
+ "version": "20261068100000",
+ "name": "school_aimed_sponsored",
+ "chars": 8910,
+ "parts": 2,
+ "note": "Staff can aim a challenge at one verified school, behind a flag that is OFF (adds three columns, one flag row and three functions, and replaces two functions with the same names and shapes). Safe to run again. Apply to Preview first."
 }
 ]

@@ -51,6 +51,7 @@ export default async function PublicDetail({ slug, format }: { slug: string; for
           {!c.private && <p className="qbp-meta">{category} · {c.question_count} questions · {formatDuration(c.time_limit_seconds * 1000)} · {c.max_attempts} attempt{c.max_attempts === 1 ? "" : "s"} · {c.participants} played</p>}
           {c.audience === "CLASS" && <p className="qbp-meta">Open to the members of one class. Sign in with your school account to take part.</p>}
           {c.audience === "SCHOOL" && <p className="qbp-meta">Open to the members of one school. Sign in with your school account to take part.</p>}
+          {c.audience === "SCHOOL" && c.category === "sponsor" && c.brand?.organiser_name && <p className="qbp-meta">Sponsored by {c.brand.organiser_name}.</p>}
           {c.reward_text && <p><strong>Prize or recognition:</strong> {c.reward_text}</p>}
           {c.live && seats.full ? (
             <p className="qbp-notice qbp-notice-info" role="status"><strong>This {f.noun} is full.</strong> All {seats.cap} places are taken. Ask the organiser to add more places, or look for another one in the <Link className="qbp-link" href={f.base}>list of open {f.plural}</Link>.</p>
