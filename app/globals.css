@@ -1076,3 +1076,39 @@ button.qi-kw:disabled { cursor: not-allowed; }
 /* DS fix B (v0.2): under 360px the top-bar wordmark text is hidden and only the Q mark remains, so the bar never scrolls sideways.
    DS fix A (block link-buttons use border-box) needs no rule here: `* { box-sizing: border-box; }` already covers it. */
 @media (max-width: 359px) { .qb-topbar-brand .qb-lockup-text { display: none; } }
+
+/* ---------- Social links (QuizBox official channels) ---------- */
+.qb-social { display: flex; flex-wrap: wrap; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.qb-social .qb-social-link { display: inline-flex; align-items: center; gap: 12px; color: var(--ink); text-decoration: none; min-width: 44px; min-height: 44px; border-radius: var(--radius-pill); }
+.qb-social .qb-social-chip { display: inline-grid; place-items: center; flex: none; width: 44px; height: 44px; border-radius: 50%; color: #fff; background: #1f2937; border: 1px solid transparent; transition: transform .12s ease, box-shadow .12s ease; }
+.qb-social .qb-social-link:hover .qb-social-chip { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(15, 23, 42, .22); }
+.qb-social .qb-social-link:active .qb-social-chip { transform: scale(.95); }
+.qb-social-chip[data-channel="tiktok"] { background: #000; }
+.qb-social-chip[data-channel="instagram"] { background: linear-gradient(45deg, #f9a825 0%, #e1306c 50%, #833ab4 100%); }
+.qb-social-chip[data-channel="facebook"] { background: #1877f2; }
+.qb-social-chip[data-channel="youtube"] { background: #e00000; }
+.qb-social-chip[data-channel="linkedin"] { background: #0a66c2; }
+.qb-social-chip[data-channel="snapchat"] { background: #fffc00; color: #000; border-color: rgba(15, 23, 42, .18); }
+.qb-social-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 8px; }
+.qb-social-list .qb-social-link { display: flex; width: 100%; padding: 4px 10px 4px 4px; border: 1px solid var(--line); background: var(--qb-surface); }
+.qb-social-list .qb-social-link:hover { border-color: var(--blue); background: var(--qb-surface-hover); }
+.qb-social-text { display: grid; min-width: 0; line-height: 1.25; }
+.qb-social-text strong { font-size: 14px; }
+.qb-social-text span { font-size: 12px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.qb-connect > p { margin: 0 0 10px; }
+.qb-connect-share { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line); }
+.qb-connect-share .qb-follow-title { display: flex; align-items: center; gap: 6px; }
+.qb-btn-whatsapp { background: #128c7e; border-color: #128c7e; color: #fff; display: inline-flex; align-items: center; gap: 6px; }
+.qb-btn-whatsapp:hover { background: #0e7569; border-color: #0e7569; }
+/* App menu: a compact follow row at the foot of the desktop sidebar and of the phone "More" sheet. */
+.qb-follow { margin-top: 8px; padding: 12px 8px 4px; border-top: 1px solid var(--qb-border-light); }
+.qb-follow-title { margin: 0 0 8px; font-size: 12px; font-weight: 700; letter-spacing: .02em; color: var(--muted); }
+.qb-sidebar .qb-follow .qb-social { flex-wrap: nowrap; justify-content: space-between; gap: 2px; }
+.qb-sidebar .qb-follow .qb-social-link, .qb-sidebar .qb-follow .qb-social-chip { min-width: 28px; min-height: 28px; width: 28px; height: 28px; }
+.qb-sidebar .qb-follow .qb-social-chip svg { width: 15px; height: 15px; }
+.qb-more-panel .qb-follow { margin-top: 12px; padding-bottom: 8px; }
+/* Public footer and contact page. */
+.qbp-footer-social { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; margin-bottom: 14px; }
+.qbp-footer-social .qb-follow-title { margin: 0; font-size: 14px; color: var(--ink); }
+@media (max-width: 560px) { .qbp-footer-social { flex-direction: column; align-items: flex-start; } }
+@media (prefers-reduced-motion: reduce) { .qb-social .qb-social-chip { transition: none; } .qb-social .qb-social-link:hover .qb-social-chip { transform: none; } }

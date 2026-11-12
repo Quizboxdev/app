@@ -11,6 +11,7 @@ import type { UserContext } from "@/lib/types";
 import { getSmeContext, type SmeContext } from "@/lib/api/sme";
 import MarketContextControl from "@/components/MarketContextControl";
 import BrandLockup from "@/components/BrandLockup";
+import SocialLinks from "@/components/SocialLinks";
 import WorkspaceProvider from "@/components/WorkspaceProvider";
 import { loginHrefFor } from "@/lib/auth/next-path";
 import WorkspaceChip from "@/components/WorkspaceChip";
@@ -323,6 +324,7 @@ export default function AppShell({
           {navGroups}
         </nav>
         {["STUDENT", "TEACHER"].includes(String(ctx?.role ?? "").toUpperCase()) && !inSchool && <div className="qb-sidebar-sponsor" style={{ padding: "0 12px 12px" }}><SponsoredCarousel compact showLibrary={false} /></div>}
+        <div className="qb-follow"><p className="qb-follow-title">Follow QuizBox</p><SocialLinks /></div>
       </aside>
 
       <main className="qb-main" id="qb-main" tabIndex={-1}>
@@ -380,6 +382,7 @@ export default function AppShell({
                 <button type="button" aria-label="Close" onClick={() => setMoreOpen(false)} autoFocus><X size={18} aria-hidden="true" /></button>
               </div>
               <nav className="qb-nav" aria-label="All sections">{navGroups}</nav>
+              <div className="qb-follow"><p className="qb-follow-title">Follow QuizBox</p><SocialLinks /></div>
             </div>
           </div>
         )}
