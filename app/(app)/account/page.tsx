@@ -4,11 +4,12 @@ import { FormEvent, useCallback, useEffect, useState } from "react";
 import { getMyAccount, listSignupCountries, requestMarketChange, type Account, type SignupCountry } from "@/lib/api/markets";
 import { userFacingError } from "@/lib/errors";
 import PushToggle from "@/components/PushToggle";
+import StudentProfileEditor from "@/components/account/StudentProfileEditor";
 
 export default function AccountPage() {
-  const [account, setAccount] = useState<Account | null>(null), [countries, setCountries] = useState<SignupCountry[]>([]);
+  const [account, setAccount] = useState<Account | null>(null), [countries, setCountries] = useState<SignupCountry[]>([]), [markets, setMarkets] = useState<SignupCountry[]>([]);
   const [target, setTarget] = useState(""), [reason, setReason] = useState(""), [error, setError] = useState(""), [notice, setNotice] = useState(""), [busy, setBusy] = useState(false);
-  const load = useCallback(async () => { setAccount(await getMyAccount()); setCountries((await listSignupCountries()).filter((c) => c.available)); }, []);
+  const load = useCallback(async () => { setAccount(await getMyAccount()); const all = await listSignupCountries(); setMarkets(all); setCountries(all.filter((c) => c.available)); }, []);
   useEffect(() => { void load().catch((cause) => setError(userFacingError(cause))); }, [load]);
 
   async function submit(event: FormEvent) {
@@ -16,6 +17,7 @@ export default function AccountPage() {
     try { await requestMarketChange(target, reason); setNotice("Request sent. A QuizBox administrator will review it; your curriculum stays the same until then."); setReason(""); await load(); }
     catch (cause) { setError(userFacingError(cause)); } finally { setBusy(false); }
   }
+  const config = markets.find((c) => c.market_id === account?.primary_market?.id);   // this learner's class levels and subjects, from their own market
   if (!account) return error ? <p className="qb-error" role="alert">{error}</p> : <p>Loading account…</p>;
   return (
     <>
@@ -97,11 +99,15 @@ export default function AccountPage() {
             {account.student && (
               <>
                 <dl className="qb-field" style={{ gap: '0.25rem' }}>
-                  <dt className="qb-muted qb-small">Education Level</dt><dd style={{ margin: 0, fontSize: '0.875rem' }}>{account.student.education_level ?? "-"}</dd>
+                  <dt className="qb-muted qb-small">Education Level</dt><dd style={{ margin: 0, fontSize: '0.875rem' }}>{config?.education_levels.find((l) => l.code === account.student!.education_level)?.label ?? account.student.education_level ?? "-"}</dd>
                 </dl>
                 <dl className="qb-field" style={{ gap: '0.25rem' }}>
-                  <dt className="qb-muted qb-small">Grade</dt><dd style={{ margin: 0, fontSize: '0.875rem' }}>{account.student.grade_code ?? "-"}</dd>
+                  <dt className="qb-muted qb-small">Grade</dt><dd style={{ margin: 0, fontSize: '0.875rem' }}>{config?.grades.find((g) => g.code === account.student!.grade_code)?.label ?? account.student.grade_code ?? "-"}</dd>
                 </dl>
+                <dl className="qb-field" style={{ gap: '0.25rem' }}>
+                  <dt className="qb-muted qb-small">Subjects</dt><dd style={{ margin: 0, fontSize: '0.875rem' }}>{account.student.subjects.map((c) => config?.subjects.find((s) => s.code === c)?.label ?? c).join(", ") || "-"}</dd>
+                </dl>
+                <StudentProfileEditor current={{ grade_code: account.student.grade_code, school_name: account.school_name, subjects: account.student.subjects }} grades={config?.grades ?? []} subjects={config?.subjects ?? []} onSaved={() => void load().catch((cause) => setError(userFacingError(cause)))} />
               </>
             )}
           </div>

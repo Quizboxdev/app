@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, use, useCallback, useEffect, useState } from "react";
+import { Suspense, use, useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { getCampaignForEdit, publishCampaign, setCampaignStatus, setQuestions } from "@/lib/api/challenges";
 import { parseQuestionCsv } from "@/lib/challenges/csv";
@@ -9,6 +9,7 @@ import StagesPanel from "@/components/challenges/StagesPanel";
 import SourcePanel from "@/components/challenges/SourcePanel";
 import PrizesPanel from "@/components/challenges/PrizesPanel";
 import BrandPanel from "@/components/challenges/BrandPanel";
+import DetailsPanel from "@/components/challenges/DetailsPanel";
 import AnalyticsPanel from "@/components/challenges/AnalyticsPanel";
 import AudiencePanel from "@/components/challenges/AudiencePanel";
 import BankPicker from "@/components/challenges/BankPicker";
@@ -17,8 +18,8 @@ import SeatsPanel from "@/components/challenges/SeatsPanel";
 import { FORMATS, formatOf } from "@/lib/challenges/types";
 import { humanize } from "@/lib/format";
 
-// Edit one challenge. Questions can be typed in, pasted as CSV, or snapshotted from the QuizBox bank; they are locked once the challenge goes live.
-const TABS = ["Questions", "Rounds", "People", "Share", "Source", "Prizes", "Look and feel", "Results"] as const;
+// Edit one challenge. Questions can be typed in, pasted as CSV, or snapshotted from the QuizBox bank; they are locked once the challenge goes live. Title, description and closing time stay editable (Details tab).
+const TABS = ["Questions", "Details", "Rounds", "People", "Share", "Source", "Prizes", "Look and feel", "Results"] as const;
 type Tab = (typeof TABS)[number];
 
 export default function CreatorEditPage({ params }: { params: Promise<{ id: string }> }) {
@@ -38,6 +39,15 @@ export default function CreatorEditPage({ params }: { params: Promise<{ id: stri
   const have = (g: number) => questions.filter((q) => (q.stage_no ?? 1) === g).length;
   const missing = Array.from({ length: stageCount }, (_, i) => i + 1).reduce((n, g) => n + Math.max(0, needed(g) - have(g)), 0);
   const onError = useCallback((m: string) => setError(m), []);
+  // When questions have just been added (from the bank or pasted), bring the list into view: the "added" message is at the top of the page and the buttons are far below it.
+  const listRef = useRef<HTMLDivElement>(null), seen = useRef<number | null>(null);
+  useEffect(() => {
+    if (!campaign) return;
+    const before = seen.current; seen.current = questions.length;
+    if (before === null || questions.length <= before) return;
+    const calm = typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    listRef.current?.scrollIntoView({ behavior: calm ? "auto" : "smooth", block: "start" });
+  }, [campaign, questions.length]);
 
   async function run(work: () => Promise<string | void>) {
     setBusy(true); setError(""); setNotice("");
@@ -96,8 +106,9 @@ export default function CreatorEditPage({ params }: { params: Promise<{ id: stri
               </div>}
             </>
           )}
-          <div className="qb-card">
+          <div className="qb-card" ref={listRef} style={{ scrollMarginTop: 80 }}>
             <h2>Questions ({questions.length})</h2>
+            {notice && <p className="qb-small" aria-hidden="true"><strong>✓ {notice}</strong></p>}
             {questions.length === 0 ? <p className="qb-muted">None yet.</p> : (
               <ol className="qb-list">{questions.map((q, i) => (
                 <li key={q.id ?? i}>
@@ -113,6 +124,7 @@ export default function CreatorEditPage({ params }: { params: Promise<{ id: stri
           </div>
         </>
       )}
+      {tab === "Details" && <DetailsPanel id={id} campaign={campaign} onChanged={() => void load()} onError={onError} />}
       {tab === "People" && <Suspense fallback={<div className="qb-card"><p className="qb-muted">Loading…</p></div>}><SeatsPanel id={id} noun={fmt.noun} onError={onError} /></Suspense>}
       {tab === "Share" && <>
         {campaign.status === "LIVE" && campaign.visibility !== "PRIVATE" && !campaign.audience_class_id && !campaign.audience_institution_id

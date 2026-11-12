@@ -1,7 +1,7 @@
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { userFacingError } from "@/lib/errors";
 import type { PracticeMenu } from "@/lib/api/practice";
-import type { Analytics, AttemptResult, Award, Brand, FeaturedQuiz, Format, LibraryStats, Material, SectionRead, ContentAsset, EditableQuestion, LeaderRow, MyCampaign, Passage, Prize, StageInfo, StageProgress, StartedAttempt } from "@/lib/challenges/types";
+import type { Analytics, AttemptResult, Award, Brand, FeaturedQuiz, Format, LibraryStats, Material, SectionRead, ContentAsset, EditableQuestion, LeaderRow, MyCampaign, Participants, Passage, Prize, StageInfo, StageProgress, StartedAttempt } from "@/lib/challenges/types";
 
 // Participants and creators call the database functions directly; every rule (who may create, one scored submission, locked after going live) is enforced there.
 const CODES: Record<string, string> = {
@@ -9,7 +9,7 @@ const CODES: Record<string, string> = {
   QUIZ_FULL: "This quiz is full. Please ask the organiser to add more places.",
   CHALLENGE_NOT_LIVE: "This challenge is not open right now.", WRONG_CODE: "That access code is not right.", NO_ATTEMPTS_LEFT: "You have used all your attempts.",
   RATE_LIMITED: "Too many tries. Please wait a little and try again.", NOT_ENOUGH_QUESTIONS: "Add enough questions before publishing.", ONLY_DRAFT_EDITABLE: "Questions and rules are locked once a challenge has gone live.",
-  INVALID_TRANSITION: "That change is not allowed from the current status.", INVALID_QUESTIONS: "Every question needs 2 to 4 options and a correct answer.", ENDS_IN_THE_PAST: "The end date has already passed.",
+  INVALID_TRANSITION: "That change is not allowed from the current status.", INVALID_QUESTIONS: "Every question needs 2 to 4 options and a correct answer.", ENDS_IN_THE_PAST: "The end date has already passed. To close it now, use End.", CHALLENGE_ENDED: "This has ended, so its details can no longer be changed.", ALREADY_OPENED: "It has already opened, so the opening time cannot change.", INVALID_DATES: "The closing time must be after the opening time.",
   STAGE_LOCKED: "Reach the pass mark in the previous round to unlock this one.", STAGE_NOT_OPEN: "This round has not opened yet.", STAGE_CLOSED: "This round has closed.",
   QUOTE_NOT_IN_SOURCE: "A source quote is not word for word in the passage you chose.", INVALID_SOURCE: "A question points to a passage that is not in this challenge.", NOT_GROUNDED: "Every question in a book challenge needs a passage and a quote from it.",
   RIGHTS_NOT_CONFIRMED: "Please confirm you have the right to use this material.", INVALID_STAGES: "Add between 1 and 6 rounds.", INVALID_PRIZES: "Check the prize ranks and names.", TAKEN_DOWN: "This challenge was taken down after a review and cannot be published.", NOT_FOUND: "That challenge could not be found.",
@@ -67,7 +67,8 @@ export const updateAward = (award: string, status: string, note?: string) => cal
 export const myAwards = () => call<{ campaign: string; slug: string; rank: number; prize: string; details: string | null; status: string; updated_at: string }[]>("challenge_my_awards");
 export const setBrand = (id: string, brand: Brand) => call<{ ok: true; brand: Brand }>("challenge_set_brand", { p_id: id, p_brand: brand });
 export const getAnalytics = (id: string) => call<Analytics>("challenge_analytics", { p_id: id });
-export const adminOverview = () => call<{ campaigns: Record<string, number>; attempts_30d: number; players_30d: number; awards_pending: number; top: { slug: string; title: string; status: string; players: number }[] }>("challenge_admin_overview");
+export const getParticipants = (id: string) => call<Participants>("challenge_participants", { p_id: id });
+export const adminOverview =() => call<{ campaigns: Record<string, number>; attempts_30d: number; players_30d: number; awards_pending: number; top: { slug: string; title: string; status: string; players: number }[] }>("challenge_admin_overview");
 
 // Uploading a book goes through a server route (it extracts the text); everything else is a direct database call.
 export async function uploadContent(a: { campaignId: string; title: string; contentType: string; assetId?: string; file?: File | null; text?: string }): Promise<{ asset_id: string; version: number; passages: number; sections: number; words: number; sectionList: string[] }> {

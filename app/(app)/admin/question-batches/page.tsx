@@ -7,6 +7,7 @@ import { formatDate } from "@/lib/format";
 import ExportLink from "@/components/admin/ExportLink";
 import Link from "next/link";
 import { batchView } from "@/lib/question-loading/queue";
+import { nothingToApprove } from "@/lib/question-loading/approval-hint";
 
 // Owner-approved batches (the interim review step until reviewers are onboarded). Read the random sample, tick each question you checked,
 // then approve. Approved questions are labelled OWNER_BATCH, never "reviewed by subject experts", and one click revokes the whole batch.
@@ -99,6 +100,7 @@ Why? (at least 10 characters)`);
         {!preview ? <p className="qb-muted">Drawing a random sample…</p> : <>
           <p className="qb-muted">{preview.questions_found} questions in this batch; {preview.would_approve} pass validation and will go live. Read each question below and tick it when you are satisfied
             the marked answer is certainly right and each wrong option is a believable mistake. You need {need} ticks.</p>
+          {preview.would_approve === 0 && <p className="qb-card" role="status"><strong>Nothing to approve in this batch.</strong> {nothingToApprove(preview.by_state)}</p>}
           <ol className="qb-task-list">
             {preview.sample.map((q, i) => <li key={q.id} style={{ marginBottom: 12 }}>
               <label style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
