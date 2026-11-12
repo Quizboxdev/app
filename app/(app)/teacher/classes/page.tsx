@@ -1,6 +1,7 @@
 "use client";
 
 import HelpLink from "@/components/help/HelpLink";
+import CopyButton from "@/components/CopyButton";
 import { FormEvent, useEffect, useState } from "react";
 import { bootstrapUser } from "@/lib/auth";
 import { archiveClass, createClass, listTeacherClasses } from "@/lib/api/teacher";
@@ -46,7 +47,7 @@ export default function TeacherClassesPage() {
         <div className="qb-grid cols-2"><div className="qb-field"><label htmlFor="class-year">Academic year</label><input id="class-year" value={year} onChange={(event) => setYear(event.target.value)} required /></div><div className="qb-field"><label htmlFor="class-term">Term</label><select id="class-term" value={term} onChange={(event) => setTerm(event.target.value)}><option value="1">Term 1</option><option value="2">Term 2</option><option value="3">Term 3</option></select></div></div>
         <button className="qb-btn" type="submit">Create class</button>
       </form>
-      <div className="qb-card"><h2>Your classes</h2><div className="qb-list">{rows.map((row) => <div className="qb-row" key={row.id}><div className="qb-row-main"><strong>{row.class_name}</strong><span>{row.grade} · {row.academic_year} · {row.status}</span><span>Join code: <strong>{row.join_code}</strong></span></div><div className="qb-actions"><button className="qb-btn qb-btn-secondary" type="button" onClick={() => navigator.clipboard.writeText(row.join_code)}>Copy code</button>{row.status !== "archived" && <button className="qb-btn qb-btn-secondary" type="button" onClick={async () => { await archiveClass(row.id); await refresh(ctx); }}>Archive</button>}</div></div>)}{!rows.length && <div className="qb-muted">Create your first curriculum-linked class.</div>}</div></div>
+      <div className="qb-card"><h2>Your classes</h2><div className="qb-list">{rows.map((row) => <div className="qb-row" key={row.id}><div className="qb-row-main"><strong>{row.class_name}</strong><span>{row.grade} · {row.academic_year} · {row.status}</span><span>Join code: <strong>{row.join_code}</strong></span></div><div className="qb-actions"><CopyButton text={row.join_code} label="Copy code" />{row.status !== "archived" && <button className="qb-btn qb-btn-secondary" type="button" onClick={async () => { await archiveClass(row.id); await refresh(ctx); }}>Archive</button>}</div></div>)}{!rows.length && <div className="qb-muted">Create your first curriculum-linked class.</div>}</div></div>
     </div>
   </>;
 }

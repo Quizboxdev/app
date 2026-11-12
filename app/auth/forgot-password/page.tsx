@@ -4,16 +4,17 @@ import Link from "next/link";
 import AuthShell from "@/components/auth/AuthShell";
 import { FormEvent, useEffect, useState } from "react";
 import { recoveryErrorMessage, requestPasswordReset } from "@/lib/auth-recovery";
-import { createResetEmailRequest, isResetEmailRateLimit, RESET_EMAIL_RATE_LIMIT, RESET_EMAIL_SENT } from "@/lib/password-reset-request";
+import { browserCooldownStore, createResetEmailRequest, isResetEmailRateLimit, RESET_EMAIL_RATE_LIMIT, RESET_EMAIL_SENT, RESET_EMAIL_SPAM_HINT } from "@/lib/password-reset-request";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
   const [busy, setBusy] = useState(false);
   const [sent, setSent] = useState(false);
   const [error, setError] = useState("");
-  const [request] = useState(() => createResetEmailRequest());
+  const [request] = useState(() => createResetEmailRequest(Date.now, browserCooldownStore()));
   const [remaining, setRemaining] = useState(0);
   useEffect(() => {
+    setRemaining(request.remainingSeconds()); // a refresh keeps the wait that was already running
     const timer = window.setInterval(() => setRemaining(request.remainingSeconds()), 1000);
     return () => window.clearInterval(timer);
   }, [request]);
@@ -28,7 +29,8 @@ export default function ForgotPasswordPage() {
     finally { setRemaining(request.remainingSeconds()); setBusy(false); }
   }
   return <AuthShell title="Reset password" subtitle="Enter your account email and we'll send you a secure link to set a new password." footer={<Link href="/login">← Back to sign in</Link>}>
-    {sent && <p role="status" className="qb-auth-alert is-success">{RESET_EMAIL_SENT} The link opens a page where you choose your new password.</p>}
+    {sent && <p role="status" className="qb-auth-alert is-success">{RESET_EMAIL_SENT} The link opens a page where you choose your new password. {RESET_EMAIL_SPAM_HINT}</p>}
+    {!sent && remaining > 0 && <p role="status" className="qb-auth-alert">You asked for a reset email a moment ago. {RESET_EMAIL_SPAM_HINT}</p>}
     <form className="qb-form" onSubmit={submit}>
       <div className="qb-field"><label htmlFor="reset-email">Email</label><input id="reset-email" type="email" inputMode="email" autoComplete="email" required value={email} onChange={event => setEmail(event.target.value)} disabled={busy}/></div>
       {error && <p className="qb-auth-alert is-error" role="alert">{error}</p>}

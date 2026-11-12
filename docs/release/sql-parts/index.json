@@ -299,5 +299,19 @@
  "chars": 3533,
  "parts": 1,
  "note": "Faster class-level list for adding bank questions to a challenge (one function replaced, same name and shape). Safe to run again."
+},
+{
+ "version": "20261062100000",
+ "name": "challenge_participants",
+ "chars": 1801,
+ "parts": 1,
+ "note": "The creator's Results tab can list each person's attempts (adds one function, challenge_participants). Safe to run again."
+},
+{
+ "version": "20261063100000",
+ "name": "class_join_level_check",
+ "chars": 4644,
+ "parts": 1,
+ "note": "Joining a class by code now refuses a learner whose class level differs from the class (two functions replaced, same names and shapes). Safe to run again."
 }
 ]
