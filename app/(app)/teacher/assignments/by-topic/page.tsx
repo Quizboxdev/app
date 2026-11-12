@@ -5,6 +5,7 @@ import { bootstrapUser } from "@/lib/auth";
 import { listTeacherClasses } from "@/lib/api/teacher";
 import { listClassLearners, listTeacherTopics, type TeacherTopic } from "@/lib/api/topic-assignments";
 import { previewBlueprint, publishBlueprint, type BlueprintPlan } from "@/lib/api/blueprint";
+import { createSchedule, isoWeekday, WEEKDAYS } from "@/lib/api/schedules";
 import { canCombineSubjects, classLevel, sectionProblems, sectionsFromLegacyDraft, splitEvenly, toApiSections, totalOf, type SectionDraft } from "@/lib/learning/blueprint";
 import { describeErrorMessage } from "@/lib/errors";
 import { splitTopicsForTeacher } from "@/lib/curriculum/display";
@@ -32,6 +33,9 @@ export default function AssignByTopicPage() {
   const [attempts, setAttempts] = useState(1), [minutes, setMinutes] = useState(30), [dueAt, setDueAt] = useState("");
   const [learners, setLearners] = useState<Array<{ user_id: string; name: string }>>([]), [everyone, setEveryone] = useState(true), [recipients, setRecipients] = useState<string[]>([]);
   const [busy, setBusy] = useState(false), [error, setError] = useState(""), [notice, setNotice] = useState("");
+  // Repeat every week (flag repeat_assignments): this one goes out now; the same shape goes out again on this weekday and time, with fresh questions.
+  const [repeat, setRepeat] = useState(false), [weekday, setWeekday] = useState(() => isoWeekday(new Date())), [repeatTime, setRepeatTime] = useState("16:00"), [dueAfterDays, setDueAfterDays] = useState(3);
+  const repeatOn = useWorkspaceFlags().repeat_assignments;
   // Unfinished work is kept as a draft. The class has to load before the topics and learners it holds can be put back, so those wait in `pending`.
   // A draft saved before sections existed (one subject, ticked topics, one total) comes back as a single section.
   type Held = { classId: string; sections?: SectionDraft[]; subject?: string; chosen?: string[]; total?: number; difficulty: string; title: string; description: string; mode: "PRACTICE" | "ASSESSMENT"; attempts: number; minutes: number; dueAt: string; everyone: boolean; recipients: string[] };
@@ -109,8 +113,18 @@ export default function AssignByTopicPage() {
     try {
       await publishBlueprint({ classId, title: title.trim(), description, sections: toApiSections(sections), difficulty: difficulty || undefined, mode, attempts, minutes,
         dueAt: dueAt ? new Date(dueAt).toISOString() : undefined, targetStudentIds: everyone ? undefined : recipients });
-      setNotice(`Assignment published: ${total} questions across ${sections.length} subject${sections.length === 1 ? "" : "s"}.`);
-      void draft.finish(); setTitle(""); setDescription(""); setSections([]); setPlan(null);
+      const made = `Assignment published: ${total} questions across ${sections.length} subject${sections.length === 1 ? "" : "s"}.`;
+      let again = "";
+      if (repeatOn && repeat && everyone) {
+        // The assignment is already out; a problem setting up the repeat is reported without undoing it.
+        try {
+          await createSchedule({ classId, title: title.trim(), description, sections: toApiSections(sections), difficulty: difficulty || undefined, mode, attempts, minutes,
+            weekday, time: repeatTime, dueAfterDays });
+          again = ` It will repeat every ${WEEKDAYS[weekday - 1]} at ${repeatTime}.`;
+        } catch (e) { again = ` It was not set to repeat: ${describeErrorMessage((e as Error).message)}`; }
+      }
+      setNotice(made + again);
+      void draft.finish(); setTitle(""); setDescription(""); setSections([]); setPlan(null); setRepeat(false);
     } catch (e) { setError(describeErrorMessage((e as Error).message)); } finally { setBusy(false); }
   }
 
@@ -118,7 +132,7 @@ export default function AssignByTopicPage() {
 
   return <>
     <div className="qb-page-head"><div><h1>Assign by subject and topic</h1>
-      <p>Choose what you taught and how many questions. {combine ? "A test can combine several subjects, each with its own number of questions." : "Choose a subject and its topics."} <Link href="/teacher/assignments">Assign by single objective instead</Link>.</p></div></div>
+      <p>Choose what you taught and how many questions. {combine ? "A test can combine several subjects, each with its own number of questions." : "Choose a subject and its topics."} <Link href="/teacher/assignments">Assign by single objective instead</Link>.{repeatOn && <> <Link href="/teacher/assignments/repeating">Repeating assignments</Link>.</>}</p></div></div>
     <DraftNotice restored={!!draft.restored} expiresAt={draft.expiresAt} noun="assignment" onDiscard={() => void draft.finish()} />
     {error && <div className="qb-card qb-error" role="alert">{error}</div>}{notice && <div className="qb-card" role="status">{notice}</div>}
     <section className="qb-card"><h2>1. Class and subjects</h2>
@@ -206,6 +220,18 @@ export default function AssignByTopicPage() {
             : learners.map((l) => <label key={l.user_id} className="qb-row"><input type="checkbox" checked={recipients.includes(l.user_id)}
                 onChange={() => setRecipients((r) => (r.includes(l.user_id) ? r.filter((x) => x !== l.user_id) : [...r, l.user_id]))}/>{l.name}</label>)}</div>}
         </fieldset>
+        {repeatOn && <fieldset><legend>Repeat</legend>
+          <label><input type="checkbox" checked={repeat && everyone} disabled={!everyone} onChange={(e) => setRepeat(e.target.checked)}/> Send a fresh copy of this to the class every week</label>
+          {!everyone && <p className="qb-muted qb-small">Repeating is for the whole class. Choose &ldquo;Every learner in the class&rdquo; to use it.</p>}
+          {repeat && everyone && <>
+            <div className="qb-grid cols-2">
+              <div className="qb-field"><label htmlFor="bt-rep-day">Every</label><select id="bt-rep-day" value={weekday} onChange={(e) => setWeekday(Number(e.target.value))}>{WEEKDAYS.map((d, i) => <option key={d} value={i + 1}>{d}</option>)}</select></div>
+              <div className="qb-field"><label htmlFor="bt-rep-time">At (Ghana time)</label><input id="bt-rep-time" type="time" value={repeatTime} onChange={(e) => setRepeatTime(e.target.value || "16:00")}/></div>
+              <div className="qb-field"><label htmlFor="bt-rep-due">Learners have</label><select id="bt-rep-due" value={dueAfterDays} onChange={(e) => setDueAfterDays(Number(e.target.value))}>{[1, 2, 3, 4, 5, 6, 7].map((n) => <option key={n} value={n}>{n} day{n === 1 ? "" : "s"} to finish</option>)}</select></div>
+            </div>
+            <p className="qb-muted qb-small">This one goes out now. The first repeat is the next {WEEKDAYS[weekday - 1]} at {repeatTime} that is at least a day away. Each repeat draws fresh questions from the same subjects and topics; if a week cannot be sent (for example a topic runs short) it is skipped and you are told. Manage them under <Link href="/teacher/assignments/repeating">Repeating assignments</Link>.</p>
+          </>}
+        </fieldset>}
         <button className="qb-btn" disabled={!ready || busy} onClick={() => void publish()}>{busy ? "Publishing…" : "Publish assignment"}</button>
       </div>
     </section>}

@@ -2,6 +2,7 @@ import { timingSafeEqual } from "node:crypto";
 import webpush from "web-push";
 import { admin, reply } from "@/lib/managed/server";
 import { runDraftSweep } from "@/lib/drafts/sweep";
+import { runAssignmentSweep } from "@/lib/assignments/sweep";
 import { logFallback } from "@/lib/ops/log";
 
 // Sends web push for unread in-app notifications. Run it every few minutes by any scheduler that can call a URL with a bearer token (see docs/release/APPLY_PUSH.md).
@@ -40,5 +41,8 @@ export async function GET(request: Request) {
   await svc.rpc("qb_push_report", { p_done: list.map((n) => n.notification_id), p_ok: ok, p_gone: gone, p_failed: failed });
   // The same five-minute run also clears expired drafts and emails the two-hour warnings, so no second schedule is needed. It never affects the push result.
   try { await runDraftSweep(svc); } catch (e) { logFallback("cron-push", "the drafts sweep failed (the push result is unaffected)", e); }
+  // Weekly repeat assignments and due-soon reminders ride the same run (closed in the database until flags.repeat_assignments is on). They are written to the
+  // in-app list first, so the next run pushes them. A failure here never affects the push result.
+  try { await runAssignmentSweep(svc); } catch (e) { logFallback("cron-push", "the assignment sweep failed (the push result is unaffected)", e); }
   return reply(200, { ok: true, notifications: list.length, sent, gone: gone.length, failed: failed.length });
 }
