@@ -12,6 +12,8 @@ export const FEATURE_FLAGS = [
   "q_insignia_concept_photos",
   // Canvas 11 public Help presentation; no activation migration is included.
   "design_v02_help",
+  // Teachers can repeat an assignment every week; learners get a due-soon reminder. Closed in the database until the owner turns it on.
+  "repeat_assignments",
 ] as const;
 export type FeatureFlag = (typeof FEATURE_FLAGS)[number];
 export type FlagMap = Record<FeatureFlag, boolean>;
@@ -20,7 +22,7 @@ export type FlagMap = Record<FeatureFlag, boolean>;
 export const DEFAULT_FLAGS: FlagMap = {
   student_self_pay: false, paid_challenges: false, offline_learning: false, guardian_consent_required: false, sponsor_consent_required: true, buy_coins_enabled: false,
   q_insignia_subject_cards_v02: false, q_insignia_concept_photos: false,
-  design_v02_help: false,
+  design_v02_help: false, repeat_assignments: false,
 };
 
 export function flagsFromSettings(rows: Array<{ key: string; value: unknown }>): FlagMap {

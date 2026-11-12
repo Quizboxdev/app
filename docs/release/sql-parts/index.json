@@ -334,5 +334,12 @@
  "chars": 7032,
  "parts": 1,
  "note": "A signed-in learner can edit their own class level, school and subjects, twice in any six months (adds one table and two functions). Safe to run again."
+},
+{
+ "version": "20261067100000",
+ "name": "repeat_assignments",
+ "chars": 16917,
+ "parts": 3,
+ "note": "Repeat-weekly assignments and a due-soon reminder, OFF until flags.repeat_assignments is set to true (adds two tables, a schema and ten functions, and one flag row). Nothing is sent or published while the flag is off. Safe to run again."
 }
 ]
