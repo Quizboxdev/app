@@ -96,6 +96,7 @@ const messages: Record<string, string> = {
   INVALID_CLASS_CODE: "This class code is not valid.",
   CLASS_NOT_ACTIVE: "This class is not open for enrollment.",
   CLASS_CODE_EXPIRED: "This class code has expired.",
+  CLASS_LEVEL_MISMATCH: "This class is for a different class level from yours, so you cannot join it with this code. Check that you have the right code, or ask your teacher to add you.",
   QB_CONTENT_ACCESS_DENIED: "You do not have permission to manage content.", QB_AUTHENTICATION_REQUIRED: "Please sign in again.",
   QB_CONTENT_CONFLICT: "This item changed while you were reviewing it. Reload it before continuing.",
   QB_HUMAN_REVIEW_REQUIRED: "A human editorial review is required before approval.",

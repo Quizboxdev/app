@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getAnalytics } from "@/lib/api/challenges";
-import { formatDuration, type Analytics } from "@/lib/challenges/types";
+import { getAnalytics, getParticipants } from "@/lib/api/challenges";
+import { formatDuration, type Analytics, type Participants } from "@/lib/challenges/types";
 
 const pct = (n: number, d: number) => (d > 0 ? `${Math.round((100 * n) / d)}%` : "–");
 const Bar = ({ value, max, label }: { value: number; max: number; label: string }) => (
@@ -15,8 +15,10 @@ const Bar = ({ value, max, label }: { value: number; max: number; label: string 
 
 // Results for the organiser: reach, completion, score spread, each round's funnel and which questions were hardest. Page views are approximate (anyone opening the public page counts once per visit).
 export default function AnalyticsPanel({ id, onError }: { id: string; onError: (m: string) => void }) {
-  const [a, setA] = useState<Analytics | null>(null);
+  const [a, setA] = useState<Analytics | null>(null), [people, setPeople] = useState<Participants | null>(null);
   useEffect(() => { getAnalytics(id).then(setA).catch((e) => onError(e.message)); }, [id, onError]);
+  // The attempts list is an extra; if it cannot load, the rest of the results still show.
+  useEffect(() => { getParticipants(id).then(setPeople).catch(() => setPeople(null)); }, [id]);
   if (!a) return <div className="qb-card" role="status">Loading results…</div>;
   const maxBand = Math.max(1, ...a.distribution.map((d) => d.count)), maxDay = Math.max(1, ...a.daily.map((d) => d.starts));
   return (
@@ -25,6 +27,12 @@ export default function AnalyticsPanel({ id, onError }: { id: string; onError: (
         {[["Page views", a.views], ["Players", a.players], ["Attempts started", a.started], ["Attempts finished", a.completed], ["Finish rate", pct(a.completed, a.started)], ["Average score", a.avg_score_percent === null ? "–" : `${a.avg_score_percent}%`], ["Average time", a.avg_duration_ms === null ? "–" : formatDuration(a.avg_duration_ms)], ["Timed out", a.expired]].map(([k, v]) => (
           <div className="qb-card" key={String(k)}><div className="qb-muted qb-small">{k}</div><div style={{ fontSize: 26, fontWeight: 700 }}>{v}</div></div>))}
       </div>
+      {people && <div className="qb-card"><h2>Participants</h2>{people.rows.length === 0 ? <p className="qb-muted">Nobody has started yet.</p> : <div className="qb-table-wrap">
+        <table className="qb-table"><thead><tr><th>Name</th><th>Attempts</th><th>Best score</th></tr></thead><tbody>{people.rows.map((r, i) => <tr key={`${r.name}-${i}`}>
+          <td>{r.name}</td>
+          <td>{r.attempts} of {people.max_attempts}{r.finished < r.attempts ? <span className="qb-muted qb-small"> ({r.finished} finished)</span> : null}</td>
+          <td>{r.best_score === null ? "–" : `${r.best_score}${r.max_score ? ` / ${r.max_score}` : ""}`}</td></tr>)}</tbody></table></div>}
+        <p className="qb-muted qb-small">Only you can see this list. The public leaderboard shows each person&apos;s best score only.</p></div>}
       <div className="qb-card"><h2>Score spread</h2>{a.distribution.length === 0 ? <p className="qb-muted">No finished attempts yet.</p> : [0, 20, 40, 60, 80].map((b) => <Bar key={b} label={b === 80 ? "80–100%" : `${b}–${b + 19}%`} value={a.distribution.find((d) => d.band === b)?.count ?? 0} max={maxBand} />)}</div>
       {a.stages.length > 1 && <div className="qb-card"><h2>Rounds</h2><table className="qb-table"><thead><tr><th>Round</th><th>Players</th><th>Started</th><th>Finished</th></tr></thead><tbody>{a.stages.map((s) => <tr key={s.stage_no}><td>{s.stage_no}</td><td>{s.players}</td><td>{s.started}</td><td>{s.completed}</td></tr>)}</tbody></table></div>}
       <div className="qb-card"><h2>Questions</h2>{a.questions.length === 0 ? <p className="qb-muted">No questions.</p> : (

@@ -32,6 +32,21 @@ describe("reset email request throttling (mocked, no hosted email)", () => {
     expect(RESET_EMAIL_RATE_LIMIT).toBe("Too many reset emails have been requested. Please wait before trying again.");
   });
 
+  it("keeps the wait across a page refresh when a store is given", async () => {
+    let saved = 0;
+    const store = { read: () => saved, write: (value: number) => { saved = value; } };
+    let clock = 10_000;
+    const first = createResetEmailRequest(() => clock, store);
+    expect(await first.send(async () => {})).toBe(true);
+    expect(saved).toBe(70_000);
+    clock += 20_000;
+    const afterRefresh = createResetEmailRequest(() => clock, store); // a new page load has fresh memory but the same store
+    expect(afterRefresh.remainingSeconds()).toBe(40);
+    expect(await afterRefresh.send(async () => {})).toBe(false);
+    clock += 40_000;
+    expect(await afterRefresh.send(async () => {})).toBe(true);
+  });
+
   it("keeps ordinary failures distinct and uses the required success message", async () => {
     const gate = createResetEmailRequest();
     await expect(gate.send(async () => { throw new Error("network"); })).rejects.toThrow("network");

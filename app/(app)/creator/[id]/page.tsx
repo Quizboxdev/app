@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, use, useCallback, useEffect, useState } from "react";
+import { Suspense, use, useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { getCampaignForEdit, publishCampaign, setCampaignStatus, setQuestions } from "@/lib/api/challenges";
 import { parseQuestionCsv } from "@/lib/challenges/csv";
@@ -39,6 +39,15 @@ export default function CreatorEditPage({ params }: { params: Promise<{ id: stri
   const have = (g: number) => questions.filter((q) => (q.stage_no ?? 1) === g).length;
   const missing = Array.from({ length: stageCount }, (_, i) => i + 1).reduce((n, g) => n + Math.max(0, needed(g) - have(g)), 0);
   const onError = useCallback((m: string) => setError(m), []);
+  // When questions have just been added (from the bank or pasted), bring the list into view: the "added" message is at the top of the page and the buttons are far below it.
+  const listRef = useRef<HTMLDivElement>(null), seen = useRef<number | null>(null);
+  useEffect(() => {
+    if (!campaign) return;
+    const before = seen.current; seen.current = questions.length;
+    if (before === null || questions.length <= before) return;
+    const calm = typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    listRef.current?.scrollIntoView({ behavior: calm ? "auto" : "smooth", block: "start" });
+  }, [campaign, questions.length]);
 
   async function run(work: () => Promise<string | void>) {
     setBusy(true); setError(""); setNotice("");
@@ -97,8 +106,9 @@ export default function CreatorEditPage({ params }: { params: Promise<{ id: stri
               </div>}
             </>
           )}
-          <div className="qb-card">
+          <div className="qb-card" ref={listRef} style={{ scrollMarginTop: 80 }}>
             <h2>Questions ({questions.length})</h2>
+            {notice && <p className="qb-small" aria-hidden="true"><strong>✓ {notice}</strong></p>}
             {questions.length === 0 ? <p className="qb-muted">None yet.</p> : (
               <ol className="qb-list">{questions.map((q, i) => (
                 <li key={q.id ?? i}>
