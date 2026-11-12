@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { getLeaderboard, getMaterial, joinChallenge, myProgress, startChallenge, submitChallenge } from "@/lib/api/challenges";
 import { isAllowanceExhausted, SUBSCRIBE_PATH } from "@/lib/api/access";
 import ShareBar from "@/components/challenges/ShareBar";
+import { buildReview, type PlayedQuestion } from "@/lib/challenges/review";
 import { FORMATS, formatOf, formatDuration, readableText, type AttemptResult, type ChallengeCard, type LeaderRow, type StageProgress, type StartedAttempt } from "@/lib/challenges/types";
 
 // The challenge player. The questions arrive without answers; the server scores the attempt when it is submitted (or when time runs out) and only then reveals the answers.
@@ -19,6 +20,7 @@ export default function PlayPage({ params }: { params: Promise<{ slug: string }>
   const [answers, setAnswers] = useState<Record<string, number>>({}), [index, setIndex] = useState(0), [left, setLeft] = useState(0);
   const [result, setResult] = useState<AttemptResult | null>(null), [board, setBoard] = useState<LeaderRow[]>([]);
   const [progress, setProgress] = useState<StageProgress[]>([]), [stage, setStage] = useState(1);
+  const [played, setPlayed] = useState<PlayedQuestion[]>([]);   // the questions just answered, so the result can show them
   const sent = useRef(false);
   const [reading, setReading] = useState<Awaited<ReturnType<typeof getMaterial>> | null>(null);
 
@@ -34,7 +36,7 @@ export default function PlayPage({ params }: { params: Promise<{ slug: string }>
     if (sent.current) return; sent.current = true; setBusy(true); setError("");
     try {
       const r = await submitChallenge(a.attempt_id, a.questions.map((q) => ({ question_id: q.id, chosen_index: given[q.id] ?? null })));
-      setResult(r); setAttempt(null); setBoard(await getLeaderboard(slug).catch(() => [])); loadProgress();
+      setPlayed(a.questions); setResult(r); setAttempt(null); setBoard(await getLeaderboard(slug).catch(() => [])); loadProgress();
     } catch (e: any) { sent.current = false; setError(e.message); }
     setBusy(false);
   }, [slug, loadProgress]);
@@ -62,8 +64,13 @@ export default function PlayPage({ params }: { params: Promise<{ slug: string }>
       <>
         <div className="qb-page-head"><div><h1>{result.expired ? "Time was up" : `You scored ${result.score} out of ${result.max_score}`}</h1>
           <p>{result.expired ? "This attempt was submitted after the time limit, so it does not count." : `Finished in ${formatDuration(result.duration_ms ?? 0)}.`}</p></div></div>
-        {result.review && <div className="qb-card"><h2>Your answers</h2><ol className="qb-list">{result.review.map((r, i) => (
-          <li key={r.question_id}>{r.is_correct ? "Correct" : r.chosen_index === null ? "Not answered" : "Incorrect"}{r.explanation ? `. ${r.explanation}` : ""}<span className="qb-muted qb-small"> (question {i + 1}; the correct option was {String.fromCharCode(65 + r.correct_index)})</span></li>))}</ol></div>}
+        {result.review && <div className="qb-card"><h2>Your answers</h2><ol className="qb-list">{buildReview(played, result.review).map((r) => (
+          <li key={r.id} style={{ marginBottom: 14 }}>
+            <strong>{r.text}</strong> <span className={`qb-pill ${r.state === "correct" ? "success" : "amber"}`}>{r.state === "correct" ? "Correct" : r.state === "unanswered" ? "Not answered" : "Incorrect"}</span>
+            <div>Your answer: {r.chosen ?? "none"}</div>
+            {r.state !== "correct" && <div>Correct answer: <strong>{r.correct}</strong></div>}
+            {r.explanation && <div className="qb-muted">Why: {r.explanation}</div>}
+          </li>))}</ol></div>}
         <div className="qb-card"><h2>Leaderboard</h2>{board.length === 0 ? <p className="qb-muted">No ranked attempts yet.</p> : <ol className="qb-list">{board.map((b) => <li key={b.rank} style={b.is_me ? { fontWeight: 700 } : undefined}>{b.rank}. {b.name} <span className="qb-muted">{b.score}/{b.max_score} in {formatDuration(b.duration_ms)}</span></li>)}</ol>}</div>
         {card.visibility !== "PRIVATE" && !card.private && card.audience !== "CLASS" && card.audience !== "SCHOOL" && <ShareBar slug={slug} title={card.title} format={card.format} />}
         {progress.some((s) => s.state === "WAITING") && <div className="qb-card" role="status">Round complete. The next round opens to the top players when this round closes. Come back then.</div>}
