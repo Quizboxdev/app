@@ -25,6 +25,9 @@ async function call<T>(name: string, args: Record<string, unknown> = {}): Promis
 export const listSignupCountries = () => call<SignupCountry[]>("qb_signup_markets");
 export const completeOnboarding = (data: Record<string, unknown>) => call<{ role: OnboardingRole; market: string }>("qb_complete_onboarding", { p: data });
 export const getMyAccount = () => call<Account>("qb_my_account");
+export type ProfileEditStatus = { eligible: boolean; reason: "NOT_A_STUDENT" | "MANAGED_ACCOUNT" | null; limit: number; window_months: number; used: number; remaining: number; next_edit_at: string | null; last_edit_at: string | null };
+export const getProfileEditStatus = () => call<ProfileEditStatus>("qb_profile_edit_status");
+export const updateStudentProfile = (a: { grade?: string | null; school?: string | null; subjects?: string[] | null }) => call<{ ok: true } & ProfileEditStatus>("qb_update_student_profile", { p_grade: a.grade ?? null, p_school: a.school ?? null, p_subjects: a.subjects ?? null });
 export const requestMarketChange = (market: string, reason: string) => call("qb_request_market_change", { p_to_market: market, p_reason: reason });
 export const setAssignmentGradeOverride = (assignment: string, reason: string) => call("qb_set_assignment_grade_override", { p_assignment: assignment, p_reason: reason });
 export const marketSetup = <T>(action: string, data: Record<string, unknown> = {}) => call<T>("qb_market_setup", { p_action: action, p_data: data });

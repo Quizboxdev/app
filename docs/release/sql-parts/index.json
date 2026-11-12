@@ -299,5 +299,12 @@
  "chars": 3533,
  "parts": 1,
  "note": "Faster class-level list for adding bank questions to a challenge (one function replaced, same name and shape). Safe to run again."
+},
+{
+ "version": "20261066100000",
+ "name": "student_profile_edits",
+ "chars": 7032,
+ "parts": 1,
+ "note": "A signed-in learner can edit their own class level, school and subjects, twice in any six months (adds one table and two functions). Safe to run again."
 }
 ]
