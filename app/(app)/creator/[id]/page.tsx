@@ -9,6 +9,7 @@ import StagesPanel from "@/components/challenges/StagesPanel";
 import SourcePanel from "@/components/challenges/SourcePanel";
 import PrizesPanel from "@/components/challenges/PrizesPanel";
 import BrandPanel from "@/components/challenges/BrandPanel";
+import DetailsPanel from "@/components/challenges/DetailsPanel";
 import AnalyticsPanel from "@/components/challenges/AnalyticsPanel";
 import AudiencePanel from "@/components/challenges/AudiencePanel";
 import BankPicker from "@/components/challenges/BankPicker";
@@ -17,8 +18,8 @@ import SeatsPanel from "@/components/challenges/SeatsPanel";
 import { FORMATS, formatOf } from "@/lib/challenges/types";
 import { humanize } from "@/lib/format";
 
-// Edit one challenge. Questions can be typed in, pasted as CSV, or snapshotted from the QuizBox bank; they are locked once the challenge goes live.
-const TABS = ["Questions", "Rounds", "People", "Share", "Source", "Prizes", "Look and feel", "Results"] as const;
+// Edit one challenge. Questions can be typed in, pasted as CSV, or snapshotted from the QuizBox bank; they are locked once the challenge goes live. Title, description and closing time stay editable (Details tab).
+const TABS = ["Questions", "Details", "Rounds", "People", "Share", "Source", "Prizes", "Look and feel", "Results"] as const;
 type Tab = (typeof TABS)[number];
 
 export default function CreatorEditPage({ params }: { params: Promise<{ id: string }> }) {
@@ -113,6 +114,7 @@ export default function CreatorEditPage({ params }: { params: Promise<{ id: stri
           </div>
         </>
       )}
+      {tab === "Details" && <DetailsPanel id={id} campaign={campaign} onChanged={() => void load()} onError={onError} />}
       {tab === "People" && <Suspense fallback={<div className="qb-card"><p className="qb-muted">Loading…</p></div>}><SeatsPanel id={id} noun={fmt.noun} onError={onError} /></Suspense>}
       {tab === "Share" && <>
         {campaign.status === "LIVE" && campaign.visibility !== "PRIVATE" && !campaign.audience_class_id && !campaign.audience_institution_id

@@ -299,5 +299,12 @@
  "chars": 3533,
  "parts": 1,
  "note": "Faster class-level list for adding bank questions to a challenge (one function replaced, same name and shape). Safe to run again."
+},
+{
+ "version": "20261065100000",
+ "name": "challenge_live_details",
+ "chars": 4231,
+ "parts": 1,
+ "note": "A creator can fix the title, description and closing time of a live challenge; ended challenges and past or back-to-front dates are refused (one function replaced, same name and shape). Safe to run again."
 }
 ]
