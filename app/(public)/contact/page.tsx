@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import PublicShell from "@/components/public/PublicShell";
 import PageIntro from "@/components/public/PageIntro";
+import SocialLinks from "@/components/SocialLinks";
 import ContactFormWithType from "@/components/public/ContactFormWithType";
 import { PUBLIC_LINKS } from "@/components/public/links";
 
@@ -29,6 +30,11 @@ export default function ContactPage() {
               <Link className="qbp-link" href={r.href}>{r.cta}</Link>
             </div>
           ))}
+        </div>
+        <div className="qbp-card" style={{ maxWidth: 820 }}>
+          <h2 className="qbp-h3">Follow QuizBox</h2>
+          <p className="qbp-meta">Tips, new challenges and winners are posted on our official pages.</p>
+          <SocialLinks variant="list" />
         </div>
         <div className="qbp-card" style={{ maxWidth: 820 }}>
           <h2 className="qbp-h3">Send us a message</h2>
