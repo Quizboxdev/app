@@ -18,6 +18,7 @@ import { getMyAccess, type MyAccess } from "@/lib/api/access";
 import { getMyQPoints, getMyWallet } from "@/lib/api/core";
 import SubjectIcon from "@/components/SubjectIcon";
 import InstallPrompt from "@/components/InstallPrompt";
+import ConnectCard from "@/components/ConnectCard";
 import SponsoredCarousel from "@/components/challenges/SponsoredCarousel";
 import { levelFromGrade } from "@/lib/challenges/content-types";
 import { errorMessage } from "@/lib/errors";
@@ -256,6 +257,7 @@ export default function StudentHomePage() {
               </div>)}
             </div> : <div className="qb-empty"><strong>No achievements yet</strong>Badges unlock as you master topics and compete.</div>}
           </section>
+          <ConnectCard />
         </aside>
       </div>
     </>

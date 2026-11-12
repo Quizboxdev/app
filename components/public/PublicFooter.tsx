@@ -1,5 +1,6 @@
 import Link from "next/link";
 import BrandLockup from "@/components/BrandLockup";
+import SocialLinks from "@/components/SocialLinks";
 import { PUBLIC_LINKS } from "./links";
 
 export default function PublicFooter() {
@@ -14,8 +15,10 @@ export default function PublicFooter() {
         <nav aria-label="Join"><h2>Join</h2><Link href={PUBLIC_LINKS.registerStudent}>Students</Link><Link href={PUBLIC_LINKS.registerTeacher}>Teachers</Link><Link href={PUBLIC_LINKS.school}>Schools</Link><Link href={PUBLIC_LINKS.sponsor}>Sponsors</Link><Link href={PUBLIC_LINKS.sme}>Subject experts</Link></nav>
         <nav aria-label="Company"><h2>Company</h2><Link href={PUBLIC_LINKS.pricing}>Pricing</Link><Link href={PUBLIC_LINKS.help}>Help</Link><Link href={PUBLIC_LINKS.contact}>Contact</Link><Link href={PUBLIC_LINKS.privacy}>Privacy</Link><Link href={PUBLIC_LINKS.terms}>Terms</Link><Link href={PUBLIC_LINKS.refunds}>Refunds</Link><Link href={PUBLIC_LINKS.cookies}>Cookies</Link></nav>
       </div>
-      <div className="qbp-wrap" style={{ paddingBottom: 24 }}><p className="qbp-meta">© {new Date().getFullYear()} QuizBox Solutions, Ghana · Learn. Practise. Compete.</p>
-        <p className="qbp-meta" style={{ marginTop: 6, display: "flex", gap: 16 }}><a href="https://web.facebook.com/profile.php?id=100071020123310" target="_blank" rel="noopener noreferrer">Facebook</a><a href="https://www.linkedin.com/company/94181986" target="_blank" rel="noopener noreferrer">LinkedIn</a></p></div>
+      <div className="qbp-wrap" style={{ paddingBottom: 24 }}>
+        <div className="qbp-footer-social"><p className="qb-follow-title">Follow QuizBox</p><SocialLinks /></div>
+        <p className="qbp-meta">© {new Date().getFullYear()} QuizBox Solutions, Ghana · Learn. Practise. Compete.</p>
+      </div>
     </footer>
   );
 }

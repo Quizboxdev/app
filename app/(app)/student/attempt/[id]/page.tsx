@@ -18,6 +18,7 @@ import ReportQuestion from "@/components/ReportQuestion";
 import { sanitizeLabel } from "@/lib/learning/labels";
 import { Check, ChevronLeft, ChevronRight, CircleAlert, CircleCheck, Clock } from "lucide-react";
 import { createSaveQueue, type SaveQueueState } from "@/lib/assessment/save-queue";
+import { deadlineFrom, secondsLeft } from "@/lib/assessment/deadline";
 import { GENERIC_ERROR_MESSAGE, NETWORK_ERROR_MESSAGE } from "@/lib/errors";
 
 // Option keys ("B", ["A","C"]) are shown with their option text where the question carries it.
@@ -50,6 +51,7 @@ export default function AttemptPage() {
   const startTimes = useRef<Record<string, number>>({});
   const queueRef = useRef<ReturnType<typeof createSaveQueue<{ value: AnswerState; seconds: number }>> | null>(null);
   const submitting = useRef(false);
+  const deadline = useRef(0);
   const [mode, setMode] = useState("ASSESSMENT");
   const [feedback, setFeedback] = useState<Record<string, PracticeFeedback>>({});
   const [confirming, setConfirming] = useState(false);
@@ -84,7 +86,8 @@ export default function AttemptPage() {
       .then(([payload, attemptMode]) => {
         setMode(attemptMode);
         setAttempt(payload);
-        setSeconds(Number(payload.remaining_seconds ?? 0));
+        deadline.current = deadlineFrom(Number(payload.remaining_seconds ?? 0));
+        setSeconds(secondsLeft(deadline.current));
         const saved: Record<string, AnswerState> = {};
         for (const response of payload.saved_responses ?? []) {
           saved[response.question_id] = {
@@ -113,10 +116,14 @@ export default function AttemptPage() {
 
   useEffect(() => {
     if (!attempt) return;
-    const timer = window.setInterval(() => {
-      setSeconds((value) => Math.max(0, value - 1));
-    }, 1000);
-    return () => window.clearInterval(timer);
+    // The clock is read from the deadline on every tick and when the student comes back to the tab, so time spent away is never given back.
+    const tick = () => setSeconds(secondsLeft(deadline.current));
+    const onVisible = () => { if (document.visibilityState === "visible") tick(); };
+    const timer = window.setInterval(tick, 1000);
+    document.addEventListener("visibilitychange", onVisible);
+    window.addEventListener("focus", tick);
+    window.addEventListener("pageshow", tick);
+    return () => { window.clearInterval(timer); document.removeEventListener("visibilitychange", onVisible); window.removeEventListener("focus", tick); window.removeEventListener("pageshow", tick); };
   }, [attempt]);
 
   useEffect(() => {

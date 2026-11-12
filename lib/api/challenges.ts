@@ -1,7 +1,7 @@
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { userFacingError } from "@/lib/errors";
 import type { PracticeMenu } from "@/lib/api/practice";
-import type { Analytics, AttemptResult, Award, Brand, FeaturedQuiz, Format, LibraryStats, Material, SectionRead, ContentAsset, EditableQuestion, LeaderRow, MyCampaign, Passage, Prize, StageInfo, StageProgress, StartedAttempt } from "@/lib/challenges/types";
+import type { Analytics, AttemptResult, Award, Brand, FeaturedQuiz, Format, LibraryStats, Material, SectionRead, ContentAsset, EditableQuestion, LeaderRow, MyCampaign, Participants, Passage, Prize, StageInfo, StageProgress, StartedAttempt } from "@/lib/challenges/types";
 
 // Participants and creators call the database functions directly; every rule (who may create, one scored submission, locked after going live) is enforced there.
 const CODES: Record<string, string> = {
@@ -67,7 +67,8 @@ export const updateAward = (award: string, status: string, note?: string) => cal
 export const myAwards = () => call<{ campaign: string; slug: string; rank: number; prize: string; details: string | null; status: string; updated_at: string }[]>("challenge_my_awards");
 export const setBrand = (id: string, brand: Brand) => call<{ ok: true; brand: Brand }>("challenge_set_brand", { p_id: id, p_brand: brand });
 export const getAnalytics = (id: string) => call<Analytics>("challenge_analytics", { p_id: id });
-export const adminOverview = () => call<{ campaigns: Record<string, number>; attempts_30d: number; players_30d: number; awards_pending: number; top: { slug: string; title: string; status: string; players: number }[] }>("challenge_admin_overview");
+export const getParticipants = (id: string) => call<Participants>("challenge_participants", { p_id: id });
+export const adminOverview =() => call<{ campaigns: Record<string, number>; attempts_30d: number; players_30d: number; awards_pending: number; top: { slug: string; title: string; status: string; players: number }[] }>("challenge_admin_overview");
 
 // Uploading a book goes through a server route (it extracts the text); everything else is a direct database call.
 export async function uploadContent(a: { campaignId: string; title: string; contentType: string; assetId?: string; file?: File | null; text?: string }): Promise<{ asset_id: string; version: number; passages: number; sections: number; words: number; sectionList: string[] }> {
