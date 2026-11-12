@@ -10,6 +10,7 @@ import { getAttemptLearningSummary, getAttemptReview, startAttempt } from "@/lib
 import { classifyProficiency } from "@/lib/learning/proficiency";
 import { masteryLevel } from "@/lib/learning/mastery";
 import { practiseHref } from "@/lib/learning/labels";
+import { describeAnswer } from "@/lib/learning/answer-text";
 
 type Indicator = { code: string; title: string; percentage: number; correct: number; total: number };
 
@@ -101,8 +102,9 @@ export default function AttemptResultPage() {
                 <ReportQuestion questionId={question.question_id} />
               </div>
               <div className="qb-question-text">{question.question_text}</div>
-              <p><strong>Your answer:</strong> {answered ?? "Unanswered"}</p>
-              {!question.is_correct && <p><strong>Correct answer:</strong> {question.correct_answer ?? (question.answer_spec ? JSON.stringify(question.answer_spec) : "Not available")}</p>}
+              <p><strong>Your answer:</strong> {describeAnswer(question, answered, "Unanswered")}</p>
+              {!question.is_correct && <p><strong>Correct answer:</strong> {question.correct_answer != null ? describeAnswer(question, question.correct_answer) : question.answer_spec ? JSON.stringify(question.answer_spec) : "Not available"}</p>}
+              {question.explanation && <p><strong>Why:</strong> {question.explanation}</p>}
             </div>;
           })}
         </div>
