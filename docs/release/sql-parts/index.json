@@ -313,5 +313,12 @@
  "chars": 4644,
  "parts": 1,
  "note": "Joining a class by code now refuses a learner whose class level differs from the class (two functions replaced, same names and shapes). Safe to run again."
+},
+{
+ "version": "20261064100000",
+ "name": "attempt_review_explanations",
+ "chars": 2355,
+ "parts": 1,
+ "note": "The attempt review now carries each question's explanation (one function replaced, same name and shape). Safe to run again."
 }
 ]
