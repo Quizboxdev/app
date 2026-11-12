@@ -21,6 +21,24 @@ describe("password recovery guards",()=>{
   });
   it.each([["","","Both password fields are required."],["short","short",PASSWORD_TOO_SHORT],["123456","123456",PASSWORD_TOO_EASY],["unit-new-password","unit-other-password","Passwords do not match."]])("rejects invalid password fields",(password,confirmation,message)=>expect(validateResetPasswords(password,confirmation)).toBe(message));
   it("does not update a mismatched password",async()=>{const client=mockClient();await expect(updateRecoveryPassword("unit-new-password","unit-other-password","unit-user",storage(),client)).rejects.toThrow("Passwords do not match.");expect(client.auth.updateUser).not.toHaveBeenCalled();});
+  it("verifies a token_hash link directly, in any browser, and remembers the recovery for a refresh",async()=>{
+    const client=mockClient(false),saved=storage(),session={user:{id:"link-user"},expires_at:Math.floor(Date.now()/1000)+3600},auth=client.auth as any;
+    auth.verifyOtp=vi.fn().mockResolvedValue({data:{session,user:session.user},error:null});
+    const url=new URL("https://unit.invalid/auth/update-password?token_hash=pkce_abc&type=recovery");
+    expect(await initializePasswordRecovery(url,saved,()=>url,client)).toBe("link-user");
+    expect(auth.verifyOtp).toHaveBeenCalledWith({token_hash:"pkce_abc",type:"recovery"});
+    expect(JSON.parse(saved.getItem(RECOVERY_STORAGE_KEY)!).userId).toBe("link-user");
+  });
+  it("refuses a token_hash link the server rejects, one of another kind, and one that returns no session",async()=>{
+    const auth=(c:ReturnType<typeof mockClient>)=>c.auth as any,link=(q:string)=>new URL("https://unit.invalid/auth/update-password?"+q);
+    const rejected=mockClient(false);auth(rejected).verifyOtp=vi.fn().mockResolvedValue({data:{session:null,user:null},error:{code:"otp_expired",message:"Email link is invalid or has expired"}});
+    await expect(initializePasswordRecovery(link("token_hash=h&type=recovery"),storage(),()=>link(""),rejected)).rejects.toMatchObject({reason:"expired"});
+    const other=mockClient(false);auth(other).verifyOtp=vi.fn();
+    await expect(initializePasswordRecovery(link("token_hash=h&type=signup"),storage(),()=>link(""),other)).rejects.toMatchObject({reason:"invalid"});
+    expect(auth(other).verifyOtp).not.toHaveBeenCalled();
+    const empty=mockClient(false);auth(empty).verifyOtp=vi.fn().mockResolvedValue({data:{session:null,user:null},error:null});
+    await expect(initializePasswordRecovery(link("token_hash=h&type=recovery"),storage(),()=>link(""),empty)).rejects.toMatchObject({reason:"used"});
+  });
   it("does not mistake an ordinary signed-in session for recovery",async()=>{await expect(initializePasswordRecovery(new URL("https://unit.invalid/auth/update-password"),storage(),()=>new URL("https://unit.invalid/auth/update-password"),mockClient(false))).rejects.toThrow(INVALID_RESET_MESSAGE);});
   it("rejects expired links without falling back to an existing session",async()=>{const client=mockClient();await expect(initializePasswordRecovery(new URL("https://unit.invalid/auth/update-password#error=access_denied&error_code=otp_expired"),storage(),()=>new URL("https://unit.invalid/auth/update-password"),client)).rejects.toThrow(INVALID_RESET_MESSAGE);expect(client.auth.getUser).not.toHaveBeenCalled();});
   it("rejects an unexchanged code, even if a different session exists",async()=>{const url=new URL("https://unit.invalid/auth/update-password?code=expired");await expect(initializePasswordRecovery(url,storage(),()=>url,mockClient())).rejects.toThrow(INVALID_RESET_MESSAGE);});

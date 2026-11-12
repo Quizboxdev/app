@@ -69,6 +69,22 @@ export async function initializePasswordRecovery(url: URL, storage: RecoveryStor
   const hash = new URLSearchParams(url.hash.slice(1));
   const failure = urlFailure(url.searchParams, hash);
   if (failure) throw new RecoveryLinkError(failure);
+  // The email link carries the one-time token itself (/auth/update-password?token_hash=...&type=recovery), so it opens in any browser or phone. The token is verified
+  // here: success means a recovery, with no earlier redirect, no PKCE code verifier from the requesting browser and no stored marker needed to know that.
+  const tokenHash = url.searchParams.get("token_hash");
+  if (tokenHash) {
+    if (url.searchParams.get("type") !== "recovery") throw new RecoveryLinkError("invalid");
+    const initialized = await client.auth.initialize();
+    if (initialized.error) throw new RecoveryLinkError(exchangeFailure(initialized.error));
+    const checked = await client.auth.verifyOtp({ token_hash: tokenHash, type: "recovery" });
+    if (checked.error) throw new RecoveryLinkError(exchangeFailure(checked.error));
+    const linked = checked.data.session;
+    if (!linked?.user) throw new RecoveryLinkError("used");
+    const linkedExpiresAt = (linked.expires_at ?? 0) * 1000;
+    if (linkedExpiresAt <= Date.now()) throw new RecoveryLinkError("expired");
+    try { storage.setItem(RECOVERY_STORAGE_KEY, JSON.stringify({ userId: linked.user.id, expiresAt: linkedExpiresAt })); } catch { /* This session can still reset; refresh continuity is unavailable. */ }
+    return linked.user.id;
+  }
   let recoveredUserId: string | undefined;
   const { data: { subscription } } = client.auth.onAuthStateChange((event, session) => {
     if (event === "PASSWORD_RECOVERY") recoveredUserId = session?.user.id;
@@ -125,6 +141,8 @@ export function recoveryErrorMessage(error: unknown) {
   if (code === "weak_password") return PASSWORD_TOO_EASY;
   if (code === "same_password") return "Choose a password different from your current password.";
   if (code === "email_address_invalid") return "Enter a valid email address.";
+  // The sign-in service accepted the request but its email provider failed ("Error sending recovery email"): not the person's connection.
+  if (code === "unexpected_failure") return "We could not send the email just now. Please try again in a few minutes, or contact support if it keeps happening.";
   if (isNetworkError(error)) return NETWORK_MESSAGE;
   return "The request could not be completed. Please try again.";
 }

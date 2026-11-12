@@ -116,6 +116,7 @@ describe("recovery link failures", () => {
     expect(recoveryErrorMessage({ code: "otp_expired" })).toBe(RECOVERY_FAILURE_MESSAGES.expired);
     expect(recoveryErrorMessage({ code: "refresh_token_already_used" })).toBe(RECOVERY_FAILURE_MESSAGES.used);
     expect(recoveryErrorMessage({ code: "weak_password" })).toMatch(/too easy to guess/);
+    expect(recoveryErrorMessage({ code: "unexpected_failure", status: 500 })).toMatch(/could not send the email/);
   });
 });
 
