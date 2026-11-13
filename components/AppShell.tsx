@@ -9,6 +9,8 @@ import { LayoutGrid, X, Home, BookOpen, Dumbbell, FileText, BarChart3, Bell, Use
 import { bootstrapUser, getHomeRouteForRole, signOut } from "@/lib/auth";
 import type { UserContext } from "@/lib/types";
 import { getSmeContext, type SmeContext } from "@/lib/api/sme";
+import { getMyStaffAccess, type MyStaffAccess } from "@/lib/api/staff";
+import { tabsFor } from "@/lib/staff/workflows";
 import MarketContextControl from "@/components/MarketContextControl";
 import BrandLockup from "@/components/BrandLockup";
 import SocialLinks from "@/components/SocialLinks";
@@ -36,7 +38,7 @@ function navigationIcon(href: string): LucideIcon {
   if (/competition|creator|challenges|open/.test(href)) return Trophy;
   if (/affiliate/.test(href)) return Users;
   if (/marketplace|seller/.test(href)) return ShoppingBag;
-  if (/classes|classroom|tenants|school/.test(href)) return Users;
+  if (/classes|classroom|tenants|school|admin\/staff/.test(href)) return Users;
   if (/markets|market-setup/.test(href)) return Globe;
   if (/question-banks|curriculum|content/.test(href)) return BookOpen;
   if (/assignments|assessments|gradebook|results/.test(href)) return FileText;
@@ -56,6 +58,8 @@ export default function AppShell({
 }) {
   const [ctx, setCtx] = useState<UserContext | null>(null);
   const [sme, setSme] = useState<SmeContext | null>(null);
+  const [staff, setStaff] = useState<MyStaffAccess | null>(null);                                  // the connected workflows a Super Admin gave this person (Admin, Staff access)
+  const [accessReady, setAccessReady] = useState(false);                                              // true once both the SME context and the staff workflows have been read
   const [moreOpen, setMoreOpen] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
@@ -67,13 +71,16 @@ export default function AppShell({
         setCtx(context);
         void captureReferralIfAny();                                                                 // a visitor who arrived through an affiliate link is attributed once, after sign-in
         // An unapplied foundation migration must not disrupt existing role access.
-        try { setSme(await getSmeContext()); } catch { setSme(null); }
+        const [smeResult, staffResult] = await Promise.allSettled([getSmeContext(), getMyStaffAccess()]);
+        setSme(smeResult.status === "fulfilled" ? smeResult.value : null);
+        setStaff(staffResult.status === "fulfilled" ? staffResult.value : null);
+        setAccessReady(true);
       })
       .catch((error) => router.replace(error instanceof Error && error.message === "ONBOARDING_REQUIRED" ? "/onboarding" : error instanceof Error && error.message === "ACCOUNT_SUSPENDED" ? "/login?suspended=1" : loginHrefFor(window.location.pathname)));
   }, [router]);
 
   useEffect(() => {
-    if (!ctx) return;
+    if (!ctx || !accessReady) return;                                                                // do not send anyone away before their staff access has been read
 
     const role = String(ctx.role).toUpperCase();
     const allowedPrefixes = ["ADMIN", "OWNER"].includes(role)
@@ -91,6 +98,9 @@ export default function AppShell({
     if (sme?.super_admin || sme?.finance_admin) allowedPrefixes.push("/admin/sme-performance", "/admin/payouts", "/admin/payment-checks", "/admin/affiliates");
     if (sme?.super_admin || sme?.finance_admin || sme?.content_admin || sme?.sme_support) allowedPrefixes.push("/admin/exports");
 
+    if (staff?.enabled) for (const [href] of tabsFor(staff.workflows)) allowedPrefixes.push(href);
+    if (sme?.super_admin && staff?.enabled) allowedPrefixes.push("/admin/staff");
+
     const isAllowed = allowedPrefixes.some(
       (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)
     );
@@ -98,7 +108,7 @@ export default function AppShell({
     if (!isAllowed) {
       router.replace(getHomeRouteForRole(role));
     }
-  }, [ctx, pathname, router, sme]);
+  }, [ctx, accessReady, pathname, router, sme, staff]);
 
   const inSchool = pathname.startsWith("/school");
   const groups = useMemo<NavGroup[]>(() => {
@@ -112,12 +122,16 @@ export default function AppShell({
     const groups: NavGroup[] = [];
     const add = (label: string, items: NavItem[]) => { if (items.length) groups.push({ label, items }); };
     // Non-admin accounts can still hold SME super-admin or finance duties.
+    const staffTabs: NavItem[] = staff?.enabled ? tabsFor(staff.workflows) : [];
+    const seen = new Set<string>();
     const administration: NavItem[] = [
       ...when(sme?.super_admin, [["/admin/markets", "Markets"], ["/admin/curriculum-sources", "Curriculum Sources"], ["/admin/reviewers", "Reviewers"], ["/admin/compensation", "Compensation"], ["/admin/policies", "Policies"], ["/admin/tickets", "Support requests"], ["/admin/help", "Help guides"]]),
       ...when(sme?.super_admin || sme?.finance_admin, [["/admin/sme-performance", "SME Performance"], ["/admin/payouts", "Payouts"], ["/admin/payment-checks", "Payment checks"], ["/admin/affiliates", "Affiliates"]]),
       ...when(sme?.super_admin || sme?.finance_admin || sme?.content_admin || sme?.sme_support, [["/admin/exports", "Export data"]]),
       ...when(sme?.sme_support && !sme?.super_admin, [["/admin/inbox", "Enquiry Inbox"], ["/admin/tickets", "Support requests"], ["/admin/help", "Help guides"], ["/admin/reviewer-applications", "Reviewer Applications"]]),
-    ];
+      ...staffTabs,
+      ...when(sme?.super_admin && staff?.enabled, [["/admin/staff", "Staff access"]]),
+    ].filter(([href]) => !seen.has(href) && seen.add(href));
 
     if (inSchool) {
       add("School", [["/school", "Overview"], ["/school/classes", "Classes"], ["/school/teachers", "Teachers"], ["/school/learners", "Learners"], ["/school/performance", "Performance"], ["/creator", "Challenges"], ["/creator?format=competition", "Competitions"]]);
@@ -163,6 +177,7 @@ export default function AppShell({
         ...when(sme?.super_admin || sme?.sme_support, [["/admin/inbox", "Enquiry Inbox"]]),
         ...when(sme?.super_admin, [["/admin/young-learners", "Young learners (privacy)"]]),
         ...when(sme?.super_admin, [["/admin/access", "Access & Subscriptions"]]),
+        ...when(sme?.super_admin && staff?.enabled, [["/admin/staff", "Staff access"]]),
         ["/admin/pricing", "Prices"],
         ["/admin/tickets", "Support requests"],
         ["/admin/help", "Help guides"],
@@ -226,7 +241,7 @@ export default function AppShell({
     add("SME", when(reviewer, [["/review", "SME Reviews"]]));
     add("Administration", administration);
     return groups;
-  }, [ctx, inSchool, sme, sponsorEngine]);
+  }, [ctx, inSchool, sme, staff, sponsorEngine]);
 
   const nav = useMemo(() => groups.flatMap((group) => group.items), [groups]);
   // The most specific matching link is the current page (so /admin is not active on /admin/content).
