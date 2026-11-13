@@ -83,6 +83,8 @@ const messages: Record<string, string> = {
   PROFILE_EDIT_LIMIT: "You have used both of your profile edits for these six months. You can edit again when the date shown on your account page arrives.",
   MANAGED_ACCOUNT: "This account is managed by a teacher or guardian, who changes these details for you.", NOT_A_STUDENT: "Only learners can edit these details here.",
   INVALID_GRADE: "Choose a class level from the list.", INVALID_SUBJECT: "Choose subjects from the list.", NOTHING_CHANGED: "Nothing is different from your current details, so nothing was saved and no edit was used.",
+  NOT_A_TEACHER: "Only teachers can edit these details here.", INVALID_NAME: "Enter your full name (at least 2 characters).",
+  SCHOOL_LOCKED: "Your school is set by your school's QuizBox administrator, so it cannot be changed here.", QB_FEATURE_DISABLED: "This is not switched on yet.",
   ONBOARDING_ALREADY_COMPLETE: "Your account is already set up.", QB_SCHOOL_REQUIRED: "Enter the school or institution where you teach.",
   QB_MARKET_NOT_AVAILABLE: "That market is not available.", QB_MARKET_UNCHANGED: "That is already your country.",
   QB_OVERRIDE_REASON_REQUIRED: "Enter a reason (at least 5 characters) for assigning outside the class grade.",

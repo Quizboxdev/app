@@ -5,6 +5,7 @@ import { getMyAccount, listSignupCountries, requestMarketChange, type Account, t
 import { userFacingError } from "@/lib/errors";
 import PushToggle from "@/components/PushToggle";
 import StudentProfileEditor from "@/components/account/StudentProfileEditor";
+import TeacherProfileEditor from "@/components/account/TeacherProfileEditor";
 
 export default function AccountPage() {
   const [account, setAccount] = useState<Account | null>(null), [countries, setCountries] = useState<SignupCountry[]>([]), [markets, setMarkets] = useState<SignupCountry[]>([]);
@@ -94,6 +95,7 @@ export default function AccountPage() {
                 <dl className="qb-field" style={{ gap: '0.25rem' }}>
                   <dt className="qb-muted qb-small">Grades Taught</dt><dd style={{ margin: 0, fontSize: '0.875rem' }}>{account.teacher.grade_codes.join(", ") || "-"}</dd>
                 </dl>
+                <TeacherProfileEditor current={{ full_name: account.full_name, school_name: account.school_name, subjects: account.teacher.subjects, grade_codes: account.teacher.grade_codes }} grades={config?.grades ?? []} subjects={config?.subjects ?? []} onSaved={() => void load().catch((cause) => setError(userFacingError(cause)))} />
               </>
             )}
             {account.student && (
