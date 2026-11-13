@@ -24,7 +24,7 @@ export default function AudiencePanel({ id, draft, format, current, onChanged, o
       <label className="qb-field">Audience<select disabled={!draft} value={value} onChange={(e) => setValue(e.target.value)}>
         <option value="">Open to whoever has the link or code</option>
         {options.classes.map((c) => <option key={c.id} value={`c:${c.id}`}>Class: {c.name}</option>)}
-        {options.institutions.map((i) => <option key={i.id} value={`i:${i.id}`}>Whole school: {i.name}</option>)}
+        {options.institutions.map((i) => <option key={i.id} value={`i:${i.id}`} disabled={i.verified === false}>Whole school: {i.name}{i.verified === false ? " (not verified yet)" : ""}</option>)}
       </select></label>
       {draft ? <div><button type="button" className="qb-btn" disabled={busy} onClick={() => void save()}>{busy ? "Saving…" : "Save audience"}</button></div> : <p className="qb-muted">The audience is locked once the {noun} has gone live.</p>}
     </div>

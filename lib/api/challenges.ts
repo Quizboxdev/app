@@ -54,7 +54,9 @@ export const getLeaderboard = (slug: string) => call<LeaderRow[]>("challenge_lea
 export const myAttempts = () => call<{ slug: string; title: string; attempt_no: number; score: number | null; max_score: number | null; duration_ms: number | null; started_at: string; submitted_at: string | null; expired: boolean }[]>("challenge_my_attempts");
 
 export const setStages = (id: string, stages: { title: string; question_count: number; time_limit_seconds: number; pass_percent: number; advance_top_n?: number | null; starts_at?: string | null; ends_at?: string | null }[]) => call<{ ok: true; stages: number }>("challenge_set_stages", { p_id: id, p_stages: stages });
-export const myAudiences = () => call<{ classes: { id: string; name: string }[]; institutions: { id: string; name: string }[] }>("challenge_my_audiences");
+export const myAudiences = () => call<{ classes: { id: string; name: string }[]; institutions: { id: string; name: string; verified?: boolean }[] }>("challenge_my_audiences");
+// Staff only (owner, admin or super admin): mark a school verified once its evidence is on file off the system, or remove the mark. The note points to the evidence and holds no personal data.
+export const setSchoolVerified = (institutionId: string, verified: boolean, note?: string | null) => call<{ ok: true; verified: boolean }>("institution_set_verified", { p_institution: institutionId, p_verified: verified, p_note: note ?? null });
 export const setAudience = (id: string, target: { classId?: string | null; institutionId?: string | null }) => call<{ ok: true }>("challenge_set_audience", { p_id: id, p_class: target.classId ?? null, p_institution: target.institutionId ?? null });
 export const openCompetitions = (format: Format = "COMPETITION") => call<import("@/lib/challenges/types").PublicChallenge[]>("challenge_public_list", { p_limit: 24, p_offset: 0, p_format: format });
 export const myProgress = (slug: string) => call<StageProgress[]>("challenge_my_progress", { p_slug: slug });
