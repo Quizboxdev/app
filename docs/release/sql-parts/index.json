@@ -355,5 +355,12 @@
  "chars": 7549,
  "parts": 1,
  "note": "A teacher can edit their own name, school, subjects and grades taught, OFF until flags.teacher_profile_edit is set to true (adds one history table, two functions and one flag row). Safe to run again."
+},
+{
+ "version": "20261070100000",
+ "name": "staff_access",
+ "chars": 7586,
+ "parts": 1,
+ "note": "A Super Admin can give staff connected workflows (content, support, finance) by email, OFF until flags.staff_access is set to true (adds one schema, seven functions and one flag row; every change is audited). Safe to run again."
 }
 ]
