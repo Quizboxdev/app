@@ -14,6 +14,8 @@ export const FEATURE_FLAGS = [
   "design_v02_help",
   // Teachers can repeat an assignment every week; learners get a due-soon reminder. Closed in the database until the owner turns it on.
   "repeat_assignments",
+  // A teacher can edit their own name, school, subjects and grades taught. Closed in the database until the owner turns it on.
+  "teacher_profile_edit",
 ] as const;
 export type FeatureFlag = (typeof FEATURE_FLAGS)[number];
 export type FlagMap = Record<FeatureFlag, boolean>;
@@ -22,7 +24,7 @@ export type FlagMap = Record<FeatureFlag, boolean>;
 export const DEFAULT_FLAGS: FlagMap = {
   student_self_pay: false, paid_challenges: false, offline_learning: false, guardian_consent_required: false, sponsor_consent_required: true, buy_coins_enabled: false,
   q_insignia_subject_cards_v02: false, q_insignia_concept_photos: false,
-  design_v02_help: false, repeat_assignments: false,
+  design_v02_help: false, repeat_assignments: false, teacher_profile_edit: false,
 };
 
 export function flagsFromSettings(rows: Array<{ key: string; value: unknown }>): FlagMap {
