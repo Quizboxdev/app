@@ -97,10 +97,13 @@ Why? (at least 10 characters)`);
 
       {open && <section className="qb-card" style={{ marginTop: 16 }} aria-labelledby="qb-sample">
         <h2 id="qb-sample">Sample from {preview?.file ?? "batch"}</h2>
-        {!preview ? <p className="qb-muted">Drawing a random sample…</p> : <>
+        {!preview ? <p className="qb-muted">Drawing a random sample…</p> : preview.would_approve === 0 ? <>
+          {/* Nothing can be approved here, so there is no sample to read and no button to press: say why, and let the person close it. */}
+          <p className="qb-card" role="status"><strong>Nothing to approve in this batch.</strong> {preview.questions_found} questions were found. {nothingToApprove(preview.by_state)}</p>
+          <div style={{ marginTop: 12 }}><button className="qb-btn secondary" onClick={() => { setOpen(""); setPreview(null); }}>Close</button></div>
+        </> : <>
           <p className="qb-muted">{preview.questions_found} questions in this batch; {preview.would_approve} pass validation and will go live. Read each question below and tick it when you are satisfied
             the marked answer is certainly right and each wrong option is a believable mistake. You need {need} ticks.</p>
-          {preview.would_approve === 0 && <p className="qb-card" role="status"><strong>Nothing to approve in this batch.</strong> {nothingToApprove(preview.by_state)}</p>}
           <ol className="qb-task-list">
             {preview.sample.map((q, i) => <li key={q.id} style={{ marginBottom: 12 }}>
               <label style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
