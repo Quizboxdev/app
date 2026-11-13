@@ -341,5 +341,10 @@
  "chars": 8910,
  "parts": 2,
  "note": "Staff can aim a challenge at one verified school, behind a flag that is OFF (adds three columns, one flag row and three functions, and replaces two functions with the same names and shapes). Safe to run again. Apply to Preview first."
+ "version": "20261067100000",
+ "name": "repeat_assignments",
+ "chars": 16917,
+ "parts": 3,
+ "note": "Repeat-weekly assignments and a due-soon reminder, OFF until flags.repeat_assignments is set to true (adds two tables, a schema and ten functions, and one flag row). Nothing is sent or published while the flag is off. Safe to run again."
 }
 ]

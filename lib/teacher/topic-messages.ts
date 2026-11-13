@@ -12,4 +12,7 @@ export const TOPIC_ASSIGNMENT_MESSAGES: Record<string, string> = {
   QB_BLUEPRINT_INVALID: "Each subject needs a number of questions, at least 1.",
   QB_BLUEPRINT_QUOTA_TOO_SMALL: "A subject needs at least one question for every topic ticked. Raise its questions or untick topics.",
   QB_BLUEPRINT_ONE_GRADE: "One test uses topics from one grade. Choose topics of the same grade for every subject.",
+  QB_FEATURE_DISABLED: "This is not switched on yet.",
+  QB_SCHEDULE_LIMIT: "You can keep up to 5 repeating assignments going. Pause or delete one first.",
+  INVALID_SCHEDULE_TIME: "Choose a time of day for the weekly assignment, for example 16:00.",
 };
