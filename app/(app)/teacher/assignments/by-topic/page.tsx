@@ -14,6 +14,7 @@ import DraftNotice from "@/components/DraftNotice";
 import KnowledgeWindow, { KnowledgeWindowGrid } from "@/components/qinsignia/KnowledgeWindow";
 import { useWorkspaceFlags } from "@/components/WorkspaceProvider";
 import { teacherSubjectView } from "@/lib/learning/subject-card-state";
+import { allShownChosen, clearShown, filterLearners, selectAllShown, toggleOne } from "@/lib/teacher/learner-picker";
 
 type ClassRow = { id: string; class_name: string; grade?: string | null; grade_code?: string | null; education_level?: string | null };
 type Difficulty = "" | "easy" | "medium" | "hard";
@@ -31,7 +32,7 @@ export default function AssignByTopicPage() {
   const [plan, setPlan] = useState<BlueprintPlan | null>(null), [planError, setPlanError] = useState("");
   const [title, setTitle] = useState(""), [description, setDescription] = useState(""), [mode, setMode] = useState<"PRACTICE" | "ASSESSMENT">("PRACTICE");
   const [attempts, setAttempts] = useState(1), [minutes, setMinutes] = useState(30), [dueAt, setDueAt] = useState("");
-  const [learners, setLearners] = useState<Array<{ user_id: string; name: string }>>([]), [everyone, setEveryone] = useState(true), [recipients, setRecipients] = useState<string[]>([]);
+  const [learners, setLearners] = useState<Array<{ user_id: string; name: string }>>([]), [everyone, setEveryone] = useState(true), [recipients, setRecipients] = useState<string[]>([]), [learnerSearch, setLearnerSearch] = useState("");
   const [busy, setBusy] = useState(false), [error, setError] = useState(""), [notice, setNotice] = useState("");
   // Repeat every week (flag repeat_assignments): this one goes out now; the same shape goes out again on this weekday and time, with fresh questions.
   const [repeat, setRepeat] = useState(false), [weekday, setWeekday] = useState(() => isoWeekday(new Date())), [repeatTime, setRepeatTime] = useState("16:00"), [dueAfterDays, setDueAfterDays] = useState(3);
@@ -216,9 +217,19 @@ export default function AssignByTopicPage() {
         <fieldset><legend>Who receives it</legend>
           <label><input type="radio" name="bt-who" checked={everyone} onChange={() => setEveryone(true)}/> Every learner in the class</label>{" "}
           <label><input type="radio" name="bt-who" checked={!everyone} onChange={() => setEveryone(false)}/> Selected learners only (for example those who missed the lesson)</label>
-          {!everyone && <div className="qb-list">{learners.length === 0 ? <p className="qb-muted">No learners are enrolled in this class yet.</p>
-            : learners.map((l) => <label key={l.user_id} className="qb-row"><input type="checkbox" checked={recipients.includes(l.user_id)}
-                onChange={() => setRecipients((r) => (r.includes(l.user_id) ? r.filter((x) => x !== l.user_id) : [...r, l.user_id]))}/>{l.name}</label>)}</div>}
+          {!everyone && (learners.length === 0 ? <p className="qb-muted">No learners are enrolled in this class yet.</p> : (() => {
+            const shown = filterLearners(learners, learnerSearch);
+            return <div className="qb-list">
+              <div className="qb-row" style={{ flexWrap: "wrap", gap: 8, alignItems: "center" }}>
+                <input className="qb-input" type="search" aria-label="Search learners" placeholder="Search learners" value={learnerSearch} onChange={(e) => setLearnerSearch(e.target.value)} style={{ maxWidth: 220 }}/>
+                <button type="button" className="qb-btn secondary" disabled={shown.length === 0 || allShownChosen(recipients, shown)} onClick={() => setRecipients((r) => selectAllShown(r, shown))}>{learnerSearch.trim() ? "Select all shown" : "Select all"}</button>
+                <button type="button" className="qb-btn secondary" disabled={!shown.some((l) => recipients.includes(l.user_id))} onClick={() => setRecipients((r) => clearShown(r, shown))}>Clear</button>
+                <span className="qb-muted qb-small" role="status">{recipients.length} of {learners.length} chosen</span>
+              </div>
+              {shown.length === 0 ? <p className="qb-muted">No learner matches that search.</p>
+                : shown.map((l) => <label key={l.user_id} className="qb-row"><input type="checkbox" checked={recipients.includes(l.user_id)} onChange={() => setRecipients((r) => toggleOne(r, l.user_id))}/>{l.name}</label>)}
+            </div>;
+          })())}
         </fieldset>
         {repeatOn && <fieldset><legend>Repeat</legend>
           <label><input type="checkbox" checked={repeat && everyone} disabled={!everyone} onChange={(e) => setRepeat(e.target.checked)}/> Send a fresh copy of this to the class every week</label>
