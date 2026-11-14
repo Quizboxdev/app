@@ -1,6 +1,4 @@
--- Fix: choosing "Any topic" in Assign by subject and topic failed with "DELETE requires a WHERE clause" (the database refuses a delete with no WHERE).
--- The only change from 20261055100000 is in quizbox_topic.blueprint_plan: `delete from qb_bp_alloc;` becomes `delete from qb_bp_alloc where true;`. Same behaviour, one line. Grants are unchanged by create or replace.
--- Additive and idempotent. Rollback: re-run the quizbox_topic.blueprint_plan definition from 20261055100000 (supabase/rollback/fix_any_topic_delete.md).
+-- Fix: "Any topic" failed with "DELETE requires a WHERE clause". blueprint_plan now clears its temp table with "where true"; nothing else changes. Safe to run again.
 begin;
 
 create or replace function quizbox_topic.blueprint_plan(p_class uuid, p_sections jsonb, p_difficulty text) returns jsonb
