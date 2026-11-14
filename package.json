@@ -38,7 +38,7 @@
     }
   },
   "dependencies": {
-    "@next/env": "15.5.26",
+    "@next/env": "16.4.6",
     "@supabase/ssr": "^0.5.2",
     "@supabase/supabase-js": "^2.119.0",
     "jszip": "^3.10.2",
