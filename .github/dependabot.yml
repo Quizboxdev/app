@@ -24,6 +24,14 @@ updates:
         update-types: ["version-update:semver-major"]
       - dependency-name: "typescript"
         update-types: ["version-update:semver-major"]
+      # Planned upgrades, not automatic ones: @types/node must match the Node version CI and the host run (22); eslint-config-next must match the Next major (15);
+      # @supabase/ssr 0.x minors change the sign-in cookie handling and its types, so they are upgraded by hand with a sign-in test.
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "eslint-config-next"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@supabase/ssr"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
 
   - package-ecosystem: github-actions
     directory: "/"
