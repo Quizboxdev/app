@@ -362,5 +362,12 @@
  "chars": 7586,
  "parts": 1,
  "note": "A Super Admin can give staff connected workflows (content, support, finance) by email, OFF until flags.staff_access is set to true (adds one schema, seven functions and one flag row; every change is audited). Safe to run again."
-}
+},
+ {
+  "version": "20261071100000",
+  "name": "fix_any_topic_delete",
+  "chars": 8976,
+  "parts": 1,
+  "note": "Fixes Any topic in Assign by subject and topic, which failed with DELETE requires a WHERE clause (replaces one function; changes no data). Safe to run again."
+ }
 ]
