@@ -369,5 +369,12 @@
   "chars": 8976,
   "parts": 1,
   "note": "Fixes Any topic in Assign by subject and topic, which failed with DELETE requires a WHERE clause (replaces one function; changes no data). Safe to run again."
+ },
+ {
+  "version": "20261072100000",
+  "name": "batch_preview_fast",
+  "chars": 2812,
+  "parts": 1,
+  "note": "Approve Batches, Review sample: the preview took about 32 s on 36,718 questions. Adds one helper function and one index on questions, and replaces one function; changes no data. Safe to run again."
  }
 ]
