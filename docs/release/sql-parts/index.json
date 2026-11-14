@@ -373,7 +373,7 @@
  {
   "version": "20261072100000",
   "name": "batch_preview_fast",
-  "chars": 2812,
+  "chars": 3322,
   "parts": 1,
   "note": "Approve Batches, Review sample: the preview took about 32 s on 36,718 questions. Adds one helper function and one index on questions, and replaces one function; changes no data. Safe to run again."
  }

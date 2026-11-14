@@ -30,4 +30,9 @@ begin
     'min_sample_required', 20, 'sample', sample);
 end $fn$;
 
+-- Permissions, stated here as the migration check requires. The helper is used only inside the preview (which runs with its owner's rights) and by the index; the preview keeps what it had: not public or anon, signed-in users only (it then requires a super admin).
+revoke all on function public.qb_ql_batches(text[]) from public, anon, authenticated;
+revoke all on function public.qb_owner_batch_preview(uuid) from public, anon;
+grant execute on function public.qb_owner_batch_preview(uuid) to authenticated;
+
 commit;
