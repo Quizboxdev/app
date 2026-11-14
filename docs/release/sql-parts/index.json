@@ -376,5 +376,12 @@
   "chars": 3322,
   "parts": 1,
   "note": "Approve Batches, Review sample: the preview took about 32 s on 36,718 questions. Adds one helper function and one index on questions, and replaces one function; changes no data. Safe to run again."
+ },
+ {
+  "version": "20261073100000",
+  "name": "owner_batch_steps_fast",
+  "chars": 10138,
+  "parts": 2,
+  "note": "Approve Batches: the approve, revoke and discard steps no longer scan the whole questions table, and the approve step validates only until a full step is found. Replaces three functions; changes no data. Safe to run again."
  }
 ]
