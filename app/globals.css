@@ -1103,7 +1103,8 @@ button.qi-kw:disabled { cursor: not-allowed; }
 /* App menu: a compact follow row at the foot of the desktop sidebar and of the phone "More" sheet. */
 .qb-follow { margin-top: 8px; padding: 12px 8px 4px; border-top: 1px solid var(--qb-border-light); }
 .qb-follow-title { margin: 0 0 8px; font-size: 12px; font-weight: 700; letter-spacing: .02em; color: var(--muted); }
-.qb-sidebar .qb-follow .qb-social { flex-wrap: nowrap; justify-content: space-between; gap: 2px; }
+/* Sidebar: the six channels sit in a compact 3-column, 2-row grid so the menu keeps its height. */
+.qb-sidebar .qb-follow .qb-social { display: grid; grid-template-columns: repeat(3, 28px); justify-content: space-between; justify-items: center; gap: 6px 4px; margin: 0; }
 .qb-sidebar .qb-follow .qb-social-link, .qb-sidebar .qb-follow .qb-social-chip { min-width: 28px; min-height: 28px; width: 28px; height: 28px; }
 .qb-sidebar .qb-follow .qb-social-chip svg { width: 15px; height: 15px; }
 .qb-more-panel .qb-follow { margin-top: 12px; padding-bottom: 8px; }
@@ -1119,8 +1120,8 @@ button.qi-kw:disabled { cursor: not-allowed; }
 .qb-dialog-body { padding: 20px; display: grid; gap: 12px; }
 
 /* Social sign-in buttons (login and sign-up) */
-.qb-social{display:grid;gap:.5rem;margin-top:1rem}
-.qb-social-or{margin:0;text-align:center;color:var(--ink-muted);font-size:.875rem}
+.qb-oauth{display:grid;gap:.5rem;margin-top:1rem}
+.qb-oauth-or{margin:0;text-align:center;color:var(--ink-muted);font-size:.875rem}
 
 /* ===== Data pages (admin): compact key figures, charts, filter bar and dense tables. Used by components/admin/DataViz.tsx and pages built on it. ===== */
 .dx-page { display: grid; gap: 10px; }
