@@ -93,7 +93,7 @@ export default function AppShell({
 
     allowedPrefixes.push("/account", "/notifications", "/school", "/play", "/open", "/drafts", "/support", "/guides", "/affiliate");
     if (sme?.reviewer || sme?.content_admin || sme?.super_admin) allowedPrefixes.push("/review");
-    if (sme?.super_admin) allowedPrefixes.push("/admin/markets", "/admin/partners", "/admin/reviewers", "/admin/compensation", "/admin/policies");
+    if (sme?.super_admin) allowedPrefixes.push("/admin/markets", "/admin/partners", "/admin/reviewers", "/admin/compensation", "/admin/policies", "/admin/schools");
     if (sme?.super_admin || sme?.sme_support) allowedPrefixes.push("/admin/inbox", "/admin/reviewer-applications", "/admin/tickets", "/admin/help");
     if (sme?.super_admin || sme?.finance_admin) allowedPrefixes.push("/admin/sme-performance", "/admin/payouts", "/admin/payment-checks", "/admin/affiliates");
     if (sme?.super_admin || sme?.finance_admin || sme?.content_admin || sme?.sme_support) allowedPrefixes.push("/admin/exports");
@@ -125,7 +125,7 @@ export default function AppShell({
     const staffTabs: NavItem[] = staff?.enabled ? tabsFor(staff.workflows) : [];
     const seen = new Set<string>();
     const administration: NavItem[] = [
-      ...when(sme?.super_admin, [["/admin/markets", "Markets"], ["/admin/curriculum-sources", "Curriculum Sources"], ["/admin/reviewers", "Reviewers"], ["/admin/compensation", "Compensation"], ["/admin/policies", "Policies"], ["/admin/tickets", "Support requests"], ["/admin/help", "Help guides"]]),
+      ...when(sme?.super_admin, [["/admin/markets", "Markets"], ["/admin/schools", "School directory"], ["/admin/curriculum-sources", "Curriculum Sources"], ["/admin/reviewers", "Reviewers"], ["/admin/compensation", "Compensation"], ["/admin/policies", "Policies"], ["/admin/tickets", "Support requests"], ["/admin/help", "Help guides"]]),
       ...when(sme?.super_admin || sme?.finance_admin, [["/admin/sme-performance", "SME Performance"], ["/admin/payouts", "Payouts"], ["/admin/payment-checks", "Payment checks"], ["/admin/affiliates", "Affiliates"]]),
       ...when(sme?.super_admin || sme?.finance_admin || sme?.content_admin || sme?.sme_support, [["/admin/exports", "Export data"]]),
       ...when(sme?.sme_support && !sme?.super_admin, [["/admin/inbox", "Enquiry Inbox"], ["/admin/tickets", "Support requests"], ["/admin/help", "Help guides"], ["/admin/reviewer-applications", "Reviewer Applications"]]),
@@ -143,6 +143,7 @@ export default function AppShell({
       add("Markets & organizations", [
         ...when(sme?.super_admin, [["/admin/markets", "Markets"]]),
         ["/admin/market-setup", "Market Setup"],
+        ...when(sme?.super_admin, [["/admin/schools", "School directory"]]),
         ...when(sme?.super_admin, [["/admin/partners", "Partner Integrations"]]),
       ]);
       add("Content & curriculum", [
