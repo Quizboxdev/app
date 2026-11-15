@@ -28,8 +28,8 @@ export default function SocialButtons({ disabled, onError }: { disabled?: boolea
   }
 
   return (
-    <div className="qb-social">
-      <p className="qb-social-or">or</p>
+    <div className="qb-oauth">
+      <p className="qb-oauth-or">or</p>
       {PROVIDERS.map((p) => (
         <button key={p.id} type="button" className="qb-btn qb-btn-secondary qb-btn-block" disabled={disabled || starting !== null} aria-busy={starting === p.id} onClick={() => void start(p.id)}>
           {starting === p.id ? "Opening…" : `Continue with ${p.label}`}
