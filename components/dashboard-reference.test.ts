@@ -48,7 +48,8 @@ describe("UI reference dashboard presentation", () => {
     for (const route of ["student", "teacher", "sponsor", "review", "school", "admin"]) {
       const source = readFileSync(`app/(app)/${route}/page.tsx`, "utf8");
       expect(source).not.toMatch(/Static design reference|Illustrative|Reference screen|data-route=/);
-      expect(source).toMatch(/DashboardHero|qb-welcome|qb-dashboard-hero/);
+      // The admin dashboard is an analytics screen (figures, charts, attention list) built from the data-page pieces instead of the welcome hero.
+      expect(source).toMatch(route === "admin" ? /dx-page/ : /DashboardHero|qb-welcome|qb-dashboard-hero/);
     }
   });
 

@@ -404,5 +404,12 @@
   "chars": 10432,
   "parts": 2,
   "note": "Social channels managed from the admin (off until flags.social_channels is switched on): one table seeded with the six channels the app shows today, a public read function, and super admin functions to add, edit, hide, reorder and delete (WhatsApp numbers, Telegram and more). Adds one table and functions; changes no existing data. Safe to run again."
+ },
+ {
+  "version": "20261077100000",
+  "name": "admin_dashboard",
+  "chars": 6193,
+  "parts": 1,
+  "note": "Admin dashboard figures in one read-only function for staff: users, learning activity, content, queues, markets and schools, each section computed on its own. Adds one function; changes no data. Safe to run again."
  }
 ]
