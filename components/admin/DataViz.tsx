@@ -106,7 +106,7 @@ export function TrendCurve({ data, series, height = 170 }: { data: { week: strin
 export function Segmented<T extends string>({ value, options, onChange, label }: { value: T; options: { value: T; label: string; count?: number }[]; onChange: (v: T) => void; label: string }) {
   return (
     <div className="dx-seg-control" role="group" aria-label={label}>
-      {options.map((o) => <button key={o.value} type="button" aria-pressed={value === o.value} className={value === o.value ? "is-on" : ""} onClick={() => onChange(o.value)}>{o.label}{o.count !== undefined && <span className="dx-count">{num(o.count)}</span>}</button>)}
+      {options.map((o) => <button key={o.value} type="button" aria-pressed={value === o.value} className={value === o.value ? "dx-seg-btn is-on" : "dx-seg-btn"} onClick={() => onChange(o.value)}>{o.label}{o.count !== undefined && <span className="dx-count">{num(o.count)}</span>}</button>)}
     </div>
   );
 }

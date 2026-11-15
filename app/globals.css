@@ -1124,7 +1124,8 @@ button.qi-kw:disabled { cursor: not-allowed; }
 .qb-oauth-or{margin:0;text-align:center;color:var(--ink-muted);font-size:.875rem}
 
 /* ===== Data pages (admin): compact key figures, charts, filter bar and dense tables. Used by components/admin/DataViz.tsx and pages built on it. ===== */
-.dx-page { display: grid; gap: 10px; }
+/* Data pages are dense on purpose: smaller control heights than the rest of the app (still above the 24px minimum of WCAG 2.2 target size). */
+.dx-page { display: grid; gap: 10px; --control-h: 30px; --control-h-touch: 34px; }
 .dx-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px 16px; }
 .dx-head h1 { margin: 0; font-size: 20px; line-height: 1.25; font-weight: 700; color: var(--ink); }
 .dx-head p { margin: 2px 0 0; font-size: 13px; color: var(--ink-body); max-width: 70ch; }
@@ -1180,20 +1181,20 @@ button.dx-bar-row:focus-visible { outline: 2px solid var(--blue); outline-offset
 .dx-btn.danger:hover:not(:disabled) { background: var(--red-error-tint); }
 .dx-btn.sm { height: 24px; padding: 0 8px; font-size: 12px; }
 .dx-seg-control { display: inline-flex; border: 1px solid var(--line-control); border-radius: 6px; overflow: hidden; }
-.dx-seg-control button { height: 28px; padding: 0 10px; border: 0; border-inline-end: 1px solid var(--line); background: var(--qb-surface, #fff); font: inherit; font-size: 12.5px; color: var(--ink-secondary); cursor: pointer; }
-.dx-seg-control button:last-child { border-inline-end: 0; }
-.dx-seg-control button:hover { background: var(--line-soft); }
-.dx-seg-control button.is-on { background: var(--blue-tint); color: var(--blue-strong); font-weight: 650; }
+.dx-seg-control button.dx-seg-btn { min-height: 0; min-width: 0; height: 28px; padding: 0 10px; border: 0; border-inline-end: 1px solid var(--line); background: var(--qb-surface, #fff); font: inherit; font-size: 12.5px; color: var(--ink-secondary); cursor: pointer; }
+.dx-seg-control button.dx-seg-btn:last-child { border-inline-end: 0; }
+.dx-seg-control button.dx-seg-btn:hover { background: var(--line-soft); }
+.dx-seg-control button.dx-seg-btn.is-on { background: var(--blue-tint); color: var(--blue-strong); font-weight: 650; }
 .dx-count { margin-inline-start: 5px; font-size: 11px; color: var(--ink-muted); font-variant-numeric: tabular-nums; }
 .dx-table-wrap { overflow: auto; max-height: 68vh; border: 1px solid var(--line); border-radius: 8px; background: var(--qb-surface, #fff); }
 .dx-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 13px; }
 .dx-table th { position: sticky; top: 0; z-index: 1; height: 30px; padding: 0 10px; text-align: left; white-space: nowrap; background: var(--line-soft); border-bottom: 1px solid var(--line); font-size: 11.5px; font-weight: 650; color: var(--ink-secondary); }
-.dx-table th button { border: 0; background: none; padding: 0; font: inherit; color: inherit; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; }
-.dx-table th button:hover { color: var(--blue-strong); }
-.dx-table td { height: 34px; padding: 0 10px; border-bottom: 1px solid var(--line-soft); vertical-align: middle; color: var(--ink-secondary); }
+.dx-table th button.dx-sort { min-height: 0; min-width: 0; height: auto; border: 0; background: none; padding: 0; font: inherit; color: inherit; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; }
+.dx-table th button.dx-sort:hover { color: var(--blue-strong); background: none; }
+.dx-table td { height: 34px; padding: 0 10px; border-bottom: 1px solid var(--line-soft); vertical-align: middle; color: var(--ink-secondary); white-space: nowrap; }
 .dx-table td.num, .dx-table th.num { text-align: right; font-variant-numeric: tabular-nums; }
 .dx-table tbody tr:hover td { background: var(--blue-tint); }
-.dx-table td.name { color: var(--ink); font-weight: 600; min-width: 220px; }
+.dx-table td.name { color: var(--ink); font-weight: 600; min-width: 220px; white-space: normal; }
 .dx-table tr.dx-detail td { height: auto; padding: 10px 12px; background: var(--line-soft); }
 .dx-pill { display: inline-block; padding: 1px 7px; border-radius: 999px; font-size: 11px; font-weight: 600; line-height: 1.6; background: var(--track); color: var(--ink-secondary); white-space: nowrap; }
 .dx-pill.private { background: var(--blue-tint); color: var(--blue-deep); }
