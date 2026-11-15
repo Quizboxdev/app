@@ -27,7 +27,7 @@ export default function AuthCallbackPage() {
       }
     })().catch((cause) => setFailure(recoveryFailureMessage(cause).replace("password reset link", "email link").replace("reset email", "email")));
   }, [router]);
-  return <AuthShell title={failure ? "This link can't be used" : "Signing you in"} subtitle={failure ? undefined : "Verifying your email link…"}>
+  return <AuthShell title={failure ? "This link can't be used" : "Signing you in"} subtitle={failure ? undefined : "Completing your sign-in…"}>
     {failure
       ? <><p role="alert" className="qb-auth-alert is-error">{failure}</p>
           <div className="qb-auth-links"><Link href="/login">Go to sign in</Link><Link href="/auth/forgot-password">Reset password</Link></div></>

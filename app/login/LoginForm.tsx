@@ -14,6 +14,7 @@ import { listSignupCountries, type SignupCountry } from "@/lib/api/markets";
 import { recordAuthFailure } from "@/lib/api/platform";
 import type { RegistrationParams } from "@/lib/public/registration-params";
 import AuthShell from "@/components/auth/AuthShell";
+import SocialButtons from "@/components/auth/SocialButtons";
 import PasswordField from "@/components/auth/PasswordField";
 import { PASSWORD_MIN_LENGTH, passwordProblem, suggestPassphrase } from "@/lib/password-policy";
 import { useTurnstile } from "@/components/auth/useTurnstile";
@@ -180,6 +181,7 @@ export default function LoginForm({ initial }: { initial: RegistrationParams }) 
           {busy ? (register ? "Creating account…" : "Signing in…") : register ? "Create account" : "Sign in"}
         </button>
       </form>
+      <SocialButtons disabled={busy} onError={(text) => setNotice({ kind: "error", text })} />
     </AuthShell>
   );
 }
