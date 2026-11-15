@@ -383,5 +383,12 @@
   "chars": 10138,
   "parts": 2,
   "note": "Approve Batches: the approve, revoke and discard steps no longer scan the whole questions table, and the approve step validates only until a full step is found. Replaces three functions; changes no data. Safe to run again."
+ },
+ {
+  "version": "20261074100000",
+  "name": "school_directory",
+  "chars": 34114,
+  "parts": 5,
+  "note": "School directory (off until flags.school_directory is switched on): one table of schools by region and district with a Public / Private filter, the add-a-school queue, and the staff approve, merge and import functions. Adds one table, two nullable columns and functions; changes no existing data. Safe to run again."
  }
 ]
