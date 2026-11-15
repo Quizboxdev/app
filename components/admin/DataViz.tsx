@@ -82,23 +82,23 @@ export function SplitBar({ parts }: { parts: { name: string; value: number; colo
 const day = (iso: string) => new Date(`${iso}T00:00:00`).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
 
 // Two curves over time (weeks). A crosshair tooltip on hover; the legend names both series.
-export function TrendCurve({ data, series, height = 170 }: { data: { week: string; [k: string]: number | string }[]; series: { key: string; name: string; color: string }[]; height?: number }) {
+export function TrendCurve({ data, series, height = 170, bucket = "week" }: { data: { week: string; [k: string]: number | string }[]; series: { key: string; name: string; color: string }[]; height?: number; bucket?: "week" | "day" }) {
   const empty = data.every((d) => series.every((s) => Number(d[s.key]) === 0));
   return (
     <div>
       <Legend items={series.map((s) => ({ label: s.name, color: s.color }))} />
-      <div style={{ width: "100%", height }} role="img" aria-label={`${series.map((s) => s.name).join(" and ")}, last ${data.length} weeks`}>
+      <div style={{ width: "100%", height }} role="img" aria-label={`${series.map((s) => s.name).join(" and ")}, last ${data.length} ${bucket === "day" ? "days" : "weeks"}`}>
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={data} margin={{ top: 8, right: 8, left: -18, bottom: 0 }}>
             <CartesianGrid vertical={false} stroke="var(--chart-grid)" />
             <XAxis dataKey="week" tickFormatter={day} axisLine={false} tickLine={false} tick={{ fill: "var(--ink-muted)", fontSize: 11 }} interval="preserveStartEnd" minTickGap={24} />
             <YAxis allowDecimals={false} axisLine={false} tickLine={false} tick={{ fill: "var(--ink-muted)", fontSize: 11 }} width={44} />
-            <Tooltip labelFormatter={(l) => `Week of ${day(String(l))}`} contentStyle={{ fontSize: 12, borderRadius: 8, border: "1px solid var(--line)", boxShadow: "0 4px 12px rgba(15,23,42,.08)" }} cursor={{ stroke: "var(--line-strong)" }} />
+            <Tooltip labelFormatter={(l) => (bucket === "day" ? day(String(l)) : `Week of ${day(String(l))}`)} contentStyle={{ fontSize: 12, borderRadius: 8, border: "1px solid var(--line)", boxShadow: "0 4px 12px rgba(15,23,42,.08)" }} cursor={{ stroke: "var(--line-strong)" }} />
             {series.map((s) => <Line key={s.key} type="monotone" dataKey={s.key} name={s.name} stroke={s.color} strokeWidth={2} dot={false} activeDot={{ r: 4, stroke: "var(--qb-surface, #fff)", strokeWidth: 2 }} strokeLinecap="round" strokeLinejoin="round" />)}
           </LineChart>
         </ResponsiveContainer>
       </div>
-      {empty && <p className="dx-muted dx-note">No activity in these weeks yet. Schools added by users and staff decisions will appear here.</p>}
+      {empty && <p className="dx-muted dx-note">No activity in this period yet.</p>}
     </div>
   );
 }
