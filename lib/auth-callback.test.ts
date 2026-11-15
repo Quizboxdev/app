@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { authErrorMessage, NETWORK_MESSAGE } from "@/lib/auth-errors";
+import { authErrorMessage, NETWORK_MESSAGE, SIGNUP_EMAIL_FAILED_MESSAGE, signUpErrorMessage } from "@/lib/auth-errors";
 import { authCallbackHref, hasAuthLinkParams } from "@/lib/auth-links";
 import { completeAuthCallback, RECOVERY_STORAGE_KEY, RecoveryLinkError } from "@/lib/auth-recovery";
 
@@ -24,6 +24,13 @@ describe("auth error messages are never the opaque generic sentence", () => {
     [new TypeError("Failed to fetch"), NETWORK_MESSAGE],
     [{ message: "Request rate limit reached" }, "Too many attempts"],
   ])("%o", (error, expected) => { expect(authErrorMessage(error)).toContain(expected); });
+  it("a sign-up email failure gets the clear message; a sign-in server failure does not", () => {
+    const mailRefused = { code: "unexpected_failure", message: "Error sending confirmation email", status: 500 };
+    expect(signUpErrorMessage(mailRefused)).toBe(SIGNUP_EMAIL_FAILED_MESSAGE);
+    expect(authErrorMessage(mailRefused)).toContain("HTTP 500");
+    expect(signUpErrorMessage({ code: "unexpected_failure", message: "Database error querying schema", status: 500 })).toContain("HTTP 500");
+    expect(signUpErrorMessage({ code: "weak_password" })).toContain("too easy to guess");
+  });
   it("an unknown failure carries a reference instead of the generic text", () => {
     const text = authErrorMessage({ code: "unexpected_failure", message: "Database error querying schema", status: 500 });
     expect(text).toContain("HTTP 500");
