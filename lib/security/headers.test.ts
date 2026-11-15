@@ -18,6 +18,11 @@ describe("security headers", () => {
     expect(CONTENT_SECURITY_POLICY).toMatch(/connect-src 'self' https:\/\/\*\.supabase\.co/);
     expect(SECURITY_HEADERS.find((h) => h.key === "X-Frame-Options")?.value).toBe("DENY");
   });
+  it("allows the Cloudflare Turnstile (captcha) script, frame and check request, and nothing else new", () => {
+    expect(CONTENT_SECURITY_POLICY).toMatch(/script-src [^;]*https:\/\/challenges\.cloudflare\.com/);
+    expect(CONTENT_SECURITY_POLICY).toMatch(/connect-src [^;]*https:\/\/challenges\.cloudflare\.com/);
+    expect(CONTENT_SECURITY_POLICY).toContain("frame-src https://challenges.cloudflare.com");
+  });
   it("asks browsers to report violations to our own collector", () => {
     expect(CONTENT_SECURITY_POLICY).toContain("report-uri /api/ops/csp-report");
   });
