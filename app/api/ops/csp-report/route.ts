@@ -1,4 +1,5 @@
 import { summariseReport } from "@/lib/security/csp-report";
+import { readBodyCapped } from "@/lib/security/body-limit";
 
 // Receives Content-Security-Policy violation reports from browsers and writes a one-line summary to the function logs, so the policy can be checked before it is enforced (lib/security/headers.ts).
 // Anyone can post here, so it is careful: tiny body, nothing is stored, at most 30 lines a minute per server instance, and it always answers 204 so it can never be used to probe the system.
@@ -7,8 +8,8 @@ const done = () => new Response(null, { status: 204, headers: { "Cache-Control":
 let windowStart = 0, count = 0;
 
 export async function POST(req: Request) {
-  const raw = await req.text();
-  if (raw.length === 0 || raw.length > 8 * 1024) return done();
+  const raw = await readBodyCapped(req, 8 * 1024);
+  if (!raw) return done();
   let parsed: unknown;
   try { parsed = JSON.parse(raw); } catch { return done(); }
   const s = summariseReport(parsed);
