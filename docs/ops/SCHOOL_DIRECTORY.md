@@ -2,14 +2,14 @@
 
 One accurate list of schools (Region, then District, then School) that students and teachers pick from, with a **Public / Private** filter and a **Primary / JHS / SHS** filter. Schools a user cannot find are added by the user and wait for staff approval.
 
-Migration `20261074100000_school_directory.sql` (rollback `supabase/rollback/school_directory.sql`). Everything is off until `flags.school_directory` is switched on.
+Migrations `20261074100000_school_directory.sql` and `20261075100000_school_directory_analytics.sql` (rollbacks `supabase/rollback/school_directory.sql` and `school_directory_analytics.sql`). Everything users see is off until `flags.school_directory` is switched on. Apply 074 first, then 075 (parts in `docs/release/sql-parts/<version>/`).
 
 ## What is in this release
 
 | Piece | Where |
 |---|---|
 | Directory table, filters, add-a-school queue, approve / reject / merge, CSV import | the migration |
-| Staff screen (Waiting, Approved, Rejected, Merged, Import list) | Admin, **School directory** (`/admin/schools`), super admin only |
+| Staff screen: key figures, charts (schools by region split Public / Private, by level, 12-week activity curve), filter bar (region, district, Public / Private, level, search), sortable table, CSV export, Waiting / Approved / Rejected / Merged, Import | Admin, **School directory** (`/admin/schools`), super admin only; figures come from `qb_school_admin_stats` (075) |
 | Browser wrappers for the pickers (regions, districts, search, add, set my school) | `lib/api/schools.ts` |
 | CSV reader for the QuizBox school format | `lib/schools/csv.ts` |
 
