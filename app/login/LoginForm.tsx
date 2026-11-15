@@ -8,7 +8,7 @@ import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { bootstrapUser, getHomeRouteForRole } from "@/lib/auth";
 import { rememberNext, safeNextPath, takeNext } from "@/lib/auth/next-path";
 import { userFacingError } from "@/lib/errors";
-import { authErrorMessage } from "@/lib/auth-errors";
+import { authErrorMessage, signUpErrorMessage } from "@/lib/auth-errors";
 import { AUTH_CALLBACK_PATH, RESET_SUCCESS_MESSAGE } from "@/lib/auth-recovery";
 import { listSignupCountries, type SignupCountry } from "@/lib/api/markets";
 import { recordAuthFailure } from "@/lib/api/platform";
@@ -17,6 +17,8 @@ import AuthShell from "@/components/auth/AuthShell";
 import SocialButtons from "@/components/auth/SocialButtons";
 import PasswordField from "@/components/auth/PasswordField";
 import { PASSWORD_MIN_LENGTH, passwordProblem, suggestPassphrase } from "@/lib/password-policy";
+import { useTurnstile } from "@/components/auth/useTurnstile";
+import { captchaOptions, CAPTCHA_FAILED_MESSAGE, CAPTCHA_WAIT_MESSAGE } from "@/lib/auth/captcha";
 
 type Notice = { kind: "error" | "success" | "info"; text: string } | null;
 
@@ -37,6 +39,7 @@ export default function LoginForm({ initial }: { initial: RegistrationParams }) 
   const [showPassword, setShowPassword] = useState(false);
   const [notice, setNotice] = useState<Notice>(null);
   const [busy, setBusy] = useState(false);
+  const captcha = useTurnstile();   // off (nothing shown) until NEXT_PUBLIC_TURNSTILE_SITE_KEY is set
   const router = useRouter();
 
   useEffect(() => {
@@ -73,6 +76,7 @@ export default function LoginForm({ initial }: { initial: RegistrationParams }) 
   async function submit(e: FormEvent) {
     e.preventDefault();
     if (busy) return;
+    if (captcha.enabled && !captcha.token) { setNotice({ kind: "error", text: captcha.failed ? CAPTCHA_FAILED_MESSAGE : CAPTCHA_WAIT_MESSAGE }); return; }
     setBusy(true);
     setNotice(null);
     // Learners under 13 sign in with a username their teacher gave them; it maps to an address on the managed domain.
@@ -80,7 +84,7 @@ export default function LoginForm({ initial }: { initial: RegistrationParams }) 
     try {
       const supabase = getSupabaseBrowserClient();
       if (mode === "login") {
-        const { error } = await supabase.auth.signInWithPassword({ email: normalizedEmail, password });
+        const { error } = await supabase.auth.signInWithPassword({ email: normalizedEmail, password, options: captchaOptions(captcha.token) });
         if (error) { void recordAuthFailure(error.code ?? "invalid_credentials"); throw error; }
         await routeAfterAuth();
         return;
@@ -93,6 +97,7 @@ export default function LoginForm({ initial }: { initial: RegistrationParams }) 
         email: normalizedEmail,
         password,
         options: {
+          ...captchaOptions(captcha.token),
           emailRedirectTo: new URL(AUTH_CALLBACK_PATH, window.location.origin).href,
           data: { full_name: fullName.trim(), country_code: countryCode, role, ...(smeIntent ? { sme_intent: true } : {}) },
         },
@@ -113,10 +118,10 @@ export default function LoginForm({ initial }: { initial: RegistrationParams }) 
     } catch (error) {
       const message = error instanceof Error && error.message.startsWith("ACCOUNT_LOAD_FAILED:")
         ? `You're signed in, but your account could not be loaded: ${error.message.slice("ACCOUNT_LOAD_FAILED:".length)}`
-        : authErrorMessage(error);
+        : mode === "register" ? signUpErrorMessage(error) : authErrorMessage(error);
       if (!(error instanceof Error && error.message.startsWith("ACCOUNT_LOAD_FAILED:"))) console.error("[auth]", mode, error);
       setNotice({ kind: "error", text: message });
-    } finally { setBusy(false); }
+    } finally { setBusy(false); captcha.reset(); }   // a captcha token works once, so every attempt gets a fresh one
   }
 
   const register = mode === "register";
@@ -168,6 +173,7 @@ export default function LoginForm({ initial }: { initial: RegistrationParams }) 
         {!register && <div className="qb-auth-row"><Link href="/auth/forgot-password">Forgot password?</Link></div>}
         {register && <p className="qb-auth-hint">At least {PASSWORD_MIN_LENGTH} characters. Two or three words are easy to remember, like &ldquo;blue mango river&rdquo;. <button type="button" className="qb-link-btn" disabled={busy} onClick={() => { setPassword(suggestPassphrase()); setShowPassword(true); }}>Suggest a password for me</button></p>}
 
+        {captcha.widget}
         {notice && <div role={notice.kind === "error" ? "alert" : "status"} className={`qb-auth-alert is-${notice.kind}`}>{notice.text}</div>}
 
         <button className="qb-btn qb-btn-block" type="submit" disabled={busy || (register && !country?.available)} aria-busy={busy}>
