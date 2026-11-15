@@ -76,7 +76,7 @@ export default function SchoolDirectoryPage() {
   const levelRows = stats ? LEVELS.map((l) => ({ key: l, label: LEVEL_LABEL[l], segments: [{ value: stats.by_level[l], color: SERIES.a, name: LEVEL_LABEL[l] }] })) : [];
   const sortTh = (k: AdminSort, label: string, className?: string) => (
     <th key={k} className={className} aria-sort={sort === k ? (dir === "asc" ? "ascending" : "descending") : "none"}>
-      <button type="button" onClick={() => sortBy(k)}>{label}{sort === k ? (dir === "asc" ? <ArrowUp size={12} aria-hidden="true" /> : <ArrowDown size={12} aria-hidden="true" />) : <ChevronsUpDown size={12} aria-hidden="true" style={{ opacity: .4 }} />}</button>
+      <button type="button" className="dx-sort" onClick={() => sortBy(k)}>{label}{sort === k ? (dir === "asc" ? <ArrowUp size={12} aria-hidden="true" /> : <ArrowDown size={12} aria-hidden="true" />) : <ChevronsUpDown size={12} aria-hidden="true" style={{ opacity: .4 }} />}</button>
     </th>
   );
 
@@ -154,7 +154,7 @@ export default function SchoolDirectoryPage() {
           <div className="dx-pager">
             <span>{data && data.total > 0 ? `${num(page * size + 1)}–${num(Math.min((page + 1) * size, data.total))} of ${num(data.total)}` : "0 schools"}</span>
             <div className="dx-actions">
-              <label className="dx-muted">Rows <select className="dx-select" value={size} onChange={(e) => { setSize(Number(e.target.value)); setPage(0); }}>{SIZES.map((n) => <option key={n} value={n}>{n}</option>)}</select></label>
+              <span className="dx-muted">Rows</span><select className="dx-select" aria-label="Rows per page" value={size} onChange={(e) => { setSize(Number(e.target.value)); setPage(0); }}>{SIZES.map((n) => <option key={n} value={n}>{n}</option>)}</select>
               <button className="dx-btn" disabled={page === 0} onClick={() => setPage(page - 1)}>Previous</button>
               <button className="dx-btn" disabled={!data || (page + 1) * size >= data.total} onClick={() => setPage(page + 1)}>Next</button>
             </div>
