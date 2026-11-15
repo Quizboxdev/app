@@ -73,7 +73,8 @@ with c(v, k, o) as (values
   ('20261074100000','f','public.qb_school_search'),
   ('20261074100000','f','public.qb_school_admin_import'),
   ('20261074100000','c','public.student_profiles.school_directory_id'),
-  ('20261074100000','c','public.teacher_profiles.school_directory_id')), r as (
+  ('20261074100000','c','public.teacher_profiles.school_directory_id'),
+  ('20261075100000','f','public.qb_school_admin_stats')), r as (
   select v, k, o, case k
     when 't' then to_regclass(o) is not null
     when 'x' then to_regprocedure(o) is null

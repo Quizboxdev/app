@@ -2,8 +2,8 @@ import { PGlite } from "@electric-sql/pglite";
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
-// The school directory (migration 20261074100000) on a small stand-in schema: filters, the add-a-school queue, the staff decisions and the CSV import. Runs the real migration SQL.
-const MIG = "supabase/migrations/20261074100000_school_directory.sql";
+// The school directory (migrations 20261074100000 and 20261075100000) on a small stand-in schema: filters, the add-a-school queue, the staff decisions and the CSV import. Runs the real migration SQL.
+const MIGS = ["supabase/migrations/20261074100000_school_directory.sql", "supabase/migrations/20261075100000_school_directory_analytics.sql"];
 const ADMIN = "00000000-0000-0000-0000-0000000000a1", ANA = "00000000-0000-0000-0000-0000000000b1", KOFI = "00000000-0000-0000-0000-0000000000b2", TEACHER = "00000000-0000-0000-0000-0000000000c1";
 
 async function setup(flag = true) {
@@ -22,7 +22,7 @@ async function setup(flag = true) {
     insert into public.student_profiles values ('${ANA}', 'st marys jhs', now()), ('${KOFI}', null, now());
     insert into public.teacher_profiles values ('${TEACHER}', null, now());
   `);
-  await db.exec(readFileSync(MIG, "utf8"));
+  for (const m of MIGS) await db.exec(readFileSync(m, "utf8"));
   if (flag) await db.exec(`update public.platform_settings set value = 'true'::jsonb where key = 'flags.school_directory'`);
   return db;
 }
@@ -177,5 +177,53 @@ describe("school directory: a person's own school", () => {
     const made = await one(db, `select public.qb_school_submit('Volta', 'Ho Municipal', 'Ana Private Academy', 'private', array['jhs']) as r`);
     await as(db, KOFI);
     await expect(db.query(`select public.qb_school_set_mine('${made.id}')`)).rejects.toThrow(/QB_NOT_FOUND/);
+  });
+});
+
+describe("school directory: figures and filters for the staff screen", () => {
+  it("is for super admins only", async () => {
+    const db = await setup(); await load(db); await as(db, ANA);
+    await expect(db.query(`select public.qb_school_admin_stats()`)).rejects.toThrow(/SUPER_ADMIN_REQUIRED/);
+  });
+  it("reports totals, schools by region split Public / Private, schools by level and the weekly activity", async () => {
+    const db = await setup(); await load(db); await as(db, ANA);
+    await db.query(`select public.qb_school_submit('Volta', 'Ho Municipal', 'Waiting Basic School', 'private', array['primary'])`);
+    await as(db, ADMIN, true);
+    const s = await one(db, `select public.qb_school_admin_stats() as r`);
+    expect(s.totals).toMatchObject({ approved: 4, pending: 1, rejected: 0, merged: 0, private: 2, public: 2, unset: 0, regions: 2, districts: 3, people_linked: 0 });
+    expect(s.by_region).toEqual([{ region: "Ashanti", private: 1, public: 2, unset: 0, total: 3 }, { region: "Greater Accra", private: 1, public: 0, unset: 0, total: 1 }]);
+    expect(s.by_level).toEqual({ primary: 2, jhs: 2, shs: 2 });
+    expect(s.weekly).toHaveLength(12);
+    expect(s.weekly[11]).toMatchObject({ added: 1, decided: 0 });
+    expect(s.districts).toEqual([]);
+    const a = await one(db, `select public.qb_school_admin_stats('Ashanti') as r`);
+    expect(a.districts).toEqual([{ district: "Asokore Mampong", schools: 1 }, { district: "Kumasi Metro", schools: 2 }]);
+  });
+  it("filters the list by region, district, Public / Private and level, and sorts it", async () => {
+    const db = await setup(); await load(db); await as(db, ADMIN, true);
+    const list = (args: string) => one(db, `select public.qb_school_admin_list('approved', ${args}) as r`);
+    expect((await list(`null, 50, 0, 'Ashanti'`)).total).toBe(3);
+    expect((await list(`null, 50, 0, 'Ashanti', 'Kumasi Metropolitan'`)).total).toBe(2);
+    expect((await list(`null, 50, 0, 'Ashanti', null, 'public'`)).rows.map((r: any) => r.name)).toEqual(["Kumasi Academy", "Prempeh College"].sort());
+    expect((await list(`null, 50, 0, null, 'Tema Metropolitan'`)).rows.map((r: any) => r.name)).toEqual(["Tema Grace Basic"]);
+    expect((await list(`null, 50, 0, null, null, 'private', 'jhs'`)).total).toBe(2);
+    expect((await list(`null, 50, 0, null, null, 'unset'`)).total).toBe(0);
+    expect((await list(`'kumasi', 50, 0`)).total).toBe(3);
+    const byName = (await list(`null, 50, 0, null, null, null, null, 'name', 'desc'`)).rows.map((r: any) => r.name);
+    expect(byName).toEqual([...byName].sort((x, y) => (x < y ? 1 : -1)));
+    const byRegion = (await list(`null, 50, 0, null, null, null, null, 'region', 'asc'`)).rows.map((r: any) => r.region);
+    expect(byRegion).toEqual(["Ashanti", "Ashanti", "Ashanti", "Greater Accra"]);
+    expect((await list(`null, 2, 2`)).rows).toHaveLength(2);
+    await expect(db.query(`select public.qb_school_admin_list('approved', null, 50, 0, null, null, null, null, 'password', 'asc')`)).rejects.toThrow(/QB_INVALID_ACTION/);
+    await expect(db.query(`select public.qb_school_admin_list('approved', null, 50, 0, null, null, 'both')`)).rejects.toThrow(/QB_INVALID_ACTION/);
+  });
+  it("sorts by the number of people linked", async () => {
+    const db = await setup(); await load(db); await as(db, KOFI);
+    const id = await one(db, `select id::text as r from public.school_directory where name = 'Tema Grace Basic'`);
+    await db.query(`select public.qb_school_set_mine('${id}')`);
+    await as(db, ADMIN, true);
+    const rows = (await one(db, `select public.qb_school_admin_list('approved', null, 50, 0, null, null, null, null, 'linked', 'desc') as r`)).rows;
+    expect([rows[0].name, rows[0].users_linked]).toEqual(["Tema Grace Basic", 1]);
+    expect((await one(db, `select public.qb_school_admin_stats() as r`)).totals.people_linked).toBe(1);
   });
 });

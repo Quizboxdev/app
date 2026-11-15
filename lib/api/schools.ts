@@ -41,7 +41,20 @@ export const submitSchool = (a: { region: string; district: string; name: string
 export const setMySchool = (schoolId: string) => rpc<{ school_id: string; name: string; pending: boolean }>("qb_school_set_mine", { p_school: schoolId });
 
 // Staff
-export const adminListSchools = (status: DirectoryStatus, query = "", limit = 50, offset = 0) => rpc<AdminSchoolList>("qb_school_admin_list", { p_status: status, p_query: query.trim() || null, p_limit: limit, p_offset: offset });
+export type AdminSort = "recent" | "name" | "region" | "district" | "linked";
+export type AdminListFilter = { query?: string; region?: string; district?: string; ownership?: Ownership | "unset" | ""; level?: SchoolLevel | ""; sort?: AdminSort; dir?: "asc" | "desc" };
+export const adminListSchools = (status: DirectoryStatus, f: AdminListFilter = {}, limit = 50, offset = 0) =>
+  rpc<AdminSchoolList>("qb_school_admin_list", {
+    p_status: status, p_query: f.query?.trim() || null, p_limit: limit, p_offset: offset, p_region: f.region || null, p_district: f.district || null,
+    p_ownership: f.ownership || null, p_level: f.level || null, p_sort: f.sort ?? "recent", p_dir: f.dir ?? "desc",
+  });
+
+export type RegionStat = { region: string; private: number; public: number; unset: number; total: number };
+export type SchoolStats = {
+  totals: { approved: number; pending: number; rejected: number; merged: number; private: number; public: number; unset: number; needs_review: number; regions: number; districts: number; people_linked: number };
+  by_region: RegionStat[]; by_level: Record<SchoolLevel, number>; weekly: { week: string; added: number; decided: number }[]; districts: DistrictCount[];
+};
+export const adminSchoolStats = (region = "") => rpc<SchoolStats>("qb_school_admin_stats", { p_region: region || null });
 export const adminDecideSchool = (id: string, decision: "approve" | "reject" | "merge", note = "", mergeInto: string | null = null, fix: SchoolFix | null = null) =>
   rpc<{ id: string; decision: string; people_updated: number }>("qb_school_admin_decide", { p_id: id, p_decision: decision, p_note: note || null, p_merge_into: mergeInto, p_fix: fix });
 export const adminUpdateSchool = (id: string, fix: SchoolFix) => rpc<{ id: string; name: string }>("qb_school_admin_update", { p_id: id, p_fix: fix });
