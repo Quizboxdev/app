@@ -374,7 +374,7 @@ export default function AppShell({
         </header>
         <ConnectionBanner />
 
-        <div className="qb-content" ref={contentRef}>
+        <div className={pathname.startsWith("/admin") ? "qb-content dx-admin" : "qb-content"} ref={contentRef}>
           <SponsorEngineProvider value={sponsorEngine}><WorkspaceProvider>
             <div className="qb-context-bar"><WorkspaceChip/><MarketContextControl/></div>
             <DraftReminder />
