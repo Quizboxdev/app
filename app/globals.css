@@ -1089,6 +1089,11 @@ button.qi-kw:disabled { cursor: not-allowed; }
 .qb-social-chip[data-channel="youtube"] { background: #e00000; }
 .qb-social-chip[data-channel="linkedin"] { background: #0a66c2; }
 .qb-social-chip[data-channel="snapchat"] { background: #fffc00; color: #000; border-color: rgba(15, 23, 42, .18); }
+.qb-social-chip[data-channel="whatsapp"] { background: #25d366; }
+.qb-social-chip[data-channel="whatsapp_channel"] { background: #25d366; }
+.qb-social-chip[data-channel="telegram"] { background: #229ed9; }
+.qb-social-chip[data-channel="x"] { background: #000; }
+.qb-social-chip[data-channel="email"], .qb-social-chip[data-channel="website"] { background: #475569; }
 .qb-social-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 8px; }
 .qb-social-list .qb-social-link { display: flex; width: 100%; padding: 4px 10px 4px 4px; border: 1px solid var(--line); background: var(--qb-surface); }
 .qb-social-list .qb-social-link:hover { border-color: var(--blue); background: var(--qb-surface-hover); }

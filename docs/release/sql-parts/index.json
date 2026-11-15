@@ -397,5 +397,12 @@
   "chars": 10494,
   "parts": 2,
   "note": "School directory screen: one read-only function for the figures and charts, and the list function re-created with filters (region, district, Public / Private, level) and sorting. Changes no data. Safe to run again."
+ },
+ {
+  "version": "20261076100000",
+  "name": "social_channels",
+  "chars": 10432,
+  "parts": 2,
+  "note": "Social channels managed from the admin (off until flags.social_channels is switched on): one table seeded with the six channels the app shows today, a public read function, and super admin functions to add, edit, hide, reorder and delete (WhatsApp numbers, Telegram and more). Adds one table and functions; changes no existing data. Safe to run again."
  }
 ]
