@@ -83,7 +83,7 @@ export default function SocialChannelsPage() {
         </Panel>
 
         <div className="dx-stack">
-          <Panel title={draft.id ? "Edit channel" : "Add a channel"} subtitle={info ? `${info.name}: ${info.targetLabel.toLowerCase()}` : undefined}>
+          <Panel title={draft.id ? "Edit channel" : "Add a channel"} subtitle={info ? `Platform: ${info.name}` : undefined}>
             <form className="dx-form" style={{ gridTemplateColumns: "1fr" }} onSubmit={(e) => { e.preventDefault(); void save(); }}>
               <label>Platform<select className="dx-select" value={draft.kind} onChange={(e) => { const k = e.target.value as SocialKind; setDraft({ ...draft, kind: k, label: draft.label || (kindInfo(k)?.name ?? "") }); }}>{SOCIAL_KINDS.map((k) => <option key={k.kind} value={k.kind}>{k.name}</option>)}</select></label>
               <label>Name shown on hover<input className="dx-input" value={draft.label} maxLength={60} placeholder={info?.name ?? "Name"} onChange={(e) => setDraft({ ...draft, label: e.target.value })} required /></label>
