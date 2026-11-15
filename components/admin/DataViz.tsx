@@ -6,7 +6,8 @@ import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YA
 // Building blocks for data-centric admin pages: compact key figures, ranked bars, a split bar, a trend curve, and small controls.
 // Rules followed (dataviz method): thin marks, a 2px gap between touching segments, 4px rounded data ends, one baseline, direct value labels, a legend whenever there are two or more series,
 // text in text colours (never the series colour), hover titles on every mark, and a table view as the fallback. Colours come from the app's chart tokens and were checked with the palette validator.
-export const SERIES = { a: "var(--chart-1)", b: "var(--amber)", none: "var(--ink-faint)" } as const;
+// Four categorical colours in a fixed order (blue, amber, purple, green); checked together with the palette validator (all checks pass). "none" is the neutral grey for "not set" / "not yet".
+export const SERIES = { a: "var(--chart-1)", b: "var(--amber)", c: "var(--purple)", d: "var(--green)", none: "var(--ink-faint)" } as const;
 const nf = new Intl.NumberFormat("en-GB");
 export const num = (n: number) => nf.format(n);
 

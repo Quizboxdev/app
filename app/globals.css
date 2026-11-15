@@ -1208,5 +1208,27 @@ button.dx-bar-row:focus-visible { outline: 2px solid var(--blue); outline-offset
 .dx-alert { padding: 8px 12px; border-radius: 8px; font-size: 13px; border: 1px solid var(--line); background: var(--qb-surface, #fff); }
 .dx-alert.error { border-color: var(--red-error-line); background: var(--red-error-tint); color: var(--red-error); }
 .dx-alert.ok { border-color: var(--green-line); background: var(--green-tint); color: var(--green); }
+.dx-textarea { padding: 6px 8px; border: 1px solid var(--line-control); border-radius: 6px; background: var(--qb-surface, #fff); font: inherit; font-size: 13px; color: var(--ink); width: 100%; min-height: 80px; resize: vertical; }
+.dx-textarea:focus-visible { outline: 2px solid var(--blue); outline-offset: 1px; }
+.dx-check { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--ink-secondary); white-space: nowrap; }
+.dx-checks { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; grid-column: 1 / -1; }
+.dx-pill.ok { background: var(--green-tint); color: var(--green); }
+.dx-pill.bad { background: var(--red-error-tint); color: var(--red-error); }
+.dx-form > label.dx-check { display: inline-flex; }
 @media (max-width: 1100px) { .dx-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } .dx-grid > :first-child { grid-column: 1 / -1; } }
 @media (max-width: 680px) { .dx-grid { grid-template-columns: minmax(0, 1fr); } .dx-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } .dx-input { width: 100%; } .dx-bar-row { grid-template-columns: 84px minmax(0, 1fr) 36px; } }
+
+/* ===== Admin skin: every page under /admin gets denser controls, cards and tables (class dx-admin on the content area). New data pages use the dx-* pieces above; older pages keep their markup and pick this up. ===== */
+.dx-admin { --control-h: 32px; --control-h-touch: 36px; }
+.dx-admin .qb-page-head { margin-bottom: 12px; }
+.dx-admin .qb-page-head h1 { font-size: 20px; }
+.dx-admin .qb-page-head p { font-size: 13px; }
+.dx-admin .qb-card { padding: 12px 14px; border-radius: 8px; }
+.dx-admin .qb-card h2, .dx-admin .qb-card h3 { margin-bottom: 8px; font-size: 14px; }
+.dx-admin .qb-content-filters { padding: 8px 0; gap: 8px; }
+.dx-admin .qb-btn { padding: 0 12px; font-size: 13px; border-radius: 6px; }
+.dx-admin .qb-chip { min-height: 30px; padding: 0 12px; font-size: 12.5px; }
+.dx-admin button:not([class]) { min-height: 28px; padding: 0 10px; font-size: 12.5px; }
+.dx-admin table:not(.dx-table) th { height: 30px; padding: 5px 10px; }
+.dx-admin table:not(.dx-table) td { padding: 7px 10px; }
+.dx-admin .qb-table-wrap { border: 1px solid var(--line); background: var(--qb-surface, #fff); }
