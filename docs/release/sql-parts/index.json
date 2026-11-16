@@ -439,5 +439,40 @@
   "chars": 8408,
   "parts": 3,
   "note": "Family workspace, phase 4a (off until flags.family_workspace is on): a hidden family class per class level so a parent can give their children work through the existing assignment engine, a family stamp on assignments, and the parent progress view. Adds two columns, one index, a trigger and two functions; changes no existing data. Safe to run again."
+ },
+ {
+  "version": "20261082100000",
+  "name": "family_orders",
+  "chars": 15072,
+  "parts": 4,
+  "note": "Family workspace, phases 6 and 7 (off until flags.family_workspace is on): one checkout for the children a parent ticks, for Coins or subscriptions, settled for every child or none and exactly once, plus each child wallet and plan view. Adds two tables and functions; changes no existing data. Safe to run again."
+ },
+ {
+  "version": "20261083100000",
+  "name": "family_progress_admin",
+  "chars": 9952,
+  "parts": 3,
+  "note": "Family workspace, phases 9 and 10: read-only progress functions for a parent (only for children they may follow) and read-only staff views of families. Adds functions only; changes no data. Safe to run again."
+ },
+ {
+  "version": "20261084100000",
+  "name": "family_library",
+  "chars": 10299,
+  "parts": 3,
+  "note": "Family workspace, phase 5 (off until flags.family_workspace is on): a parent gives a Marketplace set they bought to chosen children without copying it; the child plays the original while the purchase lasts. Adds one table and functions; changes no existing data. Safe to run again."
+ },
+ {
+  "version": "20261085100000",
+  "name": "family_challenges",
+  "chars": 7580,
+  "parts": 3,
+  "note": "Family workspace, phase 4b (off until flags.family_workspace is on): a parent invites chosen children to a challenge they made; the child sees it with its access code and plays it in the normal play page. Adds one table and functions; changes no existing data. Safe to run again."
+ },
+ {
+  "version": "20261086100000",
+  "name": "help_guides_refresh",
+  "chars": 27099,
+  "parts": 4,
+  "note": "Help centre, 16 Nov 2026: three guides refreshed (only where no admin has edited them) and thirteen new guides: a way-round guide, subjects, the school card, work from school and family, assign by topic, and the family workspace guides (drafts until the feature is on). Adds rows only; never overwrites an admin edit. Safe to run again."
  }
 ]

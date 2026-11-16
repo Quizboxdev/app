@@ -50,6 +50,7 @@ export const formatOptions = (options: unknown) => (Array.isArray(options) ? opt
 export async function setMySubjects(subjects: string[]): Promise<string[]> {
   const { data, error } = await getSupabaseBrowserClient().rpc("qb_student_set_subjects", { p_subjects: subjects });
   if (!error) return (data as string[]) ?? subjects;
+  if (error && /MANAGED_ACCOUNT/.test(error.message ?? "")) throw new Error("Your teacher or parent sets your subjects for you.");
   if (/PGRST202|Could not find the function|does not exist/i.test(`${error.code ?? ""} ${error.message ?? ""}`)) { await updateStudentProfile({ subjects }); return subjects; }
   throw new Error(userFacingError(error));
 }

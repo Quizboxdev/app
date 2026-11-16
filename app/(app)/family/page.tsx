@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
-import { listFamilyChildren, openFamilyWorkspace, type ChildLink, type FamilyChild } from "@/lib/api/family";
+import { listFamilyChildren, listFamilyProgress, openFamilyWorkspace, type ChildLink, type ChildProgressLine, type FamilyChild } from "@/lib/api/family";
 import AddChildForm from "@/components/family/AddChildForm";
 import LinkExistingForm from "@/components/family/LinkExistingForm";
 import InviteBox from "@/components/family/InviteBox";
@@ -14,10 +14,12 @@ type Mode = "none" | "add" | "link";
 export default function FamilyHomePage() {
   const [state, setState] = useState<"loading" | "off" | "notAdult" | "error" | "ready">("loading");
   const [name, setName] = useState("My family"), [children, setChildren] = useState<FamilyChild[]>([]), [mode, setMode] = useState<Mode>("none");
+  const [lines, setLines] = useState<ChildProgressLine[]>([]);
   const [fresh, setFresh] = useState<{ link: ChildLink; name: string } | null>(null), [error, setError] = useState("");
 
   const load = useCallback(async () => {
     try { setChildren(await listFamilyChildren()); setError(""); } catch (e) { setError((e as Error).message); }
+    listFamilyProgress(30).then(setLines).catch(() => setLines([]));
   }, []);
   useEffect(() => {
     let live = true;
@@ -41,6 +43,10 @@ export default function FamilyHomePage() {
           <button className="qb-btn" onClick={() => { setMode("add"); setFresh(null); }}>+ Add child</button>
           <button className="qb-btn secondary" onClick={() => { setMode("link"); setFresh(null); }}>Link an existing student</button>
           {active.length > 0 && <Link className="qb-btn secondary" href="/family/assign">Give work</Link>}
+          {active.length > 0 && <Link className="qb-btn secondary" href="/family/library">Question library</Link>}
+          {active.length > 0 && <Link className="qb-btn secondary" href="/family/challenges">Challenges</Link>}
+          {active.length > 0 && <Link className="qb-btn secondary" href="/family/wallet">Coins and wallet</Link>}
+          {active.length > 0 && <Link className="qb-btn secondary" href="/family/subscriptions">Subscriptions</Link>}
         </div>
       </header>
 
@@ -59,6 +65,10 @@ export default function FamilyHomePage() {
               <span className="qb-chip" style={{ justifySelf: "start", minHeight: 26, padding: "0 10px", fontSize: 12 }}>{c.relationship_type.replace("_", " ")}</span>
             </Link>))}</div>}
       </section>
+
+      {lines.length > 0 && <section aria-labelledby="fam-prog"><h2 id="fam-prog" style={{ margin: "0 0 8px" }}>This month at a glance</h2>
+        <div className="qb-card" style={{ overflowX: "auto" }}><table className="qb-table"><thead><tr><th>Child</th><th>Work done</th><th>Average</th><th>Still to do</th></tr></thead><tbody>
+          {lines.map((l) => <tr key={l.student_id}><td><Link className="qb-link" href={`/family/children/${l.student_id}`}>{l.name}</Link></td><td>{l.completed}</td><td>{l.average === null ? "—" : `${Math.round(Number(l.average))}%`}</td><td>{l.outstanding}</td></tr>)}</tbody></table></div></section>}
 
       {waiting.length > 0 && <section aria-labelledby="fam-waiting"><h2 id="fam-waiting" style={{ margin: "0 0 8px" }}>Waiting for an answer</h2>
         <div className="qb-card" style={{ display: "grid", gap: 6 }}>{waiting.map((c) => <div key={c.relationship_id}>Waiting for <strong>{c.label ?? "a student"}</strong> to accept your request.</div>)}</div></section>}

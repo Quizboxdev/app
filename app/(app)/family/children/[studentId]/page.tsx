@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
-import { resendInvitation, resetChildAccess, revokeInvitation, unlinkChild } from "@/lib/api/family";
+import { childProgress, resendInvitation, resetChildAccess, revokeInvitation, unlinkChild, type ChildProgress } from "@/lib/api/family";
+import SourceChip from "@/components/SourceChip";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import InviteBox from "@/components/family/InviteBox";
 
@@ -15,6 +16,7 @@ export default function ChildPage() {
   const { studentId } = useParams<{ studentId: string }>();
   const router = useRouter();
   const [child, setChild] = useState<Summary | null>(null), [state, setState] = useState<"loading" | "ready" | "forbidden">("loading");
+  const [prog, setProg] = useState<ChildProgress | null>(null);
   const [invite, setInvite] = useState<{ token: string; expiresAt?: string } | null>(null), [busy, setBusy] = useState(""), [error, setError] = useState(""), [note, setNote] = useState("");
 
   const load = useCallback(async () => {
@@ -23,6 +25,7 @@ export default function ChildPage() {
     setChild(data as Summary); setState("ready");
   }, [studentId]);
   useEffect(() => { void load(); }, [load]);
+  useEffect(() => { childProgress(studentId, 30).then(setProg).catch(() => setProg(null)); }, [studentId]);
 
   async function run(key: string, work: () => Promise<void>) {
     setBusy(key); setError(""); setNote("");
@@ -54,15 +57,33 @@ export default function ChildPage() {
         </div>
       </section>
 
+      {prog && <section className="qb-card" aria-labelledby="child-prog" style={{ display: "grid", gap: 12 }}>
+        <h2 id="child-prog" style={{ margin: 0 }}>Progress, last {prog.days} days</h2>
+        <div className="qb-grid cols-4">
+          {([["Work done", prog.completed], ["Average", prog.average === null ? "—" : `${Math.round(Number(prog.average))}%`], ["Best", prog.best === null ? "—" : `${Math.round(Number(prog.best))}%`], ["Still to do", prog.outstanding]] as const).map(([label, value]) => <div key={label} className="qb-card" style={{ display: "grid", gap: 2 }}><span className="qb-muted qb-small">{label}</span><strong style={{ fontSize: 24 }}>{value}</strong></div>)}
+        </div>
+        {prog.weekly.length > 0 && <div role="img" aria-label="Work done each week" style={{ display: "flex", gap: 6, alignItems: "end", height: 90 }}>
+          {prog.weekly.map((w) => { const max = Math.max(1, ...prog.weekly.map((x) => Number(x.completed))); return <div key={w.week} title={`Week of ${w.week}: ${w.completed} done${w.average !== null ? `, average ${Math.round(Number(w.average))}%` : ""}`} style={{ flex: 1, minWidth: 14, maxWidth: 48, height: `${Math.max(6, (Number(w.completed) / max) * 100)}%`, background: "var(--blue, #2563eb)", borderRadius: "4px 4px 0 0" }} />; })}</div>}
+        {prog.recent.length > 0 ? <div style={{ display: "grid", gap: 6 }}>{prog.recent.map((r, i) => <div key={i} style={{ display: "flex", justifyContent: "space-between", gap: 8, flexWrap: "wrap" }}>
+          <span><strong>{r.title}</strong><SourceChip row={{ source_type: r.source }} /></span><span className="qb-muted">{r.percentage === null ? "—" : `${Math.round(Number(r.percentage))}%`} · {new Date(r.submitted_at).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}</span></div>)}</div>
+          : <p className="qb-muted" style={{ margin: 0 }}>No finished work in this period yet.</p>}
+      </section>}
+
       <section className="qb-card" aria-labelledby="child-work" style={{ display: "grid", gap: 8 }}>
         <h2 id="child-work" style={{ margin: 0 }}>Work</h2>
         <p className="qb-muted" style={{ margin: 0 }}>Give {first} practice on topics from their class. It appears in their workspace marked as Family, next to any work from school.</p>
         <Link className="qb-btn" style={{ justifySelf: "start" }} href={`/family/assign?child=${studentId}`}>Give {first} work</Link>
       </section>
 
+      <section className="qb-card" aria-labelledby="child-buy" style={{ display: "grid", gap: 8 }}>
+        <h2 id="child-buy" style={{ margin: 0 }}>Coins and subscription</h2>
+        <p className="qb-muted" style={{ margin: 0 }}>See {first}&apos;s Coins and plan, and buy for {first}, or for several children at once.</p>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}><Link className="qb-btn secondary" href="/family/wallet">Coins and wallet</Link><Link className="qb-btn secondary" href="/family/subscriptions">Subscriptions</Link></div>
+      </section>
+
       <section className="qb-card" aria-labelledby="child-more" style={{ display: "grid", gap: 6 }}>
         <h2 id="child-more" style={{ margin: 0 }}>Coming next</h2>
-        <p className="qb-muted" style={{ margin: 0 }}>Challenges, buying questions, coins and subscriptions, and following {first}&apos;s progress will appear here.</p>
+        <p className="qb-muted" style={{ margin: 0 }}>Challenges, buying questions, and following {first}&apos;s progress will appear here.</p>
       </section>
 
       <section className="qb-card" aria-labelledby="child-remove" style={{ display: "grid", gap: 8 }}>

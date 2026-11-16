@@ -34,6 +34,13 @@ export const coinsToMinor = (coins: number, unitPriceMinor: number) => {
 };
 
 export async function applyVerifiedPaymentEvent(admin: SupabaseClient, event: VerifiedPaymentEvent): Promise<{ outcome: string }> {
+  // A family order (one checkout for several children) has its own reference; the database settles every child's payment in one transaction, or none.
+  if (event.reference.startsWith("QBF-")) {
+    const family = await admin.rpc("qb_family_order_apply", { p_provider: event.provider, p_event_id: event.eventId, p_reference: event.reference, p_status: event.status,
+      p_provider_reference: event.providerReference ?? null, p_amount_minor: event.amountMinor, p_currency: event.currency, p_payload: event.payload ?? {} });
+    if (family.error) throw new Error(family.error.message);
+    return family.data as { outcome: string };
+  }
   const { data, error } = await admin.rpc("qb_payment_apply_event", {
     p_provider: event.provider, p_event_id: event.eventId, p_reference: event.reference, p_status: event.status,
     p_provider_reference: event.providerReference ?? null, p_amount_minor: event.amountMinor, p_currency: event.currency,
