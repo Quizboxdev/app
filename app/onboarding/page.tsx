@@ -26,7 +26,7 @@ export default function OnboardingPage() {
       const { data } = await getSupabaseBrowserClient().auth.getUser();
       if (!data.user) { router.replace("/login"); return; }
       const meta = data.user.user_metadata ?? {};
-      setFullName(String(meta.full_name ?? "")); setCountryCode(String(meta.country_code ?? "")); if (["student", "teacher", "sponsor"].includes(meta.role)) setRole(meta.role);
+      setFullName(String(meta.full_name ?? meta.name ?? ""));   // a social sign-in (Google, LinkedIn, Facebook) supplies "name" setCountryCode(String(meta.country_code ?? "")); if (["student", "teacher", "sponsor"].includes(meta.role)) setRole(meta.role);
       // Set by the public "Apply to become a QuizBox SME" link; only pre-ticks the approval-controlled option.
       if (meta.role === "teacher" && meta.sme_intent === true) setApplySme(true);
       setOrg((current) => ({ ...current, contact_email: data.user?.email ?? "" }));

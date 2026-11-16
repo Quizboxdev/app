@@ -38,8 +38,8 @@ export const browserRecoveryStorage: RecoveryStorage = {
   removeItem: key => window.sessionStorage.removeItem(key),
 };
 
-export async function requestPasswordReset(email: string, origin: string, client = getSupabaseBrowserClient()) {
-  const { error } = await client.auth.resetPasswordForEmail(email, { redirectTo: new URL(RESET_PASSWORD_PATH, origin).href });
+export async function requestPasswordReset(email: string, origin: string, client = getSupabaseBrowserClient(), captchaToken?: string) {
+  const { error } = await client.auth.resetPasswordForEmail(email, { redirectTo: new URL(RESET_PASSWORD_PATH, origin).href, ...(captchaToken ? { captchaToken } : {}) });
   if (error) throw error;
 }
 

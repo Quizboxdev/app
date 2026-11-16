@@ -18,6 +18,7 @@ import { getMyAccess, type MyAccess } from "@/lib/api/access";
 import { getMyQPoints, getMyWallet } from "@/lib/api/core";
 import SubjectIcon from "@/components/SubjectIcon";
 import InstallPrompt from "@/components/InstallPrompt";
+import SchoolSetupCard from "@/components/SchoolSetupCard";
 import ConnectCard from "@/components/ConnectCard";
 import SponsoredCarousel from "@/components/challenges/SponsoredCarousel";
 import { levelFromGrade } from "@/lib/challenges/content-types";
@@ -122,6 +123,7 @@ export default function StudentHomePage() {
     <>
       {error && <div className="qb-card qb-error" role="alert">{error}</div>}
       <InstallPrompt />
+      <SchoolSetupCard />
       <SponsoredCarousel level={levelFromGrade(klass?.grade)} />
       <section className="qb-dashboard-hero qb-sh-hero" aria-labelledby="sh-title">
         <div>

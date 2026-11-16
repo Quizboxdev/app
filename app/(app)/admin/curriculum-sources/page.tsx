@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { fetchSources, importPackage, previewPackage, releaseSourceFile, sourceRegistry, supplySourceFile, type PreviewGroup, type RegistryRow, type SourceMarket } from "@/lib/api/sources";
 import { parsePackage, type ParsedPackage } from "@/lib/content/sources/package";
 import { describeErrorMessage } from "@/lib/errors";
+import { Kpi, num } from "@/components/admin/DataViz";
 
 const STATUSES = ["IMPORTED", "FETCHED", "EXTRACTED", "MAPPED", "NEEDS_REVIEW", "APPROVED", "ACTIVE", "SUPERSEDED", "REJECTED", "DIRECT_PDF_PENDING"];
 const ALL = "__ALL__";
@@ -43,9 +44,18 @@ export default function CurriculumSourcesPage() {
   const runFetch = (market?: string) => act(async () => { const result = await fetchSources({ market_id: market || filters.market_id || undefined, limit: 3 }); await loadRegistry();
     setNotice(`Fetched ${result.outcomes.filter((o) => o.status === "NEEDS_REVIEW").length} of ${result.claimed}: ${result.outcomes.map((o) => `${o.title} ${o.error ?? o.status}`).join("; ") || "nothing eligible"}.`); });
 
-  return <>
-    <div className="qb-page-head"><div><h1>Curriculum sources</h1><p>Import official curriculum source packs per country, review every source, then activate it for that market only.</p></div></div>
-    {error && <p className="qb-error" role="alert">{error}</p>}{notice && <p role="status">{notice}</p>}
+  const total = Object.values(byStatus).reduce((a, b) => a + Number(b), 0);
+  return <div className="dx-page">
+    <div className="dx-head"><div><h1>Curriculum sources</h1><p>Import official curriculum source packs per country, review every source, then activate it for that market only.</p></div></div>
+    <div className="dx-kpis">
+      <Kpi label="Sources registered" value={num(total)} />
+      <Kpi label="Needs review" value={num(byStatus.NEEDS_REVIEW ?? 0)} tone={(byStatus.NEEDS_REVIEW ?? 0) > 0 ? "warn" : "default"} />
+      <Kpi label="Approved, not active" value={num(byStatus.APPROVED ?? 0)} tone={(byStatus.APPROVED ?? 0) > 0 ? "warn" : "default"} />
+      <Kpi label="Active" value={num(byStatus.ACTIVE ?? 0)} />
+      <Kpi label="Direct PDF pending" value={num(byStatus.DIRECT_PDF_PENDING ?? 0)} />
+      <Kpi label="Markets ready" value={`${readiness.filter((r) => r.ready).length} of ${readiness.length}`} />
+    </div>
+    {error && <div className="dx-alert error" role="alert">{error}</div>}{notice && <div className="dx-alert ok" role="status">{notice}</div>}
 
     <section className="qb-card"><h2>Bulk import</h2>
       <div className="qb-content-filters">
@@ -121,5 +131,5 @@ export default function CurriculumSourcesPage() {
         {!rows.length && <p className="qb-muted">No sources match these filters.</p>}</div>
       {packages.length > 0 && <><h3>Packages</h3><ul>{packages.map((p) => <li key={p.id}>{p.name} · {p.type.replaceAll("_", " ").toLowerCase()} · {p.entries} entries · {p.jobs.map((j: any) => `${j.market}: ${j.imported} registered`).join("; ")}</li>)}</ul></>}
     </section>
-  </>;
+  </div>;
 }

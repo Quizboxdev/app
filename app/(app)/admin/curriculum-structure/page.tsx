@@ -4,6 +4,7 @@ import { importStructureChunk, listAllCurricula, type CurriculumChoice } from "@
 import { buildStructure, chunkNodes } from "@/lib/curriculum/structure";
 import { parseVerifiedCsv } from "@/lib/curriculum/verified";
 import { describeErrorMessage } from "@/lib/errors";
+import { Kpi, num } from "@/components/admin/DataViz";
 
 // Super Admin: load the verified curriculum structure (strands, sub-strands, content standards and indicators) into a curriculum.
 // The curriculum is created first under Market Setup > Register a curriculum (it starts inactive). Nothing here activates it or
@@ -41,10 +42,17 @@ export default function CurriculumStructurePage() {
     finally { setBusy(false); setProgress(""); }
   }
 
-  return <>
-    <div className="qb-page-head"><div><h1>Curriculum structure</h1>
+  const picked = curricula.find((c) => c.id === curriculum);
+  return <div className="dx-page">
+    <div className="dx-head"><div><h1>Curriculum structure</h1>
       <p>Load the verified strands, sub-strands, content standards and learning indicators into a curriculum. Create the curriculum first under Market Setup, then load its structure here. Nothing is activated and no questions are created.</p></div></div>
-    {error && <p className="qb-error" role="alert">{error}</p>}{notice && <p role="status">{notice}</p>}
+    <div className="dx-kpis">
+      <Kpi label="Curricula" value={num(curricula.length)} />
+      <Kpi label="Nodes in the chosen curriculum" value={picked ? num(picked.nodes) : "—"} hint={picked?.name} />
+      <Kpi label="Rows in the file" value={parsed && !parsed.error ? num(parsed.rows.length) : "—"} hint={fileName || undefined} />
+      <Kpi label="Indicators to load" value={plan ? num(plan.counts.learning_indicator) : "—"} hint={plan ? `${num(plan.nodes.length)} nodes` : undefined} />
+    </div>
+    {error && <div className="dx-alert error" role="alert">{error}</div>}{notice && <div className="dx-alert ok" role="status">{notice}</div>}
     <section className="qb-card"><h2>1. Choose the curriculum</h2>
       <label>Curriculum<select value={curriculum} onChange={(e) => setCurriculum(e.target.value)}><option value="">Select a curriculum</option>
         {curricula.map((c) => <option key={c.id} value={c.id}>{c.code} · {c.name} ({c.version}){c.active ? "" : " · inactive"} · {c.nodes} nodes</option>)}</select></label>
@@ -67,5 +75,5 @@ export default function CurriculumStructurePage() {
       <button className="qb-btn" disabled={busy || !curriculum || plan.problems.length > 0} onClick={() => void run()}>{busy ? progress || "Loading…" : "Load structure"}</button>
       {!curriculum && <p className="qb-muted">Choose a curriculum first.</p>}
     </section>}
-  </>;
+  </div>;
 }

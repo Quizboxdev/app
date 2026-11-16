@@ -5,6 +5,7 @@ import { CheckCircle2 } from "lucide-react";
 import { findStaff, getMyStaffAccess, listStaff, setStaffAccess, STAFF_OFF_MESSAGE, type StaffAccount, type StaffMember } from "@/lib/api/staff";
 import { WORKFLOWS, workflowLabel } from "@/lib/staff/workflows";
 import { formatDate } from "@/lib/format";
+import { Kpi, num } from "@/components/admin/DataViz";
 
 // Admin, Staff access (Super Admin only). Find a colleague by email and tick the connected workflows they may use. Each workflow opens a set of admin tabs that belong together;
 // the database still checks every action, so a ticked box can never give more than that workflow allows. Git, Vercel and Supabase are not part of any workflow.
@@ -46,11 +47,17 @@ export default function StaffAccessPage() {
   }
 
   const changed = account ? !same(chosen, account.workflows) : false;
+  const sensitiveIds: string[] = WORKFLOWS.filter((w) => w.sensitive).map((w) => w.id);
   return (
-    <>
-      <div className="qb-page-head"><div><h1>Staff access</h1>
+    <div className="dx-page">
+      <div className="dx-head"><div><h1>Staff access</h1>
         <p>Give a colleague the tabs for the work they do. Find them by the email on their QuizBox account, tick the workflows, and save. You can change or withdraw access at any time.</p></div></div>
-      {error && <div className="qb-card qb-error" role="alert">{error}</div>}
+      {enabled && <div className="dx-kpis">
+        <Kpi label="People with staff access" value={members ? num(members.length) : "—"} />
+        <Kpi label="With money records" value={members ? num(members.filter((m) => m.workflows.some((w) => sensitiveIds.includes(w))).length) : "—"} hint="sensitive workflows" tone={members && members.some((m) => m.workflows.some((w) => sensitiveIds.includes(w))) ? "warn" : "default"} />
+        <Kpi label="Workflows available" value={num(WORKFLOWS.length)} />
+      </div>}
+      {error && <div className="dx-alert error" role="alert">{error}</div>}
       {done && <div className="qb-card" role="status"><CheckCircle2 size={16} aria-hidden="true" /> {done}</div>}
 
       {enabled === null ? <p className="qb-muted">Loading…</p> : !enabled ? <div className="qb-card" role="status">{STAFF_OFF_MESSAGE}</div> : <>
@@ -96,6 +103,6 @@ export default function StaffAccessPage() {
             </tbody></table></div>}
         </section>
       </>}
-    </>
+    </div>
   );
 }
