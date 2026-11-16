@@ -75,3 +75,14 @@ export type AdminFamilyDetail = { workspace_id: string; name: string; created_at
   orders: Array<{ reference: string; kind: string; status: string; total_minor: number; created_at: string }>; activity: Array<{ action: string; at: string; status: string }> };
 export const adminFamilies = () => rpc<AdminFamilies>("qb_admin_families");
 export const adminFamilyDetail = (workspaceId: string) => rpc<AdminFamilyDetail>("qb_admin_family_detail", { p_workspace: workspaceId });
+
+// The family question library: sets a parent bought in the Marketplace, given to chosen children without copying anything.
+import type { OpenSet } from "@/lib/api/marketplace";
+export type LibrarySet = { item_id: string; title: string; subject: string; school: string; grade: string; expires_at: string; active: boolean; children: Array<{ student_id: string; name: string; best: number | null }> };
+export type MySet = { item_id: string; title: string; subject: string; grade: string; from: string; expires_at: string; best: number | null };
+export const familyLibrary = () => rpc<LibrarySet[]>("qb_family_library");
+export const grantSet = (itemId: string, studentIds: string[]) => rpc<{ granted: number }>("qb_family_grant_set", { p_item: itemId, p_students: studentIds });
+export const revokeSet = (itemId: string, studentId: string) => rpc<{ revoked: number }>("qb_family_revoke_grant", { p_item: itemId, p_student: studentId });
+export const myFamilySets = () => rpc<MySet[]>("qb_family_my_sets");
+export const openFamilySet = (itemId: string) => rpc<OpenSet>("qb_family_set_open", { p_item: itemId });
+export const recordFamilySet = (itemId: string, correct: number, total: number) => rpc<void>("qb_family_set_record", { p_item: itemId, p_correct: correct, p_total: total });
