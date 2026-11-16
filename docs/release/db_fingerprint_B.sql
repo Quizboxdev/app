@@ -85,7 +85,9 @@ with c(v, k, o) as (values
   ('20261080100000','t','public.family_invitations'),
   ('20261080100000','f','public.qb_family_invite_consume'),
   ('20261081100000','f','public.qb_family_class'),
-  ('20261081100000','f','public.qb_family_assignments')), r as (
+  ('20261081100000','f','public.qb_family_assignments'),
+  ('20261082100000','t','public.family_orders'),
+  ('20261082100000','f','public.qb_family_order_create')), r as (
   select v, k, o, case k
     when 't' then to_regclass(o) is not null
     when 'x' then to_regprocedure(o) is null

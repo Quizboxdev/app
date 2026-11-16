@@ -439,5 +439,12 @@
   "chars": 8408,
   "parts": 3,
   "note": "Family workspace, phase 4a (off until flags.family_workspace is on): a hidden family class per class level so a parent can give their children work through the existing assignment engine, a family stamp on assignments, and the parent progress view. Adds two columns, one index, a trigger and two functions; changes no existing data. Safe to run again."
+ },
+ {
+  "version": "20261082100000",
+  "name": "family_orders",
+  "chars": 15072,
+  "parts": 4,
+  "note": "Family workspace, phases 6 and 7 (off until flags.family_workspace is on): one checkout for the children a parent ticks, for Coins or subscriptions, settled for every child or none and exactly once, plus each child wallet and plan view. Adds two tables and functions; changes no existing data. Safe to run again."
  }
 ]

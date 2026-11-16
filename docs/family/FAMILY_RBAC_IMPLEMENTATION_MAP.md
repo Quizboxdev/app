@@ -114,3 +114,14 @@ Migration `20261081100000_family_assignments.sql` (3 parts, off behind `flags.fa
 - **To check on Preview (real schema):** the function inserts into `classes`, `class_memberships` and `teacher_profiles` under the live guards (market and curriculum checks). It is tested against a stand-in schema, not the live one, so make one family assignment on Preview before Production.
 - **Known side effects:** a parent gets a `teacher_profiles` row (an extra "teacher" in teacher counts); the family class appears in the child's class list as "Family · B5". Phase 8 (the unified feed) shows the source label.
 - **4b (next):** challenges for specific children (D3), notifications that name the sender, and the "From: Family" label in the student's workspace.
+
+## 12. Phases 6 and 7 delivered: coins and subscriptions for the children a parent ticks
+
+Migration `20261082100000_family_orders.sql` (4 parts, off behind `flags.family_workspace`; apply after 079 to 081). Pages `/family/wallet`, `/family/subscriptions`, `/family/pay`; route `POST /api/family/orders`; shared `ChildChoiceTable`.
+
+- **The buying rule, as built.** Every screen shows the children as a tick list with **Select all** and **Same for everyone**, and each ticked child has their own choice (a Coin amount, or a plan), so one child can get a monthly plan and another a term plan in one checkout. Only children the parent has `buy_coins` / `buy_subscription` for are offered.
+- **One payment, every child or none.** `qb_family_order_create` makes one ordinary payment intent per child (the existing minimum charge, relationship check and ledger apply), tied to one order reference `QBF-...`. The server prices the order from the admin price list and the unit price and refuses to continue unless the database total matches. Paystack takes one charge for the total. The existing signed webhook (and the return-page check) hand the verified event to `qb_family_order_apply`, which settles every child's intent in one transaction (amount must equal the order total), or rolls back entirely. A replayed event is ignored at order level and per child.
+- **Subscriptions** use the existing fulfilment (`qb_fulfil_subscription_payment`) per child, so each child has their own subscription that can be changed or cancelled alone. Refunds revoke every child's subscription and take back the Coins.
+- **Wired into the existing payment path** (small, tested branches on the `QBF-` prefix): `applyVerifiedPaymentEvent`, `fulfilAfter`, `confirmPayment`.
+- **Plans** (weekly, monthly, term, yearly) are rows in the admin Prices page (audience learner, kind plan, with Coins and days); nothing is hard-coded. Add the weekly and yearly rows there.
+- **Known follow-ups:** Admin > Payment checks will show each child's intent as its own payment (their references are not Paystack transactions) until the checker learns about family orders; `/admin/families` (phase 10) will show orders.

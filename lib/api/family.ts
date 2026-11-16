@@ -41,3 +41,25 @@ export type FamilyClass = { class_id: string; grade_code: string; curriculum_id:
 export type FamilyAssignment = { assignment_id: string; title: string; grade_code: string | null; due_at: string | null; published_at: string | null; question_count: number; mode: string; children: Array<{ student_id: string; name: string; status: "done" | "started" | "not_started"; percentage: number | null }> };
 export const familyClassFor = (gradeCode: string) => rpc<FamilyClass>("qb_family_class", { p_grade_code: gradeCode });
 export const listFamilyAssignments = () => rpc<FamilyAssignment[]>("qb_family_assignments");
+
+// Coins and subscriptions for ticked children. One checkout pays for all of them; the server prices it and the database settles every child or none.
+import { listPrices } from "@/lib/api/pricing";
+import { getCatalog } from "@/lib/api/payments";
+export type FamilyWallet = { student_id: string; name: string; coins: number; plan: string | null; valid_until: string | null; can_buy_coins: boolean; can_buy_subscription: boolean };
+export type FamilyOrder = { reference: string; kind: "coins" | "subscription"; status: "initiated" | "paid" | "fulfilled" | "failed" | "refunded" | "mismatch"; total_minor: number; created_at: string; items: Array<{ student_id: string; name: string; coins: number; amount_minor: number }> };
+export type LearnerPlan = { code: string; name: string; coins: number; days: number };
+export const listFamilyWallets = () => rpc<FamilyWallet[]>("qb_family_wallets");
+export const listFamilyOrders = () => rpc<FamilyOrder[]>("qb_family_orders");
+export const getFamilyOrder = (reference: string) => rpc<FamilyOrder>("qb_family_order_get", { p_reference: reference });
+export async function learnerPlans(): Promise<LearnerPlan[]> {
+  const rows = await listPrices();
+  return rows.filter((r) => r.kind === "plan" && r.audience === "learner" && Number(r.coins) > 0 && Number(r.days) > 0).map((r) => ({ code: r.code, name: r.name, coins: Number(r.coins), days: Number(r.days) })).sort((a, b) => a.days - b.days);
+}
+export const unitPriceMinor = async (): Promise<number> => Number((await getCatalog())?.unit_price_minor ?? 0);
+export const cedis = (minor: number) => `GHS ${(minor / 100).toLocaleString("en-GB", { minimumFractionDigits: minor % 100 ? 2 : 0, maximumFractionDigits: 2 })}`;
+export async function startFamilyOrder(kind: "coins" | "subscription", items: Array<{ studentId: string; coins?: number; planId?: string }>): Promise<{ url: string; reference: string }> {
+  const res = await fetch("/api/family/orders", { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${await token()}` }, body: JSON.stringify({ kind, items }) });
+  const out = await res.json().catch(() => ({}));
+  if (!res.ok || !out?.url) throw new Error(typeof out?.error === "string" ? out.error : "We could not start the payment. Please try again.");
+  return { url: String(out.url), reference: String(out.reference) };
+}

@@ -60,9 +60,15 @@ export default function ChildPage() {
         <Link className="qb-btn" style={{ justifySelf: "start" }} href={`/family/assign?child=${studentId}`}>Give {first} work</Link>
       </section>
 
+      <section className="qb-card" aria-labelledby="child-buy" style={{ display: "grid", gap: 8 }}>
+        <h2 id="child-buy" style={{ margin: 0 }}>Coins and subscription</h2>
+        <p className="qb-muted" style={{ margin: 0 }}>See {first}&apos;s Coins and plan, and buy for {first}, or for several children at once.</p>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}><Link className="qb-btn secondary" href="/family/wallet">Coins and wallet</Link><Link className="qb-btn secondary" href="/family/subscriptions">Subscriptions</Link></div>
+      </section>
+
       <section className="qb-card" aria-labelledby="child-more" style={{ display: "grid", gap: 6 }}>
         <h2 id="child-more" style={{ margin: 0 }}>Coming next</h2>
-        <p className="qb-muted" style={{ margin: 0 }}>Challenges, buying questions, coins and subscriptions, and following {first}&apos;s progress will appear here.</p>
+        <p className="qb-muted" style={{ margin: 0 }}>Challenges, buying questions, and following {first}&apos;s progress will appear here.</p>
       </section>
 
       <section className="qb-card" aria-labelledby="child-remove" style={{ display: "grid", gap: 8 }}>
