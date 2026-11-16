@@ -22,7 +22,6 @@ import { SponsorEngineProvider } from "@/components/SponsorEngineFlag";
 import DraftReminder from "@/components/DraftReminder";
 import PolicyGate from "@/components/policies/PolicyGate";
 import HelpStarter from "@/components/help/HelpStarter";
-import SponsoredCarousel from "@/components/challenges/SponsoredCarousel";
 import ConnectionBanner from "@/components/ConnectionBanner";
 import { captureReferralIfAny } from "@/lib/referral/capture";
 
@@ -350,7 +349,6 @@ export default function AppShell({
         <nav className="qb-nav" aria-label="Main">
           {navGroups}
         </nav>
-        {["STUDENT", "TEACHER"].includes(String(ctx?.role ?? "").toUpperCase()) && !inSchool && <div className="qb-sidebar-sponsor" style={{ padding: "0 12px 12px" }}><SponsoredCarousel compact showLibrary={false} /></div>}
         <div className="qb-follow"><p className="qb-follow-title">Follow QuizBox</p><AppSocialLinks /></div>
       </aside>
 
