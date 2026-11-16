@@ -1,3 +1,4 @@
+import type * as React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
 
@@ -16,7 +17,7 @@ import Staff from "./staff/page";
 import Access from "./access/page";
 
 // First paint of each admin page converted to the analytics layout: the page shell, its heading, and no large unclassed buttons.
-const pages: Array<[string, () => JSX.Element, string[]]> = [
+const pages: Array<[string, () => React.ReactElement, string[]]> = [
   ["Partner Integrations", () => <Partners />, ["Partner Integrations"]],
   ["Marketplace", () => <Marketplace />, ["Sets waiting for review", "Sellers to verify", "Overdue payouts"]],
   ["Curriculum sources", () => <CurriculumSources />, ["Sources registered", "Needs review", "Markets ready"]],
