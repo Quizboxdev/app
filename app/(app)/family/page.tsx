@@ -43,6 +43,7 @@ export default function FamilyHomePage() {
           <button className="qb-btn" onClick={() => { setMode("add"); setFresh(null); }}>+ Add child</button>
           <button className="qb-btn secondary" onClick={() => { setMode("link"); setFresh(null); }}>Link an existing student</button>
           {active.length > 0 && <Link className="qb-btn secondary" href="/family/assign">Give work</Link>}
+          {active.length > 0 && <Link className="qb-btn secondary" href="/family/library">Question library</Link>}
           {active.length > 0 && <Link className="qb-btn secondary" href="/family/wallet">Coins and wallet</Link>}
           {active.length > 0 && <Link className="qb-btn secondary" href="/family/subscriptions">Subscriptions</Link>}
         </div>

@@ -453,5 +453,12 @@
   "chars": 9952,
   "parts": 3,
   "note": "Family workspace, phases 9 and 10: read-only progress functions for a parent (only for children they may follow) and read-only staff views of families. Adds functions only; changes no data. Safe to run again."
+ },
+ {
+  "version": "20261084100000",
+  "name": "family_library",
+  "chars": 10299,
+  "parts": 3,
+  "note": "Family workspace, phase 5 (off until flags.family_workspace is on): a parent gives a Marketplace set they bought to chosen children without copying it; the child plays the original while the purchase lasts. Adds one table and functions; changes no existing data. Safe to run again."
  }
 ]
