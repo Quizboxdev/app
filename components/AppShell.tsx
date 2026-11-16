@@ -98,7 +98,7 @@ export default function AppShell({
     allowedPrefixes.push("/account", "/notifications", "/school", "/play", "/open", "/drafts", "/support", "/guides", "/affiliate");
     if (role !== "STUDENT" && familyOn) allowedPrefixes.push("/family");
     if (sme?.reviewer || sme?.content_admin || sme?.super_admin) allowedPrefixes.push("/review");
-    if (sme?.super_admin) allowedPrefixes.push("/admin/markets", "/admin/partners", "/admin/reviewers", "/admin/compensation", "/admin/policies", "/admin/schools", "/admin/social");
+    if (sme?.super_admin) allowedPrefixes.push("/admin/markets", "/admin/partners", "/admin/reviewers", "/admin/compensation", "/admin/policies", "/admin/schools", "/admin/social", "/admin/families");
     if (sme?.super_admin || sme?.sme_support) allowedPrefixes.push("/admin/inbox", "/admin/reviewer-applications", "/admin/tickets", "/admin/help");
     if (sme?.super_admin || sme?.finance_admin) allowedPrefixes.push("/admin/sme-performance", "/admin/payouts", "/admin/payment-checks", "/admin/affiliates");
     if (sme?.super_admin || sme?.finance_admin || sme?.content_admin || sme?.sme_support) allowedPrefixes.push("/admin/exports");
@@ -183,7 +183,7 @@ export default function AppShell({
         ["/admin/support", "Support"],
         ...when(sme?.super_admin || sme?.sme_support, [["/admin/inbox", "Enquiry Inbox"]]),
         ...when(sme?.super_admin, [["/admin/young-learners", "Young learners (privacy)"]]),
-        ...when(sme?.super_admin, [["/admin/social", "Social channels"]]),
+        ...when(sme?.super_admin, [["/admin/social", "Social channels"], ["/admin/families", "Families"]]),
         ...when(sme?.super_admin, [["/admin/access", "Access & Subscriptions"]]),
         ...when(sme?.super_admin && staff?.enabled, [["/admin/staff", "Staff access"]]),
         ["/admin/pricing", "Prices"],

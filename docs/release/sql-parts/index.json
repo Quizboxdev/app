@@ -446,5 +446,12 @@
   "chars": 15072,
   "parts": 4,
   "note": "Family workspace, phases 6 and 7 (off until flags.family_workspace is on): one checkout for the children a parent ticks, for Coins or subscriptions, settled for every child or none and exactly once, plus each child wallet and plan view. Adds two tables and functions; changes no existing data. Safe to run again."
+ },
+ {
+  "version": "20261083100000",
+  "name": "family_progress_admin",
+  "chars": 9952,
+  "parts": 3,
+  "note": "Family workspace, phases 9 and 10: read-only progress functions for a parent (only for children they may follow) and read-only staff views of families. Adds functions only; changes no data. Safe to run again."
  }
 ]

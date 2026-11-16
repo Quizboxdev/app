@@ -6,6 +6,8 @@ import HelpLink from "@/components/help/HelpLink";
 import { formatDateTime, isUuid } from "@/lib/format";
 import { bootstrapUser } from "@/lib/auth";
 import { getStudentClassroom, joinClass } from "@/lib/api/student";
+import SourceChip from "@/components/SourceChip";
+import { countBySource, filterBySource, type SourceFilter } from "@/lib/learning/work-source";
 
 export default function StudentClassroomPage() {
   const [data, setData] = useState<any>(null);
@@ -13,6 +15,7 @@ export default function StudentClassroomPage() {
   const [studentId, setStudentId] = useState("");
   const [joinCode, setJoinCode] = useState("");
   const [notice, setNotice] = useState("");
+  const [source, setSource] = useState<SourceFilter>("all");
 
   async function refresh(id: string) {
     setData(await getStudentClassroom(id));
@@ -87,11 +90,13 @@ export default function StudentClassroomPage() {
 
         <div className="qb-card">
           <h2>Assignments</h2>
+          {(() => { const n = countBySource<any>(data.assignments); return n.family > 0 ? <div className="qb-chip-row" role="group" aria-label="Show work from" style={{ marginBottom: 8 }}>
+            {([["all", "All"], ["school", "School"], ["family", "Family"]] as const).map(([k, l]) => <button key={k} type="button" className="qb-chip" aria-pressed={source === k} onClick={() => setSource(k)}>{l} ({n[k]})</button>)}</div> : null; })()}
           <div className="qb-list">
-            {data.assignments.map((row: any) => (
+            {filterBySource<any>(data.assignments, source).map((row: any) => (
               <div className="qb-row" key={row.id}>
                 <div className="qb-row-main">
-                  <strong>{row.title ?? "Assignment"}</strong>
+                  <strong>{row.title ?? "Assignment"}</strong><SourceChip row={row} />
                   <span>{[isUuid(row.subject_code) ? null : row.subject_code, row.due_at ? `Due ${formatDateTime(row.due_at)}` : "No due date"].filter(Boolean).join(" · ")}</span>
                 </div>
               </div>

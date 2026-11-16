@@ -63,3 +63,15 @@ export async function startFamilyOrder(kind: "coins" | "subscription", items: Ar
   if (!res.ok || !out?.url) throw new Error(typeof out?.error === "string" ? out.error : "We could not start the payment. Please try again.");
   return { url: String(out.url), reference: String(out.reference) };
 }
+
+// What a parent can follow about a child, and what staff see across families (read-only).
+export type ChildProgressLine = { student_id: string; name: string; grade_code: string | null; completed: number; average: number | null; outstanding: number; last_activity: string | null };
+export type ChildProgress = { days: number; completed: number; average: number | null; best: number | null; outstanding: number; weekly: Array<{ week: string; completed: number; average: number | null }>; recent: Array<{ title: string; percentage: number | null; submitted_at: string; source: string | null }> };
+export const listFamilyProgress = (days = 30) => rpc<ChildProgressLine[]>("qb_family_progress", { p_days: days });
+export const childProgress = (studentId: string, days = 30) => rpc<ChildProgress>("qb_family_child_progress", { p_student: studentId, p_days: days });
+export type AdminFamilies = { generated_at: string; workspaces: number; children_linked: number; requests_waiting: number; invitations_waiting: number; orders: Record<string, number>; paid_minor: number; family_assignments: number;
+  families: Array<{ workspace_id: string; owner: string; email: string; created_at: string; children: number; orders: number; spent_minor: number; assignments: number }> };
+export type AdminFamilyDetail = { workspace_id: string; name: string; created_at: string; owner: { name: string; email: string; role: string }; children: Array<{ student_id: string; name: string; grade_code: string | null; type: string; status: string; since: string; minor: boolean }>;
+  orders: Array<{ reference: string; kind: string; status: string; total_minor: number; created_at: string }>; activity: Array<{ action: string; at: string; status: string }> };
+export const adminFamilies = () => rpc<AdminFamilies>("qb_admin_families");
+export const adminFamilyDetail = (workspaceId: string) => rpc<AdminFamilyDetail>("qb_admin_family_detail", { p_workspace: workspaceId });
