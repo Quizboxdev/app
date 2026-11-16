@@ -125,3 +125,10 @@ Migration `20261082100000_family_orders.sql` (4 parts, off behind `flags.family_
 - **Wired into the existing payment path** (small, tested branches on the `QBF-` prefix): `applyVerifiedPaymentEvent`, `fulfilAfter`, `confirmPayment`.
 - **Plans** (weekly, monthly, term, yearly) are rows in the admin Prices page (audience learner, kind plan, with Coins and days); nothing is hard-coded. Add the weekly and yearly rows there.
 - **Known follow-ups:** Admin > Payment checks will show each child's intent as its own payment (their references are not Paystack transactions) until the checker learns about family orders; `/admin/families` (phase 10) will show orders.
+
+## 13. Phases 8, 9 and 10 delivered: one feed with a source, parent progress, staff view
+
+- **Phase 8 (no migration).** A `SourceChip` (School or Family) on each piece of work on the student home and classroom, and an All / School / Family filter on the classroom page (shown only when the child has family work). Records are never merged by title: the source comes from `assignments.source_type`. Work with no source (older data, or a database without migration 081) is School.
+- **Phase 9 (migration `20261083100000_family_progress_admin.sql`, read-only).** `qb_family_progress` and `qb_family_child_progress`: work done, average, best, still to do, a week-by-week curve and the latest results with their source, only for children the parent actively follows with `view_progress` (a revoked link shows nothing at once). Shown on `/family` ("This month at a glance") and on each child's page.
+- **Phase 10.** `/admin/families` (staff, read-only, admin analytics kit): totals, orders by state, biggest spenders, and one family in detail (children, orders, recent actions by the parent) via `qb_admin_families` and `qb_admin_family_detail`. Appears in the Operations group for super admins.
+- **Still to do from the directive:** challenges for specific children (4b), the family question library from the Marketplace (5), notifications that name the sender, parent sign-up as a role choice, and per-child coin and plan figures on the child cards.
