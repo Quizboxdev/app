@@ -6,6 +6,7 @@ import { formatDate, humanize } from "@/lib/format";
 import { getCatalog, getPaidChallenges, listPayments, setCoinUnitPrice, setPaidChallenges, setPaymentsOpen, type Catalog, type PaymentRow } from "@/lib/api/payments";
 import plansFile from "../../../../config/subscription-plans.json";
 import ExportLink from "@/components/admin/ExportLink";
+import { Kpi } from "@/components/admin/DataViz";
 
 // Owner screen for the free allowance and subscriptions. Until online payment is live, the owner grants a subscription here after a payment is
 // received (mobile money, cash, bank). Payments will later write the same records automatically.
@@ -27,15 +28,16 @@ export default function AccessPage() {
   const revoke = (s: Subscription) => { const why = window.prompt(`Revoke ${s.email}'s ${s.plan}? Reason:`); if (why) void act(() => revokeSubscription(s.id, why), "Subscription revoked."); };
 
   return (
-    <>
-      <div className="qb-page-head"><div><h1>Access and subscriptions</h1><p>Set how many free practice sessions a new learner gets, and grant subscriptions after payment.</p></div><ExportLink dataset="payments" /></div>
-      {error && <div className="qb-card qb-error" role="alert">{error}</div>}
+    <div className="dx-page">
+      <div className="dx-head"><div><h1>Access and subscriptions</h1><p>Set how many free practice sessions a new learner gets, and grant subscriptions after payment.</p></div><div className="dx-actions"><ExportLink dataset="payments" /></div></div>
+      {error && <div className="dx-alert error" role="alert">{error}</div>}
       {done && <div className="qb-card" role="status">{done}</div>}
       {!data ? <div className="qb-card qb-skeleton" style={{ minHeight: 120 }} aria-busy="true" /> : <>
-        <div className="qb-grid cols-3">
-          <div className="qb-card"><div className="qb-muted qb-small">Free sessions per learner</div><strong style={{ fontSize: 26 }}>{data.free_limit ?? "Off"}</strong></div>
-          <div className="qb-card"><div className="qb-muted qb-small">Learners</div><strong style={{ fontSize: 26 }}>{data.learners}</strong></div>
-          <div className="qb-card"><div className="qb-muted qb-small">Subscribed now</div><strong style={{ fontSize: 26 }}>{data.subscribed_now}</strong></div>
+        <div className="dx-kpis">
+          <Kpi label="Free sessions per learner" value={data.free_limit ?? "Off"} />
+          <Kpi label="Learners" value={data.learners} />
+          <Kpi label="Subscribed now" value={data.subscribed_now} />
+          <Kpi label="Online payments" value={catalog ? (catalog.payments_enabled ? "On" : "Off") : "—"} />
         </div>
 
         <section className="qb-card" style={{ marginTop: 16 }}>
@@ -94,6 +96,6 @@ export default function AccessPage() {
             </tbody></table></div>}
         </section>
       </>}
-    </>
+    </div>
   );
 }
