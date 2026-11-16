@@ -467,5 +467,12 @@
   "chars": 7580,
   "parts": 3,
   "note": "Family workspace, phase 4b (off until flags.family_workspace is on): a parent invites chosen children to a challenge they made; the child sees it with its access code and plays it in the normal play page. Adds one table and functions; changes no existing data. Safe to run again."
+ },
+ {
+  "version": "20261086100000",
+  "name": "help_guides_refresh",
+  "chars": 27099,
+  "parts": 4,
+  "note": "Help centre, 16 Nov 2026: three guides refreshed (only where no admin has edited them) and thirteen new guides: a way-round guide, subjects, the school card, work from school and family, assign by topic, and the family workspace guides (drafts until the feature is on). Adds rows only; never overwrites an admin edit. Safe to run again."
  }
 ]
