@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import ExportLink from "@/components/admin/ExportLink";
+import { Kpi, Segmented, num } from "@/components/admin/DataViz";
 import {
   adminItem, adminItems, adminPayoutSet, adminPayouts, adminReverse, adminReview, adminSellerSet, adminSellers, adminSummary, cedis, ITEM_STATUS, marketplaceOpen, marketplaceSwitch, sourceLine, when,
   type AdminItem, type AdminItemDetail, type AdminPayout, type AdminSeller, type AdminSummary,
@@ -144,18 +145,25 @@ function Account({ onError }: { onError: (m: string) => void }) {
 export default function AdminMarketplace() {
   const [tab, setTab] = useState<Tab>("review"), [error, setError] = useState("");
   const onError = useCallback((m: string) => setError(m), []);
+  const [sum, setSum] = useState<AdminSummary | null>(null);
+  useEffect(() => { adminSummary().then(setSum).catch(() => setSum(null)); }, []);
   return (
-    <>
-      <div className="qb-page-head"><div><h1>Marketplace</h1><p>Review question sets, verify teachers, pay them out, and watch the merchant account.</p></div></div>
-      <div role="tablist" style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 12 }}>
-        {TABS.map(([k, l]) => <button key={k} role="tab" aria-selected={tab === k} className={`qb-btn ${tab === k ? "" : "secondary"}`} onClick={() => { setTab(k); setError(""); }}>{l}</button>)}
+    <div className="dx-page">
+      <div className="dx-head"><div><h1>Marketplace</h1><p>Review question sets, verify teachers, pay them out, and watch the merchant account.</p></div><div className="dx-actions"><ExportLink dataset={{ review: "mk_items", sellers: "mk_sellers", payouts: "mk_payouts", account: "mk_sales" }[tab]} label="Export this data" /></div></div>
+      <div className="dx-kpis">
+        <Kpi label="Sets waiting for review" value={sum ? num(sum.items?.submitted ?? 0) : "—"} tone={(sum?.items?.submitted ?? 0) > 0 ? "warn" : "default"} />
+        <Kpi label="Sellers to verify" value={sum ? num(sum.sellers?.pending ?? 0) : "—"} tone={(sum?.sellers?.pending ?? 0) > 0 ? "warn" : "default"} />
+        <Kpi label="Sales" value={sum ? num(sum.sales_count) : "—"} hint={sum ? cedis(sum.gross_minor) : undefined} />
+        <Kpi label="Owed to teachers" value={sum ? cedis(sum.owed_to_sellers_minor) : "—"} />
+        <Kpi label="Payouts waiting" value={sum ? num(sum.payouts_requested_count) : "—"} hint={sum ? cedis(sum.payouts_requested_minor) : undefined} tone={(sum?.payouts_requested_count ?? 0) > 0 ? "warn" : "default"} />
+        <Kpi label="Overdue payouts" value={sum ? num(sum.payouts_overdue_count) : "—"} tone={(sum?.payouts_overdue_count ?? 0) > 0 ? "warn" : "default"} />
       </div>
-      <p style={{ margin: "0 0 12px" }}><ExportLink dataset={{ review: "mk_items", sellers: "mk_sellers", payouts: "mk_payouts", account: "mk_sales" }[tab]} label="Export this data" /></p>
-      {error && <div className="qb-card qb-error" role="alert" style={{ marginBottom: 12 }}>{error}</div>}
+      <div className="dx-toolbar"><Segmented<Tab> label="Marketplace sections" value={tab} onChange={(k) => { setTab(k); setError(""); }} options={TABS.map(([k, l]) => ({ value: k, label: l }))} /></div>
+      {error && <div className="dx-alert error" role="alert">{error}</div>}
       {tab === "review" && <Review onError={onError} />}
       {tab === "sellers" && <Sellers onError={onError} />}
       {tab === "payouts" && <Payouts onError={onError} />}
       {tab === "account" && <Account onError={onError} />}
-    </>
+    </div>
   );
 }
