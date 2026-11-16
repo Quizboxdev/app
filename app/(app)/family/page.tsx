@@ -40,6 +40,7 @@ export default function FamilyHomePage() {
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
           <button className="qb-btn" onClick={() => { setMode("add"); setFresh(null); }}>+ Add child</button>
           <button className="qb-btn secondary" onClick={() => { setMode("link"); setFresh(null); }}>Link an existing student</button>
+          {active.length > 0 && <Link className="qb-btn secondary" href="/family/assign">Give work</Link>}
         </div>
       </header>
 

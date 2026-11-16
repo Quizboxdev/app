@@ -54,9 +54,15 @@ export default function ChildPage() {
         </div>
       </section>
 
+      <section className="qb-card" aria-labelledby="child-work" style={{ display: "grid", gap: 8 }}>
+        <h2 id="child-work" style={{ margin: 0 }}>Work</h2>
+        <p className="qb-muted" style={{ margin: 0 }}>Give {first} practice on topics from their class. It appears in their workspace marked as Family, next to any work from school.</p>
+        <Link className="qb-btn" style={{ justifySelf: "start" }} href={`/family/assign?child=${studentId}`}>Give {first} work</Link>
+      </section>
+
       <section className="qb-card" aria-labelledby="child-more" style={{ display: "grid", gap: 6 }}>
         <h2 id="child-more" style={{ margin: 0 }}>Coming next</h2>
-        <p className="qb-muted" style={{ margin: 0 }}>Giving {first} work and challenges, buying questions, coins and subscriptions, and following their progress will appear here.</p>
+        <p className="qb-muted" style={{ margin: 0 }}>Challenges, buying questions, coins and subscriptions, and following {first}&apos;s progress will appear here.</p>
       </section>
 
       <section className="qb-card" aria-labelledby="child-remove" style={{ display: "grid", gap: 8 }}>

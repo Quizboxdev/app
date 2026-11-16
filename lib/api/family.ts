@@ -35,3 +35,9 @@ export const myLinkRequests = () => rpc<LinkRequest[]>("qb_family_my_requests");
 export const answerLinkRequest = (id: string, accept: boolean) => rpc<{ accepted: boolean }>("qb_family_link_respond", { p_relationship: id, p_accept: accept });
 
 export const joinUrl = (origin: string, tokenValue: string) => `${origin.replace(/\/$/, "")}/join/${tokenValue}`;
+
+// Giving work. The parent's family class (one per class level) is made on first use; the topic list, plan and publish are the same functions teachers use, called with that class.
+export type FamilyClass = { class_id: string; grade_code: string; curriculum_id: string | null; learners: Array<{ user_id: string; name: string }> };
+export type FamilyAssignment = { assignment_id: string; title: string; grade_code: string | null; due_at: string | null; published_at: string | null; question_count: number; mode: string; children: Array<{ student_id: string; name: string; status: "done" | "started" | "not_started"; percentage: number | null }> };
+export const familyClassFor = (gradeCode: string) => rpc<FamilyClass>("qb_family_class", { p_grade_code: gradeCode });
+export const listFamilyAssignments = () => rpc<FamilyAssignment[]>("qb_family_assignments");

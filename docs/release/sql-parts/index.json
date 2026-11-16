@@ -432,5 +432,12 @@
   "chars": 17682,
   "parts": 3,
   "note": "Family workspace, phase 2 (off until flags.family_workspace is on): add a child, a single-use invitation stored as a hash, and linking an existing student that the student must accept. Adds one table, one column and functions; changes no data. Safe to run again."
+ },
+ {
+  "version": "20261081100000",
+  "name": "family_assignments",
+  "chars": 8408,
+  "parts": 3,
+  "note": "Family workspace, phase 4a (off until flags.family_workspace is on): a hidden family class per class level so a parent can give their children work through the existing assignment engine, a family stamp on assignments, and the parent progress view. Adds two columns, one index, a trigger and two functions; changes no existing data. Safe to run again."
  }
 ]
