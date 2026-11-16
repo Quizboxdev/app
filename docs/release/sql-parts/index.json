@@ -474,5 +474,12 @@
   "chars": 27099,
   "parts": 4,
   "note": "Help centre, 16 Nov 2026: three guides refreshed (only where no admin has edited them) and thirteen new guides: a way-round guide, subjects, the school card, work from school and family, assign by topic, and the family workspace guides (drafts until the feature is on). Adds rows only; never overwrites an admin edit. Safe to run again."
+ },
+ {
+  "version": "20261087100000",
+  "name": "parent_accounts",
+  "chars": 8716,
+  "parts": 2,
+  "note": "Parent accounts, 16 Nov 2026: adds the parent role and parent_profiles (stored like sponsor_profiles). Sign-up of a parent is refused until flags.family_workspace is on. Children stay linked through account_relationships. Safe to run again."
  }
 ]
