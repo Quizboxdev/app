@@ -33,6 +33,16 @@ const AUTH_MESSAGE_MESSAGES: Array<[RegExp, string]> = [
   [/password should|weak password|pwned|leaked/i, AUTH_CODE_MESSAGES.weak_password],
 ];
 
+// On sign-up, GoTrue answers "Error sending confirmation email" (code unexpected_failure, HTTP 500) when the mail provider refuses the address, for example one on a reserved test domain such as example.com.
+// The account may still have been created. Only this sign-up case gets the clearer text; unexpected_failure on sign-in stays a database/server problem (authErrorMessage keeps its reference).
+export const SIGNUP_EMAIL_FAILED_MESSAGE = "We could not send the confirmation email. Check that the email address is real and spelled correctly, then try again in a few minutes. If it keeps happening, contact support.";
+export function signUpErrorMessage(error: unknown): string {
+  const code = typeof error === "object" && error !== null && "code" in error ? String((error as Record<string, unknown>).code ?? "") : "";
+  const message = typeof error === "object" && error !== null && "message" in error ? String((error as Record<string, unknown>).message ?? "") : "";
+  if (code === "unexpected_failure" && /sending .*email|email.*(send|sent)/i.test(message)) return SIGNUP_EMAIL_FAILED_MESSAGE;
+  return authErrorMessage(error);
+}
+
 export const NETWORK_MESSAGE = "Can't reach QuizBox right now. Check your internet connection and try again.";
 
 const field = (error: unknown, key: string) => (typeof error === "object" && error !== null && key in error ? String((error as Record<string, unknown>)[key] ?? "") : "");

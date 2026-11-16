@@ -1,7 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
 import { cedis, when } from "@/lib/api/marketplace";
+import { Kpi, Panel, RankedBars, Segmented, SERIES, SplitBar, num as fmt } from "@/components/admin/DataViz";
 import {
   ACCRUAL_STATUS, AFFILIATE_STATUS, TIER_LABEL, adminAccruals, affiliateSwitch, adminAffiliates, adminDecide, adminReverse, adminSummary, policies, policyApprove, policySave,
   type AdminAccrual, type AdminAffiliate, type AdminSummary, type Policy,
@@ -16,27 +17,37 @@ export default function AdminAffiliatesPage() {
   const loadSummary = useCallback(async () => { try { setSum(await adminSummary()); setError(""); } catch (e: any) { setError(e.message); } }, []);
   useEffect(() => { void loadSummary(); }, [loadSummary]);
   const count = (k: string) => sum?.affiliates?.[k] ?? 0;
+  const bal = (k: "pending" | "available" | "reserved" | "paid") => Number(sum?.balances?.[k] ?? 0);
+  const statusRows = Object.entries(sum?.affiliates ?? {}).map(([k, v]) => ({ key: k, label: AFFILIATE_STATUS[k] ?? k, segments: [{ value: Number(v), color: SERIES.a, name: "Affiliates" }] }));
+  const accrualRows = Object.entries(sum?.accruals ?? {}).map(([k, v]) => ({ key: k, label: ACCRUAL_STATUS[k] ?? k, segments: [{ value: Number(v.count), color: SERIES.b, name: "Commissions" }] }));
   return (
-    <>
-      <div className="qb-page-head"><div><h1>Affiliates</h1><p>Applications, commissions and the commission policy. Customers are never shown here, only payments and amounts.</p></div></div>
-      {error && <div className="qb-card qb-error" role="alert">{error}</div>}
+    <div className="dx-page">
+      <div className="dx-head"><div><h1>Affiliates</h1><p>Applications, commissions and the commission policy. Customers are never shown here, only payments and amounts.</p></div></div>
+      {error && <div className="dx-alert error" role="alert">{error}</div>}
       {sum && <ProgrammeSwitch enabled={sum.enabled} hasPolicy={!!sum.policy} onChange={loadSummary} />}
-      {sum && !sum.policy && <div className="qb-card" role="status">No commission policy is approved yet, so <strong>nothing can accrue</strong>. Review the pilot draft on the Policy tab.</div>}
+      {sum && !sum.policy && <div className="dx-alert" role="status">No commission policy is approved yet, so <strong>nothing can accrue</strong>. Review the pilot draft on the Policy tab.</div>}
+      <div className="dx-kpis">
+        <Kpi label="Waiting for review" value={sum ? count("applied") : "—"} tone={count("applied") > 0 ? "warn" : "default"} />
+        <Kpi label="Approved affiliates" value={sum ? count("approved") : "—"} />
+        <Kpi label="Owed (held + approved)" value={sum ? cedis(bal("pending") + bal("available")) : "—"} hint={sum ? `held ${cedis(bal("pending"))}` : undefined} />
+        <Kpi label="In a payout" value={sum ? cedis(bal("reserved")) : "—"} />
+        <Kpi label="Paid out" value={sum ? cedis(bal("paid")) : "—"} />
+        <Kpi label="Held back by the cap" value={sum ? cedis(sum.cap_clipped_minor) : "—"} hint={sum?.policy ? `${sum.policy.cap_percent}% cap` : undefined} />
+      </div>
       {sum && (
-        <div className="qb-grid cols-4" style={{ marginBottom: 16 }}>
-          <div className="qb-card"><div className="qb-muted qb-small">Waiting for review</div><div style={{ fontSize: 24, fontWeight: 700 }}>{count("applied")}</div></div>
-          <div className="qb-card"><div className="qb-muted qb-small">Approved affiliates</div><div style={{ fontSize: 24, fontWeight: 700 }}>{count("approved")}</div></div>
-          <div className="qb-card"><div className="qb-muted qb-small">Owed (held + approved)</div><div style={{ fontSize: 24, fontWeight: 700 }}>{cedis(Number(sum.balances.pending ?? 0) + Number(sum.balances.available ?? 0))}</div></div>
-          <div className="qb-card"><div className="qb-muted qb-small">Paid out</div><div style={{ fontSize: 24, fontWeight: 700 }}>{cedis(Number(sum.balances.paid ?? 0))}</div></div>
+        <div className="dx-grid" style={{ gridTemplateColumns: "repeat(3, minmax(0, 1fr))" }}>
+          <Panel title="Affiliates by status">{statusRows.length ? <RankedBars rows={statusRows} unit="affiliates" limit={6} /> : <p className="dx-muted dx-note">No affiliates yet.</p>}</Panel>
+          <Panel title="Commissions by status">{accrualRows.length ? <RankedBars rows={accrualRows} unit="commissions" limit={6} /> : <p className="dx-muted dx-note">No commissions yet.</p>}</Panel>
+          <Panel title="Where the money is" subtitle="Ledger balances"><SplitBar parts={[{ name: "Held", value: Math.max(bal("pending"), 0), color: SERIES.b }, { name: "Approved", value: Math.max(bal("available"), 0), color: SERIES.a }, { name: "In a payout", value: Math.max(bal("reserved"), 0), color: SERIES.c }, { name: "Paid", value: Math.max(bal("paid"), 0), color: SERIES.d }]} /></Panel>
         </div>
       )}
-      <div role="tablist" aria-label="Affiliate sections" style={{ display: "flex", gap: 8, marginBottom: 12, flexWrap: "wrap" }}>
-        {(["applications", "commissions", "policy"] as Tab[]).map((t) => <button key={t} role="tab" aria-selected={tab === t} className={tab === t ? "qb-btn" : "qb-btn secondary"} onClick={() => setTab(t)}>{t === "applications" ? "Applications" : t === "commissions" ? "Commissions" : "Policy"}</button>)}
+      <div className="dx-toolbar">
+        <Segmented<Tab> label="Affiliate sections" value={tab} onChange={setTab} options={[{ value: "applications", label: "Applications", count: sum ? count("applied") : undefined }, { value: "commissions", label: "Commissions" }, { value: "policy", label: "Policy" }]} />
       </div>
       {tab === "applications" && <Applications onChange={loadSummary} />}
       {tab === "commissions" && <Commissions sum={sum} onChange={loadSummary} />}
       {tab === "policy" && <PolicyTab onChange={loadSummary} />}
-    </>
+    </div>
   );
 }
 
@@ -45,99 +56,123 @@ function ProgrammeSwitch({ enabled, hasPolicy, onChange }: { enabled: boolean; h
   const [sure, setSure] = useState(false), [busy, setBusy] = useState(false), [error, setError] = useState("");
   async function flip(on: boolean) { setBusy(true); setError(""); try { await affiliateSwitch(on); setSure(false); onChange(); } catch (e: any) { setError(e.message); } setBusy(false); }
   return (
-    <div className="qb-card" role="status" style={{ display: "grid", gap: 8, marginBottom: 16 }}>
+    <div className="dx-panel" role="status" style={{ display: "grid", gap: 8 }}>
       <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
-        <span className={`qb-pill ${enabled ? "success" : "neutral"}`}>{enabled ? "Programme is ON" : "Programme is OFF"}</span>
+        <span className={`dx-pill ${enabled ? "ok" : ""}`}>{enabled ? "Programme is ON" : "Programme is OFF"}</span>
         <span className="qb-small">{enabled ? "Affiliates can apply and links work. Commission accrues once a policy is in force." : "Applications and referral links do not work, and no commission accrues."}</span>
       </div>
       {!enabled && (
         <>
           <p className="qb-small qb-muted" style={{ margin: 0 }}>Before switching on: a policy version is in force{hasPolicy ? " (yes)" : " (not yet)"}, a Paystack test payment has produced one commission and a refund has reversed it, the affiliate terms have been reviewed by a lawyer, and the tax treatment is confirmed (see the deployment plan).</p>
           <label className="qb-check"><input type="checkbox" checked={sure} onChange={(e) => setSure(e.target.checked)} /> I have checked these and want the programme open.</label>
-          <button className="qb-btn" style={{ justifySelf: "start" }} disabled={busy || !sure || !hasPolicy} onClick={() => void flip(true)}>Switch the programme on</button>
+          <button className="dx-btn primary" style={{ justifySelf: "start" }} disabled={busy || !sure || !hasPolicy} onClick={() => void flip(true)}>Switch the programme on</button>
         </>
       )}
-      {enabled && <button className="qb-btn secondary" style={{ justifySelf: "start" }} disabled={busy} onClick={() => void flip(false)}>Switch the programme off</button>}
+      {enabled && <button className="dx-btn" style={{ justifySelf: "start" }} disabled={busy} onClick={() => void flip(false)}>Switch the programme off</button>}
       {error && <p className="qb-error" role="alert">{error}</p>}
     </div>
   );
 }
 
 function Applications({ onChange }: { onChange: () => void }) {
-  const [status, setStatus] = useState("applied"), [rows, setRows] = useState<AdminAffiliate[]>([]), [error, setError] = useState(""), [busy, setBusy] = useState("");
-  const [ident, setIdent] = useState<Record<string, boolean>>({}), [note, setNote] = useState<Record<string, string>>({});
-  const load = useCallback(async () => { try { setRows(await adminAffiliates(status)); setError(""); } catch (e: any) { setError(e.message); } }, [status]);
-  useEffect(() => { void load(); }, [load]);
+  const [status, setStatus] = useState("applied"), [rows, setRows] = useState<AdminAffiliate[] | null>(null), [error, setError] = useState(""), [busy, setBusy] = useState("");
+  const [ident, setIdent] = useState<Record<string, boolean>>({}), [note, setNote] = useState<Record<string, string>>({}), [open, setOpen] = useState(""), [search, setSearch] = useState("");
+  const load = useCallback(async () => { try { setRows(await adminAffiliates(status)); setError(""); } catch (e: any) { setError(e.message); setRows([]); } }, [status]);
+  useEffect(() => { setRows(null); void load(); }, [load]);
   async function act(a: AdminAffiliate, action: "approve" | "reject" | "suspend" | "reinstate" | "terminate") {
     setBusy(a.id); setError("");
-    try { await adminDecide(a.id, action, note[a.id] ?? "", !!ident[a.id]); await load(); onChange(); } catch (e: any) { setError(e.message); }
+    try { await adminDecide(a.id, action, note[a.id] ?? "", !!ident[a.id]); setOpen(""); await load(); onChange(); } catch (e: any) { setError(e.message); }
     setBusy("");
   }
+  const shown = useMemo(() => { const q = search.trim().toLowerCase(); return (rows ?? []).filter((a) => !q || `${a.name} ${a.email} ${a.code}`.toLowerCase().includes(q)); }, [rows, search]);
   return (
-    <section className="qb-card" style={{ display: "grid", gap: 12 }}>
-      <label className="qb-field" style={{ maxWidth: 260 }}>Show<select value={status} onChange={(e) => setStatus(e.target.value)}>{Object.entries(AFFILIATE_STATUS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select></label>
-      {error && <p className="qb-error" role="alert">{error}</p>}
-      {!rows.length ? <p className="qb-muted">Nothing here.</p> : rows.map((a) => (
-        <div key={a.id} className="qb-card" style={{ display: "grid", gap: 8 }}>
-          <div style={{ display: "flex", justifyContent: "space-between", gap: 8, flexWrap: "wrap" }}>
-            <div><strong>{a.name}</strong> <span className="qb-muted qb-small">{a.email} · {a.phone}</span></div>
-            <div className="qb-small qb-muted">Applied {when(a.applied_at)} · Code {a.code} · {TIER_LABEL[a.tier]} · {a.referrals} joined, {a.paid_referrals} paid</div>
-          </div>
-          <div className="qb-small">{a.has_payout_details ? (a.payout_verified ? "Payout details on file and checked." : "Payout details on file, not yet checked.") : "No payout details yet. They are needed before approval."}</div>
-          {a.status === "applied" && (
-            <label className="qb-check"><input type="checkbox" checked={!!ident[a.id]} onChange={(e) => setIdent({ ...ident, [a.id]: e.target.checked })} /> I checked this person&apos;s identity (a valid ID) and they are 18 or older.</label>
-          )}
-          <input aria-label={`Reason for ${a.name}`} placeholder="Reason (needed to reject, pause or end)" value={note[a.id] ?? ""} onChange={(e) => setNote({ ...note, [a.id]: e.target.value })} />
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-            {a.status === "applied" && <><button className="qb-btn" disabled={busy === a.id} onClick={() => void act(a, "approve")}>Approve</button><button className="qb-btn secondary" disabled={busy === a.id} onClick={() => void act(a, "reject")}>Not approved</button></>}
-            {a.status === "approved" && <><button className="qb-btn secondary" disabled={busy === a.id} onClick={() => void act(a, "suspend")}>Pause</button><button className="qb-btn secondary" disabled={busy === a.id} onClick={() => void act(a, "terminate")}>End</button></>}
-            {a.status === "suspended" && <><button className="qb-btn" disabled={busy === a.id} onClick={() => void act(a, "reinstate")}>Restore</button><button className="qb-btn secondary" disabled={busy === a.id} onClick={() => void act(a, "terminate")}>End</button></>}
-          </div>
-        </div>
-      ))}
-    </section>
+    <>
+      <div className="dx-toolbar">
+        <select className="dx-select" aria-label="Show" value={status} onChange={(e) => setStatus(e.target.value)}>{Object.entries(AFFILIATE_STATUS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select>
+        <input className="dx-input" type="search" placeholder="Search name, email or code" aria-label="Search affiliates" value={search} onChange={(e) => setSearch(e.target.value)} />
+      </div>
+      {error && <div className="dx-alert error" role="alert">{error}</div>}
+      <div className="dx-table-wrap">
+        <table className="dx-table">
+          <thead><tr><th>Affiliate</th><th>Applied</th><th>Code</th><th>Tier</th><th className="num">Joined</th><th className="num">Paid</th><th>Payout details</th><th aria-label="Actions" /></tr></thead>
+          <tbody>
+            {rows === null ? <tr><td colSpan={8} className="dx-muted">Loading…</td></tr> : !shown.length ? <tr><td colSpan={8} className="dx-muted">Nothing here.</td></tr> : shown.map((a) => (
+              <Fragment key={a.id}>
+                <tr>
+                  <td className="name">{a.name}<div className="dx-muted" style={{ fontWeight: 400, fontSize: 12 }}>{a.email} · {a.phone}</div></td>
+                  <td className="dx-muted">{when(a.applied_at)}</td><td className="dx-muted">{a.code}</td><td>{TIER_LABEL[a.tier]}</td>
+                  <td className="num">{fmt(a.referrals)}</td><td className="num">{fmt(a.paid_referrals)}</td>
+                  <td>{a.has_payout_details ? <span className={`dx-pill ${a.payout_verified ? "ok" : "warn"}`}>{a.payout_verified ? "checked" : "not checked"}</span> : <span className="dx-pill warn">none yet</span>}</td>
+                  <td><button className="dx-btn sm" aria-expanded={open === a.id} onClick={() => setOpen(open === a.id ? "" : a.id)}>{open === a.id ? "Close" : "Decide"}</button></td>
+                </tr>
+                {open === a.id && (
+                  <tr className="dx-detail"><td colSpan={8}>
+                    <div style={{ display: "grid", gap: 8 }}>
+                      {!a.has_payout_details && a.status === "applied" && <p className="dx-muted dx-note" style={{ margin: 0 }}>No payout details yet. They are needed before approval.</p>}
+                      {a.status === "applied" && <label className="dx-check"><input type="checkbox" checked={!!ident[a.id]} onChange={(e) => setIdent({ ...ident, [a.id]: e.target.checked })} /> I checked this person&apos;s identity (a valid ID) and they are 18 or older.</label>}
+                      <input className="dx-input" style={{ width: "100%", maxWidth: 520 }} aria-label={`Reason for ${a.name}`} placeholder="Reason (needed to reject, pause or end)" value={note[a.id] ?? ""} onChange={(e) => setNote({ ...note, [a.id]: e.target.value })} />
+                      <div className="dx-actions">
+                        {a.status === "applied" && <><button className="dx-btn primary" disabled={busy === a.id} onClick={() => void act(a, "approve")}>Approve</button><button className="dx-btn danger" disabled={busy === a.id} onClick={() => void act(a, "reject")}>Not approved</button></>}
+                        {a.status === "approved" && <><button className="dx-btn" disabled={busy === a.id} onClick={() => void act(a, "suspend")}>Pause</button><button className="dx-btn danger" disabled={busy === a.id} onClick={() => void act(a, "terminate")}>End</button></>}
+                        {a.status === "suspended" && <><button className="dx-btn primary" disabled={busy === a.id} onClick={() => void act(a, "reinstate")}>Restore</button><button className="dx-btn danger" disabled={busy === a.id} onClick={() => void act(a, "terminate")}>End</button></>}
+                      </div>
+                    </div>
+                  </td></tr>
+                )}
+              </Fragment>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <div className="dx-pager"><span>{fmt(shown.length)} affiliates</span></div>
+    </>
   );
 }
 
 function Commissions({ sum, onChange }: { sum: AdminSummary | null; onChange: () => void }) {
-  const [status, setStatus] = useState(""), [rows, setRows] = useState<AdminAccrual[]>([]), [error, setError] = useState(""), [ref, setRef] = useState(""), [why, setWhy] = useState(""), [done, setDone] = useState("");
-  const load = useCallback(async () => { try { setRows(await adminAccruals(status || null, 100)); setError(""); } catch (e: any) { setError(e.message); } }, [status]);
-  useEffect(() => { void load(); }, [load]);
+  const [status, setStatus] = useState(""), [rows, setRows] = useState<AdminAccrual[] | null>(null), [error, setError] = useState(""), [ref, setRef] = useState(""), [why, setWhy] = useState(""), [done, setDone] = useState(""), [search, setSearch] = useState("");
+  const load = useCallback(async () => { try { setRows(await adminAccruals(status || null, 100)); setError(""); } catch (e: any) { setError(e.message); setRows([]); } }, [status]);
+  useEffect(() => { setRows(null); void load(); }, [load]);
   async function reverse() {
     setError(""); setDone("");
     try { const r = await adminReverse(ref.trim(), why); setDone(r.reversed ? `Reversed ${r.reversed} commission${r.reversed === 1 ? "" : "s"}.` : "Nothing to reverse."); setRef(""); setWhy(""); await load(); onChange(); } catch (e: any) { setError(e.message); }
   }
+  const shown = useMemo(() => { const q = search.trim().toLowerCase(); return (rows ?? []).filter((r) => !q || `${r.affiliate} ${r.reference}`.toLowerCase().includes(q)); }, [rows, search]);
   return (
-    <section style={{ display: "grid", gap: 16 }}>
-      {sum && (
-        <div className="qb-card" style={{ display: "grid", gap: 4 }}>
-          <h3 style={{ margin: 0 }}>Ledger</h3>
-          <p className="qb-small" style={{ margin: 0 }}>Held {cedis(Number(sum.balances.pending ?? 0))} · Approved {cedis(Number(sum.balances.available ?? 0))} · In a payout {cedis(Number(sum.balances.reserved ?? 0))} · Paid {cedis(Number(sum.balances.paid ?? 0))}. Total of all ledger rows: {cedis(sum.ledger_total_minor)}.</p>
-          <p className="qb-small qb-muted" style={{ margin: 0 }}>Held back by the {sum.policy?.cap_percent ?? 15}% cap so far: {cedis(sum.cap_clipped_minor)}. A negative &quot;Approved&quot; figure means refunds after approval that later earnings will offset.</p>
+    <>
+      {sum && <p className="dx-muted dx-note" style={{ margin: 0 }}>Held back by the {sum.policy?.cap_percent ?? 15}% cap so far: {cedis(sum.cap_clipped_minor)}. A negative &quot;Approved&quot; balance means refunds after approval that later earnings will offset.</p>}
+      <Panel title="Reverse a commission" subtitle="Refunds reported by Paystack reverse automatically. Use this only for a refund you made outside Paystack. Enter the payment reference (starts with QB-).">
+        <div className="dx-actions" style={{ alignItems: "center" }}>
+          <input className="dx-input" aria-label="Payment reference" placeholder="QB-…" value={ref} onChange={(e) => setRef(e.target.value)} style={{ flex: "1 1 200px" }} />
+          <input className="dx-input" aria-label="Reason" placeholder="Reason" value={why} onChange={(e) => setWhy(e.target.value)} style={{ flex: "2 1 260px", width: "auto" }} />
+          <button className="dx-btn danger" disabled={!ref.trim() || why.trim().length < 5} onClick={() => void reverse()}>Reverse</button>
         </div>
-      )}
-      <div className="qb-card" style={{ display: "grid", gap: 8 }}>
-        <h3 style={{ margin: 0 }}>Reverse a commission</h3>
-        <p className="qb-small qb-muted" style={{ margin: 0 }}>Refunds reported by Paystack reverse automatically. Use this only for a refund you made outside Paystack. Enter the payment reference (starts with QB-).</p>
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-          <input aria-label="Payment reference" placeholder="QB-…" value={ref} onChange={(e) => setRef(e.target.value)} style={{ flex: "1 1 200px" }} />
-          <input aria-label="Reason" placeholder="Reason" value={why} onChange={(e) => setWhy(e.target.value)} style={{ flex: "2 1 260px" }} />
-          <button className="qb-btn" disabled={!ref.trim() || why.trim().length < 5} onClick={() => void reverse()}>Reverse</button>
-        </div>
-        {done && <p className="qb-ok" role="status">{done}</p>}
+        {done && <p className="dx-note" role="status" style={{ color: "var(--green)" }}>{done}</p>}
+      </Panel>
+      {error && <div className="dx-alert error" role="alert">{error}</div>}
+      <div className="dx-toolbar">
+        <select className="dx-select" aria-label="Show" value={status} onChange={(e) => setStatus(e.target.value)}><option value="">All statuses</option>{Object.entries(ACCRUAL_STATUS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select>
+        <input className="dx-input" type="search" placeholder="Search affiliate or payment" aria-label="Search commissions" value={search} onChange={(e) => setSearch(e.target.value)} />
       </div>
-      {error && <p className="qb-error" role="alert">{error}</p>}
-      <div className="qb-card">
-        <label className="qb-field" style={{ maxWidth: 260 }}>Show<select value={status} onChange={(e) => setStatus(e.target.value)}><option value="">All</option>{Object.entries(ACCRUAL_STATUS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select></label>
-        {!rows.length ? <p className="qb-muted">No commissions yet.</p> : (
-          <div className="qb-table-wrap"><table className="qb-table"><thead><tr><th>When</th><th>Affiliate</th><th>Payment</th><th>Net revenue</th><th>Rate</th><th>Commission</th><th>Status</th></tr></thead><tbody>
-            {rows.map((r) => <tr key={r.id}><td>{when(r.created_at)}</td><td>{r.affiliate}<div className="qb-small qb-muted">{TIER_LABEL[r.tier]} · policy v{r.policy_version}</div></td><td className="qb-small">{r.reference}<div className="qb-muted">Gross {cedis(r.gross_minor)}, tax {cedis(r.tax_minor)}</div></td>
-              <td>{cedis(r.net_minor)}</td><td>{r.rate_percent}%{r.cap_clipped_minor ? <div className="qb-small qb-muted">cap held back {cedis(r.cap_clipped_minor)}</div> : null}</td><td>{cedis(r.amount_minor)}</td>
-              <td><span className={`qb-pill ${r.status === "reversed" ? "danger" : r.status === "pending" ? "warning" : "success"}`}>{ACCRUAL_STATUS[r.status]}</span>{r.status === "pending" && <div className="qb-small qb-muted">until {when(r.release_at)}</div>}</td></tr>)}
-          </tbody></table></div>
-        )}
+      <div className="dx-table-wrap">
+        <table className="dx-table">
+          <thead><tr><th>When</th><th>Affiliate</th><th>Payment</th><th className="num">Net revenue</th><th className="num">Rate</th><th className="num">Commission</th><th>Status</th></tr></thead>
+          <tbody>
+            {rows === null ? <tr><td colSpan={7} className="dx-muted">Loading…</td></tr> : !shown.length ? <tr><td colSpan={7} className="dx-muted">No commissions yet.</td></tr> : shown.map((r) => (
+              <tr key={r.id}>
+                <td className="dx-muted">{when(r.created_at)}</td>
+                <td className="name">{r.affiliate}<div className="dx-muted" style={{ fontWeight: 400, fontSize: 12 }}>{TIER_LABEL[r.tier]} · policy v{r.policy_version}</div></td>
+                <td className="dx-muted">{r.reference}</td>
+                <td className="num">{cedis(r.net_minor)}</td>
+                <td className="num">{r.rate_percent}%{r.cap_clipped_minor ? <div className="dx-muted" style={{ fontSize: 12 }}>cap held back {cedis(r.cap_clipped_minor)}</div> : null}</td>
+                <td className="num">{cedis(r.amount_minor)}</td>
+                <td><span className={`dx-pill ${r.status === "reversed" ? "bad" : r.status === "pending" ? "warn" : "ok"}`}>{ACCRUAL_STATUS[r.status]}</span>{r.status === "pending" && <div className="dx-muted" style={{ fontSize: 12 }}>until {when(r.release_at)}</div>}</td>
+              </tr>))}
+          </tbody>
+        </table>
       </div>
-    </section>
+      <div className="dx-pager"><span>{fmt(shown.length)} of the latest 100 commissions</span></div>
+    </>
   );
 }
 

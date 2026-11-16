@@ -7,6 +7,7 @@ import { errorMessage } from "@/lib/errors";
 import type { IndicatorLearner, NeedsAttentionRow, TeacherAnalytics, TeacherDashboardData } from "@/lib/api/teacher-types";
 import { humanize, isUuid, formatDate } from "@/lib/format";
 import HomeSections from "@/components/HomeSections";
+import SchoolSetupCard from "@/components/SchoolSetupCard";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import StatusBadge from "@/components/StatusBadge";
@@ -103,6 +104,7 @@ export default function TeacherDashboardPage() {
   return (
     <>
       {data.analyticsFailed && <LoadError message="Class performance could not be loaded, so those sections are empty. The rest of your dashboard is shown." onRetry={() => window.location.reload()} />}
+      <SchoolSetupCard />
       <SponsoredCarousel />
       <DashboardHero as="h1" eyebrow="Teacher workspace" title={`${greeting}${firstName ? `, ${firstName}` : ""}`} description={`${data.classes.length} class${data.classes.length === 1 ? "" : "es"} · ${phases[0].rows.length} active assignment${phases[0].rows.length === 1 ? "" : "s"} · ${data.questionBanks.length} question bank${data.questionBanks.length === 1 ? "" : "s"}`} primary={{ label: "Create assignment", href: "/teacher/assignments" }} secondary={{ label: "Question bank", href: "/teacher/question-banks" }} />
 

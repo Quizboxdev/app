@@ -13,11 +13,13 @@ export function contentSecurityPolicy(mode: CspMode): string {
   return [
     "default-src 'self'",
     // Next.js needs inline bootstrapping scripts; 'unsafe-eval' is not allowed.
-    "script-src 'self' 'unsafe-inline' https://va.vercel-scripts.com",
+    "script-src 'self' 'unsafe-inline' https://va.vercel-scripts.com https://challenges.cloudflare.com",
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "font-src 'self' data: https://fonts.gstatic.com",
     `img-src 'self' data: blob: ${supabase}`,
-    `connect-src 'self' ${supabase} wss://*.supabase.co https://vitals.vercel-insights.com`,
+    `connect-src 'self' ${supabase} wss://*.supabase.co https://vitals.vercel-insights.com https://challenges.cloudflare.com`,
+    // The Turnstile (captcha) box is a frame served by Cloudflare.
+    "frame-src https://challenges.cloudflare.com",
     "media-src 'self' blob:",
     "frame-ancestors 'none'",
     "base-uri 'self'",

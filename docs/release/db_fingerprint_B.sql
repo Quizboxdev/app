@@ -67,7 +67,18 @@ with c(v, k, o) as (values
   ('20261057100000','f','public.qb_start_mixed_practice'),
   ('20261059100000','f','public.qb_bank_subjects'),
   ('20261059100000','f','public.qb_challenge_bank_menu'),
-  ('20261059100000','f','public.challenge_pull_bank_sections')), r as (
+  ('20261059100000','f','public.challenge_pull_bank_sections'),
+  ('20261074100000','t','public.school_directory'),
+  ('20261074100000','f','public.qb_school_key'),
+  ('20261074100000','f','public.qb_school_search'),
+  ('20261074100000','f','public.qb_school_admin_import'),
+  ('20261074100000','c','public.student_profiles.school_directory_id'),
+  ('20261074100000','c','public.teacher_profiles.school_directory_id'),
+  ('20261075100000','f','public.qb_school_admin_stats'),
+  ('20261076100000','t','public.social_channels'),
+  ('20261076100000','f','public.qb_social_channels'),
+  ('20261076100000','f','public.qb_social_admin_save'),
+  ('20261077100000','f','public.qb_admin_dashboard')), r as (
   select v, k, o, case k
     when 't' then to_regclass(o) is not null
     when 'x' then to_regprocedure(o) is null

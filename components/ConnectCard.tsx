@@ -4,12 +4,14 @@ import { useState } from "react";
 import { Copy, Share2 } from "lucide-react";
 import SocialIcon from "@/components/SocialIcon";
 import SocialLinks from "@/components/SocialLinks";
+import { useSocialChannels } from "@/components/AppSocialLinks";
 import { shareLinks } from "@/lib/public/social";
 
 // "Connect with QuizBox": follow every official channel, and tell friends about QuizBox in one tap (WhatsApp first, because that is where most learners share).
 // The shared address is the site the learner is on, so a friend lands on the sign-up page of the same QuizBox.
 export default function ConnectCard() {
   const [copied, setCopied] = useState(false);
+  const managed = useSocialChannels();   // once Admin > Social channels is on, the follow list lives in the menu corner and only "Tell a friend" stays here
   const links = () => shareLinks(window.location.origin);
   const open = (href: string) => window.open(href, "_blank", "noopener,noreferrer");
   async function copy() {
@@ -21,8 +23,8 @@ export default function ConnectCard() {
   return (
     <section className="qb-card qb-connect" aria-labelledby="qb-connect-title">
       <h2 id="qb-connect-title">Connect with QuizBox</h2>
-      <p className="qb-muted qb-small">Follow us for tips, new challenges and winners.</p>
-      <SocialLinks variant="list" />
+      {!managed && <><p className="qb-muted qb-small">Follow us for tips, new challenges and winners.</p>
+      <SocialLinks variant="list" /></>}
       <div className="qb-connect-share">
         <p className="qb-follow-title"><Share2 size={14} aria-hidden="true" /> Tell a friend</p>
         <div className="qb-actions">

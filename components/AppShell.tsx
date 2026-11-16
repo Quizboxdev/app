@@ -13,7 +13,7 @@ import { getMyStaffAccess, type MyStaffAccess } from "@/lib/api/staff";
 import { tabsFor } from "@/lib/staff/workflows";
 import MarketContextControl from "@/components/MarketContextControl";
 import BrandLockup from "@/components/BrandLockup";
-import SocialLinks from "@/components/SocialLinks";
+import AppSocialLinks from "@/components/AppSocialLinks";
 import WorkspaceProvider from "@/components/WorkspaceProvider";
 import { loginHrefFor } from "@/lib/auth/next-path";
 import WorkspaceChip from "@/components/WorkspaceChip";
@@ -93,7 +93,7 @@ export default function AppShell({
 
     allowedPrefixes.push("/account", "/notifications", "/school", "/play", "/open", "/drafts", "/support", "/guides", "/affiliate");
     if (sme?.reviewer || sme?.content_admin || sme?.super_admin) allowedPrefixes.push("/review");
-    if (sme?.super_admin) allowedPrefixes.push("/admin/markets", "/admin/partners", "/admin/reviewers", "/admin/compensation", "/admin/policies");
+    if (sme?.super_admin) allowedPrefixes.push("/admin/markets", "/admin/partners", "/admin/reviewers", "/admin/compensation", "/admin/policies", "/admin/schools", "/admin/social");
     if (sme?.super_admin || sme?.sme_support) allowedPrefixes.push("/admin/inbox", "/admin/reviewer-applications", "/admin/tickets", "/admin/help");
     if (sme?.super_admin || sme?.finance_admin) allowedPrefixes.push("/admin/sme-performance", "/admin/payouts", "/admin/payment-checks", "/admin/affiliates");
     if (sme?.super_admin || sme?.finance_admin || sme?.content_admin || sme?.sme_support) allowedPrefixes.push("/admin/exports");
@@ -125,7 +125,7 @@ export default function AppShell({
     const staffTabs: NavItem[] = staff?.enabled ? tabsFor(staff.workflows) : [];
     const seen = new Set<string>();
     const administration: NavItem[] = [
-      ...when(sme?.super_admin, [["/admin/markets", "Markets"], ["/admin/curriculum-sources", "Curriculum Sources"], ["/admin/reviewers", "Reviewers"], ["/admin/compensation", "Compensation"], ["/admin/policies", "Policies"], ["/admin/tickets", "Support requests"], ["/admin/help", "Help guides"]]),
+      ...when(sme?.super_admin, [["/admin/markets", "Markets"], ["/admin/schools", "School directory"], ["/admin/social", "Social channels"], ["/admin/curriculum-sources", "Curriculum Sources"], ["/admin/reviewers", "Reviewers"], ["/admin/compensation", "Compensation"], ["/admin/policies", "Policies"], ["/admin/tickets", "Support requests"], ["/admin/help", "Help guides"]]),
       ...when(sme?.super_admin || sme?.finance_admin, [["/admin/sme-performance", "SME Performance"], ["/admin/payouts", "Payouts"], ["/admin/payment-checks", "Payment checks"], ["/admin/affiliates", "Affiliates"]]),
       ...when(sme?.super_admin || sme?.finance_admin || sme?.content_admin || sme?.sme_support, [["/admin/exports", "Export data"]]),
       ...when(sme?.sme_support && !sme?.super_admin, [["/admin/inbox", "Enquiry Inbox"], ["/admin/tickets", "Support requests"], ["/admin/help", "Help guides"], ["/admin/reviewer-applications", "Reviewer Applications"]]),
@@ -143,6 +143,7 @@ export default function AppShell({
       add("Markets & organizations", [
         ...when(sme?.super_admin, [["/admin/markets", "Markets"]]),
         ["/admin/market-setup", "Market Setup"],
+        ...when(sme?.super_admin, [["/admin/schools", "School directory"]]),
         ...when(sme?.super_admin, [["/admin/partners", "Partner Integrations"]]),
       ]);
       add("Content & curriculum", [
@@ -176,6 +177,7 @@ export default function AppShell({
         ["/admin/support", "Support"],
         ...when(sme?.super_admin || sme?.sme_support, [["/admin/inbox", "Enquiry Inbox"]]),
         ...when(sme?.super_admin, [["/admin/young-learners", "Young learners (privacy)"]]),
+        ...when(sme?.super_admin, [["/admin/social", "Social channels"]]),
         ...when(sme?.super_admin, [["/admin/access", "Access & Subscriptions"]]),
         ...when(sme?.super_admin && staff?.enabled, [["/admin/staff", "Staff access"]]),
         ["/admin/pricing", "Prices"],
@@ -339,7 +341,7 @@ export default function AppShell({
           {navGroups}
         </nav>
         {["STUDENT", "TEACHER"].includes(String(ctx?.role ?? "").toUpperCase()) && !inSchool && <div className="qb-sidebar-sponsor" style={{ padding: "0 12px 12px" }}><SponsoredCarousel compact showLibrary={false} /></div>}
-        <div className="qb-follow"><p className="qb-follow-title">Follow QuizBox</p><SocialLinks /></div>
+        <div className="qb-follow"><p className="qb-follow-title">Follow QuizBox</p><AppSocialLinks /></div>
       </aside>
 
       <main className="qb-main" id="qb-main" tabIndex={-1}>
@@ -373,7 +375,7 @@ export default function AppShell({
         </header>
         <ConnectionBanner />
 
-        <div className="qb-content" ref={contentRef}>
+        <div className={pathname.startsWith("/admin") ? "qb-content dx-admin" : "qb-content"} ref={contentRef}>
           <SponsorEngineProvider value={sponsorEngine}><WorkspaceProvider>
             <div className="qb-context-bar"><WorkspaceChip/><MarketContextControl/></div>
             <DraftReminder />
@@ -397,7 +399,7 @@ export default function AppShell({
                 <button type="button" aria-label="Close" onClick={() => setMoreOpen(false)} autoFocus><X size={18} aria-hidden="true" /></button>
               </div>
               <nav className="qb-nav" aria-label="All sections">{navGroups}</nav>
-              <div className="qb-follow"><p className="qb-follow-title">Follow QuizBox</p><SocialLinks /></div>
+              <div className="qb-follow"><p className="qb-follow-title">Follow QuizBox</p><AppSocialLinks /></div>
             </div>
           </div>
         )}
