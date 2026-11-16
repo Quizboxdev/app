@@ -376,5 +376,40 @@
   "chars": 3322,
   "parts": 1,
   "note": "Approve Batches, Review sample: the preview took about 32 s on 36,718 questions. Adds one helper function and one index on questions, and replaces one function; changes no data. Safe to run again."
+ },
+ {
+  "version": "20261073100000",
+  "name": "owner_batch_steps_fast",
+  "chars": 10138,
+  "parts": 2,
+  "note": "Approve Batches: the approve, revoke and discard steps no longer scan the whole questions table, and the approve step validates only until a full step is found. Replaces three functions; changes no data. Safe to run again."
+ },
+ {
+  "version": "20261074100000",
+  "name": "school_directory",
+  "chars": 34114,
+  "parts": 5,
+  "note": "School directory (off until flags.school_directory is switched on): one table of schools by region and district with a Public / Private filter, the add-a-school queue, and the staff approve, merge and import functions. Adds one table, two nullable columns and functions; changes no existing data. Safe to run again."
+ },
+ {
+  "version": "20261075100000",
+  "name": "school_directory_analytics",
+  "chars": 10494,
+  "parts": 2,
+  "note": "School directory screen: one read-only function for the figures and charts, and the list function re-created with filters (region, district, Public / Private, level) and sorting. Changes no data. Safe to run again."
+ },
+ {
+  "version": "20261076100000",
+  "name": "social_channels",
+  "chars": 10432,
+  "parts": 2,
+  "note": "Social channels managed from the admin (off until flags.social_channels is switched on): one table seeded with the six channels the app shows today, a public read function, and super admin functions to add, edit, hide, reorder and delete (WhatsApp numbers, Telegram and more). Adds one table and functions; changes no existing data. Safe to run again."
+ },
+ {
+  "version": "20261077100000",
+  "name": "admin_dashboard",
+  "chars": 6193,
+  "parts": 1,
+  "note": "Admin dashboard figures in one read-only function for staff: users, learning activity, content, queues, markets and schools, each section computed on its own. Adds one function; changes no data. Safe to run again."
  }
 ]

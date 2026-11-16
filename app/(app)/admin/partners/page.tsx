@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { when } from "@/lib/api/marketplace";
 import * as P from "@/lib/api/partners";
 import type { Detail, EventRow, AuditRow, Overview, SeatRow } from "@/lib/api/partners";
+import { Kpi, num } from "@/components/admin/DataViz";
 
 // Partner Integrations: schools and companies that buy licences outside QuizBox. Super admins only (the database checks every call). Nothing here shows real figures that are not in the database,
 // and no secret is shown after it is first issued. The gateway stays off until the owner switches it on.
@@ -16,13 +17,25 @@ export default function AdminPartnersPage() {
   const [ov, setOv] = useState<Overview | null>(null), [error, setError] = useState(""), [sel, setSel] = useState<string | null>(null);
   const load = useCallback(async () => { try { setOv(await P.overview()); setError(""); } catch (e: any) { setError(e.message); } }, []);
   useEffect(() => { void load(); }, [load]);
+  const ps = ov?.partners ?? [];
+  const live = ps.reduce((n, p) => n + p.contracts.filter((c) => c.live).length, 0);
+  const seats = ps.reduce((n, p) => n + p.contracts.reduce((m, c) => m + c.allocated, 0), 0);
+  const dead = ps.reduce((n, p) => n + (p.dead_events || 0), 0);
   return (
-    <>
-      <div className="qb-page-head"><div><h1>Partner Integrations</h1><p>Schools and companies that buy licence bundles outside QuizBox and give people access through their own sign-in. QuizBox staff verify the partner and approve every contract.</p></div></div>
-      {error && <div className="qb-card qb-error" role="alert">{error}</div>}
+    <div className="dx-page">
+      <div className="dx-head"><div><h1>Partner Integrations</h1><p>Schools and companies that buy licence bundles outside QuizBox and give people access through their own sign-in. QuizBox staff verify the partner and approve every contract.</p></div></div>
+      {error && <div className="dx-alert error" role="alert">{error}</div>}
+      {ov && !sel && <div className="dx-kpis">
+        <Kpi label="Partners" value={num(ps.length)} />
+        <Kpi label="Verified" value={num(ps.filter((p) => p.status === "verified").length)} />
+        <Kpi label="Not yet verified" value={num(ps.filter((p) => p.status !== "verified").length)} tone={ps.some((p) => p.status !== "verified") ? "warn" : "default"} />
+        <Kpi label="Live contracts" value={num(live)} />
+        <Kpi label="Seats allocated" value={num(seats)} />
+        <Kpi label="Failed events" value={num(dead)} tone={dead > 0 ? "warn" : "default"} />
+      </div>}
       {ov && <GatewaySwitch enabled={ov.enabled} onChange={load} />}
       {ov && (sel ? <PartnerDetail id={sel} back={() => { setSel(null); void load(); }} /> : <Directory ov={ov} open={setSel} onChange={load} />)}
-    </>
+    </div>
   );
 }
 

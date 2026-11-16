@@ -4,6 +4,7 @@ import { Suspense, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { downloadExport, exportCatalog, previewExport, type ExportDataset, type ExportPreview } from "@/lib/api/exports";
 import { PRESETS } from "@/lib/exports/presets";
+import { Kpi, num } from "@/components/admin/DataViz";
 
 // Export data from any admin tool as CSV (opens in Excel or Google Sheets) or a real Excel file. Choose the data, the dates and a category, check the preview, then download.
 // You only see what your role allows. A real export is recorded in the audit log. Times are UTC; money is in whole currency units.
@@ -40,9 +41,14 @@ function Exports() {
   const groups = useMemo(() => [...new Set((sets ?? []).map((d) => d.group))], [sets]);
 
   return (
-    <>
-      <div className="qb-page-head"><div><h1>Export data</h1><p>Download data from the admin tools as a CSV or Excel file to filter and analyse. Pick the data, the dates and a category.</p></div></div>
-      {error && <div className="qb-card qb-error" role="alert" style={{ marginBottom: 12 }}>{error}</div>}
+    <div className="dx-page">
+      <div className="dx-head"><div><h1>Export data</h1><p>Download data from the admin tools as a CSV or Excel file to filter and analyse. Pick the data, the dates and a category.</p></div></div>
+      <div className="dx-kpis">
+        <Kpi label="Datasets you can export" value={sets ? num(sets.length) : "—"} hint={groups.length ? `${groups.length} groups` : undefined} />
+        <Kpi label="Rows matching" value={preview ? num(preview.total) : "—"} hint={current?.label} tone={preview && preview.total > 50000 ? "warn" : "default"} />
+        <Kpi label="Columns" value={preview ? num(preview.columns.length) : "—"} />
+      </div>
+      {error && <div className="dx-alert error" role="alert">{error}</div>}
       {sets === null ? <div className="qb-card qb-muted">Loading…</div> : !sets.length ? <div className="qb-card qb-muted">Your role has no data to export.</div> : (
         <div style={{ display: "grid", gap: 16 }}>
           <section className="qb-card qb-form" style={{ display: "grid", gap: 12 }}>
@@ -89,7 +95,7 @@ function Exports() {
           <p className="qb-small qb-muted">Times are UTC (Ghana time is the same). Money is in whole units, for example 40 means GHS 40. Files can hold personal data: save them somewhere safe and delete them when you are done. Each real download is recorded in the audit log. Teacher-managed children are never included, learners in results appear only as a code, and bank or mobile-money numbers are never exported.</p>
         </div>
       )}
-    </>
+    </div>
   );
 }
 export default function ExportsPage() { return <Suspense fallback={<div className="qb-card qb-muted">Loading…</div>}><Exports /></Suspense>; }

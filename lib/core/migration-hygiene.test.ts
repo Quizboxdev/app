@@ -28,7 +28,7 @@ describe("migration hygiene (refund tools onward)", () => {
     expect(missing).toEqual([]);
   });
   it("no function is granted to the anonymous role unless it is meant to be public", () => {
-    const publicOk = new Set(["qb_mk_catalog", "qb_mk_item_public", "qb_mk_enabled", "qb_policy_public", "qb_challenge_seat_status", "qb_help_list", "qb_help_get", "qb_help_search", "qb_price_list", "qb_subscription_catalog"]);
+    const publicOk = new Set(["qb_mk_catalog", "qb_mk_item_public", "qb_mk_enabled", "qb_policy_public", "qb_challenge_seat_status", "qb_help_list", "qb_help_get", "qb_help_search", "qb_price_list", "qb_subscription_catalog", "qb_social_channels"]);
     const loose: string[] = [];
     for (const f of files) {
       const sql = readFileSync(dir + f, "utf8");
