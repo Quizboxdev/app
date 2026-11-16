@@ -111,7 +111,9 @@ export default function AppShell({
     );
 
     if (!isAllowed) {
-      router.replace(getHomeRouteForRole(role));
+      const home = getHomeRouteForRole(role);
+      // A parent's home is /family, which is closed while the Family workspace flag is off; send them to the account page instead of looping.
+      router.replace(home === "/family" && !familyOn ? "/account" : home);
     }
   }, [ctx, accessReady, pathname, router, sme, staff, familyOn]);
 

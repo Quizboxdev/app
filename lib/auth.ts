@@ -10,6 +10,8 @@ export function getHomeRouteForRole(role: string) {
       return "/teacher";
     case "SPONSOR":
       return "/sponsor";
+    case "PARENT":
+      return "/family";
     default:
       return "/student";
   }

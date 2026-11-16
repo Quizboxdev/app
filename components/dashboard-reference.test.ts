@@ -56,7 +56,7 @@ describe("UI reference dashboard presentation", () => {
   it("retains role enforcement and the full mobile navigation", () => {
     const shell = readFileSync("components/AppShell.tsx", "utf8");
     expect(shell).toContain("allowedPrefixes.some");
-    expect(shell).toContain("router.replace(getHomeRouteForRole(role))");
+    expect(shell).toContain("getHomeRouteForRole(role)");   // a parent with the flag off goes to /account, never back to /family
     expect(shell).toContain('aria-label="All sections"');
     expect(shell).toContain('aria-current={href === activeHref ? "page" : undefined}');
   });

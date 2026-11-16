@@ -8,6 +8,7 @@ import { takeNext } from "@/lib/auth/next-path";
 import { completeOnboarding, listSignupCountries, type OnboardingRole, type SignupCountry } from "@/lib/api/markets";
 import { userFacingError } from "@/lib/errors";
 import { recordFailure } from "@/lib/api/operations";
+import { loadFlags } from "@/lib/api/core";
 import BrandLockup from "@/components/BrandLockup";
 
 // Country → role → role-specific details. Options come from the selected market's configuration.
@@ -20,6 +21,9 @@ export default function OnboardingPage() {
   const [org, setOrg] = useState({ organization_name: "", contact_name: "", contact_email: "", contact_phone: "" });
   const [applySme, setApplySme] = useState(false), [qualifications, setQualifications] = useState(""), [years, setYears] = useState("0");
   const [busy, setBusy] = useState(false), [error, setError] = useState("");
+  const [parentOn, setParentOn] = useState(false);   // the parent option appears only while the Family workspace flag is on
+
+  useEffect(() => { loadFlags().then((f) => setParentOn(f.family_workspace === true)).catch(() => setParentOn(false)); }, []);
 
   useEffect(() => {
     (async () => {
@@ -69,8 +73,9 @@ export default function OnboardingPage() {
             {country && !country.available && <div className="qb-error" role="alert">QuizBox is not yet available in this country.</div>}
           </div>
           <div className="qb-field"><label htmlFor="ob-role">I am a</label>
-            <select id="ob-role" value={role} onChange={(e) => setRole(e.target.value as OnboardingRole)}><option value="student">Student</option><option value="teacher">Teacher</option><option value="sponsor">Sponsor / organization</option></select>
+            <select id="ob-role" value={role} onChange={(e) => setRole(e.target.value as OnboardingRole)}><option value="student">Student</option><option value="teacher">Teacher</option><option value="sponsor">Sponsor / organization</option>{parentOn && <option value="parent">Parent or guardian</option>}</select>
           </div>
+          {country?.available && role === "parent" && <p className="qb-muted qb-small" style={{ margin: 0 }}>After you sign up, add your children from your Family workspace. Each child can have their own account.</p>}
           {country?.available && role === "student" && <>
             <div className="qb-field"><label htmlFor="ob-level">Education level</label><select id="ob-level" value={level} required onChange={(e) => { setLevel(e.target.value); setGrade(""); }}><option value="">Select education level</option>{country.education_levels.map((l) => <option key={l.code} value={l.code}>{l.label}</option>)}</select></div>
             <div className="qb-field"><label htmlFor="ob-grade">Grade / class</label><select id="ob-grade" value={grade} disabled={!level} onChange={(e) => setGrade(e.target.value)} required><option value="">{level ? "Select grade / class" : "Select education level first"}</option>{levelGrades.map((g) => <option key={g.code} value={g.code}>{g.label}</option>)}</select></div>
