@@ -32,6 +32,12 @@ updates:
         update-types: ["version-update:semver-major"]
       - dependency-name: "@supabase/ssr"
         update-types: ["version-update:semver-major", "version-update:semver-minor"]
+      # eslint 10 is not compatible with eslint-config-next 15 (peer range stops at eslint 9), so its PRs fail the install step; it moves with the Next upgrade.
+      - dependency-name: "eslint"
+        update-types: ["version-update:semver-major"]
+      # @next/env follows the Next major (15 today); a 16 bump is a planned Next upgrade, not an automatic one.
+      - dependency-name: "@next/env"
+        update-types: ["version-update:semver-major"]
 
   - package-ecosystem: github-actions
     directory: "/"
