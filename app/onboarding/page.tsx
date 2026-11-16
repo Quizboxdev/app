@@ -46,7 +46,7 @@ export default function OnboardingPage() {
       if (!country?.available) throw new Error("QB_COUNTRY_NOT_AVAILABLE");
       await completeOnboarding({
         country_code: countryCode, role, full_name: fullName, school_name: school,
-        ...(role === "student" ? { education_level: level, grade_code: grade, subjects } : {}),
+        ...(role === "student" ? { education_level: level, grade_code: grade, subjects: [] } : {}),
         ...(role === "teacher" ? { subjects, apply_sme: applySme, qualifications, years_experience: Number(years) } : {}),
         ...(role === "sponsor" ? org : {}),
       });
@@ -74,7 +74,7 @@ export default function OnboardingPage() {
           {country?.available && role === "student" && <>
             <div className="qb-field"><label htmlFor="ob-level">Education level</label><select id="ob-level" value={level} required onChange={(e) => { setLevel(e.target.value); setGrade(""); }}><option value="">Select education level</option>{country.education_levels.map((l) => <option key={l.code} value={l.code}>{l.label}</option>)}</select></div>
             <div className="qb-field"><label htmlFor="ob-grade">Grade / class</label><select id="ob-grade" value={grade} disabled={!level} onChange={(e) => setGrade(e.target.value)} required><option value="">{level ? "Select grade / class" : "Select education level first"}</option>{levelGrades.map((g) => <option key={g.code} value={g.code}>{g.label}</option>)}</select></div>
-            {checks(country.subjects, subjects, setSubjects, "Subjects")}
+            <p className="qb-muted qb-small" style={{ margin: 0 }}>Next you will land in your workspace, where you pick your subjects and set up your school.</p>
           </>}
           {country?.available && role === "teacher" && <>
             {checks(country.subjects, subjects, setSubjects, "Subjects taught")}
@@ -82,7 +82,7 @@ export default function OnboardingPage() {
             {applySme && <><div className="qb-field"><label htmlFor="ob-qual">Qualifications</label><textarea id="ob-qual" value={qualifications} onChange={(e) => setQualifications(e.target.value)}/></div>
               <div className="qb-field"><label htmlFor="ob-years">Years of experience</label><input id="ob-years" type="number" min={0} value={years} onChange={(e) => setYears(e.target.value)}/></div></>}
           </>}
-          {country?.available && role !== "sponsor" && <div className="qb-field"><label htmlFor="ob-school">{role === "teacher" ? "School / institution" : "School / institution (optional)"}</label><input id="ob-school" value={school} onChange={(e) => setSchool(e.target.value)} required={role === "teacher"}/></div>}
+          {country?.available && role === "teacher" && <div className="qb-field"><label htmlFor="ob-school">School / institution</label><input id="ob-school" value={school} onChange={(e) => setSchool(e.target.value)} required/></div>}
           {country?.available && role === "sponsor" && <>
             <div className="qb-field"><label htmlFor="ob-org">Organization name</label><input id="ob-org" value={org.organization_name} onChange={(e) => setOrg({ ...org, organization_name: e.target.value })} required/></div>
             <div className="qb-field"><label htmlFor="ob-contact">Contact name</label><input id="ob-contact" value={org.contact_name} onChange={(e) => setOrg({ ...org, contact_name: e.target.value })}/></div>
