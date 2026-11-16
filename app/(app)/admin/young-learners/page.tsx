@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Search, Trash2 } from "lucide-react";
 import { eraseManagedLearner, erasureQueue, findManagedLearner, managedOverview, reassignManaged, setAutoErase, type FoundLearner, type ManagedOverview, type QueuedLearner } from "@/lib/api/erasure";
 import { formatDate } from "@/lib/format";
+import { Kpi, num } from "@/components/admin/DataViz";
 
 // Owner: erase a young learner's personal data on a written request from a guardian or school, or in one pass for accounts past the 12-month retention
 // period. Erasing removes the first name, username and school; learning records stay in a form that no longer identifies the child. It cannot be undone.
@@ -37,11 +38,20 @@ export default function YoungLearnersAdminPage() {
   }
   const queuedReason = `Retention period over: ended more than ${overview?.retention_months ?? 12} months ago`;
 
+  const sum = (k: "active" | "ended" | "erased" | "due") => (overview?.classes ?? []).reduce((n, c) => n + Number(c[k] ?? 0), 0);
   return (
-    <>
-      <div className="qb-page-head"><div><h1>Young learners: privacy requests</h1><p>Erase a child&apos;s personal data when a guardian or school asks in writing, or when the 12-month retention period has passed.</p></div></div>
-      {error && <div className="qb-card qb-error" role="alert">{error}</div>}
-      {done && <div className="qb-card" role="status">{done}</div>}
+    <div className="dx-page">
+      <div className="dx-head"><div><h1>Young learners: privacy requests</h1><p>Erase a child&apos;s personal data when a guardian or school asks in writing, or when the 12-month retention period has passed.</p></div></div>
+      <div className="dx-kpis">
+        <Kpi label="Classes" value={overview ? num(overview.classes.length) : "—"} />
+        <Kpi label="Active learners" value={overview ? num(sum("active")) : "—"} />
+        <Kpi label="Ended accounts" value={overview ? num(sum("ended")) : "—"} />
+        <Kpi label="Erased" value={overview ? num(sum("erased")) : "—"} />
+        <Kpi label="Past retention" value={overview ? num(sum("due")) : "—"} tone={sum("due") > 0 ? "warn" : "default"} />
+        <Kpi label="Automatic erasure" value={overview ? (overview.auto_erase ? "On" : "Off") : "—"} />
+      </div>
+      {error && <div className="dx-alert error" role="alert">{error}</div>}
+      {done && <div className="dx-alert ok" role="status">{done}</div>}
 
       <section className="qb-card">
         <h2>All schools</h2>
@@ -92,6 +102,6 @@ export default function YoungLearnersAdminPage() {
               <td><button className="qb-btn secondary" disabled={busy} onClick={() => void erase(l, queuedReason)}><Trash2 size={14} aria-hidden="true" /> Erase</button></td></tr>)}
           </tbody></table></div></>}
       </section>
-    </>
+    </div>
   );
 }
