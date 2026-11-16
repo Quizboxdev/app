@@ -418,5 +418,12 @@
   "chars": 2645,
   "parts": 1,
   "note": "Lets a learner choose their subjects from inside the workspace after sign-up, without using up one of the two profile edits. Adds one function; changes no data. Safe to run again."
+ },
+ {
+  "version": "20261079100000",
+  "name": "family_workspace",
+  "chars": 11820,
+  "parts": 2,
+  "note": "Family workspace, phase 1 (off until flags.family_workspace is switched on): a workspace for a parent, guardian or academic parent, family link types and permissions on the existing account_relationships table, and the access-checking functions. Adds one table, two columns and functions; changes no existing relationship. Safe to run again."
  }
 ]

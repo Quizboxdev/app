@@ -76,3 +76,13 @@ Each phase ships behind a flag (`flags.family_workspace`), off in Production unt
 
 - No new student model, assessment engine, payment service, wallet, plan table or marketplace table.
 - No change to sign-in, teacher assignments, school directory or the existing guardian/sponsor relationship behaviour (it is extended, not replaced).
+
+## 7. Owner decisions (2026-11-16) and the buying rule
+
+- D1 to D5 accepted as recommended: Parent is derived from owning a Family workspace (no new `qb_role`), parent assignments use a hidden per-family class (D2), the under-13 blocks stay.
+- **Buying rule (phases 6 and 7).** Each child may need something different, so buying never assumes one choice for everyone. Every coin and subscription screen shows the parent's children as a **tick list with "Select all"**, and a plan for each ticked child (Monthly, Term or Yearly). A bigger bundle for several children is one checkout: one `payment_intent` per ticked child under one order, so each child gets their own entitlement and can later be changed or cancelled on its own. "Per child" amounts are shown child by child with the total before paying. The tick list only offers children the parent holds `buy_coins` or `buy_subscription` permission for, checked in the database, not the browser.
+- Plans: the plan list gains **weekly and yearly** next to the existing monthly and term plans (a change to `config/subscription-plans.json`; no new tables).
+
+## 8. Phase 1 delivered
+
+Migration `20261079100000_family_workspace.sql` (off behind `flags.family_workspace`): `family_workspaces`, family link types and a `permissions` object on `account_relationships`, `qb_family_open`, `qb_family_children`, `qb_family_can`, `qb_family_child_summary`, `qb_family_revoke`, and the service-only `qb_family_attach_child`. Tests: `lib/core/family-workspace-sql.test.ts` (13 cases, including the change-the-student-id attempts, pending, suspended, expired and withdrawn links, revocation, and privileges).
