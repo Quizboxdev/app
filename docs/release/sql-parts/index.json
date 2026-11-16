@@ -460,5 +460,12 @@
   "chars": 10299,
   "parts": 3,
   "note": "Family workspace, phase 5 (off until flags.family_workspace is on): a parent gives a Marketplace set they bought to chosen children without copying it; the child plays the original while the purchase lasts. Adds one table and functions; changes no existing data. Safe to run again."
+ },
+ {
+  "version": "20261085100000",
+  "name": "family_challenges",
+  "chars": 7580,
+  "parts": 3,
+  "note": "Family workspace, phase 4b (off until flags.family_workspace is on): a parent invites chosen children to a challenge they made; the child sees it with its access code and plays it in the normal play page. Adds one table and functions; changes no existing data. Safe to run again."
  }
 ]
