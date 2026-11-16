@@ -19,6 +19,12 @@ export const ensureProviders = (): string[] => {
 const functionMissing = (error: { code?: string; message?: string } | null | undefined) => !!error && (error.code === "PGRST202" || error.code === "42883" || /could not find the function|does not exist/i.test(error.message ?? ""));
 
 export async function fulfilAfter(admin: SupabaseClient, outcome: string | undefined, reference: string): Promise<{ ok: boolean; failure?: string }> {
+  // A family order: grant every child's subscription (or take them back after a refund). Each step is idempotent, like the single-payment path below.
+  if (reference.startsWith("QBF-")) {
+    if (outcome === "credited" || outcome === "already_settled" || outcome === "duplicate_event") { const done = await admin.rpc("qb_family_order_fulfil", { p_reference: reference }); return done.error ? { ok: false, failure: "fulfilment_failed" } : { ok: true }; }
+    if (outcome === "refunded" || outcome === "reversed") { const undone = await admin.rpc("qb_family_order_revoke", { p_reference: reference, p_reason: outcome }); return undone.error ? { ok: false, failure: "revocation_failed" } : { ok: true }; }
+    return { ok: true };
+  }
   if (outcome === "credited" || outcome === "already_settled" || outcome === "duplicate_event") {
     const { error } = await admin.rpc("qb_fulfil_subscription_payment", { p_reference: reference });
     if (error) return { ok: false, failure: "fulfilment_failed" };

@@ -76,3 +76,76 @@ Each phase ships behind a flag (`flags.family_workspace`), off in Production unt
 
 - No new student model, assessment engine, payment service, wallet, plan table or marketplace table.
 - No change to sign-in, teacher assignments, school directory or the existing guardian/sponsor relationship behaviour (it is extended, not replaced).
+
+## 7. Owner decisions (2026-11-16) and the buying rule
+
+- D1 to D5 accepted as recommended: Parent is derived from owning a Family workspace (no new `qb_role`), parent assignments use a hidden per-family class (D2), the under-13 blocks stay.
+- **Buying rule (phases 6 and 7).** Each child may need something different, so buying never assumes one choice for everyone. Every coin and subscription screen shows the parent's children as a **tick list with "Select all"**, and a plan for each ticked child (Monthly, Term or Yearly). A bigger bundle for several children is one checkout: one `payment_intent` per ticked child under one order, so each child gets their own entitlement and can later be changed or cancelled on its own. "Per child" amounts are shown child by child with the total before paying. The tick list only offers children the parent holds `buy_coins` or `buy_subscription` permission for, checked in the database, not the browser.
+- Plans: the plan list gains **weekly and yearly** next to the existing monthly and term plans (a change to `config/subscription-plans.json`; no new tables).
+
+## 8. Phase 1 delivered
+
+Migration `20261079100000_family_workspace.sql` (off behind `flags.family_workspace`): `family_workspaces`, family link types and a `permissions` object on `account_relationships`, `qb_family_open`, `qb_family_children`, `qb_family_can`, `qb_family_child_summary`, `qb_family_revoke`, and the service-only `qb_family_attach_child`. Tests: `lib/core/family-workspace-sql.test.ts` (13 cases, including the change-the-student-id attempts, pending, suspended, expired and withdrawn links, revocation, and privileges).
+
+## 9. Phase 2 delivered: add a child, the single-use link, link an existing student
+
+Migration `20261080100000_family_children.sql` (3 parts, off behind `flags.family_workspace`), routes `POST /api/family/children`, `POST /api/family/children/reset-access`, `GET/POST /api/family/activate`, the page `/join/[token]`, `lib/api/family.ts`, and a student-home card for link requests.
+
+- **Add a child.** The server creates an auth user with a username as the sign-in and a random password nobody knows, then `qb_family_child_provision` builds an ordinary student (class from the market's grade list, age only, no date of birth stored), links it to the workspace, records the parent's confirmation, and writes an audit entry. A child under 13 keeps every existing protection (`managed_by` is the parent, `is_minor` true); 13 and over is an independent student.
+- **The link.** `qb_family_invite_issue` returns a 64-character random token once; only its SHA-256 is stored; 7 days; resending or resetting cancels earlier links; `qb_family_invite_consume` uses it up atomically, so a replay, an expired link and a revoked link all fail. The link never signs anyone in: the child chooses a password and signs in normally with their username.
+- **Reset access.** The old password stops working at once, a fresh single-use link is issued.
+- **Link an existing student.** The parent types an email; the answer is always the same whether or not an account exists, a student the parent cannot see is never named, and nothing is shared until the student accepts on their own home screen. Managed (under-13, adult-run) accounts cannot be linked this way. Ten requests a day per parent.
+- **Not yet:** the parent screens that call these (Add child form, child cards, copy link, resend, reset, revoke) are phase 3.
+- **Tests:** `lib/core/family-children-sql.test.ts` (15 cases), `lib/family/child-input.test.ts`.
+
+## 10. Phase 3 delivered: the parent screens (flag-gated, no migration)
+
+`/family` (child cards, **+ Add child**, **Link an existing student**, the child's one-time link with Copy link and Send on WhatsApp, a waiting list for link requests) and `/family/children/[studentId]` (who the child is; make a new workspace link, Reset access, Cancel unused link, Remove from my family). Reuses the app's `qb-*` design system. The `family_workspace` flag is read like the other feature flags; the Family entry shows in the menu for teacher and sponsor accounts only while it is on, and the route is allowed only while it is on. A student never sees it. Parent sign-up as a role choice (D1) and parent-only accounts come with the sign-up phase; until then any adult account (teacher or sponsor) can open a workspace.
+
+Not on the child page yet (later phases): work and challenges, questions, coins, subscriptions, progress, and per-child cards showing coins, plan and assignments due.
+
+## 11. Phase 4a delivered: give work (assignments); challenges are 4b
+
+Migration `20261081100000_family_assignments.sql` (3 parts, off behind `flags.family_workspace`; apply after 079 and 080): `classes.family_workspace_id`, `assignments.source_type` (`school`, `family`, `system`, `self`; default `school`) and `workspace_id`, a before-insert trigger that stamps any assignment made in a family class as `family`, `qb_family_class(grade)` and `qb_family_assignments()`. Page `/family/assign`, a shared `ChildPicker` (tick list with Select all) that the coin and subscription screens will reuse.
+
+- **How it reuses the teacher engine (D2).** One hidden family class per workspace and class level, owned by the parent (a minimal `teacher_profiles` row is created because the engine records the author). It contains only the parent's linked children of that grade who the parent may give work to. The parent then calls the same `qb_teacher_topics`, `qb_topic_assignment_plan` and `qb_publish_topic_assignment` teachers use, with that class, and `p_target_student_ids` for the ticked children. Questions, marking, attempts, results and reminders are the existing ones. A child who is also in a school class keeps both; `student_profiles` is never changed.
+- **Children in different classes** get separate pieces of work because the topic list is per class level (the page has a class-level switch, then the tick list for that level).
+- **Progress** for the parent comes from `qb_family_assignments()`, which only includes children the parent may follow (`view_progress`), so a revoked child disappears at once.
+- **To check on Preview (real schema):** the function inserts into `classes`, `class_memberships` and `teacher_profiles` under the live guards (market and curriculum checks). It is tested against a stand-in schema, not the live one, so make one family assignment on Preview before Production.
+- **Known side effects:** a parent gets a `teacher_profiles` row (an extra "teacher" in teacher counts); the family class appears in the child's class list as "Family · B5". Phase 8 (the unified feed) shows the source label.
+- **4b (next):** challenges for specific children (D3), notifications that name the sender, and the "From: Family" label in the student's workspace.
+
+## 12. Phases 6 and 7 delivered: coins and subscriptions for the children a parent ticks
+
+Migration `20261082100000_family_orders.sql` (4 parts, off behind `flags.family_workspace`; apply after 079 to 081). Pages `/family/wallet`, `/family/subscriptions`, `/family/pay`; route `POST /api/family/orders`; shared `ChildChoiceTable`.
+
+- **The buying rule, as built.** Every screen shows the children as a tick list with **Select all** and **Same for everyone**, and each ticked child has their own choice (a Coin amount, or a plan), so one child can get a monthly plan and another a term plan in one checkout. Only children the parent has `buy_coins` / `buy_subscription` for are offered.
+- **One payment, every child or none.** `qb_family_order_create` makes one ordinary payment intent per child (the existing minimum charge, relationship check and ledger apply), tied to one order reference `QBF-...`. The server prices the order from the admin price list and the unit price and refuses to continue unless the database total matches. Paystack takes one charge for the total. The existing signed webhook (and the return-page check) hand the verified event to `qb_family_order_apply`, which settles every child's intent in one transaction (amount must equal the order total), or rolls back entirely. A replayed event is ignored at order level and per child.
+- **Subscriptions** use the existing fulfilment (`qb_fulfil_subscription_payment`) per child, so each child has their own subscription that can be changed or cancelled alone. Refunds revoke every child's subscription and take back the Coins.
+- **Wired into the existing payment path** (small, tested branches on the `QBF-` prefix): `applyVerifiedPaymentEvent`, `fulfilAfter`, `confirmPayment`.
+- **Plans** (weekly, monthly, term, yearly) are rows in the admin Prices page (audience learner, kind plan, with Coins and days); nothing is hard-coded. Add the weekly and yearly rows there.
+- **Known follow-ups:** Admin > Payment checks will show each child's intent as its own payment (their references are not Paystack transactions) until the checker learns about family orders; `/admin/families` (phase 10) will show orders.
+
+## 13. Phases 8, 9 and 10 delivered: one feed with a source, parent progress, staff view
+
+- **Phase 8 (no migration).** A `SourceChip` (School or Family) on each piece of work on the student home and classroom, and an All / School / Family filter on the classroom page (shown only when the child has family work). Records are never merged by title: the source comes from `assignments.source_type`. Work with no source (older data, or a database without migration 081) is School.
+- **Phase 9 (migration `20261083100000_family_progress_admin.sql`, read-only).** `qb_family_progress` and `qb_family_child_progress`: work done, average, best, still to do, a week-by-week curve and the latest results with their source, only for children the parent actively follows with `view_progress` (a revoked link shows nothing at once). Shown on `/family` ("This month at a glance") and on each child's page.
+- **Phase 10.** `/admin/families` (staff, read-only, admin analytics kit): totals, orders by state, biggest spenders, and one family in detail (children, orders, recent actions by the parent) via `qb_admin_families` and `qb_admin_family_detail`. Appears in the Operations group for super admins.
+- **Still to do from the directive:** challenges for specific children (4b), the family question library from the Marketplace (5), notifications that name the sender, parent sign-up as a role choice, and per-child coin and plan figures on the child cards.
+
+## 14. Phase 5 delivered: the family question library
+
+Migration `20261084100000_family_library.sql` (3 parts, off behind `flags.family_workspace`). Pages `/family/library` (parent) and `/student/sets/[id]` (child), a "Question sets from your family" card on the student home, and the Marketplace set player extracted into a shared `SetPlayer`.
+
+- **Reuses the Marketplace as is.** The parent buys through the existing checkout (`mk_purchases`, 90 days, 60/40 split, reversal). A *grant* is a reference to that purchase (`family_set_grants`), so no questions or products are duplicated. The child opens the original set through `qb_family_set_open`, which checks the grant against the purchase **each time**: a reversed or expired purchase ends the child's access at once. The score goes to the same `mk_attempts` history under the child.
+- **Who can give.** Only the buyer, only for an active purchase, only to children they may give work to (`assign`); a child is told by a notification naming the parent. The parent sees which children have each set and each child's best score, and can take a set back.
+- **Not built:** turning a purchased set into a challenge or a timed assignment (Marketplace sets are separate from the curriculum question bank, so they cannot go through the assignment engine; they are practice sets). Family challenges (4b) remain.
+
+## 15. Phase 4b delivered: challenges for chosen children (D3)
+
+Migration `20261085100000_family_challenges.sql` (3 parts, off behind `flags.family_workspace`). Page `/family/challenges`; card "Challenges from your family" on the student home.
+
+- **Reuses the challenge engine unchanged.** The parent builds and publishes the challenge in Create and share (`challenge_campaigns`, any tier or visibility rule that already applies). An invitation (`family_challenge_invites`) is a reference for a named child, created only by the challenge's owner for children they may create challenges for. The child sees it on their home screen (with the access code if it is private) and plays it on the normal `/play/[slug]` page; results, scoring and limits are the challenge engine's.
+- **Rules that still apply:** a child under 13 keeps the existing challenge restrictions; the invitation never bypasses them.
+- **Not built:** a parent-side results table for challenge attempts (the creator's own results page already shows attempts for their challenge); sender names on challenge notifications are done (the notification names the parent).
+- **Directive status:** phases 0 to 10 are delivered. Remaining from the directive: parent sign-up as a role choice (needs a decision on how a parent-only account is represented, see D1), per-child coin and plan figures on the child cards, and the Payment checks admin page learning about family orders.

@@ -10,6 +10,7 @@ import { bootstrapUser, getHomeRouteForRole, signOut } from "@/lib/auth";
 import type { UserContext } from "@/lib/types";
 import { getSmeContext, type SmeContext } from "@/lib/api/sme";
 import { getMyStaffAccess, type MyStaffAccess } from "@/lib/api/staff";
+import { loadFlags } from "@/lib/api/core";
 import { tabsFor } from "@/lib/staff/workflows";
 import MarketContextControl from "@/components/MarketContextControl";
 import BrandLockup from "@/components/BrandLockup";
@@ -61,6 +62,7 @@ export default function AppShell({
   const [staff, setStaff] = useState<MyStaffAccess | null>(null);                                  // the connected workflows a Super Admin gave this person (Admin, Staff access)
   const [accessReady, setAccessReady] = useState(false);                                              // true once both the SME context and the staff workflows have been read
   const [moreOpen, setMoreOpen] = useState(false);
+  const [familyOn, setFamilyOn] = useState(false);                                                  // the Family workspace flag (closed until the owner opens it)
   const contentRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
   const router = useRouter();
@@ -79,6 +81,8 @@ export default function AppShell({
       .catch((error) => router.replace(error instanceof Error && error.message === "ONBOARDING_REQUIRED" ? "/onboarding" : error instanceof Error && error.message === "ACCOUNT_SUSPENDED" ? "/login?suspended=1" : loginHrefFor(window.location.pathname)));
   }, [router]);
 
+  useEffect(() => { loadFlags().then((f) => setFamilyOn(f.family_workspace === true)).catch(() => setFamilyOn(false)); }, []);
+
   useEffect(() => {
     if (!ctx || !accessReady) return;                                                                // do not send anyone away before their staff access has been read
 
@@ -92,8 +96,9 @@ export default function AppShell({
           : ["/student", "/learn", "/practise", "/competition", "/marketplace", "/subscribe", "/creator"];
 
     allowedPrefixes.push("/account", "/notifications", "/school", "/play", "/open", "/drafts", "/support", "/guides", "/affiliate");
+    if (role !== "STUDENT" && familyOn) allowedPrefixes.push("/family");
     if (sme?.reviewer || sme?.content_admin || sme?.super_admin) allowedPrefixes.push("/review");
-    if (sme?.super_admin) allowedPrefixes.push("/admin/markets", "/admin/partners", "/admin/reviewers", "/admin/compensation", "/admin/policies", "/admin/schools", "/admin/social");
+    if (sme?.super_admin) allowedPrefixes.push("/admin/markets", "/admin/partners", "/admin/reviewers", "/admin/compensation", "/admin/policies", "/admin/schools", "/admin/social", "/admin/families");
     if (sme?.super_admin || sme?.sme_support) allowedPrefixes.push("/admin/inbox", "/admin/reviewer-applications", "/admin/tickets", "/admin/help");
     if (sme?.super_admin || sme?.finance_admin) allowedPrefixes.push("/admin/sme-performance", "/admin/payouts", "/admin/payment-checks", "/admin/affiliates");
     if (sme?.super_admin || sme?.finance_admin || sme?.content_admin || sme?.sme_support) allowedPrefixes.push("/admin/exports");
@@ -108,7 +113,7 @@ export default function AppShell({
     if (!isAllowed) {
       router.replace(getHomeRouteForRole(role));
     }
-  }, [ctx, accessReady, pathname, router, sme, staff]);
+  }, [ctx, accessReady, pathname, router, sme, staff, familyOn]);
 
   const inSchool = pathname.startsWith("/school");
   const groups = useMemo<NavGroup[]>(() => {
@@ -121,6 +126,7 @@ export default function AppShell({
     const when = (condition: unknown, items: NavItem[]): NavItem[] => (condition ? items : []);
     const groups: NavGroup[] = [];
     const add = (label: string, items: NavItem[]) => { if (items.length) groups.push({ label, items }); };
+    const family: NavItem[] = familyOn && role !== "STUDENT" ? [["/family", "Family workspace"]] : [];
     // Non-admin accounts can still hold SME super-admin or finance duties.
     const staffTabs: NavItem[] = staff?.enabled ? tabsFor(staff.workflows) : [];
     const seen = new Set<string>();
@@ -177,7 +183,7 @@ export default function AppShell({
         ["/admin/support", "Support"],
         ...when(sme?.super_admin || sme?.sme_support, [["/admin/inbox", "Enquiry Inbox"]]),
         ...when(sme?.super_admin, [["/admin/young-learners", "Young learners (privacy)"]]),
-        ...when(sme?.super_admin, [["/admin/social", "Social channels"]]),
+        ...when(sme?.super_admin, [["/admin/social", "Social channels"], ["/admin/families", "Families"]]),
         ...when(sme?.super_admin, [["/admin/access", "Access & Subscriptions"]]),
         ...when(sme?.super_admin && staff?.enabled, [["/admin/staff", "Staff access"]]),
         ["/admin/pricing", "Prices"],
@@ -202,6 +208,7 @@ export default function AppShell({
         ["/marketplace", "Marketplace"],
       ]);
       add("SME", when(reviewer, [["/review", "SME Reviews"]]));
+      add("Family", family);
       add("Administration", administration);
       return groups;
     }
@@ -219,6 +226,7 @@ export default function AppShell({
       ]);
       add("Explore", [["/creator", "Challenges"], ["/open", "Open to join"], ["/competition", "Competitions"], ["/marketplace", "Marketplace"], ...seller]);
       add("SME", when(reviewer, [["/review", "SME Reviews"]]));
+      add("Family", family);
       add("Administration", administration);
       return groups;
     }
@@ -243,7 +251,7 @@ export default function AppShell({
     add("SME", when(reviewer, [["/review", "SME Reviews"]]));
     add("Administration", administration);
     return groups;
-  }, [ctx, inSchool, sme, staff, sponsorEngine]);
+  }, [ctx, inSchool, sme, staff, sponsorEngine, familyOn]);
 
   const nav = useMemo(() => groups.flatMap((group) => group.items), [groups]);
   // The most specific matching link is the current page (so /admin is not active on /admin/content).

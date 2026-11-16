@@ -20,6 +20,10 @@ import SubjectIcon from "@/components/SubjectIcon";
 import InstallPrompt from "@/components/InstallPrompt";
 import SchoolSetupCard from "@/components/SchoolSetupCard";
 import SubjectsCard from "@/components/SubjectsCard";
+import FamilyRequestsCard from "@/components/family/FamilyRequestsCard";
+import SourceChip from "@/components/SourceChip";
+import FamilySetsCard from "@/components/family/FamilySetsCard";
+import FamilyChallengesCard from "@/components/family/FamilyChallengesCard";
 import ConnectCard from "@/components/ConnectCard";
 import SponsoredCarousel from "@/components/challenges/SponsoredCarousel";
 import { levelFromGrade } from "@/lib/challenges/content-types";
@@ -125,6 +129,9 @@ export default function StudentHomePage() {
       {error && <div className="qb-card qb-error" role="alert">{error}</div>}
       <InstallPrompt />
       <SchoolSetupCard />
+      <FamilyRequestsCard />
+      <FamilyChallengesCard />
+      <FamilySetsCard />
       <SubjectsCard />
       <SponsoredCarousel level={levelFromGrade(klass?.grade)} />
       <section className="qb-dashboard-hero qb-sh-hero" aria-labelledby="sh-title">
@@ -215,7 +222,7 @@ export default function StudentHomePage() {
             {assignments.length ? <ul className="qb-task-list">
               {assignments.slice(0, 3).map((row) => <li key={row.id}>
                 <span className="qb-task-icon" aria-hidden="true"><FileText size={16} /></span>
-                <div className="qb-row-main"><strong>{sanitizeLabel(row.assignments?.title ?? "Assignment")}</strong><span>{subjectLabel(row.assignments?.subject_code)}{row.assignments?.due_at ? ` · Due ${formatDate(row.assignments.due_at)}` : " · No due date"}</span></div>
+                <div className="qb-row-main"><strong>{sanitizeLabel(row.assignments?.title ?? "Assignment")}<SourceChip row={row as any} /></strong><span>{subjectLabel(row.assignments?.subject_code)}{row.assignments?.due_at ? ` · Due ${formatDate(row.assignments.due_at)}` : " · No due date"}</span></div>
                 <button className="qb-btn secondary" disabled={starting} onClick={() => void startAssignment(row)}>Start</button>
               </li>)}
             </ul> : <div className="qb-empty"><strong>Nothing due</strong>Work from your teachers appears here.</div>}

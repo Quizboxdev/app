@@ -79,7 +79,22 @@ with c(v, k, o) as (values
   ('20261076100000','f','public.qb_social_channels'),
   ('20261076100000','f','public.qb_social_admin_save'),
   ('20261077100000','f','public.qb_admin_dashboard'),
-  ('20261078100000','f','public.qb_student_set_subjects')), r as (
+  ('20261078100000','f','public.qb_student_set_subjects'),
+  ('20261079100000','t','public.family_workspaces'),
+  ('20261079100000','f','public.qb_family_children'),
+  ('20261080100000','t','public.family_invitations'),
+  ('20261080100000','f','public.qb_family_invite_consume'),
+  ('20261081100000','f','public.qb_family_class'),
+  ('20261081100000','f','public.qb_family_assignments'),
+  ('20261082100000','t','public.family_orders'),
+  ('20261082100000','f','public.qb_family_order_create'),
+  ('20261083100000','f','public.qb_family_progress'),
+  ('20261083100000','f','public.qb_admin_families'),
+  ('20261084100000','t','public.family_set_grants'),
+  ('20261084100000','f','public.qb_family_library'),
+  ('20261085100000','t','public.family_challenge_invites'),
+  ('20261085100000','f','public.qb_family_challenges'),
+  ('20261086100000','t','public.help_articles')), r as (
   select v, k, o, case k
     when 't' then to_regclass(o) is not null
     when 'x' then to_regprocedure(o) is null

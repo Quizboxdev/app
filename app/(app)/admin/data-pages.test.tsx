@@ -17,6 +17,7 @@ import Staff from "./staff/page";
 import Access from "./access/page";
 import YoungLearners from "./young-learners/page";
 import ChallengeReports from "./challenge-reports/page";
+import Families from "./families/page";
 
 // First paint of each admin page converted to the analytics layout: the page shell, its heading, and no large unclassed buttons.
 const pages: Array<[string, () => React.ReactElement, string[]]> = [
@@ -30,6 +31,7 @@ const pages: Array<[string, () => React.ReactElement, string[]]> = [
   ["Access and subscriptions", () => <Access />, ["Access and subscriptions"]],
   ["Young learners", () => <YoungLearners />, ["Past retention", "Automatic erasure"]],
   ["Challenge reports", () => <ChallengeReports />, ["Open reports"]],
+  ["Loading families", () => <Families />, []],
 ];
 
 describe("admin data pages", () => {
