@@ -20,6 +20,7 @@ import SubjectIcon from "@/components/SubjectIcon";
 import InstallPrompt from "@/components/InstallPrompt";
 import SchoolSetupCard from "@/components/SchoolSetupCard";
 import SubjectsCard from "@/components/SubjectsCard";
+import FamilyRequestsCard from "@/components/family/FamilyRequestsCard";
 import ConnectCard from "@/components/ConnectCard";
 import SponsoredCarousel from "@/components/challenges/SponsoredCarousel";
 import { levelFromGrade } from "@/lib/challenges/content-types";
@@ -125,6 +126,7 @@ export default function StudentHomePage() {
       {error && <div className="qb-card qb-error" role="alert">{error}</div>}
       <InstallPrompt />
       <SchoolSetupCard />
+      <FamilyRequestsCard />
       <SubjectsCard />
       <SponsoredCarousel level={levelFromGrade(klass?.grade)} />
       <section className="qb-dashboard-hero qb-sh-hero" aria-labelledby="sh-title">

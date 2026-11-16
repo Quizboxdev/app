@@ -425,5 +425,12 @@
   "chars": 11820,
   "parts": 2,
   "note": "Family workspace, phase 1 (off until flags.family_workspace is switched on): a workspace for a parent, guardian or academic parent, family link types and permissions on the existing account_relationships table, and the access-checking functions. Adds one table, two columns and functions; changes no existing relationship. Safe to run again."
+ },
+ {
+  "version": "20261080100000",
+  "name": "family_children",
+  "chars": 17682,
+  "parts": 3,
+  "note": "Family workspace, phase 2 (off until flags.family_workspace is on): add a child, a single-use invitation stored as a hash, and linking an existing student that the student must accept. Adds one table, one column and functions; changes no data. Safe to run again."
  }
 ]
