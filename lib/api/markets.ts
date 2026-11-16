@@ -45,3 +45,11 @@ export function parseOptions(text: string): ConfigOption[] {
   });
 }
 export const formatOptions = (options: unknown) => (Array.isArray(options) ? options as ConfigOption[] : []).map(o => `${o.code}: ${o.label}${o.level ? ` | ${o.level}` : ""}`).join("\n");
+
+// A learner's own subjects, chosen in the workspace after sign-up. Uses the free function; where it has not been applied yet it falls back to the profile edit (which counts against the two edits).
+export async function setMySubjects(subjects: string[]): Promise<string[]> {
+  const { data, error } = await getSupabaseBrowserClient().rpc("qb_student_set_subjects", { p_subjects: subjects });
+  if (!error) return (data as string[]) ?? subjects;
+  if (/PGRST202|Could not find the function|does not exist/i.test(`${error.code ?? ""} ${error.message ?? ""}`)) { await updateStudentProfile({ subjects }); return subjects; }
+  throw new Error(userFacingError(error));
+}
