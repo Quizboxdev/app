@@ -86,3 +86,14 @@ Each phase ships behind a flag (`flags.family_workspace`), off in Production unt
 ## 8. Phase 1 delivered
 
 Migration `20261079100000_family_workspace.sql` (off behind `flags.family_workspace`): `family_workspaces`, family link types and a `permissions` object on `account_relationships`, `qb_family_open`, `qb_family_children`, `qb_family_can`, `qb_family_child_summary`, `qb_family_revoke`, and the service-only `qb_family_attach_child`. Tests: `lib/core/family-workspace-sql.test.ts` (13 cases, including the change-the-student-id attempts, pending, suspended, expired and withdrawn links, revocation, and privileges).
+
+## 9. Phase 2 delivered: add a child, the single-use link, link an existing student
+
+Migration `20261080100000_family_children.sql` (3 parts, off behind `flags.family_workspace`), routes `POST /api/family/children`, `POST /api/family/children/reset-access`, `GET/POST /api/family/activate`, the page `/join/[token]`, `lib/api/family.ts`, and a student-home card for link requests.
+
+- **Add a child.** The server creates an auth user with a username as the sign-in and a random password nobody knows, then `qb_family_child_provision` builds an ordinary student (class from the market's grade list, age only, no date of birth stored), links it to the workspace, records the parent's confirmation, and writes an audit entry. A child under 13 keeps every existing protection (`managed_by` is the parent, `is_minor` true); 13 and over is an independent student.
+- **The link.** `qb_family_invite_issue` returns a 64-character random token once; only its SHA-256 is stored; 7 days; resending or resetting cancels earlier links; `qb_family_invite_consume` uses it up atomically, so a replay, an expired link and a revoked link all fail. The link never signs anyone in: the child chooses a password and signs in normally with their username.
+- **Reset access.** The old password stops working at once, a fresh single-use link is issued.
+- **Link an existing student.** The parent types an email; the answer is always the same whether or not an account exists, a student the parent cannot see is never named, and nothing is shared until the student accepts on their own home screen. Managed (under-13, adult-run) accounts cannot be linked this way. Ten requests a day per parent.
+- **Not yet:** the parent screens that call these (Add child form, child cards, copy link, resend, reset, revoke) are phase 3.
+- **Tests:** `lib/core/family-children-sql.test.ts` (15 cases), `lib/family/child-input.test.ts`.
