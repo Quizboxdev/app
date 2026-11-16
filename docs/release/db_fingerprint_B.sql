@@ -78,7 +78,8 @@ with c(v, k, o) as (values
   ('20261076100000','t','public.social_channels'),
   ('20261076100000','f','public.qb_social_channels'),
   ('20261076100000','f','public.qb_social_admin_save'),
-  ('20261077100000','f','public.qb_admin_dashboard')), r as (
+  ('20261077100000','f','public.qb_admin_dashboard'),
+  ('20261078100000','f','public.qb_student_set_subjects')), r as (
   select v, k, o, case k
     when 't' then to_regclass(o) is not null
     when 'x' then to_regprocedure(o) is null

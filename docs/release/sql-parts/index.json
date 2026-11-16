@@ -411,5 +411,12 @@
   "chars": 6193,
   "parts": 1,
   "note": "Admin dashboard figures in one read-only function for staff: users, learning activity, content, queues, markets and schools, each section computed on its own. Adds one function; changes no data. Safe to run again."
+ },
+ {
+  "version": "20261078100000",
+  "name": "student_subjects",
+  "chars": 2645,
+  "parts": 1,
+  "note": "Lets a learner choose their subjects from inside the workspace after sign-up, without using up one of the two profile edits. Adds one function; changes no data. Safe to run again."
  }
 ]
