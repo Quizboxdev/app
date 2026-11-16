@@ -97,3 +97,9 @@ Migration `20261080100000_family_children.sql` (3 parts, off behind `flags.famil
 - **Link an existing student.** The parent types an email; the answer is always the same whether or not an account exists, a student the parent cannot see is never named, and nothing is shared until the student accepts on their own home screen. Managed (under-13, adult-run) accounts cannot be linked this way. Ten requests a day per parent.
 - **Not yet:** the parent screens that call these (Add child form, child cards, copy link, resend, reset, revoke) are phase 3.
 - **Tests:** `lib/core/family-children-sql.test.ts` (15 cases), `lib/family/child-input.test.ts`.
+
+## 10. Phase 3 delivered: the parent screens (flag-gated, no migration)
+
+`/family` (child cards, **+ Add child**, **Link an existing student**, the child's one-time link with Copy link and Send on WhatsApp, a waiting list for link requests) and `/family/children/[studentId]` (who the child is; make a new workspace link, Reset access, Cancel unused link, Remove from my family). Reuses the app's `qb-*` design system. The `family_workspace` flag is read like the other feature flags; the Family entry shows in the menu for teacher and sponsor accounts only while it is on, and the route is allowed only while it is on. A student never sees it. Parent sign-up as a role choice (D1) and parent-only accounts come with the sign-up phase; until then any adult account (teacher or sponsor) can open a workspace.
+
+Not on the child page yet (later phases): work and challenges, questions, coins, subscriptions, progress, and per-child cards showing coins, plan and assignments due.
