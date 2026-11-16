@@ -5,6 +5,7 @@ import { CheckCircle2, RotateCcw, Eye, Trash2 } from "lucide-react";
 import { approveBatch, discardBatch, finishApproval, listBatchApprovals, listLoadBatches, previewBatch, revokeBatchApproval, type BatchApproval, type BatchPreview, type LoadBatch } from "@/lib/api/owner";
 import { formatDate } from "@/lib/format";
 import ExportLink from "@/components/admin/ExportLink";
+import { Kpi, num } from "@/components/admin/DataViz";
 import Link from "next/link";
 import { batchView } from "@/lib/question-loading/queue";
 import { nothingToApprove } from "@/lib/question-loading/approval-hint";
@@ -67,11 +68,19 @@ Why? (at least 10 characters)`);
   const need = preview?.min_sample_required ?? 20;
   const canApprove = useMemo(() => !!preview && read.length >= need && note.trim().length >= 10 && preview.would_approve > 0, [preview, read, need, note]);
 
+  const rowsOf = (k: "rows_total" | "rows_loaded" | "rows_rejected") => (batches ?? []).reduce((n, b) => n + Number(b[k] ?? 0), 0);
   return (
-    <>
-      <div className="qb-page-head"><div><h1>Question batches</h1>
-        <p>Read a random sample of each loaded batch, then approve it to make its questions available to learners. You can revoke any approval.</p></div><ExportLink dataset="question_batches" /></div>
-      {error && <div className="qb-card qb-error" role="alert">{error}</div>}
+    <div className="dx-page">
+      <div className="dx-head"><div><h1>Question batches</h1>
+        <p>Read a random sample of each loaded batch, then approve it to make its questions available to learners. You can revoke any approval.</p></div><div className="dx-actions"><ExportLink dataset="question_batches" /></div></div>
+      <div className="dx-kpis">
+        <Kpi label="Batches loaded" value={batches ? num(batches.length) : "—"} />
+        <Kpi label="Rows in all batches" value={batches ? num(rowsOf("rows_total")) : "—"} />
+        <Kpi label="Questions loaded" value={batches ? num(rowsOf("rows_loaded")) : "—"} />
+        <Kpi label="Rows rejected" value={batches ? num(rowsOf("rows_rejected")) : "—"} tone={rowsOf("rows_rejected") > 0 ? "warn" : "default"} />
+        <Kpi label="Approvals in force" value={num(approvals.filter((a) => a.status === "ACTIVE").length)} />
+      </div>
+      {error && <div className="dx-alert error" role="alert">{error}</div>}
       {done && <div className="qb-card" role="status"><CheckCircle2 size={16} aria-hidden="true" /> {done}</div>}
       {busy && progress && <div className="qb-card" role="status">Working: {progress} This takes a few seconds for a big batch. Keep this page open.</div>}
 
@@ -123,6 +132,6 @@ Why? (at least 10 characters)`);
           </div>
         </>}
       </section>}
-    </>
+    </div>
   );
 }

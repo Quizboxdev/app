@@ -11,6 +11,7 @@ import { reviewPage, WAVE_ONE_REVIEW_INDICATORS } from "@/lib/content/factory/re
 import SmeReviewWorkbench from "@/components/SmeReviewWorkbench";
 import { listCurricula } from "@/lib/api/curriculum";
 import { listAuthorizedSources, type SourceOption } from "@/lib/api/content-context";
+import { Kpi, num } from "@/components/admin/DataViz";
 
 type View = "review" | "coverage" | "batches";
 const initialFilters = { search: "", curriculum: "", grade: "", subject: "", indicator: "", reviewStatus: "", validation: "", node: "", source: "production", status: "review", difficulty: "", cognitive: "", type: "", batch: "" };
@@ -101,8 +102,15 @@ export default function AdminContentPage() {
     catch (e) { setError(userFacingError(e)); } finally { setBusy(false); }
   };
   const q = detail?.question;
-  return <div className="qb-content-ops">
-    <div className="qb-page-head"><h1>Content Operations</h1><button type="button" onClick={() => void load()} title="Refresh" aria-label="Refresh" disabled={loading}><RefreshCw size={18}/></button></div>
+  return <div className="qb-content-ops dx-page">
+    <div className="dx-head"><div><h1>Content Operations</h1><p>Review questions, check curriculum coverage and follow loaded batches.</p></div><div className="dx-actions"><button type="button" className="dx-btn" onClick={() => void load()} title="Refresh" aria-label="Refresh" disabled={loading}><RefreshCw size={14}/> Refresh</button></div></div>
+    <div className="dx-kpis">
+      <Kpi label={view === "review" ? "Questions in this view" : view === "coverage" ? "Curriculum nodes" : "Batches"} value={loading && !total ? "—" : num(total)} />
+      <Kpi label="Page" value={`${page} of ${Math.max(1, Math.ceil(total / 25))}`} />
+      {view === "coverage" && <Kpi label="Below target" value={num(Number(summary.belowTarget ?? 0))} tone={Number(summary.belowTarget ?? 0) > 0 ? "warn" : "default"} />}
+      {view === "coverage" && <Kpi label="Pending review" value={num(Number(summary.reviewQueue ?? 0))} tone={Number(summary.reviewQueue ?? 0) > 0 ? "warn" : "default"} />}
+      {view === "coverage" && <Kpi label="Production approved" value={num(Number(summary.productionApproved ?? 0))} />}
+    </div>
     <nav className="qb-content-tabs" aria-label="Content views">{(["review", "coverage", "batches"] as View[]).map((item) => <button key={item} type="button" disabled={busy} aria-current={view === item ? "page" : undefined} onClick={() => selectView(item)}>{ { review: "Editorial Review", coverage: "Curriculum Coverage", batches: "Batches" }[item]}</button>)}</nav>
     {error && <p role="alert" className="qb-error">{error}</p>}{notice && <p role="status">{notice}</p>}
     {view === "review" && <label>Wave 1 indicator<select disabled={busy} value={WAVE_ONE_REVIEW_INDICATORS.some(i=>i.code===applied.indicator)?applied.indicator:""} onChange={e=>{const indicator=WAVE_ONE_REVIEW_INDICATORS.find(i=>i.code===e.target.value);const next={...initialFilters,subject:indicator?.subject??"",indicator:indicator?.code??"",grade:"SHS1"};setFilters(next);setApplied(next);setPage(1);setDetail(null);}}><option value="">All production subjects</option>{WAVE_ONE_REVIEW_INDICATORS.map(i=><option key={i.code} value={i.code}>{i.subject} / {i.code}</option>)}</select></label>}
