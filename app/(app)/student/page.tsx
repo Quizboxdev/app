@@ -23,6 +23,7 @@ import SubjectsCard from "@/components/SubjectsCard";
 import FamilyRequestsCard from "@/components/family/FamilyRequestsCard";
 import SourceChip from "@/components/SourceChip";
 import FamilySetsCard from "@/components/family/FamilySetsCard";
+import FamilyChallengesCard from "@/components/family/FamilyChallengesCard";
 import ConnectCard from "@/components/ConnectCard";
 import SponsoredCarousel from "@/components/challenges/SponsoredCarousel";
 import { levelFromGrade } from "@/lib/challenges/content-types";
@@ -129,6 +130,7 @@ export default function StudentHomePage() {
       <InstallPrompt />
       <SchoolSetupCard />
       <FamilyRequestsCard />
+      <FamilyChallengesCard />
       <FamilySetsCard />
       <SubjectsCard />
       <SponsoredCarousel level={levelFromGrade(klass?.grade)} />

@@ -86,3 +86,11 @@ export const revokeSet = (itemId: string, studentId: string) => rpc<{ revoked: n
 export const myFamilySets = () => rpc<MySet[]>("qb_family_my_sets");
 export const openFamilySet = (itemId: string) => rpc<OpenSet>("qb_family_set_open", { p_item: itemId });
 export const recordFamilySet = (itemId: string, correct: number, total: number) => rpc<void>("qb_family_set_record", { p_item: itemId, p_correct: correct, p_total: total });
+
+// Challenges a parent made in Create and share, sent to chosen children.
+export type FamilyChallenge = { campaign_id: string; slug: string; title: string; status: string; visibility: string; starts_at: string | null; ends_at: string | null; children: Array<{ student_id: string; name: string }> };
+export type MyFamilyChallenge = { campaign_id: string; slug: string; title: string; ends_at: string | null; starts_at: string | null; access_code: string | null; from: string };
+export const familyChallenges = () => rpc<FamilyChallenge[]>("qb_family_challenges");
+export const inviteToChallenge = (campaignId: string, studentIds: string[]) => rpc<{ invited: number }>("qb_family_invite_challenge", { p_campaign: campaignId, p_students: studentIds });
+export const uninviteFromChallenge = (campaignId: string, studentId: string) => rpc<{ removed: number }>("qb_family_uninvite_challenge", { p_campaign: campaignId, p_student: studentId });
+export const myFamilyChallenges = () => rpc<MyFamilyChallenge[]>("qb_family_my_challenges");

@@ -140,3 +140,12 @@ Migration `20261084100000_family_library.sql` (3 parts, off behind `flags.family
 - **Reuses the Marketplace as is.** The parent buys through the existing checkout (`mk_purchases`, 90 days, 60/40 split, reversal). A *grant* is a reference to that purchase (`family_set_grants`), so no questions or products are duplicated. The child opens the original set through `qb_family_set_open`, which checks the grant against the purchase **each time**: a reversed or expired purchase ends the child's access at once. The score goes to the same `mk_attempts` history under the child.
 - **Who can give.** Only the buyer, only for an active purchase, only to children they may give work to (`assign`); a child is told by a notification naming the parent. The parent sees which children have each set and each child's best score, and can take a set back.
 - **Not built:** turning a purchased set into a challenge or a timed assignment (Marketplace sets are separate from the curriculum question bank, so they cannot go through the assignment engine; they are practice sets). Family challenges (4b) remain.
+
+## 15. Phase 4b delivered: challenges for chosen children (D3)
+
+Migration `20261085100000_family_challenges.sql` (3 parts, off behind `flags.family_workspace`). Page `/family/challenges`; card "Challenges from your family" on the student home.
+
+- **Reuses the challenge engine unchanged.** The parent builds and publishes the challenge in Create and share (`challenge_campaigns`, any tier or visibility rule that already applies). An invitation (`family_challenge_invites`) is a reference for a named child, created only by the challenge's owner for children they may create challenges for. The child sees it on their home screen (with the access code if it is private) and plays it on the normal `/play/[slug]` page; results, scoring and limits are the challenge engine's.
+- **Rules that still apply:** a child under 13 keeps the existing challenge restrictions; the invitation never bypasses them.
+- **Not built:** a parent-side results table for challenge attempts (the creator's own results page already shows attempts for their challenge); sender names on challenge notifications are done (the notification names the parent).
+- **Directive status:** phases 0 to 10 are delivered. Remaining from the directive: parent sign-up as a role choice (needs a decision on how a parent-only account is represented, see D1), per-child coin and plan figures on the child cards, and the Payment checks admin page learning about family orders.
