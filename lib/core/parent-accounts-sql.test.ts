@@ -6,6 +6,7 @@ import { describe, expect, it } from "vitest";
 // but onboarding no longer accepts the parent role. Runs the real migrations on stand-in tables, including the real onboarding function.
 const MIG_PARENT = "supabase/migrations/20261087100000_parent_accounts.sql";
 const MIG_SPONSOR = "supabase/migrations/20261117110000_parents_sign_up_as_sponsor.sql";
+const MIG_ALUMNI = "supabase/migrations/20261117140000_sponsor_alumni_type.sql";
 const A = "00000000-0000-0000-0000-0000000000a1"; // a new parent (signing up)
 const B = "00000000-0000-0000-0000-0000000000b1"; // an existing parent profile from before the change
 const S = "00000000-0000-0000-0000-0000000000c1"; // an existing sponsor profile
@@ -42,6 +43,7 @@ async function setup() {
   `);
   await db.exec(readFileSync(MIG_PARENT, "utf8"));
   await db.exec(readFileSync(MIG_SPONSOR, "utf8"));
+  await db.exec(readFileSync(MIG_ALUMNI, "utf8"));
   await db.exec(`insert into public.profiles(id, role, full_name) values ('${B}', 'parent', 'Efua Boateng')`);
   return db;
 }
@@ -93,6 +95,15 @@ describe("parents sign up as sponsors", () => {
     await onboard(db, sponsorSignUp);
     const type = (await db.query<{ t: string }>(`select sponsor_type as t from public.sponsor_profiles where user_id = '${A}'`)).rows[0].t;
     expect(type).toBe("ORGANIZATION");
+  });
+
+  it("an alumni or old students' association signs up as a sponsor of type ALUMNI, and the rollback returns to two types", async () => {
+    const db = await setup(); await as(db, A);
+    await onboard(db, { ...sponsorSignUp, organization_name: "Old Students of Mfantsipim", sponsor_type: "ALUMNI" });
+    expect((await db.query<{ t: string }>(`select sponsor_type as t from public.sponsor_profiles where user_id = '${A}'`)).rows[0].t).toBe("ALUMNI");
+    const db2 = await setup(); await as(db2, A);
+    await db2.exec(readFileSync("supabase/rollback/sponsor_alumni_type.sql", "utf8"));
+    await expect(onboard(db2, { ...sponsorSignUp, sponsor_type: "ALUMNI" })).rejects.toThrow(/QB_INVALID_SPONSOR_TYPE/);
   });
 
   it("refuses an unknown sponsor type and a sponsor without a name or email", async () => {

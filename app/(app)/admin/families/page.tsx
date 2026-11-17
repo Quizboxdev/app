@@ -4,6 +4,7 @@ import { Fragment, useEffect, useMemo, useState } from "react";
 import { adminFamilies, adminFamilyDetail, cedis, type AdminFamilies, type AdminFamilyDetail } from "@/lib/api/family";
 import { Kpi, Panel, RankedBars, SERIES, num } from "@/components/admin/DataViz";
 import StaffFamilyVerifications from "@/components/admin/StaffFamilyVerifications";
+import FamilyApplications from "@/components/admin/FamilyApplications";
 
 // Staff: family workspaces at a glance, and one family in detail. Read-only: staff look without impersonating or changing anything, and parents' children are only shown by name and class.
 const when = (iso: string) => new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
@@ -30,6 +31,7 @@ export default function AdminFamiliesPage() {
     <div className="dx-page">
       <div className="dx-head"><div><h1>Families</h1><p>Parent and guardian workspaces, the children linked to them, what they bought and the work they gave. Read-only, except the approvals below.</p></div></div>
       <StaffFamilyVerifications />
+      <FamilyApplications />
       <div className="dx-kpis">
         <Kpi label="Family workspaces" value={num(data.workspaces)} />
         <Kpi label="Children linked" value={num(data.children_linked)} />

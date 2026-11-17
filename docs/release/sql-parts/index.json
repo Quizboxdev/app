@@ -485,7 +485,7 @@
  {
   "version": "20261117100000",
   "name": "parent_family_help",
-  "chars": 3662,
+  "chars": 4344,
   "parts": 1,
   "note": "Help centre: a parent guide, 'Parents and guardians: create your family workspace' (published, Sponsors tab; rows only, 'on conflict do nothing'). Explains sign-up as a sponsor, adding or linking a child, and privacy. Safe to run again."
  },
@@ -509,5 +509,19 @@
   "chars": 15298,
   "parts": 2,
   "note": "Family workspace: a sponsor can link to any student, including a school-managed or under-13 child. A child with a linked parent or guardian is asked through that guardian first; a child with none is approved by QuizBox staff. Managed children never see or answer requests. Replaces the link request, the request list and the answer functions; adds guardian and staff approval functions. Safe to run again."
+ },
+ {
+  "version": "20261117140000",
+  "name": "sponsor_alumni_type",
+  "chars": 5929,
+  "parts": 1,
+  "note": "Sign-up accepts a third sponsor type, ALUMNI (alumni or old students' association). Replaces qb_complete_onboarding, one function. Safe to run again."
+ },
+ {
+  "version": "20261117150000",
+  "name": "family_alumni_applications",
+  "chars": 8941,
+  "parts": 1,
+  "note": "Alumni sponsors apply for approval to create a family and add selected students. Approved by QuizBox staff or by the administrator of the named school. Adds one table (no client access), a guard on opening a family workspace and four functions; parents and organizations are not affected. Run 20261117140000 first. Safe to run again."
  }
 ]

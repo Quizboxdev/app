@@ -8,6 +8,7 @@ import StatusBadge from "@/components/StatusBadge";
 import AttentionList from "@/components/AttentionList";
 import SchoolScoreCards from "@/components/SchoolScoreCards";
 import { useSchool } from "@/components/SchoolProvider";
+import FamilyApplications from "@/components/admin/FamilyApplications";
 import { formatDate } from "@/lib/format";
 import { classScoreRows, gradeScoreRows, isActiveClass, isTeachingStaff, noGradeLabel, performanceAttention, schoolAttention, summarizeSchool, teacherLoad, weakest } from "@/lib/school/insights";
 
@@ -32,6 +33,7 @@ export default function SchoolHomePage() {
       description={`Workspace for ${overview.institution} · ${summary.activeClasses} active class${summary.activeClasses === 1 ? "" : "es"}${summary.archivedClasses ? ` · ${summary.archivedClasses} archived` : ""}`}
       stats={[summary.uniqueLearners != null ? { label: "Learners", value: summary.uniqueLearners } : { label: "Enrolments", value: summary.enrolments }, { label: "Teachers", value: summary.teachingStaff }, { label: "Classes", value: summary.activeClasses }]}
       primary={{ label: "Manage classes", href: "/school/classes" }} secondary={{ label: "View performance", href: "/school/performance" }} />
+    <FamilyApplications />
 
     {p ? <div className="qb-grid cols-4">
       <StatCard label="Assessed learners" value={p.assessed_learner_count} hint={`of ${p.learner_count} learner${p.learner_count === 1 ? "" : "s"}`} icon={GraduationCap} />

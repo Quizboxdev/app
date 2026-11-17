@@ -100,7 +100,10 @@ with c(v, k, o) as (values
   ('20261117110000','f','public.qb_complete_onboarding'),
   ('20261117120000','f','public.qb_family_link_request'),
   ('20261117130000','f','public.qb_family_guardian_respond'),
-  ('20261117130000','f','public.qb_family_staff_decide')), r as (
+  ('20261117130000','f','public.qb_family_staff_decide'),
+  ('20261117140000','f','public.qb_complete_onboarding'),
+  ('20261117150000','t','public.sponsor_family_applications'),
+  ('20261117150000','f','public.qb_family_application_decide')), r as (
   select v, k, o, case k
     when 't' then to_regclass(o) is not null
     when 'x' then to_regprocedure(o) is null
