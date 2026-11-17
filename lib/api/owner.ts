@@ -22,7 +22,7 @@ export const grantSubscription = (email: string, days: number, plan: string, not
 export const revokeSubscription = (id: string, note: string) => rpc("qb_admin_revoke_subscription", { p_id: id, p_note: note });
 
 export type LoadBatch = { id: string; file_name: string; status: string; rows_total: number; rows_loaded: number; rows_rejected: number; created_at: string; report?: Record<string, unknown> | null };
-export type BatchApproval = { id: string; batch_id: string; status: string; questions_approved: number; questions_skipped: number; sample_reviewed: number; note: string; created_at: string; revoked_at: string | null; in_progress?: boolean };
+export type BatchApproval = { id: string; batch_id: string; status: string; questions_approved: number; questions_skipped: number; sample_reviewed: number; note: string; created_at: string; revoked_at: string | null; in_progress?: boolean; basis?: string };
 export type SampleQuestion = { id: string; question: string; a: string | null; b: string | null; c: string | null; d: string | null; correct: string; difficulty: string | null };
 export type BatchPreview = { batch_id: string; file: string; batch_status: string; questions_found: number; by_state: Record<string, number>; would_approve: number;
   already_available_to_learners: number; min_sample_required: number; sample: SampleQuestion[] };
@@ -36,8 +36,9 @@ export async function listLoadBatches(): Promise<LoadBatch[]> {
 export async function listBatchApprovals(): Promise<BatchApproval[]> {
   const table = () => getSupabaseBrowserClient().from("question_batch_approvals");
   const columns = "id,batch_id,status,questions_approved,questions_skipped,sample_reviewed,note,created_at,revoked_at";
-  // in_progress arrives with migration 20261052100000; until then the list is read without it, so approved batches never look unapproved.
-  let { data, error } = await table().select(`${columns},in_progress`).order("created_at", { ascending: false }).limit(200);
+  // in_progress arrives with migration 20261052100000 and basis with 20261118100000; until then the list is read without them, so approved batches never look unapproved.
+  let { data, error } = await table().select(`${columns},in_progress,basis`).order("created_at", { ascending: false }).limit(200);
+  if (error) ({ data, error } = await table().select(`${columns},in_progress`).order("created_at", { ascending: false }).limit(200));
   if (error) ({ data, error } = await table().select(columns).order("created_at", { ascending: false }).limit(200));
   if (error) return [];   // the approvals table arrives with migration 20261014110000; before that, nothing is approved
   return (data ?? []) as unknown as BatchApproval[];
