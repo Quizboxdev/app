@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
 // Family workspace phase 2 (migration 20261080100000): adding a child, the single-use invitation, and linking an existing student. Runs the real migration SQL.
-const MIGS = ["supabase/migrations/20261079100000_family_workspace.sql", "supabase/migrations/20261080100000_family_children.sql"];
+const MIGS = ["supabase/migrations/20261079100000_family_workspace.sql", "supabase/migrations/20261080100000_family_children.sql", "supabase/migrations/20261117120000_family_sponsor_links.sql"];
 const A = "00000000-0000-0000-0000-0000000000a1", B = "00000000-0000-0000-0000-0000000000a2", T = "00000000-0000-0000-0000-0000000000a3";
 const KID = "00000000-0000-0000-0000-0000000000c1", KID2 = "00000000-0000-0000-0000-0000000000c2", EXIST = "00000000-0000-0000-0000-0000000000c3", MANAGED = "00000000-0000-0000-0000-0000000000c4";
 const MKT = "00000000-0000-0000-0000-0000000000d1";
@@ -174,6 +174,35 @@ describe("link an existing student", () => {
     await expect(db.query("select public.qb_family_link_request('esi@x.test')")).rejects.toThrow(/QB_FAMILY_NOT_ADULT/);
     await db.exec("update public.platform_settings set value = 'false'::jsonb where key = 'flags.family_workspace'"); await as(db, A);
     await expect(db.query("select public.qb_family_link_request('esi@x.test')")).rejects.toThrow(/QB_FEATURE_DISABLED/);
+  });
+});
+
+describe("a sponsor links as a sponsor", () => {
+  const link = async (db: PGlite, who: string) => {
+    await as(db, who); await db.exec("select public.qb_family_link_request('esi@x.test')");
+    return (await db.query<any>(`select relationship_type, permissions from public.account_relationships where source_user_id = '${who}' and target_user_id = '${EXIST}'`)).rows[0];
+  };
+  it("a sponsor's request is a sponsor link with sponsor permissions only, and the student is told so", async () => {
+    const db = await setup();
+    const rel = await link(db, B);
+    expect(rel.relationship_type).toBe("sponsor");
+    expect(rel.permissions).toEqual({ view_progress: true, buy_coins: true, buy_subscription: true });
+    const msg = (await db.query<any>(`select message from public.notifications where recipient_user_id = '${EXIST}' and type = 'family_link_request'`)).rows[0].message;
+    expect(msg).toContain("as your sponsor");
+  });
+  it("a sponsor cannot assign work or challenges through a sponsor link", async () => {
+    const db = await setup();
+    const rel = await link(db, B);
+    expect(rel.permissions.assign).toBeUndefined();
+    expect(rel.permissions.create_challenge).toBeUndefined();
+  });
+  it("any other adult's request is still a parent link with the full parent permissions", async () => {
+    const db = await setup();
+    const rel = await link(db, A);
+    expect(rel.relationship_type).toBe("parent");
+    expect(rel.permissions).toMatchObject({ view_progress: true, assign: true, create_challenge: true, buy_coins: true, buy_subscription: true });
+    const msg = (await db.query<any>(`select message from public.notifications where recipient_user_id = '${EXIST}' and type = 'family_link_request'`)).rows[0].message;
+    expect(msg).toContain("as your parent");
   });
 });
 

@@ -495,5 +495,12 @@
   "chars": 6146,
   "parts": 1,
   "note": "Parents sign up as sponsors: onboarding no longer accepts the parent role (replaces qb_complete_onboarding, one function). Sponsors can mark themselves INDIVIDUAL; organizations keep ORGANIZATION. Family workspace tools are unchanged. Safe to run again."
+ },
+ {
+  "version": "20261117120000",
+  "name": "family_sponsor_links",
+  "chars": 3501,
+  "parts": 1,
+  "note": "Family workspace: a sponsor who asks to link to a student does so as a sponsor (sponsor permissions only: progress, Coins and subscriptions; no assigning). Every other adult still links as a parent. Replaces qb_family_link_request. Safe to run again."
  }
 ]
