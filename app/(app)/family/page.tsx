@@ -6,13 +6,15 @@ import { listFamilyChildren, listFamilyProgress, openFamilyWorkspace, type Child
 import AddChildForm from "@/components/family/AddChildForm";
 import LinkExistingForm from "@/components/family/LinkExistingForm";
 import InviteBox from "@/components/family/InviteBox";
+import GuardianRequestsCard from "@/components/family/GuardianRequestsCard";
+import AlumniApplicationForm from "@/components/family/AlumniApplicationForm";
 
 // Family workspace: the parent's home. Their children as cards, Add child, and Link an existing student. A child stays an ordinary QuizBox student; the parent only sees and does
 // what their link allows, and the database checks that on every call.
 type Mode = "none" | "add" | "link";
 
 export default function FamilyHomePage() {
-  const [state, setState] = useState<"loading" | "off" | "notAdult" | "error" | "ready">("loading");
+  const [state, setState] = useState<"loading" | "off" | "notAdult" | "approval" | "error" | "ready">("loading");
   const [name, setName] = useState("My family"), [children, setChildren] = useState<FamilyChild[]>([]), [mode, setMode] = useState<Mode>("none");
   const [lines, setLines] = useState<ChildProgressLine[]>([]);
   const [fresh, setFresh] = useState<{ link: ChildLink; name: string } | null>(null), [error, setError] = useState("");
@@ -24,18 +26,20 @@ export default function FamilyHomePage() {
   useEffect(() => {
     let live = true;
     openFamilyWorkspace().then(async (w) => { if (!live) return; setName(w.name); setState("ready"); await load(); })
-      .catch((e: Error) => { if (live) setState(/not open yet/i.test(e.message) ? "off" : /adult/i.test(e.message) ? "notAdult" : "error"); });
+      .catch((e: Error) => { if (live) setState(/not open yet/i.test(e.message) ? "off" : /adult/i.test(e.message) ? "notAdult" : /approval/i.test(e.message) ? "approval" : "error"); });
     return () => { live = false; };
   }, [load]);
 
   if (state === "loading") return <div className="qb-card qb-skeleton" style={{ minHeight: 160 }} aria-busy="true" aria-label="Loading your family workspace" />;
   if (state === "off") return <section className="qb-card"><h1 style={{ marginTop: 0 }}>Family workspace</h1><p className="qb-muted">The Family workspace is not open yet. We will tell you as soon as it is.</p></section>;
   if (state === "notAdult") return <section className="qb-card"><h1 style={{ marginTop: 0 }}>Family workspace</h1><p className="qb-muted">The Family workspace is for parents and guardians. Ask your parent to open theirs.</p></section>;
+  if (state === "approval") return <AlumniApplicationForm />;
   if (state === "error") return <section className="qb-card qb-error" role="alert"><h1 style={{ marginTop: 0 }}>Family workspace</h1><p>We could not open your Family workspace. Please try again.</p><button className="qb-btn secondary" onClick={() => window.location.reload()}>Try again</button></section>;
 
   const active = children.filter((c) => c.status === "active"), waiting = children.filter((c) => c.status !== "active");
   return (
     <div style={{ display: "grid", gap: 16 }}>
+      <GuardianRequestsCard />
       <header style={{ display: "flex", gap: 12, flexWrap: "wrap", alignItems: "end", justifyContent: "space-between" }}>
         <div><p className="qb-muted qb-small" style={{ margin: 0 }}>Family workspace</p><h1 style={{ margin: 0 }}>{name}</h1>
           <p className="qb-muted" style={{ margin: "4px 0 0" }}>{active.length ? `${active.length} child${active.length === 1 ? "" : "ren"}` : "Add your first child to get started."}</p></div>

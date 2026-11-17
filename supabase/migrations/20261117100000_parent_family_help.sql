@@ -40,6 +40,13 @@ Your Family workspace brings your children's QuizBox learning together in one pr
 - Give them question sets you bought in the Marketplace, or invite them to challenges you choose.
 - Buy Coins or a subscription for one child or several children in one checkout. Each child gets their own Coins or subscription.
 
+## Support a student who is not your child
+
+As a sponsor you can link to any student by email with **Link an existing student**. A sponsor link lets you see their progress and buy Coins or a subscription. It does not let you give them work.
+
+- The student accepts the request. For a child whose account a school or parent manages, or a child under 13, their parent or guardian accepts it first. If no guardian is linked, QuizBox staff decide.
+- Alumni and old students' associations take part in a school's competitions by invitation. To support selected students through a family, apply for approval from your Family workspace. QuizBox staff or the school's administrator decide.
+
 ## Privacy and access
 
 - You only see children linked to your family.

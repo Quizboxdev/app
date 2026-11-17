@@ -8,7 +8,7 @@ export type ChildLink = { studentId: string; username: string; token: string | n
 
 const MESSAGES: Record<string, string> = {
   QB_AUTH_REQUIRED: "Please sign in.", QB_FEATURE_DISABLED: "The Family workspace is not open yet.", QB_FAMILY_FORBIDDEN: "You can only do that for your own children.",
-  QB_FAMILY_NOT_ADULT: "Only an adult account can use the Family workspace.", QB_FAMILY_INVALID: "Check what you typed and try again.", QB_RATE_LIMITED: "You have sent a lot of requests today. Please wait for the answers first.",
+  QB_FAMILY_NOT_ADULT: "Only an adult account can use the Family workspace.", QB_FAMILY_APPROVAL_REQUIRED: "Alumni sponsors need approval before creating a family. Apply for approval below.", QB_FAMILY_APPLICATION_EXISTS: "You already have an application.", QB_FAMILY_APPLICATION_NOT_NEEDED: "Only alumni sponsors need to apply.", QB_FORBIDDEN: "Only an approver can do that.", QB_FAMILY_INVALID: "Check what you typed and try again.", QB_RATE_LIMITED: "You have sent a lot of requests today. Please wait for the answers first.",
 };
 const message = (e: { message?: string }) => MESSAGES[/(QB_[A-Z_]+)/.exec(e.message ?? "")?.[1] ?? ""] ?? "That did not work. Please try again.";
 const rpc = <T>(fn: string, args: Record<string, unknown> = {}): Promise<T> => Promise.resolve(getSupabaseBrowserClient().rpc(fn, args)).then(({ data, error }) => { if (error) throw new Error(message(error)); return data as T; });
@@ -94,3 +94,19 @@ export const familyChallenges = () => rpc<FamilyChallenge[]>("qb_family_challeng
 export const inviteToChallenge = (campaignId: string, studentIds: string[]) => rpc<{ invited: number }>("qb_family_invite_challenge", { p_campaign: campaignId, p_students: studentIds });
 export const uninviteFromChallenge = (campaignId: string, studentId: string) => rpc<{ removed: number }>("qb_family_uninvite_challenge", { p_campaign: campaignId, p_student: studentId });
 export const myFamilyChallenges = () => rpc<MyFamilyChallenge[]>("qb_family_my_challenges");
+
+// Sponsor links to managed children: a guardian answers first; QuizBox staff answer when no guardian is linked.
+export type GuardianRequest = { id: string; sponsor_name: string; child_name: string; child_grade: string | null; created_at: string };
+export type StaffVerification = { id: string; sponsor_name: string; sponsor_email: string | null; child_name: string; child_grade: string | null; child_school: string | null; created_at: string };
+export const guardianRequests = () => rpc<GuardianRequest[]>("qb_family_guardian_requests");
+export const answerGuardianRequest = (id: string, accept: boolean) => rpc<{ accepted: boolean }>("qb_family_guardian_respond", { p_relationship: id, p_accept: accept });
+export const staffVerifications = () => rpc<StaffVerification[]>("qb_family_staff_verifications");
+export const decideStaffVerification = (id: string, approve: boolean) => rpc<{ approved: boolean }>("qb_family_staff_decide", { p_relationship: id, p_approve: approve });
+
+// Alumni sponsors apply for approval to create a family; staff or the named school's administrator decide.
+export type MyApplication = { required: boolean; application: { id: string; status: "submitted" | "approved" | "declined"; school_name: string; decision_note: string | null; created_at: string } | null };
+export type PendingApplication = { id: string; applicant_name: string; applicant_email: string | null; school_name: string; matched_school: boolean; alumni_note: string; intended_students: string; created_at: string };
+export const myFamilyApplication = () => rpc<MyApplication>("qb_family_my_application");
+export const applyForFamily = (school: string, note: string, students: string) => rpc<{ id: string; matched_school: boolean }>("qb_family_apply", { p_school: school, p_note: note, p_students: students });
+export const pendingFamilyApplications = () => rpc<PendingApplication[]>("qb_family_applications_pending");
+export const decideFamilyApplication = (id: string, approve: boolean, note?: string) => rpc<{ approved: boolean }>("qb_family_application_decide", { p_id: id, p_approve: approve, p_note: note ?? null });
