@@ -6,13 +6,13 @@ import { getPublicPlatformStats } from "@/lib/public/platform-stats";
 export const metadata: Metadata = {
   title: "QuizBox — Learn. Practise. Compete.",
   description:
-    "QuizBox is a curriculum-aligned learning, assessment and competition platform for students, teachers, schools and sponsors, with content reviewed by qualified subject experts.",
+    "QuizBox brings curriculum-aligned learning, progress and challenges together for students, families, teachers and schools, with content reviewed by qualified subject experts.",
   alternates: { canonical: "/" },
   twitter: { card: "summary_large_image" },
   openGraph: {
     url: "/",
     title: "QuizBox — Learn. Practise. Compete.",
-    description: "Curriculum-aligned practice, assessment and competitions, with SME-reviewed content.",
+    description: "Curriculum-aligned practice, family progress and competitions, with SME-reviewed content.",
   },
 };
 

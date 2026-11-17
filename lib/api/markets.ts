@@ -3,7 +3,7 @@ import { userFacingError } from "@/lib/errors";
 
 export type ConfigOption = { code: string; label: string; level?: string };
 export type SignupCountry = { country_code: string; country: string; market_id: string | null; market: string | null; available: boolean; locale: string; education_levels: ConfigOption[]; grades: ConfigOption[]; subjects: ConfigOption[] };
-export type OnboardingRole = "student" | "teacher" | "sponsor" | "parent";
+export type OnboardingRole = "student" | "teacher" | "sponsor";
 export type Account = {
   role: string; full_name: string; email: string; country: string | null; school_name: string | null; onboarded: boolean;
   primary_market: { id: string; name: string; locale: string; timezone: string; currency: string } | null;
