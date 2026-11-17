@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
 // Family workspace phase 2 (migration 20261080100000): adding a child, the single-use invitation, and linking an existing student. Runs the real migration SQL.
-const MIGS = ["supabase/migrations/20261079100000_family_workspace.sql", "supabase/migrations/20261080100000_family_children.sql", "supabase/migrations/20261117120000_family_sponsor_links.sql"];
+const MIGS = ["supabase/migrations/20261079100000_family_workspace.sql", "supabase/migrations/20261080100000_family_children.sql", "supabase/migrations/20261117120000_family_sponsor_links.sql", "supabase/migrations/20261117130000_family_guardian_and_staff_approval.sql"];
 const A = "00000000-0000-0000-0000-0000000000a1", B = "00000000-0000-0000-0000-0000000000a2", T = "00000000-0000-0000-0000-0000000000a3";
 const KID = "00000000-0000-0000-0000-0000000000c1", KID2 = "00000000-0000-0000-0000-0000000000c2", EXIST = "00000000-0000-0000-0000-0000000000c3", MANAGED = "00000000-0000-0000-0000-0000000000c4";
 const MKT = "00000000-0000-0000-0000-0000000000d1";
@@ -20,6 +20,10 @@ async function setup() {
     create table public.audit_logs (id uuid primary key default gen_random_uuid(), actor_user_id uuid, action text, entity_type text, entity_id uuid, status text, details jsonb, created_at timestamptz default now());
     create function quizbox_core.audit(p_action text, p_entity_type text, p_entity uuid, p_details jsonb default '{}') returns void language sql as $$ insert into public.audit_logs(actor_user_id, action, entity_type, entity_id, status, details) values (auth.uid(), p_action, p_entity_type, p_entity, 'pass', p_details) $$;
     create table public.markets (id uuid primary key, configuration jsonb);
+    create table public.sponsor_profiles (id uuid primary key default gen_random_uuid(), user_id uuid unique, organization_name text);
+    create schema quizbox_market;
+    create function quizbox_market.is_super() returns boolean language sql stable as $$ select coalesce(nullif(current_setting('test.super', true), ''), 'off') = 'on' $$;
+    create function quizbox_core.is_staff() returns boolean language sql stable as $$ select coalesce(nullif(current_setting('test.staff', true), ''), 'off') = 'on' $$;
     insert into public.markets values ('${MKT}', '{"grades":[{"code":"B5","level":"primary"},{"code":"B8","level":"jhs"}]}');
     create type public.qb_grade as enum ('B5', 'B8');
     create table public.profiles (id uuid primary key, full_name text, email text, role text, status text default 'active', country text, school_name text, default_market_id uuid, primary_market_id uuid, onboarding_completed_at timestamptz);
@@ -203,6 +207,99 @@ describe("a sponsor links as a sponsor", () => {
     expect(rel.permissions).toMatchObject({ view_progress: true, assign: true, create_challenge: true, buy_coins: true, buy_subscription: true });
     const msg = (await db.query<any>(`select message from public.notifications where recipient_user_id = '${EXIST}' and type = 'family_link_request'`)).rows[0].message;
     expect(msg).toContain("as your parent");
+  });
+});
+
+describe("sponsor links to managed children are approved first", () => {
+  const GKID = "00000000-0000-0000-0000-0000000000c6"; // a managed child whose parent (A) is linked
+  const YAW_EMAIL = "yaw.abcd@learners.quizbox.io";
+  const staff = async (db: PGlite, on: boolean) => db.exec(`select set_config('test.staff', '${on ? "on" : "off"}', false)`);
+  const guardedSetup = async () => {
+    const db = await setup();
+    await db.exec(`
+      insert into auth.users(id, email) values ('${GKID}', 'akua.g@learners.quizbox.io');
+      insert into public.profiles(id, full_name, email, role, status, country, primary_market_id) values ('${GKID}', 'Akua', 'akua.g@learners.quizbox.io', 'student', 'active', 'Ghana', '${MKT}');
+      insert into public.student_profiles(user_id, grade_code, status, managed_by, is_minor) values ('${GKID}', 'B5', 'active', '${T}', true);
+      insert into public.family_workspaces(owner_user_id) values ('${A}');
+      insert into public.account_relationships(source_user_id, target_user_id, relationship_type, status, verified_by, verified_at, family_workspace_id, can_view_progress, consent_status, label)
+        select '${A}', '${GKID}', 'parent', 'active', '${A}', now(), w.id, true, 'granted', 'akua.g@learners.quizbox.io' from public.family_workspaces w where w.owner_user_id = '${A}';
+    `);
+    return db;
+  };
+  const rowFor = async (db: PGlite, source: string, target: string) =>
+    (await db.query<any>(`select id, status, verified_by, relationship_type, permissions from public.account_relationships where source_user_id = '${source}' and target_user_id = '${target}' and family_workspace_id is not null`)).rows[0];
+
+  it("a managed child with no guardian waits for QuizBox staff, and the child is not told", async () => {
+    const db = await setup(); await as(db, B);
+    await db.exec(`select public.qb_family_link_request('${YAW_EMAIL}')`);
+    expect((await rowFor(db, B, EXIST))).toBeUndefined();
+    const row = await rowFor(db, B, MANAGED);
+    expect(row).toMatchObject({ status: "pending_verification", relationship_type: "sponsor" });
+    expect((await db.query(`select 1 from public.notifications where recipient_user_id = '${MANAGED}'`)).rows).toHaveLength(0);
+  });
+
+  it("staff see the request, approve it, and the sponsor then has access with the verifying staff member recorded", async () => {
+    const db = await setup(); await as(db, B); await db.exec(`select public.qb_family_link_request('${YAW_EMAIL}')`);
+    await staff(db, true); await as(db, T);
+    expect(await one(db, "select public.qb_family_staff_verifications() as r")).toHaveLength(1);
+    await one(db, `select public.qb_family_staff_decide('${(await rowFor(db, B, MANAGED)).id}', true) as r`);
+    expect(await rowFor(db, B, MANAGED)).toMatchObject({ status: "active", verified_by: T });
+  });
+
+  it("staff can decline a managed-child request", async () => {
+    const db = await setup(); await as(db, B); await db.exec(`select public.qb_family_link_request('${YAW_EMAIL}')`);
+    await staff(db, true); await as(db, T);
+    await one(db, `select public.qb_family_staff_decide('${(await rowFor(db, B, MANAGED)).id}', false) as r`);
+    expect((await rowFor(db, B, MANAGED)).status).toBe("revoked");
+  });
+
+  it("a user who is not staff cannot see or decide staff requests", async () => {
+    const db = await setup(); await as(db, B); await db.exec(`select public.qb_family_link_request('${YAW_EMAIL}')`);
+    await as(db, A);
+    await expect(db.query("select public.qb_family_staff_verifications()")).rejects.toThrow(/QB_FORBIDDEN/);
+    await expect(db.query(`select public.qb_family_staff_decide('${(await rowFor(db, B, MANAGED)).id}', true)`)).rejects.toThrow(/QB_FORBIDDEN/);
+  });
+
+  it("a managed child with a guardian is asked for first: the guardian sees it, and only the guardian can answer", async () => {
+    const db = await guardedSetup(); await as(db, B);
+    await db.exec(`select public.qb_family_link_request('akua.g@learners.quizbox.io')`);
+    const row = await rowFor(db, B, GKID);
+    expect(row.status).toBe("requested");
+    expect((await db.query(`select 1 from public.notifications where recipient_user_id = '${A}' and type = 'family_link_request'`)).rows).toHaveLength(1);
+    await as(db, A);
+    const list = await one(db, "select public.qb_family_guardian_requests() as r");
+    expect(list).toHaveLength(1);
+    expect(list[0]).toMatchObject({ child_name: "Akua", child_grade: "B5" });
+    await as(db, T);
+    await expect(db.query(`select public.qb_family_guardian_respond('${row.id}', true)`)).rejects.toThrow(/QB_FAMILY_FORBIDDEN/);
+    await as(db, A);
+    await one(db, `select public.qb_family_guardian_respond('${row.id}', true) as r`);
+    expect(await rowFor(db, B, GKID)).toMatchObject({ status: "active", verified_by: A });
+  });
+
+  it("a managed child never sees or answers a request", async () => {
+    const db = await guardedSetup(); await as(db, B);
+    await db.exec(`select public.qb_family_link_request('akua.g@learners.quizbox.io')`);
+    const row = await rowFor(db, B, GKID);
+    await as(db, GKID);
+    expect(await one(db, "select public.qb_family_my_requests() as r")).toEqual([]);
+    await expect(db.query(`select public.qb_family_link_respond('${row.id}', true)`)).rejects.toThrow(/QB_FAMILY_FORBIDDEN/);
+  });
+
+  it("the rollback removes the approval functions and puts the earlier request functions back", async () => {
+    const db = await setup();
+    await db.exec(readFileSync("supabase/rollback/family_guardian_and_staff_approval.sql", "utf8"));
+    for (const fn of ["qb_family_guardian_requests()", "qb_family_guardian_respond(uuid, boolean)", "qb_family_staff_verifications()", "qb_family_staff_decide(uuid, boolean)"]) {
+      expect((await db.query<{ t: string | null }>(`select to_regprocedure('public.${fn}')::text as t`)).rows[0].t, fn).toBeNull();
+    }
+    await as(db, B); await db.exec(`select public.qb_family_link_request('${"yaw.abcd@learners.quizbox.io"}')`);
+    expect((await db.query(`select 1 from public.account_relationships where source_user_id = '${B}' and target_user_id = '${MANAGED}'`)).rows).toHaveLength(0);
+  });
+
+  it("a parent cannot start a link to a managed child they do not guardian: the answer is silent", async () => {
+    const db = await setup(); await as(db, A);
+    await db.exec(`select public.qb_family_link_request('${YAW_EMAIL}')`);
+    expect(await rowFor(db, A, MANAGED)).toBeUndefined();
   });
 });
 

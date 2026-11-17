@@ -502,5 +502,12 @@
   "chars": 3501,
   "parts": 1,
   "note": "Family workspace: a sponsor who asks to link to a student does so as a sponsor (sponsor permissions only: progress, Coins and subscriptions; no assigning). Every other adult still links as a parent. Replaces qb_family_link_request. Safe to run again."
+ },
+ {
+  "version": "20261117130000",
+  "name": "family_guardian_and_staff_approval",
+  "chars": 15298,
+  "parts": 2,
+  "note": "Family workspace: a sponsor can link to any student, including a school-managed or under-13 child. A child with a linked parent or guardian is asked through that guardian first; a child with none is approved by QuizBox staff. Managed children never see or answer requests. Replaces the link request, the request list and the answer functions; adds guardian and staff approval functions. Safe to run again."
  }
 ]

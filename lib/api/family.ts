@@ -94,3 +94,11 @@ export const familyChallenges = () => rpc<FamilyChallenge[]>("qb_family_challeng
 export const inviteToChallenge = (campaignId: string, studentIds: string[]) => rpc<{ invited: number }>("qb_family_invite_challenge", { p_campaign: campaignId, p_students: studentIds });
 export const uninviteFromChallenge = (campaignId: string, studentId: string) => rpc<{ removed: number }>("qb_family_uninvite_challenge", { p_campaign: campaignId, p_student: studentId });
 export const myFamilyChallenges = () => rpc<MyFamilyChallenge[]>("qb_family_my_challenges");
+
+// Sponsor links to managed children: a guardian answers first; QuizBox staff answer when no guardian is linked.
+export type GuardianRequest = { id: string; sponsor_name: string; child_name: string; child_grade: string | null; created_at: string };
+export type StaffVerification = { id: string; sponsor_name: string; sponsor_email: string | null; child_name: string; child_grade: string | null; child_school: string | null; created_at: string };
+export const guardianRequests = () => rpc<GuardianRequest[]>("qb_family_guardian_requests");
+export const answerGuardianRequest = (id: string, accept: boolean) => rpc<{ accepted: boolean }>("qb_family_guardian_respond", { p_relationship: id, p_accept: accept });
+export const staffVerifications = () => rpc<StaffVerification[]>("qb_family_staff_verifications");
+export const decideStaffVerification = (id: string, approve: boolean) => rpc<{ approved: boolean }>("qb_family_staff_decide", { p_relationship: id, p_approve: approve });

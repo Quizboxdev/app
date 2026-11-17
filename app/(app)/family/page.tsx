@@ -6,6 +6,7 @@ import { listFamilyChildren, listFamilyProgress, openFamilyWorkspace, type Child
 import AddChildForm from "@/components/family/AddChildForm";
 import LinkExistingForm from "@/components/family/LinkExistingForm";
 import InviteBox from "@/components/family/InviteBox";
+import GuardianRequestsCard from "@/components/family/GuardianRequestsCard";
 
 // Family workspace: the parent's home. Their children as cards, Add child, and Link an existing student. A child stays an ordinary QuizBox student; the parent only sees and does
 // what their link allows, and the database checks that on every call.
@@ -36,6 +37,7 @@ export default function FamilyHomePage() {
   const active = children.filter((c) => c.status === "active"), waiting = children.filter((c) => c.status !== "active");
   return (
     <div style={{ display: "grid", gap: 16 }}>
+      <GuardianRequestsCard />
       <header style={{ display: "flex", gap: 12, flexWrap: "wrap", alignItems: "end", justifyContent: "space-between" }}>
         <div><p className="qb-muted qb-small" style={{ margin: 0 }}>Family workspace</p><h1 style={{ margin: 0 }}>{name}</h1>
           <p className="qb-muted" style={{ margin: "4px 0 0" }}>{active.length ? `${active.length} child${active.length === 1 ? "" : "ren"}` : "Add your first child to get started."}</p></div>
