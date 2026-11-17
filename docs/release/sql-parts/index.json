@@ -523,5 +523,12 @@
   "chars": 8941,
   "parts": 1,
   "note": "Alumni sponsors apply for approval to create a family and add selected students. Approved by QuizBox staff or by the administrator of the named school. Adds one table (no client access), a guard on opening a family workspace and four functions; parents and organizations are not affected. Run 20261117140000 first. Safe to run again."
+ },
+ {
+  "version": "20261118100000",
+  "name": "script_checked_batch_approval",
+  "chars": 7231,
+  "parts": 1,
+  "note": ""
  }
 ]

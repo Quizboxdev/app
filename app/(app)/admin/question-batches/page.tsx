@@ -92,7 +92,8 @@ Why? (at least 10 characters)`);
               <td>{b.file_name}<div className="qb-small qb-muted">{formatDate(b.created_at)}</div></td>
               <td>{v.progress}{b.rows_rejected ? ` (${b.rows_rejected} rejected)` : ""}</td>
               <td><span className={`qb-pill${v.tone === "ok" ? " success" : ""}`}>{v.label}</span><div className="qb-small qb-muted">{v.hint}</div></td>
-              <td>{a ? <span className={`qb-pill${a.in_progress ? "" : " success"}`}>{a.in_progress ? `Unfinished: ${a.questions_approved} live so far` : `Approved: ${a.questions_approved} live`}</span> : <span className="qb-pill">Not approved</span>}</td>
+              <td>{a ? <span className={`qb-pill${a.in_progress ? "" : " success"}`}>{a.in_progress ? `Unfinished: ${a.questions_approved} live so far` : `Approved: ${a.questions_approved} live`}</span> : <span className="qb-pill">Not approved</span>}
+                {a?.basis === "SCRIPT_CHECKED" && <div className="qb-small qb-muted">Checked by a script, not read by a person</div>}</td>
               <td style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
                 {v.action === "finish" && <button className="qb-btn" disabled={busy} onClick={() => void finish(b)}><CheckCircle2 size={14} aria-hidden="true" /> Finish approval</button>}
                 {["revoke", "finish"].includes(v.action) && a && <button className="qb-btn secondary" disabled={busy} onClick={() => void revoke(a)}><RotateCcw size={14} aria-hidden="true" /> Revoke</button>}
