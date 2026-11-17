@@ -226,14 +226,14 @@
  {
   "version": "20261051100000",
   "name": "question_batch_discard",
-  "chars": 2872,
+  "chars": 2886,
   "parts": 1,
   "note": ""
  },
  {
   "version": "20261052100000",
   "name": "owner_batch_steps",
-  "chars": 11813,
+  "chars": 11827,
   "parts": 2,
   "note": "Replaces the discard function from 20261051100000 (which could not work on the real tables) and makes approve, revoke and discard run in small steps. Safe to run again."
  },
@@ -244,242 +244,249 @@
   "parts": 3,
   "note": "Makes the learner's subject list and the practice builders fast with tens of thousands of questions. Replaces four functions with the same names and shapes, so it is safe to run again. Apply to Preview first and time the subject list."
  },
-{
- "version": "20261054100000",
- "name": "practice_legacy_grade",
- "chars": 16117,
- "parts": 3,
- "note": "Fixes an empty subject list for a learner stored with the legacy level code B10 (the same year as SHS1). Replaces three functions with the same names and shapes, so it is safe to run again."
-},
-{
- "version": "20261055100000",
- "name": "assessment_blueprint",
- "chars": 24471,
- "parts": 4,
- "note": "Combined tests by subject and topic (Primary and JHS), a per-subject result breakdown, and a faster teacher topic list. Adds a table and functions and replaces qb_teacher_topics with the same output. Apply to Preview first."
-},
-{
- "version": "20261056100000",
- "name": "topics_for_teachers",
- "chars": 5298,
- "parts": 1,
- "note": "Admin functions to open topics to teachers in bulk (per subject and grade) and an overview of what is ready. Adds two functions; safe to run again."
-},
-{
- "version": "20261057100000",
- "name": "mixed_practice",
- "chars": 8943,
- "parts": 2,
- "note": "Practice across several subjects for Primary and JHS learners (one new function). Safe to run again."
-},
-{
- "version": "20261058100000",
- "name": "practice_question_limit",
- "chars": 20668,
- "parts": 4,
- "note": "Raises the practice set limit from 30 to 100 questions (replaces three functions with the same names and shapes). Safe to run again."
-},
-{
- "version": "20261059100000",
- "name": "challenge_bank_sections",
- "chars": 14990,
- "parts": 3,
- "note": "Challenge and competition questions from the bank by class level, subject and topic (three new functions) and the older subject-code pull now takes approved questions only. Safe to run again."
-},
-{
- "version": "20261060100000",
- "name": "challenge_bank_levels_with_questions",
- "chars": 2201,
- "parts": 1,
- "note": "The class levels offered for adding bank questions to a challenge are now only those that have approved questions (one function replaced, same name and shape). Safe to run again."
-},
-{
- "version": "20261061100000",
- "name": "challenge_bank_levels_fast",
- "chars": 3533,
- "parts": 1,
- "note": "Faster class-level list for adding bank questions to a challenge (one function replaced, same name and shape). Safe to run again."
-},
-{
- "version": "20261062100000",
- "name": "challenge_participants",
- "chars": 1801,
- "parts": 1,
- "note": "The creator's Results tab can list each person's attempts (adds one function, challenge_participants). Safe to run again."
-},
-{
- "version": "20261063100000",
- "name": "class_join_level_check",
- "chars": 4644,
- "parts": 1,
- "note": "Joining a class by code now refuses a learner whose class level differs from the class (two functions replaced, same names and shapes). Safe to run again."
-},
-{
- "version": "20261064100000",
- "name": "attempt_review_explanations",
- "chars": 2355,
- "parts": 1,
- "note": "The attempt review now carries each question's explanation (one function replaced, same name and shape). Safe to run again."
-},
-{
- "version": "20261065100000",
- "name": "challenge_live_details",
- "chars": 4231,
- "parts": 1,
- "note": "A creator can fix the title, description and closing time of a live challenge; ended challenges and past or back-to-front dates are refused (one function replaced, same name and shape). Safe to run again."
-},
-{
- "version": "20261066100000",
- "name": "student_profile_edits",
- "chars": 7032,
- "parts": 1,
- "note": "A signed-in learner can edit their own class level, school and subjects, twice in any six months (adds one table and two functions). Safe to run again."
-},
-{
- "version": "20261067100000",
- "name": "repeat_assignments",
- "chars": 16917,
- "parts": 3,
- "note": "Repeat-weekly assignments and a due-soon reminder, OFF until flags.repeat_assignments is set to true (adds two tables, a schema and ten functions, and one flag row). Nothing is sent or published while the flag is off. Safe to run again."
-},
-{
- "version": "20261068100000",
- "name": "school_aimed_sponsored",
- "chars": 8910,
- "parts": 2,
- "note": "Staff can aim a challenge at one verified school, behind a flag that is OFF (adds three columns, one flag row and three functions, and replaces two functions with the same names and shapes). Safe to run again. Apply to Preview first."
-},
-{
- "version": "20261069100000",
- "name": "teacher_profile_edit",
- "chars": 7549,
- "parts": 1,
- "note": "A teacher can edit their own name, school, subjects and grades taught, OFF until flags.teacher_profile_edit is set to true (adds one history table, two functions and one flag row). Safe to run again."
-},
-{
- "version": "20261070100000",
- "name": "staff_access",
- "chars": 7586,
- "parts": 1,
- "note": "A Super Admin can give staff connected workflows (content, support, finance) by email, OFF until flags.staff_access is set to true (adds one schema, seven functions and one flag row; every change is audited). Safe to run again."
-},
+ {
+  "version": "20261054100000",
+  "name": "practice_legacy_grade",
+  "chars": 16117,
+  "parts": 3,
+  "note": "Fixes an empty subject list for a learner stored with the legacy level code B10 (the same year as SHS1). Replaces three functions with the same names and shapes, so it is safe to run again."
+ },
+ {
+  "version": "20261055100000",
+  "name": "assessment_blueprint",
+  "chars": 24471,
+  "parts": 4,
+  "note": "Combined tests by subject and topic (Primary and JHS), a per-subject result breakdown, and a faster teacher topic list. Adds a table and functions and replaces qb_teacher_topics with the same output. Apply to Preview first."
+ },
+ {
+  "version": "20261056100000",
+  "name": "topics_for_teachers",
+  "chars": 5298,
+  "parts": 1,
+  "note": "Admin functions to open topics to teachers in bulk (per subject and grade) and an overview of what is ready. Adds two functions; safe to run again."
+ },
+ {
+  "version": "20261057100000",
+  "name": "mixed_practice",
+  "chars": 8943,
+  "parts": 2,
+  "note": "Practice across several subjects for Primary and JHS learners (one new function). Safe to run again."
+ },
+ {
+  "version": "20261058100000",
+  "name": "practice_question_limit",
+  "chars": 20668,
+  "parts": 4,
+  "note": "Raises the practice set limit from 30 to 100 questions (replaces three functions with the same names and shapes). Safe to run again."
+ },
+ {
+  "version": "20261059100000",
+  "name": "challenge_bank_sections",
+  "chars": 14990,
+  "parts": 3,
+  "note": "Challenge and competition questions from the bank by class level, subject and topic (three new functions) and the older subject-code pull now takes approved questions only. Safe to run again."
+ },
+ {
+  "version": "20261060100000",
+  "name": "challenge_bank_levels_with_questions",
+  "chars": 2216,
+  "parts": 1,
+  "note": ""
+ },
+ {
+  "version": "20261061100000",
+  "name": "challenge_bank_levels_fast",
+  "chars": 3548,
+  "parts": 1,
+  "note": ""
+ },
+ {
+  "version": "20261062100000",
+  "name": "challenge_participants",
+  "chars": 1801,
+  "parts": 1,
+  "note": ""
+ },
+ {
+  "version": "20261063100000",
+  "name": "class_join_level_check",
+  "chars": 4644,
+  "parts": 1,
+  "note": ""
+ },
+ {
+  "version": "20261064100000",
+  "name": "attempt_review_explanations",
+  "chars": 2355,
+  "parts": 1,
+  "note": ""
+ },
+ {
+  "version": "20261065100000",
+  "name": "challenge_live_details",
+  "chars": 4231,
+  "parts": 1,
+  "note": ""
+ },
+ {
+  "version": "20261066100000",
+  "name": "student_profile_edits",
+  "chars": 7032,
+  "parts": 1,
+  "note": ""
+ },
+ {
+  "version": "20261067100000",
+  "name": "repeat_assignments",
+  "chars": 16917,
+  "parts": 3,
+  "note": ""
+ },
+ {
+  "version": "20261068100000",
+  "name": "school_aimed_sponsored",
+  "chars": 8910,
+  "parts": 2,
+  "note": ""
+ },
+ {
+  "version": "20261069100000",
+  "name": "teacher_profile_edit",
+  "chars": 7549,
+  "parts": 1,
+  "note": ""
+ },
+ {
+  "version": "20261070100000",
+  "name": "staff_access",
+  "chars": 7586,
+  "parts": 1,
+  "note": ""
+ },
  {
   "version": "20261071100000",
   "name": "fix_any_topic_delete",
   "chars": 8976,
   "parts": 1,
-  "note": "Fixes Any topic in Assign by subject and topic, which failed with DELETE requires a WHERE clause (replaces one function; changes no data). Safe to run again."
+  "note": ""
  },
  {
   "version": "20261072100000",
   "name": "batch_preview_fast",
   "chars": 3322,
   "parts": 1,
-  "note": "Approve Batches, Review sample: the preview took about 32 s on 36,718 questions. Adds one helper function and one index on questions, and replaces one function; changes no data. Safe to run again."
+  "note": ""
  },
  {
   "version": "20261073100000",
   "name": "owner_batch_steps_fast",
   "chars": 10138,
   "parts": 2,
-  "note": "Approve Batches: the approve, revoke and discard steps no longer scan the whole questions table, and the approve step validates only until a full step is found. Replaces three functions; changes no data. Safe to run again."
+  "note": ""
  },
  {
   "version": "20261074100000",
   "name": "school_directory",
   "chars": 34114,
   "parts": 5,
-  "note": "School directory (off until flags.school_directory is switched on): one table of schools by region and district with a Public / Private filter, the add-a-school queue, and the staff approve, merge and import functions. Adds one table, two nullable columns and functions; changes no existing data. Safe to run again."
+  "note": ""
  },
  {
   "version": "20261075100000",
   "name": "school_directory_analytics",
   "chars": 10494,
   "parts": 2,
-  "note": "School directory screen: one read-only function for the figures and charts, and the list function re-created with filters (region, district, Public / Private, level) and sorting. Changes no data. Safe to run again."
+  "note": ""
  },
  {
   "version": "20261076100000",
   "name": "social_channels",
   "chars": 10432,
   "parts": 2,
-  "note": "Social channels managed from the admin (off until flags.social_channels is switched on): one table seeded with the six channels the app shows today, a public read function, and super admin functions to add, edit, hide, reorder and delete (WhatsApp numbers, Telegram and more). Adds one table and functions; changes no existing data. Safe to run again."
+  "note": ""
  },
  {
   "version": "20261077100000",
   "name": "admin_dashboard",
   "chars": 6193,
   "parts": 1,
-  "note": "Admin dashboard figures in one read-only function for staff: users, learning activity, content, queues, markets and schools, each section computed on its own. Adds one function; changes no data. Safe to run again."
+  "note": ""
  },
  {
   "version": "20261078100000",
   "name": "student_subjects",
-  "chars": 2645,
+  "chars": 2662,
   "parts": 1,
-  "note": "Lets a learner choose their subjects from inside the workspace after sign-up, without using up one of the two profile edits. Adds one function; changes no data. Safe to run again."
+  "note": ""
  },
  {
   "version": "20261079100000",
   "name": "family_workspace",
-  "chars": 11820,
+  "chars": 11836,
   "parts": 2,
-  "note": "Family workspace, phase 1 (off until flags.family_workspace is switched on): a workspace for a parent, guardian or academic parent, family link types and permissions on the existing account_relationships table, and the access-checking functions. Adds one table, two columns and functions; changes no existing relationship. Safe to run again."
+  "note": ""
  },
  {
   "version": "20261080100000",
   "name": "family_children",
-  "chars": 17682,
+  "chars": 17699,
   "parts": 3,
-  "note": "Family workspace, phase 2 (off until flags.family_workspace is on): add a child, a single-use invitation stored as a hash, and linking an existing student that the student must accept. Adds one table, one column and functions; changes no data. Safe to run again."
+  "note": ""
  },
  {
   "version": "20261081100000",
   "name": "family_assignments",
-  "chars": 8408,
-  "parts": 3,
-  "note": "Family workspace, phase 4a (off until flags.family_workspace is on): a hidden family class per class level so a parent can give their children work through the existing assignment engine, a family stamp on assignments, and the parent progress view. Adds two columns, one index, a trigger and two functions; changes no existing data. Safe to run again."
+  "chars": 8425,
+  "parts": 1,
+  "note": ""
  },
  {
   "version": "20261082100000",
   "name": "family_orders",
-  "chars": 15072,
-  "parts": 4,
-  "note": "Family workspace, phases 6 and 7 (off until flags.family_workspace is on): one checkout for the children a parent ticks, for Coins or subscriptions, settled for every child or none and exactly once, plus each child wallet and plan view. Adds two tables and functions; changes no existing data. Safe to run again."
+  "chars": 15090,
+  "parts": 2,
+  "note": ""
  },
  {
   "version": "20261083100000",
   "name": "family_progress_admin",
-  "chars": 9952,
-  "parts": 3,
-  "note": "Family workspace, phases 9 and 10: read-only progress functions for a parent (only for children they may follow) and read-only staff views of families. Adds functions only; changes no data. Safe to run again."
+  "chars": 9969,
+  "parts": 2,
+  "note": ""
  },
  {
   "version": "20261084100000",
   "name": "family_library",
-  "chars": 10299,
-  "parts": 3,
-  "note": "Family workspace, phase 5 (off until flags.family_workspace is on): a parent gives a Marketplace set they bought to chosen children without copying it; the child plays the original while the purchase lasts. Adds one table and functions; changes no existing data. Safe to run again."
+  "chars": 10316,
+  "parts": 2,
+  "note": ""
  },
  {
   "version": "20261085100000",
   "name": "family_challenges",
-  "chars": 7580,
-  "parts": 3,
-  "note": "Family workspace, phase 4b (off until flags.family_workspace is on): a parent invites chosen children to a challenge they made; the child sees it with its access code and plays it in the normal play page. Adds one table and functions; changes no existing data. Safe to run again."
+  "chars": 7597,
+  "parts": 1,
+  "note": ""
  },
  {
   "version": "20261086100000",
   "name": "help_guides_refresh",
-  "chars": 27099,
+  "chars": 27114,
   "parts": 4,
-  "note": "Help centre, 16 Nov 2026: three guides refreshed (only where no admin has edited them) and thirteen new guides: a way-round guide, subjects, the school card, work from school and family, assign by topic, and the family workspace guides (drafts until the feature is on). Adds rows only; never overwrites an admin edit. Safe to run again."
+  "note": ""
  },
  {
   "version": "20261087100000",
   "name": "parent_accounts",
   "chars": 8716,
   "parts": 2,
-  "note": "Parent accounts, 16 Nov 2026: adds the parent role and parent_profiles (stored like sponsor_profiles). Sign-up of a parent is refused until flags.family_workspace is on. Children stay linked through account_relationships. Safe to run again."
+  "note": ""
+ },
+ {
+  "version": "20261117110000",
+  "name": "sponsored_feed_discovery",
+  "chars": 2817,
+  "parts": 1,
+  "note": ""
  }
 ]

@@ -1,5 +1,5 @@
 -- Fix: "Any topic" failed with "DELETE requires a WHERE clause". blueprint_plan now clears its temp table with "where true"; nothing else changes. Safe to run again.
-begin;
+
 
 create or replace function quizbox_topic.blueprint_plan(p_class uuid, p_sections jsonb, p_difficulty text) returns jsonb
 language plpgsql security definer set search_path = '' as $fn$
@@ -107,6 +107,3 @@ begin
   if cardinality(grades) > 1 then raise exception 'QB_BLUEPRINT_ONE_GRADE'; end if;
   return jsonb_build_object('total', total, 'sections', sections_out, 'shares', shares, 'question_ids', to_jsonb(all_ids), 'node_ids', to_jsonb(nodes));
 end $fn$;
-
-
-commit;

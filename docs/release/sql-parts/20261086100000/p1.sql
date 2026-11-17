@@ -4,6 +4,7 @@
 -- and the family workspace (flag-gated, drafts until the feature is switched on). Drafts are not shown to anyone until an administrator publishes them.
 -- Inserts skip any slug already present, so applying this again is safe. Rollback: supabase/rollback/help_guides_refresh.sql (removes only the new guides that nobody has edited).
 
+
 update public.help_articles set title = 'Getting started as a learner', summary = 'Your first steps on QuizBox: sign up, choose your class, add your subjects and find your way around.', body = $g$
 # Getting started as a learner
 

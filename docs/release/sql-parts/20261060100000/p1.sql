@@ -1,3 +1,4 @@
+begin;
 -- The class levels offered when a creator adds questions from the QuizBox bank are only those that have at least one usable (approved, listable, four-option) question,
 -- so nobody picks a level and is then told it is empty. The subjects shown for a level were already limited to ones with usable questions; this applies the same
 -- rule to the level list, using the same function (qb_bank_subjects), so the two can never disagree. Only qb_challenge_bank_menu changes; the signature is the same.
@@ -27,3 +28,4 @@ begin
 end $fn$;
 revoke all on function public.qb_challenge_bank_menu(text) from public, anon;
 grant execute on function public.qb_challenge_bank_menu(text) to authenticated;
+commit;

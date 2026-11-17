@@ -10,6 +10,7 @@
 -- A link waiting for the student's answer shows the parent only the email they typed, never the student's name or class.
 -- Off with the rest of the family workspace (flags.family_workspace). Additive and idempotent. Rollback: supabase/rollback/family_children.sql
 
+
 alter table public.account_relationships add column if not exists label text;
 
 create table if not exists public.family_invitations (
@@ -69,4 +70,19 @@ begin
   insert into public.audit_logs(actor_user_id, action, entity_type, entity_id, status, details)
   values (p_parent, 'family.child_create', 'profiles', p_user, 'pass', jsonb_build_object('username', p_username, 'minor', minor, 'workspace', att ->> 'workspace_id'));
   return jsonb_build_object('user_id', p_user, 'student_id', sp_id, 'username', p_username, 'first_name', first, 'is_minor', minor);
+end $fn$;
+
+create or replace function public.qb_family_invite_issue(p_student uuid) returns jsonb
+language plpgsql security definer set search_path = '' as $fn$
+declare uid uuid := auth.uid(); w uuid; tok text; exp timestamptz := now() + interval '7 days'; inv uuid;
+begin
+  if uid is null then raise exception 'QB_AUTH_REQUIRED' using errcode = '28000'; end if;
+  if not quizbox_core.family_can(uid, p_student, 'manage_access') then raise exception 'QB_FAMILY_FORBIDDEN' using errcode = '42501'; end if;
+  select id into w from public.family_workspaces where owner_user_id = uid;
+  update public.family_invitations set status = 'revoked' where student_user_id = p_student and status = 'pending';
+  tok := replace(gen_random_uuid()::text, '-', '') || replace(gen_random_uuid()::text, '-', '');
+  insert into public.family_invitations(workspace_id, student_user_id, token_hash, expires_at, created_by)
+  values (w, p_student, quizbox_core.family_token_hash(tok), exp, uid) returning id into inv;
+  perform quizbox_core.audit('family.invite_issue', 'family_invitations', inv, jsonb_build_object('student', p_student));
+  return jsonb_build_object('token', tok, 'expires_at', exp);
 end $fn$;

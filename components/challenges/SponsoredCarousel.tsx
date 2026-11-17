@@ -1,46 +1,123 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import Link from "next/link";
+import { useEffect, useMemo, useState } from "react";
+import { ArrowRight, BookOpen, CalendarDays, Megaphone, Trophy, Users, Zap } from "lucide-react";
 import { featuredQuizzes, libraryStats } from "@/lib/api/challenges";
 import { CONTENT_TYPES, type TargetLevel } from "@/lib/challenges/content-types";
-import type { FeaturedQuiz, LibraryStats } from "@/lib/challenges/types";
-import SpotlightCard from "./SpotlightCard";
+import { type FeaturedQuiz, type LibraryStats, readableText } from "@/lib/challenges/types";
+import LogoImage from "./LogoImage";
+import styles from "./SponsoredCarousel.module.css";
 
-// Sponsored quizzes, shown on the home pages after sign-in: one slide at a time, moving on by itself (not for people who prefer less motion, and never while the pointer or focus is on it),
-// with previous and next buttons and dots. Quiet when nothing is live. The compact form is for the sidebar. Also shows how much material QuizBox hosts.
+type DiscoveryFilter = "recommended" | "closing" | "popular" | "recent";
+const FILTERS: Array<{ id: DiscoveryFilter; label: string }> = [
+  { id: "recommended", label: "For your level" },
+  { id: "closing", label: "Closing soon" },
+  { id: "popular", label: "Popular with learners" },
+  { id: "recent", label: "Recently opened" },
+];
+const PAGE_SIZE = 6;
+const CLOSE_WINDOW = 7 * 24 * 60 * 60 * 1000;
+
+const dateLabel = (iso: string | null) => iso
+  ? new Date(iso).toLocaleDateString(undefined, { month: "short", day: "numeric" })
+  : "No closing date";
+const closingSoon = (quiz: FeaturedQuiz, now: number) => {
+  const end = quiz.ends_at ? new Date(quiz.ends_at).getTime() : Number.NaN;
+  return Number.isFinite(end) && end > now && end <= now + CLOSE_WINDOW;
+};
+const closeLabel = (iso: string | null, now: number) => {
+  if (!iso) return "No closing date";
+  const remaining = new Date(iso).getTime() - now;
+  const days = Math.ceil(remaining / (24 * 60 * 60 * 1000));
+  return days <= 1 ? "Closes today" : `Closes in ${days} days`;
+};
+
+// The featured list is level-filtered by the database; local filters only reorder this eligible set.
+// It replaces the former auto-advancing carousel so learners can compare opportunities at their own pace.
 export default function SponsoredCarousel({ level, compact = false, showLibrary = true }: { level?: TargetLevel; compact?: boolean; showLibrary?: boolean }) {
-  const [items, setItems] = useState<FeaturedQuiz[]>([]), [stats, setStats] = useState<LibraryStats | null>(null), [i, setI] = useState(0), [hold, setHold] = useState(false);
+  const [items, setItems] = useState<FeaturedQuiz[]>([]);
+  const [stats, setStats] = useState<LibraryStats | null>(null);
+  const [filter, setFilter] = useState<DiscoveryFilter>("recommended");
+  const [visible, setVisible] = useState(PAGE_SIZE);
+  const [loaded, setLoaded] = useState(false);
+
   useEffect(() => {
     let alive = true;
-    featuredQuizzes(level).then((r) => { if (alive) setItems(r); }).catch(() => undefined);
-    if (showLibrary) libraryStats().then((s) => { if (alive) setStats(s); }).catch(() => undefined);
+    featuredQuizzes(level, 24).then((rows) => { if (alive) setItems(rows); }).catch(() => undefined).finally(() => { if (alive) setLoaded(true); });
+    if (showLibrary) libraryStats().then((value) => { if (alive) setStats(value); }).catch(() => undefined);
     return () => { alive = false; };
   }, [level, showLibrary]);
-  useEffect(() => {
-    if (items.length < 2 || hold || (typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches)) return;
-    const t = setInterval(() => setI((n) => (n + 1) % items.length), 6500);
-    return () => clearInterval(t);
-  }, [items.length, hold]);
-  if (!items.length) return null;
-  const cur = items[Math.min(i, items.length - 1)];
-  const go = (d: number) => setI((n) => (n + d + items.length) % items.length);
+
+  const now = Date.now();
+  const counts = useMemo(() => ({
+    recommended: items.length,
+    closing: items.filter((item) => closingSoon(item, now)).length,
+    popular: items.length,
+    recent: items.length,
+  }), [items, now]);
+  const sorted = useMemo(() => {
+    const rows = filter === "closing" ? items.filter((item) => closingSoon(item, now)) : [...items];
+    if (filter === "closing") rows.sort((a, b) => new Date(a.ends_at!).getTime() - new Date(b.ends_at!).getTime());
+    if (filter === "popular") rows.sort((a, b) => b.participants - a.participants);
+    if (filter === "recent") rows.sort((a, b) => new Date(b.starts_at || b.published_at).getTime() - new Date(a.starts_at || a.published_at).getTime());
+    return rows;
+  }, [filter, items, now]);
   const library = stats && stats.documents > 0 ? CONTENT_TYPES.filter((t) => stats.by_type[t.id]).map((t) => `${stats.by_type[t.id]} ${t.plural}`).join(" · ") : "";
+
+  if (!items.length && !loaded) return <section className={styles.section} aria-label="Sponsored quizzes"><h2>Sponsored quizzes</h2><div className={`qb-card qb-skeleton ${styles.loading}`} aria-busy="true" /></section>;
+  if (!items.length) return null;
+
   return (
-    <section aria-roledescription="carousel" aria-label="Sponsored quizzes" onMouseEnter={() => setHold(true)} onMouseLeave={() => setHold(false)} onFocus={() => setHold(true)} onBlur={() => setHold(false)} style={{ margin: "0 0 16px" }}>
-      {!compact && <h2 style={{ marginBottom: 8 }}>Sponsored quizzes</h2>}
-      <div aria-live={hold ? "polite" : "off"}>
-        <SpotlightCard compact={compact} title={cur.title} summary={cur.summary} brand={cur.brand} format={cur.format} rounds={cur.stage_count} questions={cur.question_count} hasMaterial={cur.has_material} played={cur.participants} href={`/play/${cur.slug}`} />
+    <section className={styles.section} aria-labelledby="sponsored-quizzes-title">
+      <header className={styles.heading}>
+        <div>
+          {!compact && <p className={styles.eyebrow}><Megaphone size={15} aria-hidden="true" /> Discover</p>}
+          <h2 id="sponsored-quizzes-title">Sponsored quizzes</h2>
+          <p>Open now and selected for your level. Choose one that interests you.</p>
+        </div>
+        <div className={styles.browseLinks}>
+          <Link href="/open">Browse challenges <ArrowRight size={15} aria-hidden="true" /></Link>
+          <Link href="/open?format=competition">Browse competitions <ArrowRight size={15} aria-hidden="true" /></Link>
+        </div>
+      </header>
+
+      <div className={styles.filterRow} role="group" aria-label="Sort sponsored quizzes">
+        {FILTERS.map((item) => <button key={item.id} type="button" className={styles.filter} aria-pressed={filter === item.id} onClick={() => { setFilter(item.id); setVisible(PAGE_SIZE); }}>
+          {item.label}<span>{counts[item.id]}</span>
+        </button>)}
       </div>
-      {items.length > 1 && (
-        <div style={{ display: "flex", gap: 8, alignItems: "center", marginTop: 8 }}>
-          <button type="button" className="qb-btn qb-btn-secondary" onClick={() => go(-1)} aria-label="Previous quiz">‹</button>
-          <span role="tablist" aria-label="Choose a quiz" style={{ display: "flex", gap: 6 }}>
-            {items.map((x, k) => <button key={x.slug} role="tab" type="button" aria-selected={k === i} aria-label={`Show ${x.title}`} onClick={() => setI(k)} style={{ width: 10, height: 10, borderRadius: "50%", border: 0, padding: 0, background: k === i ? "currentColor" : "rgba(128,128,128,.4)" }} />)}
-          </span>
-          <button type="button" className="qb-btn qb-btn-secondary" onClick={() => go(1)} aria-label="Next quiz">›</button>
+
+      {sorted.length === 0 ? <div className={`qb-card ${styles.empty}`}><strong>No quizzes are closing in the next week.</strong><span>Try another view to see all open opportunities.</span></div> : (
+        <div className={styles.grid}>
+          {sorted.slice(0, visible).map((quiz) => {
+            const accent = quiz.brand?.accent && /^#[0-9a-f]{6}$/i.test(quiz.brand.accent) ? quiz.brand.accent : "#1a7f5a";
+            const darkAccent = readableText(accent) ?? "#fff";
+            const rounds = quiz.format === "COMPETITION" && quiz.stage_count > 1 ? `${quiz.stage_count} rounds` : quiz.format === "COMPETITION" ? "Competition" : "Challenge";
+            return <article key={quiz.slug} className={`qb-card ${styles.card}`} style={{ "--quiz-accent": accent } as React.CSSProperties}>
+              <div className={styles.cardHead}>
+                <div className={styles.logo} aria-hidden="true">{quiz.brand?.logo ? <LogoImage src={quiz.brand.logo} style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }} /> : <Trophy size={22} color={accent} />}</div>
+                <div className={styles.identity}>
+                  <p>{quiz.brand?.organiser_name || "QuizBox partner"}<span> · Sponsored</span></p>
+                  <span className={styles.liveLabel}>Open now</span>
+                </div>
+              </div>
+              <h3 className={styles.title}><Link href={`/play/${quiz.slug}`}>{quiz.title}</Link></h3>
+              {quiz.summary && <p className={styles.summary}>{quiz.summary}</p>}
+              <div className={styles.facts}>
+                <span><Zap size={14} aria-hidden="true" />{rounds}</span>
+                <span><BookOpen size={14} aria-hidden="true" />{quiz.question_count} questions{quiz.has_material ? " · reading included" : ""}</span>
+                <span><Users size={14} aria-hidden="true" />{quiz.participants.toLocaleString()} played</span>
+                <span><CalendarDays size={14} aria-hidden="true" />{closingSoon(quiz, now) ? closeLabel(quiz.ends_at, now) : quiz.ends_at ? `Closes ${dateLabel(quiz.ends_at)}` : "No closing date"}</span>
+              </div>
+              <Link href={`/play/${quiz.slug}`} className={styles.takePart} style={{ background: accent, borderColor: accent, color: darkAccent }}>Take part <ArrowRight size={15} aria-hidden="true" /></Link>
+            </article>;
+          })}
         </div>
       )}
-      {!compact && library && <p className="qb-muted qb-small" style={{ marginTop: 8 }}>On QuizBox now: {library}.</p>}
+
+      {sorted.length > visible && <div className={styles.moreRow}><span>Showing {visible} of {sorted.length} open quizzes</span><button type="button" className="qb-btn secondary" onClick={() => setVisible((count) => Math.min(count + PAGE_SIZE, sorted.length))}>Show more</button></div>}
+      {!compact && library && <p className={`qb-muted qb-small ${styles.library}`}>Learning materials on QuizBox: {library}.</p>}
     </section>
   );
 }

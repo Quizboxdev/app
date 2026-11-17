@@ -5,9 +5,9 @@ import { logFallback } from "@/lib/ops/log";
 // Public pages read campaigns on the server through the service role: the database functions return only live public data and never questions or answers.
 // If the migration is not applied or the database is unreachable the pages show an empty state instead of failing.
 const SLUG = /^[a-z0-9]+(-[a-z0-9]+)*$/;
-export async function listPublicChallenges(format: Format = "CHALLENGE"): Promise<PublicChallenge[]> {
+export async function listPublicChallenges(format: Format = "CHALLENGE", limit = 48, offset = 0): Promise<PublicChallenge[]> {
   try {
-    const { data, error } = await getSupabaseAdminClient().rpc("challenge_public_list", { p_limit: 48, p_offset: 0, p_format: format });
+    const { data, error } = await getSupabaseAdminClient().rpc("challenge_public_list", { p_limit: limit, p_offset: offset, p_format: format });
     if (error) console.error("[challenges] public list failed:", `${error.code ?? ""} ${error.message}`.trim());
     return (data ?? []) as PublicChallenge[];
   } catch (e) { console.error("[challenges] public list unavailable:", e instanceof Error ? e.message : "unknown error"); return []; }

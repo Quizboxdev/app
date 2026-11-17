@@ -6,6 +6,8 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 const read = (p: string) => readFileSync(new URL(p, import.meta.url), "utf8");
 const CHAIN = ["20261021100000_challenges_foundation", "20261022100000_challenges_extensions", "20261023100000_challenges_moderation", "20261027100000_competitions_and_sharing"].map((n) => read(`../../supabase/migrations/${n}.sql`));
 const MIGRATION = read("../../supabase/migrations/20261029100000_quiz_studio.sql");
+const DISCOVERY_MIGRATION = read("../../supabase/migrations/20261117110000_sponsored_feed_discovery.sql");
+const DISCOVERY_ROLLBACK = read("../../supabase/rollback/sponsored_feed_discovery.sql");
 const ROLLBACK = read("../../supabase/rollback/quiz_studio.sql");
 const id = (n: number) => `00000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
 const [OWNER, TEACHER, SPONSOR, LEARNER, CLASSMATE, OUTSIDER, CHILD] = [1, 2, 3, 4, 5, 6, 7].map(id);
@@ -67,11 +69,12 @@ beforeAll(async () => {
   `);
   for (const sql of CHAIN) await db.exec(sql);
   await db.exec(MIGRATION);
+  await db.exec(DISCOVERY_MIGRATION);
 });
 afterAll(async () => { await db.close(); });
 
 describe("quiz studio", () => {
-  it("re-applies cleanly", async () => { await db.exec(MIGRATION); });
+  it("re-applies cleanly", async () => { await db.exec(MIGRATION); await db.exec(DISCOVERY_MIGRATION); });
 
   it("classifies material, finds chapters and keeps their order; bad types, bad chapters and a sixth document are refused", async () => {
     await as(SPONSOR);
@@ -211,6 +214,9 @@ describe("quiz studio", () => {
     const jhs = await rpc("select public.challenge_featured(8,'JHS')"), shs = await rpc("select public.challenge_featured(8,'SHS')"), all = await rpc("select public.challenge_featured(8,null)");
     expect(jhs.map((x: any) => x.slug)).toEqual([branded.slug]); expect(shs).toEqual([]); expect(all.map((x: any) => x.slug)).toEqual([branded.slug]);
     expect(jhs[0].brand.logo).toMatch(/^data:image\/png/); expect([noLogo.slug, learnerMade.slug].some((s) => all.some((x: any) => x.slug === s))).toBe(false);
+    const catalogue = await rpc("select public.challenge_public_list(48,0,'CHALLENGE')");
+    expect(catalogue.find((x: any) => x.slug === branded.slug)?.sponsored).toBe(true);
+    expect(catalogue.find((x: any) => x.slug === learnerMade.slug)?.sponsored).toBe(false);
     await as("service");
     const stats = await rpc("select public.challenge_library_stats()");
     expect(stats.documents).toBeGreaterThan(0); expect(Object.keys(stats.by_type).every((k) => ["story_book", "faith_book", "doctrine", "corporate", "marketing", "textbook", "article", "other"].includes(k))).toBe(true);
@@ -219,6 +225,29 @@ describe("quiz studio", () => {
     await as("service"); expect((await rpc("select public.challenge_library_stats()")).documents).toBe(before);       // private campaigns are not counted
     await as(null); await fails("select public.challenge_library_stats()", [], /permission denied/);
     expect(priv.id).toBeTruthy();
+  });
+
+  it("lists more than twelve eligible sponsor quizzes with dates for discovery filters", async () => {
+    await as(SPONSOR);
+    const campaigns = [] as Array<{ id: string; slug: string }>;
+    for (let i = 1; i <= 13; i++) campaigns.push(await live(SPONSOR, { title: `Sponsored quiz ${i}`, brand: { organiser_name: "QuizBox Partner", logo } }));
+    await rpc("select public.challenge_set_targeting($1,'{JHS}')", [campaigns[0].id]);
+    const closeAt = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString();
+    await sup("update public.challenge_campaigns set starts_at = now() - interval '1 day', ends_at = $2 where id = $1", [campaigns[0].id, closeAt]);
+    await as(LEARNER);
+
+    const jhs = await rpc("select public.challenge_featured(24,'JHS')");
+    const shs = await rpc("select public.challenge_featured(24,'SHS')");
+    expect(jhs).toHaveLength(14);
+    expect(shs).toHaveLength(12);
+    expect(jhs.find((row: any) => row.slug === campaigns[0].slug)).toMatchObject({ starts_at: expect.any(String), ends_at: expect.any(String), published_at: expect.any(String), participants: 0 });
+    await db.exec("reset role");
+    await db.exec(DISCOVERY_ROLLBACK);
+    await as(LEARNER);
+    expect(await rpc("select jsonb_array_length(public.challenge_featured(24,'JHS'))")).toBe(12);
+    expect((await rpc("select public.challenge_public_list(24,0,'CHALLENGE')")).some((row: any) => Object.hasOwn(row, "sponsored"))).toBe(false);
+    await db.exec("reset role");
+    await db.exec(DISCOVERY_MIGRATION);
   });
 
   it("the public card carries material facts but never text; the rollback removes the new functions", async () => {

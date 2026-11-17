@@ -5,6 +5,7 @@
 -- Super admin only, like the rest of the staff functions. Reads only; changes no data. Works whether or not flags.school_directory is on.
 -- Additive apart from the list function, which is dropped and re-created with the extra optional arguments (a caller that passes the first four still works). Rollback: supabase/rollback/school_directory_analytics.sql (restores the earlier list function).
 
+
 drop function if exists public.qb_school_admin_list(text, text, integer, integer);
 
 create or replace function public.qb_school_admin_list(p_status text default 'pending', p_query text default null, p_limit integer default 50, p_offset integer default 0,

@@ -1,3 +1,4 @@
+begin;
 -- Faster class-level list for adding questions from the bank. 20261060100000 built the list by computing the whole subject list of every class level, which took 11 seconds on
 -- Preview and hit the 8-second limit for signed-in users, so the picker showed an error. This version asks, for each level, only "is there at least one usable question?" and
 -- stops at the first one. The rule for a usable question is the same as in qb_bank_subjects (approved, listable, four options, not a development question, under a topic).
@@ -41,3 +42,4 @@ begin
 end $fn$;
 revoke all on function public.qb_challenge_bank_menu(text) from public, anon;
 grant execute on function public.qb_challenge_bank_menu(text) to authenticated;
+commit;

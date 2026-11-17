@@ -52,7 +52,17 @@ def split(sql: str):
     if len(sql) <= LIMIT:
         return [sql]
     # Each part is pasted on its own, so begin; and commit; are removed (a part that began a transaction the next part never ends would be rolled back). Comments stay.
-    stmts = [re.sub(r"(?im)^[ \t]*(begin|commit);[ \t]*$", "", x) if strip_comments(x).strip().lower() in ("begin;", "commit;") else x for x in statements(sql)]
+    stmts, pending_comments = [], ""
+    for statement in statements(sql):
+        part = re.sub(r"(?im)^[ \t]*(begin|commit);[ \t]*$", "", statement) if strip_comments(statement).strip().lower() in ("begin;", "commit;") else statement
+        if not strip_comments(part).strip():
+            pending_comments += part
+            continue
+        stmts.append(pending_comments + part)
+        pending_comments = ""
+    if pending_comments:
+        if stmts: stmts[-1] += pending_comments
+        else: stmts.append(pending_comments)
     parts, buf = [], ""
     for st in stmts:
         if buf and len(buf) + len(st) > LIMIT:

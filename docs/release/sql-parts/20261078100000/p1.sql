@@ -2,6 +2,8 @@
 -- Sign-up no longer asks for subjects. The list the learner sees comes from the market's configuration and is limited to their class level in the app.
 -- Own account only; a learner managed by a teacher or guardian is changed by that adult. Unlike qb_update_student_profile this does NOT use up one of the two profile edits (class level and school keep that rule).
 -- Errors: QB_AUTHENTICATION_REQUIRED, NOT_A_STUDENT, MANAGED_ACCOUNT, INVALID_SUBJECT. Additive and idempotent. Rollback: supabase/rollback/student_subjects.sql
+begin;
+
 create or replace function public.qb_student_set_subjects(p_subjects text[]) returns text[]
 language plpgsql security definer set search_path = '' as $fn$
 declare uid uuid := auth.uid(); sp public.student_profiles; pr public.profiles; cfg jsonb; s text; v text[]; before_v text[];
@@ -25,4 +27,6 @@ end $fn$;
 
 revoke all on function public.qb_student_set_subjects(text[]) from public, anon, authenticated;
 grant execute on function public.qb_student_set_subjects(text[]) to authenticated;
+
+commit;
 notify pgrst, 'reload schema';

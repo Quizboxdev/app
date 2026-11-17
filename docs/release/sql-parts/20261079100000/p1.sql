@@ -11,6 +11,7 @@
 -- Off behind flags.family_workspace (nothing existing changes). Errors: QB_AUTH_REQUIRED, QB_FEATURE_DISABLED, QB_FAMILY_FORBIDDEN, QB_FAMILY_NOT_ADULT, QB_FAMILY_INVALID.
 -- Additive and idempotent. Rollback: supabase/rollback/family_workspace.sql
 
+
 create table if not exists public.family_workspaces (
   id uuid primary key default gen_random_uuid(),
   owner_user_id uuid not null references public.profiles(id) on delete cascade,
@@ -59,3 +60,42 @@ $fn$;
 
 create or replace function public.qb_family_can(p_student uuid, p_perm text) returns boolean
 language sql stable security definer set search_path = '' as $fn$ select quizbox_core.family_can(auth.uid(), p_student, p_perm) $fn$;
+
+create or replace function public.qb_family_open(p_name text default null) returns jsonb
+language plpgsql security definer set search_path = '' as $fn$
+declare uid uuid := auth.uid(); w public.family_workspaces; r text;
+begin
+  if uid is null then raise exception 'QB_AUTH_REQUIRED' using errcode = '28000'; end if;
+  if not coalesce(quizbox_core.flag('flags.family_workspace'), false) then raise exception 'QB_FEATURE_DISABLED' using errcode = '42501'; end if;
+  select lower(role::text) into r from public.profiles where id = uid;
+  if r is null or r = 'student' then raise exception 'QB_FAMILY_NOT_ADULT' using errcode = '42501'; end if;
+  select * into w from public.family_workspaces where owner_user_id = uid;
+  if w.id is null then
+    insert into public.family_workspaces(owner_user_id, name) values (uid, coalesce(nullif(btrim(p_name), ''), 'My family')) returning * into w;
+    perform quizbox_core.audit('family.workspace_open', 'family_workspaces', w.id, '{}'::jsonb);
+  end if;
+  return jsonb_build_object('id', w.id, 'name', w.name);
+end $fn$;
+
+create or replace function public.qb_family_children() returns jsonb
+language plpgsql stable security definer set search_path = '' as $fn$
+declare uid uuid := auth.uid();
+begin
+  if uid is null then raise exception 'QB_AUTH_REQUIRED' using errcode = '28000'; end if;
+  if not coalesce(quizbox_core.flag('flags.family_workspace'), false) then raise exception 'QB_FEATURE_DISABLED' using errcode = '42501'; end if;
+  return coalesce((select jsonb_agg(jsonb_build_object('student_id', r.target_user_id, 'relationship_id', r.id, 'relationship_type', r.relationship_type, 'status', r.status,
+      'permissions', r.permissions, 'full_name', p.full_name, 'grade_code', sp.grade_code, 'school_name', sp.school_name) order by p.full_name)
+    from public.account_relationships r join public.family_workspaces w on w.id = r.family_workspace_id and w.owner_user_id = uid
+    join public.profiles p on p.id = r.target_user_id left join public.student_profiles sp on sp.user_id = r.target_user_id
+    where r.source_user_id = uid and r.status in ('active', 'pending_verification', 'requested')), '[]'::jsonb);
+end $fn$;
+
+create or replace function public.qb_family_child_summary(p_student uuid) returns jsonb
+language plpgsql stable security definer set search_path = '' as $fn$
+declare uid uuid := auth.uid();
+begin
+  if uid is null then raise exception 'QB_AUTH_REQUIRED' using errcode = '28000'; end if;
+  if not quizbox_core.family_can(uid, p_student, 'view_progress') then raise exception 'QB_FAMILY_FORBIDDEN' using errcode = '42501'; end if;
+  return (select jsonb_build_object('student_id', p.id, 'full_name', p.full_name, 'grade_code', sp.grade_code, 'school_name', sp.school_name)
+            from public.profiles p left join public.student_profiles sp on sp.user_id = p.id where p.id = p_student);
+end $fn$;

@@ -12,6 +12,7 @@
 -- Each step is one short transaction. A step that is cut off changes nothing, and the same call is simply sent again.
 -- Rollback: supabase/rollback/owner_batch_steps.sql.
 
+
 -- The batch status list gains DISCARDING and DISCARDED (whatever the old check was called, it is replaced).
 do $$
 declare c text;

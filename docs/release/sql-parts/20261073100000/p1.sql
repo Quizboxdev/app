@@ -1,7 +1,7 @@
 -- Owner batch steps, fast. The approve, revoke and discard steps found a batch's questions by scanning the whole questions table (a tag pattern, and a JSON field), and the approve step validated every question of the batch on every step.
 -- On 36,000+ questions a step took several seconds and sometimes hit the database time limit (57014). They now use the index from 20261072100000 and validate only until a full step is found.
 -- Same behaviour, same results, same permissions. Rollback: supabase/rollback/owner_batch_steps_fast.sql (the previous definitions).
-begin;
+
 
 create or replace function public.qb_owner_approve_batch_step(p_batch uuid, p_note text, p_sample_reviewed integer, p_publish boolean default true, p_limit integer default 100) returns jsonb
 language plpgsql security definer set search_path = '' as $fn$
@@ -45,4 +45,29 @@ begin
   end if;
   update public.question_batch_approvals set questions_approved = total where id = a.id;
   return jsonb_build_object('approval_id', a.id, 'done', false, 'approved', total, 'published', a.published);
+end $fn$;
+
+create or replace function public.qb_owner_revoke_batch_approval_step(p_approval uuid, p_note text, p_limit integer default 100) returns jsonb
+language plpgsql security definer set search_path = '' as $fn$
+declare a public.question_batch_approvals; ids uuid[]; n integer; returned integer; lim integer := least(greatest(coalesce(p_limit, 100), 1), 500);
+begin
+  if auth.uid() is null or not quizbox_market.is_super() then raise exception 'SUPER_ADMIN_REQUIRED' using errcode = '42501'; end if;
+  select * into a from public.question_batch_approvals where id = p_approval for update;
+  if a.id is null then raise exception 'QB_APPROVAL_NOT_FOUND'; end if;
+  if a.status <> 'ACTIVE' then raise exception 'QB_APPROVAL_NOT_ACTIVE'; end if;
+  if length(btrim(coalesce(p_note, ''))) < 10 then raise exception 'QB_APPROVAL_NOTE_REQUIRED'; end if;
+  select array_agg(s.id) into ids from (
+    select q.id from public.questions q where public.qb_ql_batches(q.tags) @> array[a.batch_id] and q.editorial_metadata ->> 'approval_id' = a.id::text and q.validation_status = 'approved' order by q.id limit lim) s;
+  n := coalesce(cardinality(ids), 0);
+  if n > 0 then
+    update public.questions q set validation_status = 'review', status = 'inactive', reviewed_by = null, reviewed_at = null,
+           editorial_metadata = (coalesce(q.editorial_metadata, '{}'::jsonb) - 'human_reviewed' - 'approval_basis' - 'approval_id' - 'review_note') || jsonb_build_object('owner_approval_revoked', a.id)
+     where q.id = any(ids);
+  end if;
+  select count(*)::integer into returned from public.questions q where public.qb_ql_batches(q.tags) @> array[a.batch_id] and q.editorial_metadata ->> 'owner_approval_revoked' = a.id::text;
+  if n < lim then
+    update public.question_batch_approvals set status = 'REVOKED', in_progress = false, revoked_at = now(), revoked_by = auth.uid(), revoke_note = btrim(p_note) where id = a.id;
+    return jsonb_build_object('approval_id', a.id, 'done', true, 'returned_to_review', returned);
+  end if;
+  return jsonb_build_object('approval_id', a.id, 'done', false, 'returned_to_review', returned);
 end $fn$;

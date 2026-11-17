@@ -58,7 +58,7 @@ describe("release kit: the database fingerprint", () => {
       expect(/^\s*(insert|update|delete|drop|alter|create|truncate)\b/im.test(sql)).toBe(false);
       const rows = await run(sql);
       expect(rows.length).toBeGreaterThan(8);
-      for (const r of rows) expect(["ok", "PARTIAL", "MISSING"]).toContain(r.status);
+      for (const r of rows) expect(["ok", "PARTIAL", "MISSING", "data-only"]).toContain(r.status);
     });
   }
   it("the 37 and 45 diagnosis runs, is read-only and names the part to re-run", async () => {
@@ -73,8 +73,11 @@ describe("release kit: the database fingerprint", () => {
     expect(rows.filter((r) => r.item.startsWith("45 ")).length).toBe(12);
   });
   it("reports PARTIAL when only some objects exist, ok when all do, and counts seeded rows", async () => {
-    const b = readFileSync("docs/release/db_fingerprint_B.sql", "utf8");
-    const rows = await run(b, "create table public.refund_cases(id int); create table public.company_details(id int); create table public.help_articles(slug text); insert into public.help_articles values ('add-more-players'), ('sell-question-sets');");
+    const setup = "create table public.refund_cases(id int); create table public.company_details(id int); create table public.help_articles(slug text); insert into public.help_articles values ('add-more-players'), ('sell-question-sets');";
+    const rows = [
+      ...await run(readFileSync("docs/release/db_fingerprint_A.sql", "utf8"), setup),
+      ...await run(readFileSync("docs/release/db_fingerprint_B.sql", "utf8"), setup),
+    ];
     const v = Object.fromEntries(rows.map((r) => [r.version, r.status]));
     expect(v["20261035100000"]).toBe("PARTIAL");        // the table is there, its functions are not
     expect(v["20261042100000"]).toBe("ok");             // the seats guide row exists

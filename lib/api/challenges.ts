@@ -100,5 +100,5 @@ export const setVisibleSections = (campaign: string, ids: string[]) => call<{ ok
 export const setReader = (id: string, enabled: boolean, closes: "START" | "END" = "END") => call<{ ok: true }>("challenge_set_reader", { p_id: id, p_enabled: enabled, p_closes: closes });
 export const setTargeting = (id: string, levels: string[]) => call<{ ok: true; levels: string[] }>("challenge_set_targeting", { p_id: id, p_levels: levels });
 export const cloneCampaign = (id: string, title?: string) => call<{ id: string; slug: string; format: Format }>("challenge_clone", { p_id: id, p_title: title || null });
-export const featuredQuizzes = (level?: string, limit = 8) => call<FeaturedQuiz[]>("challenge_featured", { p_limit: limit, p_level: level ?? null });
+export const featuredQuizzes = (level?: string, limit = 24) => call<FeaturedQuiz[]>("challenge_featured", { p_limit: limit, p_level: level ?? null });
 export const libraryStats = () => call<LibraryStats>("challenge_library_stats");

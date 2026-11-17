@@ -41,5 +41,3 @@ revoke all on function public.qb_owner_approve_batch_step(uuid, text, integer, b
   public.qb_owner_batch_discard_step(uuid, text, integer) from public, anon;
 grant execute on function public.qb_owner_approve_batch_step(uuid, text, integer, boolean, integer), public.qb_owner_revoke_batch_approval_step(uuid, text, integer),
   public.qb_owner_batch_discard_step(uuid, text, integer) to authenticated;
-
-

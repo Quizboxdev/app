@@ -1,20 +1,21 @@
-create or replace function public.qb_family_child_progress(p_student uuid, p_days integer default 30) returns jsonb
+create or replace function public.qb_admin_family_detail(p_workspace uuid) returns jsonb
 language plpgsql stable security definer set search_path = '' as $fn$
-declare uid uuid := auth.uid(); d integer := least(greatest(coalesce(p_days, 30), 7), 365); sp_id uuid;
+declare w public.family_workspaces;
 begin
-  if uid is null then raise exception 'QB_AUTH_REQUIRED' using errcode = '28000'; end if;
-  if not quizbox_core.family_can(uid, p_student, 'view_progress') then raise exception 'QB_FAMILY_FORBIDDEN' using errcode = '42501'; end if;
-  select id into sp_id from public.student_profiles where user_id = p_student;
-  return jsonb_build_object('days', d,
-    'completed', (select count(*) from public.attempts a where a.student_user_id = p_student and a.submitted_at >= now() - make_interval(days => d)),
-    'average', (select round(avg(a.percentage), 1) from public.attempts a where a.student_user_id = p_student and a.submitted_at >= now() - make_interval(days => d)),
-    'best', (select max(a.percentage) from public.attempts a where a.student_user_id = p_student and a.submitted_at >= now() - make_interval(days => d)),
-    'outstanding', (select count(*) from public.assignment_targets t join public.assignments x on x.id = t.assignment_id where t.student_id = sp_id
-                      and not exists (select 1 from public.attempts a where a.assignment_id = x.id and a.student_id = t.student_id and a.submitted_at is not null)),
-    'weekly', coalesce((select jsonb_agg(jsonb_build_object('week', w.wk, 'completed', w.c, 'average', w.avg) order by w.wk) from (
-        select date_trunc('week', a.submitted_at)::date as wk, count(*)::integer as c, round(avg(a.percentage), 1) as avg
-          from public.attempts a where a.student_user_id = p_student and a.submitted_at >= now() - make_interval(days => d) group by 1) w), '[]'::jsonb),
-    'recent', coalesce((select jsonb_agg(jsonb_build_object('title', y.title, 'percentage', y.percentage, 'submitted_at', y.submitted_at, 'source', y.source) order by y.submitted_at desc) from (
-        select x.title, a.percentage, a.submitted_at, x.source_type as source from public.attempts a join public.assignments x on x.id = a.assignment_id
-         where a.student_user_id = p_student and a.submitted_at is not null order by a.submitted_at desc limit 10) y), '[]'::jsonb));
+  if auth.uid() is null or not (quizbox_core.is_staff() or quizbox_market.is_super()) then raise exception 'QB_FORBIDDEN' using errcode = '42501'; end if;
+  select * into w from public.family_workspaces where id = p_workspace;
+  if w.id is null then raise exception 'QB_NOT_FOUND' using errcode = 'P0002'; end if;
+  return jsonb_build_object('workspace_id', w.id, 'name', w.name, 'created_at', w.created_at,
+    'owner', (select jsonb_build_object('name', p.full_name, 'email', p.email, 'role', p.role) from public.profiles p where p.id = w.owner_user_id),
+    'children', coalesce((select jsonb_agg(jsonb_build_object('student_id', r.target_user_id, 'name', p.full_name, 'grade_code', sp.grade_code, 'type', r.relationship_type, 'status', r.status, 'since', r.created_at, 'minor', coalesce(sp.is_minor, false)) order by p.full_name)
+        from public.account_relationships r join public.profiles p on p.id = r.target_user_id left join public.student_profiles sp on sp.user_id = r.target_user_id where r.family_workspace_id = w.id), '[]'::jsonb),
+    'orders', coalesce((select jsonb_agg(jsonb_build_object('reference', o.reference, 'kind', o.kind, 'status', o.status, 'total_minor', o.total_minor, 'created_at', o.created_at) order by o.created_at desc) from (select * from public.family_orders where workspace_id = w.id order by created_at desc limit 30) o), '[]'::jsonb),
+    'activity', coalesce((select jsonb_agg(jsonb_build_object('action', l.action, 'at', l.created_at, 'status', l.status) order by l.created_at desc)
+        from (select action, created_at, status from public.audit_logs where actor_user_id = w.owner_user_id and action like 'family.%' order by created_at desc limit 50) l), '[]'::jsonb));
 end $fn$;
+
+revoke all on function public.qb_family_progress(integer), public.qb_family_child_progress(uuid, integer), public.qb_admin_families(), public.qb_admin_family_detail(uuid) from public, anon, authenticated;
+grant execute on function public.qb_family_progress(integer), public.qb_family_child_progress(uuid, integer), public.qb_admin_families(), public.qb_admin_family_detail(uuid) to authenticated;
+
+
+notify pgrst, 'reload schema';

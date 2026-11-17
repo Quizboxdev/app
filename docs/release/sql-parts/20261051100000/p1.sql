@@ -4,6 +4,7 @@
 --   * the batch is marked DISCARDED, with who did it, when and why recorded in its report,
 --   * its file fingerprint is released (the original is kept in the report), so the same file can be loaded again from scratch.
 -- A batch that is live for learners cannot be discarded: revoke its approval first. Additive and idempotent. Rollback: supabase/rollback/question_batch_discard.sql.
+begin;
 
 create or replace function public.qb_owner_batch_discard(p_batch uuid, p_note text) returns jsonb language plpgsql security definer set search_path = '' as $fn$
 declare b public.question_load_batches; tag text; withdrawn integer; v_note text := left(btrim(coalesce(p_note, '')), 500);
@@ -31,4 +32,4 @@ end $fn$;
 revoke all on function public.qb_owner_batch_discard(uuid, text) from public, anon;
 grant execute on function public.qb_owner_batch_discard(uuid, text) to authenticated;
 
-
+commit;

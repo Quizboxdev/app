@@ -128,7 +128,6 @@ export default function StudentHomePage() {
     <>
       {error && <div className="qb-card qb-error" role="alert">{error}</div>}
       <InstallPrompt />
-      <SponsoredCarousel level={levelFromGrade(klass?.grade)} />
       <SchoolSetupCard />
       <FamilyRequestsCard />
       <FamilyChallengesCard />
@@ -179,6 +178,7 @@ export default function StudentHomePage() {
         {coins !== null && coins > 0 && <div className="qb-card qb-sh-stat"><p className="qb-overline"><Coins size={14} aria-hidden="true" /> Coins</p><strong>{coins.toLocaleString()}</strong><span className="qb-muted qb-small">Your balance</span></div>}
         {qpoints !== null && qpoints > 0 && <div className="qb-card qb-sh-stat"><p className="qb-overline"><Star size={14} aria-hidden="true" /> QPoints</p><strong>{qpoints.toLocaleString()}</strong><span className="qb-muted qb-small">Earned for mastery</span></div>}
       </section>
+      <SponsoredCarousel level={levelFromGrade(klass?.grade)} />
       {cards && <SubjectWindows menu={menu} sets={sets} unfinished={unfinished} subjects={subjects} onRetry={loadMenu} />}
       <div className="qb-sh-grid">
         <div className="qb-sh-main">

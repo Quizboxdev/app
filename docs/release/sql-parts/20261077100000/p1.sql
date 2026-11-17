@@ -3,6 +3,7 @@
 -- content (live and waiting for review, by class; batches waiting for approval), queues (support requests, markets still being set up), markets by stage, and the school directory.
 -- Staff only (owner, admin or super admin). Reads only; changes no data. Each section is computed on its own: if a table is missing on an environment, that section is null and the others still answer.
 -- Additive and idempotent. Rollback: supabase/rollback/admin_dashboard.sql.
+begin;
 
 create or replace function public.qb_admin_dashboard(p_days integer default 30) returns jsonb
 language plpgsql stable security definer set search_path = '' as $fn$
@@ -79,3 +80,5 @@ end $fn$;
 
 revoke all on function public.qb_admin_dashboard(integer) from public, anon, authenticated;
 grant execute on function public.qb_admin_dashboard(integer) to authenticated;
+
+commit;
