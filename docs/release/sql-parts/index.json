@@ -481,5 +481,19 @@
   "chars": 8716,
   "parts": 2,
   "note": "Parent accounts, 16 Nov 2026: adds the parent role and parent_profiles (stored like sponsor_profiles). Sign-up of a parent is refused until flags.family_workspace is on. Children stay linked through account_relationships. Safe to run again."
+ },
+ {
+  "version": "20261117100000",
+  "name": "parent_family_help",
+  "chars": 3662,
+  "parts": 1,
+  "note": "Help centre: a parent guide, 'Parents and guardians: create your family workspace' (published, Sponsors tab; rows only, 'on conflict do nothing'). Explains sign-up as a sponsor, adding or linking a child, and privacy. Safe to run again."
+ },
+ {
+  "version": "20261117110000",
+  "name": "parents_sign_up_as_sponsor",
+  "chars": 6146,
+  "parts": 1,
+  "note": "Parents sign up as sponsors: onboarding no longer accepts the parent role (replaces qb_complete_onboarding, one function). Sponsors can mark themselves INDIVIDUAL; organizations keep ORGANIZATION. Family workspace tools are unchanged. Safe to run again."
  }
 ]
