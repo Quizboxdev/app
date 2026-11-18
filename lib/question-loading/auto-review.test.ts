@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
 import { questionFlags, reviewFile, reviewSample } from "./auto-review";
-import { questionFlags, reviewSample } from "./auto-review";
 import type { SampleQuestion } from "@/lib/api/owner";
 
 const q = (i: number, over: Partial<SampleQuestion> = {}): SampleQuestion => ({
@@ -62,5 +61,49 @@ describe("auto review of a batch sample", () => {
     expect(reviewSample(preview(sample(), { already_available_to_learners: 3 })).flags.join()).toMatch(/already live/);
     expect(reviewSample(preview(sample(), { would_approve: 900 })).flags.join()).toMatch(/only 900 of 1000 pass/);
     expect(reviewSample(preview(sample(20, (i) => (i === 3 ? { question: q(2).question } : {})))).flags.join()).toMatch(/appears twice/);
+  });
+});
+
+describe("full-file check", () => {
+  const row = (i: number, over: Record<string, string> = {}) => ({ question_text: `Which of these best describes item number ${i} in the lesson?`, option_a: `A short answer ${i}`, option_b: `Another option about ${i} here`, option_c: `Third plausible choice ${i}`, option_d: `Fourth different idea ${i}`, correct_answer: "ABCD"[i % 4], ...over });
+  const rows = (n: number, bad: (i: number) => Record<string, string> = () => ({})) => Array.from({ length: n }, (_, i) => row(i, bad(i)));
+
+  it("passes a clean file and lists nothing", () => {
+    const v = reviewFile(rows(200), Array.from({ length: 200 }, (_, i) => i + 2));
+    expect(v).toMatchObject({ rows: 200, hold: false, share: 0 });
+    expect(v.flagged).toEqual([]);
+    expect(v.summary).toMatch(/all 200 rows passed/);
+  });
+
+  it("lists the bad rows with their file row, and still lets a file with 1% or fewer through", () => {
+    const w = reviewFile(rows(200, (i) => ((i === 10 || i === 50 ? { correct_answer: "E" } : {}) as Record<string, string>)), Array.from({ length: 200 }, (_, i) => i + 2));
+    expect(w.flagged.map((f) => f.fileRow)).toEqual([12, 52]);
+    expect(w.hold).toBe(false);       // exactly 1% is allowed
+  });
+
+  it("holds a file when more than 1% of its rows break a rule", () => {
+    const v = reviewFile(rows(200, (i) => ((i < 3 ? { correct_answer: "E" } : {}) as Record<string, string>)), Array.from({ length: 200 }, (_, i) => i + 2));
+    expect(v.hold).toBe(true);
+    expect(v.summary).toMatch(/3 of 200 rows \(1\.5%\)/);
+  });
+
+  it("flags an option that stops in the middle of a sentence", () => {
+    const cut = questionFlags(q(1, { a: "It establishes an active purpose for reading, motivating the learner to seek confirmation of" }));
+    expect(cut.join()).toMatch(/stops in the middle of a sentence/);
+    expect(questionFlags(q(1, { a: "It establishes an active purpose for reading and motivates the learner." }))).toEqual([]);
+    expect(questionFlags(q(1, { a: "The sum of" }))).toEqual([]);      // a short option is not judged
+  });
+});
+
+describe("full-file check: fixed-length options", () => {
+  const mk = (i: number, len: number) => ({ question_text: `Which of these best describes item number ${i} in the lesson?`, ...Object.fromEntries(["option_a", "option_b", "option_c", "option_d"].map((k, j) => [k, Array.from({ length: len + (j % 3) }, (_, w) => `word${i}x${w}`).join(" ")])), correct_answer: "ABCD"[i % 4] }) as Parameters<typeof reviewFile>[0][number];
+  it("holds a file whose options are almost all 14 to 16 words long", () => {
+    const v = reviewFile(Array.from({ length: 100 }, (_, i) => mk(i, 14)), Array.from({ length: 100 }, (_, i) => i + 2));
+    expect(v.hold).toBe(true);
+    expect(v.summary).toMatch(/14 to 16 words long/);
+  });
+  it("does not hold a file whose options have many different lengths", () => {
+    const v = reviewFile(Array.from({ length: 100 }, (_, i) => mk(i, 3 + (i % 20))), Array.from({ length: 100 }, (_, i) => i + 2));
+    expect(v.summary).not.toMatch(/fixed length/);
   });
 });
