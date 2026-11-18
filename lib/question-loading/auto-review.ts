@@ -11,6 +11,9 @@ const MIN_SHARED_ENDING = 12;      // characters: a phrase this long stuck on th
 const MAX_LONGEST_SHARE = 0.7;     // the right answer being the longest option in more than 70% of a sample (chance is 25%, a clean bank sits near 33%)
 const MAX_LETTER_SHARE = 0.6;      // one answer letter carrying more than 60% of the sample
 const MIN_VALID_SHARE = 0.98;      // questions of the batch that pass the database's own checks
+const MAX_FLAGGED_SHARE = 0.01;    // whole file: more than 1% of its rows matching a per-question rule holds the file for a person
+// A long option ending on one of these words was cut off (the AI stopped writing mid-sentence): "...to seek confirmation of".
+const DANGLING = new Set(["of", "the", "a", "an", "and", "or", "with", "that", "which", "as", "than", "because", "so", "but", "its", "their", "his", "her", "between", "through", "into", "is", "are", "was", "were"]);      // questions of the batch that pass the database's own checks
 
 // The longest ending (whole words) that every option in `texts` shares, ignoring case.
 function sharedEnding(texts: string[]): string {
@@ -29,6 +32,8 @@ export function questionFlags(q: SampleQuestion): string[] {
   const correct = options.find((o) => o.k.toUpperCase() === q.correct);
   if (!correct) out.push("marked answer does not point at an option");
   if (new Set(options.map((o) => norm(o.text))).size < options.length) out.push("two options say the same thing");
+  const cut = options.find((o) => o.text.length >= 40 && DANGLING.has((o.text.split(/\s+/).pop() ?? "").toLowerCase()));
+  if (cut) out.push(`an option stops in the middle of a sentence ("...${cut.text.split(/\s+/).slice(-3).join(" ")}")`);
   if (correct) {
     const wrong = options.filter((o) => o !== correct).map((o) => o.text);
     const ending = sharedEnding(wrong);
@@ -62,4 +67,31 @@ export function reviewSample(p: Pick<BatchPreview, "file" | "questions_found" | 
     ? `Script check (no human read): ${n} of ${p.questions_found} questions sampled from ${p.file}; every question passed the 6 per-question rules and the batch-level checks, 0 flagged. Answers were not verified by a person or a subject expert.`
     : `Script check failed: ${flags.length} flag(s). ${flags.slice(0, 5).join("; ")}`).slice(0, 1000);
   return { pass, checked: n, flags, note };
+}
+
+// The same per-question rules over EVERY row of a file, not just the sample of 20. A sample of 20 catches a file that is 5% bad but misses one that is 1 to 2% bad.
+// Rows are listed so they can be retired or fixed; a file above MAX_FLAGGED_SHARE is held for a person.
+export type FileRow = { question_text: string; option_a: string; option_b: string; option_c: string; option_d: string; correct_answer: string };
+export type FileVerdict = { rows: number; flagged: { fileRow: number; flags: string[] }[]; share: number; hold: boolean; summary: string };
+export function reviewFile(rows: FileRow[], fileRows: number[]): FileVerdict {
+  const flagged: FileVerdict["flagged"] = [];
+  rows.forEach((r, i) => {
+    const flags = questionFlags({ id: String(i), question: r.question_text, a: r.option_a, b: r.option_b, c: r.option_c, d: r.option_d, correct: (r.correct_answer ?? "").trim().toUpperCase(), difficulty: null });
+    if (flags.length) flagged.push({ fileRow: fileRows[i] ?? i + 2, flags });
+  });
+  // A bank written by a generator with a fixed word budget has options of almost the same length (B6 English: 14 to 16 words in 99.9% of options), which means
+  // short options were padded with filler and long ones were cut off. Real banks have options of many lengths.
+  const words = rows.flatMap((r) => [r.option_a, r.option_b, r.option_c, r.option_d]).map((o) => (o ?? "").trim().split(/\s+/).filter(Boolean).length).filter((w) => w > 1);
+  let capped = "";
+  if (rows.length >= 50 && words.length >= 200) {
+    let best = 0, from = 0;
+    for (let w = 1; w <= 60; w++) { const c = words.filter((x) => x >= w && x <= w + 2).length; if (c > best) { best = c; from = w; } }
+    if (from >= 10 && best / words.length >= 0.9) capped = `${(100 * best / words.length).toFixed(0)}% of all options are ${from} to ${from + 2} words long, so they look padded or cut to a fixed length`;
+  }
+  const share = rows.length ? flagged.length / rows.length : 0, hold = share > MAX_FLAGGED_SHARE || !!capped;
+  const kinds: Record<string, number> = {};
+  for (const f of flagged) for (const x of f.flags) { const k = x.replace(/\s*\(.*$/, ""); kinds[k] = (kinds[k] ?? 0) + 1; }
+  const top = Object.entries(kinds).sort((a, b) => b[1] - a[1]).map(([k, c]) => `${c} x ${k}`).join(", ");
+  const summary = (capped ? `${capped}; ` : "") + (flagged.length ? `${flagged.length} of ${rows.length} rows (${(100 * share).toFixed(1)}%) matched a rule: ${top}` : `all ${rows.length} rows passed the per-question rules`);
+  return { rows: rows.length, flagged, share, hold, summary };
 }
