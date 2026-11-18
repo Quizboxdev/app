@@ -4,7 +4,7 @@ import HelpLink from "@/components/help/HelpLink";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { bootstrapUser } from "@/lib/auth";
-import { listTeacherAssignments, listTeacherClasses, publishAssignment } from "@/lib/api/teacher";
+import { countActiveLearnersByClass, listTeacherAssignments, listTeacherClasses, publishAssignment } from "@/lib/api/teacher";
 import { setAssignmentGradeOverride } from "@/lib/api/markets";
 import WorkflowStepper from "@/components/WorkflowStepper";
 import StatusBadge from "@/components/StatusBadge";
@@ -20,9 +20,12 @@ export default function TeacherAssignmentsPage() {
   const [ctx, setCtx] = useState<any>(null), [classes, setClasses] = useState<any[]>([]), [rows, setRows] = useState<any[]>([]), [objectives, setObjectives] = useState<any[]>([]), [availability, setAvailability] = useState<any>(null), [questions, setQuestions] = useState<any[]>([]), [selectedIds, setSelectedIds] = useState<string[]>([]), [publishing, setPublishing] = useState(false), [run, setRun] = useState(0);
   const [gradeOverride, setGradeOverride] = useState(false), [overrideReason, setOverrideReason] = useState("");
   const [error, setError] = useState(""), [notice, setNotice] = useState(""), [classId, setClassId] = useState(""), [nodeId, setNodeId] = useState(""), [title, setTitle] = useState(""), [description, setDescription] = useState(""), [difficulty, setDifficulty] = useState(""), [count, setCount] = useState(5), [attempts, setAttempts] = useState(1), [minutes, setMinutes] = useState(30), [dueAt, setDueAt] = useState(""), [mode, setMode] = useState<"PRACTICE"|"ASSESSMENT">("ASSESSMENT"), [selectionMode, setSelectionMode] = useState<"AUTOMATIC"|"MANUAL">("AUTOMATIC");
+  const [learnerCounts, setLearnerCounts] = useState<Record<string, number>>({});
+  const learnersIn = (row: any) => (row?.id in learnerCounts ? learnerCounts[row.id] : null);
+  const learnerLabel = (row: any) => { const n = learnersIn(row); return n === null ? "" : `${n} ${n === 1 ? "learner" : "learners"}`; };
   const selectedClass = useMemo(() => classes.find((row) => row.id === classId), [classes, classId]);
 
-  async function refresh(context: any) { const teacherId = String(context.teacherProfile?.id ?? ""); const [classRows, assignmentRows] = await Promise.all([listTeacherClasses(teacherId), listTeacherAssignments(teacherId, context.userId)]); setClasses(classRows); setRows(assignmentRows); }
+  async function refresh(context: any) { const teacherId = String(context.teacherProfile?.id ?? ""); const [classRows, assignmentRows] = await Promise.all([listTeacherClasses(teacherId), listTeacherAssignments(teacherId, context.userId)]); setClasses(classRows); setRows(assignmentRows); countActiveLearnersByClass(classRows.map((c: any) => String(c.id))).then(setLearnerCounts).catch(() => setLearnerCounts({})); }
   useEffect(() => { bootstrapUser().then(async (context) => { setCtx(context); await refresh(context); }).catch((reason) => setError(reason.message)); }, []);
   useEffect(() => {
     setNodeId(""); setAvailability(null); setObjectives([]);
@@ -59,9 +62,9 @@ export default function TeacherAssignmentsPage() {
     { id: "class", title: "Class", description: "Who is this for?", isValid: Boolean(classId), content:
       cards ? <div className="qb-field"><span id="asg-class-label" className="qb-label">Class</span>
         <div role="group" aria-labelledby="asg-class-label"><KnowledgeWindowGrid dense>{classes.map((row) => <KnowledgeWindow key={row.id} variant="selector" name={row.curriculum_nodes?.title ?? row.class_name} displayName={String(row.class_name ?? "")}
-          meta={[row.grade, row.curriculum_nodes?.title].filter(Boolean).join(" · ")} selected={classId === row.id} onSelect={() => setClassId(row.id)}
+          meta={[row.grade, row.curriculum_nodes?.title, learnerLabel(row)].filter(Boolean).join(" · ")} selected={classId === row.id} onSelect={() => setClassId(row.id)}
           view={{ state: "READY", status: null, tone: "neutral", action: { label: "Choose", kind: "practise" }, progress: null }} />)}</KnowledgeWindowGrid></div></div>
-      : <div className="qb-field"><label htmlFor="asg-class">Class</label><select id="asg-class" value={classId} onChange={(e) => setClassId(e.target.value)}><option value="">Select class</option>{classes.map((row) => <option key={row.id} value={row.id}>{row.class_name} · {row.grade}</option>)}</select></div> },
+      : <div className="qb-field"><label htmlFor="asg-class">Class</label><select id="asg-class" value={classId} onChange={(e) => setClassId(e.target.value)}><option value="">Select class</option>{classes.map((row) => <option key={row.id} value={row.id}>{[row.class_name, row.grade, learnerLabel(row)].filter(Boolean).join(" · ")}</option>)}</select></div> },
     { id: "scope", title: "Scope", description: "Choose the curriculum objective the questions come from.", isValid: Boolean(nodeId), content: !selectedClass ? <p className="qb-muted">Select a class first.</p> : subjectRoot ? (
       <>
         <CurriculumBrowser curriculumId={selectedClass.curriculum_id} root={subjectRoot} rootLabel={subjectRoot.title}
@@ -102,6 +105,7 @@ export default function TeacherAssignmentsPage() {
           <div><dt>Mode</dt><dd>{mode === "PRACTICE" ? "Practice" : "Assessment"}</dd></div>
           <div><dt>Due</dt><dd>{dueAt ? new Date(dueAt).toLocaleDateString() : "No due date"}</dd></div>
         </dl>
+        {learnersIn(selectedClass) === 0 && <p className="qb-warning" role="alert"><strong>No learners are in this class yet.</strong> Nobody will see this assignment now. Learners who join this class later will receive it. Check that you chose the class your learners joined.</p>}
         <p><strong>{title || "Untitled assignment"}</strong></p>
         <ol>{chosen.map((q) => <li key={q.id}>{q.question_text}</li>)}</ol>
         {selectionMode === "AUTOMATIC" && <p className="qb-muted qb-small">Questions shown are a sample; the server selects the final set from approved questions.</p>}
