@@ -4,7 +4,7 @@ import { readFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { createClient } from "@supabase/supabase-js";
 import { findLoadBatchByHash, listApprovedSources, loadCurriculumIndex, runQuestionLoad } from "../../lib/api/question-loading";
-import { reviewSample } from "../../lib/question-loading/auto-review";
+import { reviewFile, reviewSample } from "../../lib/question-loading/auto-review";
 import { parsePlan, type PlanEntry } from "../../lib/question-loading/auto-plan";
 import { buildLoadPayload } from "../../lib/question-loading/payload";
 import { buildPlan } from "../../lib/question-loading/plan";
@@ -55,7 +55,7 @@ async function main() {
   if (!planPath) { console.error("Usage: npx tsx scripts/question-bank/auto-load.ts --plan <LOAD_PLAN_Preview.csv> [options]  (see the header of this file)"); process.exit(2); }
   const plan = resolve(planPath), root = resolve(option("--root") ?? dirname(plan));
   const stopFile = resolve(option("--stop-file") ?? join(dirname(plan), "auto-load.STOP"));
-  const logFile = join(dirname(plan), "auto-load.log"), stateFile = join(dirname(plan), "auto-load.state.json"), csvFile = join(dirname(plan), "auto-load-progress.csv"), lockFile = join(dirname(plan), "auto-load.lock");
+  const logFile = join(dirname(plan), "auto-load.log"), stateFile = join(dirname(plan), "auto-load.state.json"), csvFile = join(dirname(plan), "auto-load-progress.csv"), lockFile = join(dirname(plan), "auto-load.lock"), flaggedFile = join(dirname(plan), "auto-load-flagged-rows.csv");
   const once = flag("--once"), approveOn = !flag("--no-approve"), dry = flag("--dry-run");
   const log = (m: string) => { const line = `${new Date().toISOString().slice(0, 19).replace("T", " ")}Z  ${m}`; console.log(line); try { appendFileSync(logFile, line + "\n"); } catch { /* the console still has it */ } };
 
@@ -139,7 +139,7 @@ async function main() {
     };
 
     // Reviews and approves one loaded batch. Returns false when a person must take over (the sample failed a rule).
-    async function approveBatch(s: FileState) {
+    async function approveBatch(s: FileState, rows: Parameters<typeof reviewFile>[0], fileRows: number[]) {
       const batchId = s.batch_id!;
       const held = await approvalOf(batchId);
       if (held && !held.in_progress) { s.approval = "approved"; s.basis = held.basis; return; }
@@ -152,9 +152,18 @@ async function main() {
       if (error) throw new Error(`Could not draw the sample: ${error.message}`);
       const v = reviewSample(data as BatchPreview);
       if (!v.pass) { s.approval = "review_failed"; s.note = v.note; failedReview++; log(`  NOT approved, left in review for a person: ${v.flags.slice(0, 4).join("; ")}${v.flags.length > 4 ? ` (+${v.flags.length - 4} more)` : ""}`); return; }
+      // The whole file, not only the sample: a sample of 20 misses a file that is 1 to 2% bad.
+      const fv = reviewFile(rows, fileRows);
+      log(`  Full-file check: ${fv.summary}.`);
+      if (fv.flagged.length) {
+        const header = existsSync(flaggedFile) ? "" : "file,file_row,reason,approved_anyway\n";
+        try { appendFileSync(flaggedFile, header + fv.flagged.map((f) => `"${s.file.split("/").pop()}",${f.fileRow},"${f.flags.join("; ").replace(/"/g, "'")}",${fv.hold || dry ? "no" : "yes"}`).join("\n") + "\n"); } catch { /* the log still has the summary */ }
+      }
+      if (fv.hold) { s.approval = "review_failed"; s.note = `Held for a person by the full-file check: ${fv.summary}. Rows are listed in auto-load-flagged-rows.csv.`.slice(0, 1000); failedReview++; log(`  NOT approved, left in review for a person: more than 1% of the rows break a rule.`); return; }
       if (dry) { log(`  (dry run) sample of ${v.checked} passed; would approve`); return; }
-      const r = await runSteps(() => callApprove(batchId, v.note, v.checked), { onStep: (x) => { if (!x.done) log(`  approving: ${n(x.approved)} so far`); } });
-      s.approval = "approved"; s.basis = r.basis ?? "SCRIPT_CHECKED"; s.approved_at = new Date().toISOString(); s.note = v.note; approved++;
+      const note = fv.flagged.length ? `${v.note} Full-file check: ${fv.summary}; those rows are listed for retirement or repair.`.slice(0, 1000) : `${v.note} Full-file check: ${fv.summary}.`.slice(0, 1000);
+      const r = await runSteps(() => callApprove(batchId, note, v.checked), { onStep: (x) => { if (!x.done) log(`  approving: ${n(x.approved)} so far`); } });
+      s.approval = "approved"; s.basis = r.basis ?? "SCRIPT_CHECKED"; s.approved_at = new Date().toISOString(); s.note = note; approved++;
       log(`  APPROVED ${n(r.approved)} questions (${n(r.skipped ?? 0)} left in review), basis ${s.basis}. They are live on Preview.`);
     }
 
@@ -192,7 +201,7 @@ async function main() {
           const batch = await findLoadBatchByHash(hash, db);
           if (!batch) { log("  The batch was not found after loading; leaving it."); hadError = true; break; }
           s.batch_id = batch.id; s.loaded_at = s.loaded_at ?? new Date().toISOString();
-          if (approveOn) await approveBatch(s); else s.approval = "not_attempted";
+          if (approveOn) await approveBatch(s, parsed.rows, parsed.fileRows); else s.approval = "not_attempted";
           break;
         } catch (e) {
           const msg = (e as Error).message ?? String(e);
