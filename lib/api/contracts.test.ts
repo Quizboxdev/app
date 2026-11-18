@@ -7,7 +7,7 @@ const mock = vi.hoisted(() => {
   return { query, rpc: vi.fn(async () => ({ data: {}, error: null })), from: vi.fn(() => query) };
 });
 vi.mock("@/lib/supabase/client", () => ({ getSupabaseBrowserClient: () => mock }));
-import { createClass, publishAssignment, listGradebook, listTeacherClasses, listIndicatorLearners } from "./teacher";
+import { countActiveLearnersByClass, createClass, publishAssignment, listGradebook, listTeacherClasses, listIndicatorLearners } from "./teacher";
 import { joinClass } from "./student";
 import { listCurriculumNodes, getQuestionAvailability } from "./curriculum";
 import { startAttempt, getAttempt, saveResponse, submitAttempt, getResult, getAttemptReview, getMyResults, savePracticeResponse } from "./assessment";
@@ -30,6 +30,10 @@ describe("accepted learning-loop API contracts", () => {
   it("bounds result history", async () => { await getMyResults(10); expect(mock.rpc).toHaveBeenCalledWith("qb_my_results", { p_limit: 10 }); });
   it("uses a distinct practice feedback path", async () => { await savePracticeResponse({ attemptId: "a", questionId: "q", selectedAnswer: "A" }); expect(mock.rpc).toHaveBeenCalledWith("qb_save_practice_response", expect.objectContaining({ p_attempt_id: "a", p_question_id: "q" })); });
   it("scopes teacher class lookup to either ownership column", async () => { await listTeacherClasses("t"); expect(mock.query.or).toHaveBeenCalledWith("primary_teacher_id.eq.t,teacher_id.eq.t"); });
+  it("counts only active learners per class, and asks nothing for no classes", async () => {
+    expect(await countActiveLearnersByClass([])).toEqual({}); expect(mock.from).not.toHaveBeenCalled();
+    await countActiveLearnersByClass(["c1", "c2"]); expect(mock.from).toHaveBeenCalledWith("classes"); expect(mock.query.in).toHaveBeenCalledWith("id", ["c1", "c2"]); expect(mock.query.eq).toHaveBeenCalledWith("class_memberships.status", "active");
+  });
   it("does not fetch gradebook without authorized classes", async () => { await listGradebook("t"); expect(mock.from).not.toHaveBeenCalledWith("gradebook"); });
   it("scopes learner drill-down to class and objective", async () => { await listIndicatorLearners("c", "n"); expect(mock.rpc).toHaveBeenCalledWith("qb_indicator_learners_page", { p_class_id: "c", p_node_id: "n", p_page: 1, p_limit: 25 }); });
 });

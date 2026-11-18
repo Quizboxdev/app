@@ -530,5 +530,12 @@
   "chars": 7231,
   "parts": 1,
   "note": ""
+ },
+ {
+  "version": "20261118110000",
+  "name": "class_join_assignment_catch_up",
+  "chars": 2832,
+  "parts": 1,
+  "note": "A learner who joins a class later now receives its open class-wide assignments (trigger plus a one-off backfill). Family classes and chosen-learner work are untouched. Safe to run again."
  }
 ]

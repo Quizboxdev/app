@@ -83,6 +83,16 @@ export async function listTeacherClasses(teacherId: string) {
   return data ?? [];
 }
 
+// How many active learners each class has, keyed by class id. A class with no learners is a warning in the assignment wizard.
+export async function countActiveLearnersByClass(classIds: string[]): Promise<Record<string, number>> {
+  if (!classIds.length) return {};
+  const { data, error } = await getSupabaseBrowserClient().from("classes").select("id, class_memberships(count)").in("id", classIds).eq("class_memberships.status", "active");
+  if (error) throw new Error(userFacingError(error));
+  const out: Record<string, number> = {};
+  for (const row of (data ?? []) as Array<{ id: string; class_memberships?: Array<{ count: number }> }>) out[row.id] = Number(row.class_memberships?.[0]?.count ?? 0);
+  return out;
+}
+
 export async function createClass(payload: Record<string, unknown>) {
   const { data, error } = await getSupabaseBrowserClient().from("classes").insert(payload).select("*").single();
   if (error) throw new Error(userFacingError(error));
