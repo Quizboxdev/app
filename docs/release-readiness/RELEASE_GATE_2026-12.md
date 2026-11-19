@@ -4,11 +4,11 @@ Written for: the Product Lead and the sign-off group named in section 8 of the g
 
 ## Recommendation: LIMITED GO
 
-One pilot school, supervised, on the paths that were tested. **Not GO:** gates G0 (part), G1 (part), G4, G7, G8 and G9 have no evidence yet (listed below). No open P0 or P1 defect remains on the paths tested.
+One pilot school, supervised, on the paths that were tested. **Not GO:** gates G0 (part), G1 (part), G4 (sampling), G7, G8 and G9 have no or only partial evidence yet (listed below). No open P0 or P1 defect remains on the paths tested.
 
 Under the specification's own words: the NO-GO triggers (a P0/P1 touching children, cross-school access, scores, submission, entitlement or core onboarding; a promised parent flow that is missing; thin approved content) are **not triggered by anything tested**, but two of them cannot be ruled out without evidence we do not have: content coverage for the pilot grades (G4) and the parent flow as promised in launch material (E2E-11). The LIMITED GO therefore carries these conditions:
 
-1. G4 audit SQL (`supabase/tests/december_data_audit_readonly.sql`) run on Preview and Production, and every non-zero line explained.
+1. G4 audit run on Preview and Production: **done 2026-11-19**, every non-zero line explained below. Still to do: Curriculum QA sampling of the pilot grades.
 2. Pilot grades and subjects chosen from where approved questions exist (the audit and the question-bank counts decide).
 3. Family stays off for the pilot, or is switched on for all participating guardians, and the campaign wording matches (invariant 10).
 4. A phone smoke test (G7) and the backup-restore drill (G8) done before the first school session.
@@ -18,13 +18,13 @@ Under the specification's own words: the NO-GO triggers (a P0/P1 touching childr
 
 | Item | Value |
 |---|---|
-| Code under test | `main` at `195e34c` plus the branch `release/answers-merit` (this record's pull request) |
+| Code under test | `main` at `50797ca` (pull request 118 merged) |
 | Preview project | `fngdtxayfoiffbcbmcum` (gate run by the owner 2026-11-19, twice) |
 | Production project | `fmgccmqxfjppqydkhaiu` (read-only checks only; the gate is never run there) |
 | Deployment URL | not recorded in this session |
-| Migrations from this gate | `20261120100000_learner_profile_write_guards` (Preview and Production applied), `20261120110000_reassert_browser_role_grants` (Preview applied; Production no-op), `20261120120000_xp_only_for_answers` (pending) |
+| Migrations from this gate | `20261120100000_learner_profile_write_guards` (Preview and Production applied), `20261120110000_reassert_browser_role_grants` (Preview applied; Production no-op), `20261120120000_xp_only_for_answers` (Preview applied and checked; Production pending) |
 | Production migration history table | 83 rows, newest `20261018130000`: later migrations were applied by hand and not recorded; the history table cannot be used to prove state (known, separate repair) |
-| Test totals | Gate: 90 checks, 89 pass, 1 accepted by the owner (AG-07), 0 fail on the Production-matched database. Vitest: see the pull request |
+| Test totals | Gate: 90 checks, 89 pass, 1 accepted by the owner (AG-07), 0 fail, on the Production-matched database and on Preview (2026-11-19 22:29, after all fixes). Vitest: 2,227 passed, 0 failed, 119 live tests skipped |
 
 ## Release invariants (section 2)
 
@@ -34,7 +34,7 @@ Under the specification's own words: the NO-GO triggers (a P0/P1 touching childr
 | 2 | Teacher scope | AS-06, AS-07, TN-05, RP-01 to RP-05: no cross-class publish, roster, review or breakdown | PASS; report exports not tested |
 | 3 | Guardian scope | GD-01 to GD-11, AG-03 to AG-05: pending gives nothing, revoke is immediate, forged or self-approved links refused | PASS |
 | 4 | Age safeguards | AG-01, AG-02, AG-05, AG-06, AG-08, AG-09 pass after D-01. **AG-07 accepted by the owner** (under-13 learners join a class with its code). Legal review of the safeguards: not part of this evidence | PASS with one owner-accepted behaviour; see "Open decisions" |
-| 5 | Content integrity | AS-02, AS-04, AS-05: only approved active questions can be assigned. Provenance, answer validity, duplicates: audit SQL written, **not run** | PARTIAL |
+| 5 | Content integrity | AS-02, AS-04, AS-05: only approved active questions can be assigned. Production audit: 0 unapproved, 0 without provenance, 0 without a correct answer, 0 blank options, 0 without feedback, 0 without a topic, 0 grade mismatches; 8 duplicate-text groups; 5 withdrawn questions still inside 53 old test assignments (C10, below) | PASS on the audit; one policy question (C10) and 8 duplicates to clean |
 | 6 | Attempt integrity | QZ-06 to QZ-12, MB-01 to MB-05: server scoring, one result and one reward per attempt, no forged scores, no foreign writes. Two truly simultaneous submits (E2E-08): **not run** (needs two connections) | PASS except E2E-08 |
 | 7 | Entitlements | EN-01 to EN-07: free allowance, pilot grant lifts and then expires, revoke is immediate, no self-grant | PASS |
 | 8 | Data minimisation | Service-role key is only in server files; no `NEXT_PUBLIC` secret (static search). Analytics payloads and error logs: **not inspected** | PARTIAL |
@@ -49,7 +49,7 @@ Under the specification's own words: the NO-GO triggers (a P0/P1 touching childr
 | G1 authentication | PARTIAL | Role boundaries and escalation (AU-01 to AU-08) | Recovery, reset, duplicate email, expired link: not run (need the auth service) |
 | G2 classes and assignment | PASS (database level) | CL, JN, AS, QZ, RP all pass, including late joiner, attempt limit, deadline | Browser E2E not run |
 | G3 privacy and security | PASS for what was tested | Cross-school negative tests on tables and RPCs; the two P1 and the Preview P0 closed | Direct HTTP API, storage, exports, red-team list (section 7) not run |
-| G4 curriculum and SME | NOT RUN | Audit SQL ready | Run it; sample every advertised grade and subject |
+| G4 curriculum and SME | PARTIAL | Data audit run on Preview and Production 2026-11-19 (results below): no unapproved, answer-less, blank-option, feedback-less, topic-less or grade-mismatched active question on Production | Sampling of every advertised grade and subject by Curriculum QA; the 8 duplicate groups; coverage counts for the pilot grades |
 | G5 parent linking | PASS (database level) | GD, AG-03 to AG-05 | "Existing learner request/acceptance" through the screens; approved child linking by staff through the screens |
 | G6 payments, pilot access | PARTIAL | EN-01 to EN-07 | Bundle quotas, subscription purchase, duplicate payment event replay (E2E-18) |
 | G7 reliability, mobile | PARTIAL | Install manifest, viewport, service worker rules, retry queue, reload persistence (fixed, tested); resume after reload, retry after dropped connection, deadline (MB-01 to MB-03) | No phone test, no 3G test, no 150-user load test, no p95 measurement |
@@ -75,7 +75,7 @@ Under the specification's own words: the NO-GO triggers (a P0/P1 touching childr
 | E2E-13 reject, expire, unlink removes access | PASS (db) | GD-11 (revoke); expiry of a request not tested |
 | E2E-14 under-13 protections, no public leaderboard or messaging | PARTIAL | AG-01 to AG-06, AG-08, AG-09 (managed child cannot join a challenge, is excluded from rankings). Self-registered children are not flagged as minors anywhere, so no age rule applies to them (see decisions). No chat feature exists in the code base |
 | E2E-15 cross-school SELECT, INSERT, UPDATE, DELETE | PASS (db) | TN-01 to TN-06; storage objects and exports not tested |
-| E2E-16 no draft or withdrawn question eligible | PASS (db) | AS-02, AS-04; withdrawn-after-assignment is audit check C10 (not run) |
+| E2E-16 no draft or withdrawn question eligible | PASS (db) | AS-02, AS-04; withdrawn-after-assignment is audit check C10 (run on Production: only October test fixtures affected, see OD-3) |
 | E2E-17 free allowance, pilot grants, subscription | PASS (db) | EN-01 to EN-04; purchase path not run |
 | E2E-18 webhook replay cannot duplicate Coins or subscription | NOT RUN | existing payment suites cover replay in isolation; not part of this gate |
 | E2E-19 relogin or reset exposes no earlier session data | NOT RUN | |
@@ -85,11 +85,24 @@ Under the specification's own words: the NO-GO triggers (a P0/P1 touching childr
 
 ## Data and content audit (section 5)
 
-`supabase/tests/december_data_audit_readonly.sql` is written and validated for syntax and execution on a database with the production schema. It is read-only and prints counts only. It has **not** been run on Preview or Production.
+`supabase/tests/december_data_audit_readonly.sql` (read-only, counts only) was run by the owner on Preview and Production on 2026-11-19.
 
-```
-C:\Users\USER\dev\fp\run_readonly_sql.ps1 -Target Preview -File C:\Users\USER\dev\codebase\supabase\tests\december_data_audit_readonly.sql
-```
+| Check | Production | Preview | Reading |
+|---|---|---|---|
+| A1-A3, A5 orphans, duplicate enrolments, classes without grade | 0 | 0 | clean |
+| A4 active enrolments in an archived class | 3 | 0 | archiving a class does not end enrolments; low impact |
+| A6 learner enrolled at a different level than their own | 4 | 1 | older joins from before the level check; informational |
+| B1-B8 attempts, results, rewards | 0 | 0 | clean (no ownerless, duplicate or over-limit attempts; no duplicate results or rewards) |
+| B9 completion rewards on empty papers | 2 | 0 | history; the new rule (20261120120000) stops new ones |
+| C1 active but not approved | 0 | 0 | clean |
+| C2 approved with no reviewer | 0 | 75 | Preview only: the 75 seeded questions |
+| C3-C8 answers, options, feedback, topic, grade | 0 | 0 | clean |
+| C9 active questions with identical text | 8 groups | 2,555 groups | Production: content clean-up; Preview: test data |
+| C10 withdrawn questions inside published assignments | 95 rows | 0 | see below |
+| D1 subscriptions marked active past their end date | 4 | 2 | access follows the end date, so no one keeps access; status label only |
+| D2-D7 grants and guardian links | 0 | 0 | clean |
+
+**C10 explained (Production).** The 95 rows are 5 archived questions (4 approved, 1 in review) inside 53 published assignments. Every affected assignment is an October acceptance-test fixture ("Acceptance regression ...", "DEV_FACTORY_PILOT snapshot regression", "Secure Practice Acceptance"); the only attempts on them are 55 from a single account on 2026-10-01 and 2026-10-02. No school content is affected. Design note: an assignment keeps its own copy of each question, so a question withdrawn **after** an assignment is published is still served by that assignment (start-attempt reads the copy). That protects marks already given, but it means "withdrawn" does not reach assignments already out. Recommended policy: when a question is withdrawn, block new attempts on assignments that contain it and tell the teacher to republish; this is a product decision and was not built. Optional clean-up (needs the owner's approval): archive the 53 fixture assignments.
 
 ## Telemetry (section 6) and red-team list (section 7)
 
@@ -108,7 +121,8 @@ Not part of this evidence. Of section 7, these were exercised: user-id swaps (QZ
 | MB-04 | P3 | Rewards | A paper with nothing answered earned 20 points | Fix written in this pull request (20261120120000); pending apply. Rule is now "reward follows the answers" (MB-05) |
 | AG-07 | owner decision | Age | Self-registered under-13 learners can join a class with its code | **Accepted by the owner 2026-11-19**: most Basic 4 to 6 learners are under 13; the class teacher stands for the school |
 | OD-1 | open decision | Age | Age is not recorded at self-registration, so the minor safeguards cover school- and guardian-created accounts only. A self-registered child can join a public challenge and appear on its leaderboard as "First L." | Owner to decide (options below) |
-| OD-2 | open | Evidence | G4, G7, G8, G9 and most browser scenarios not run | Conditions above |
+| OD-2 | open | Evidence | G7, G8, G9, G4 sampling and most browser scenarios not run | Conditions above |
+| OD-3 | open decision | Content | A question withdrawn after assignment is still served by the assignments that hold a copy (C10). Production has only test fixtures affected today | Owner to decide the policy (recommended: block new attempts and ask the teacher to republish) |
 
 ### Open decisions
 - **OD-1.** Options: (a) keep as is; (b) show self-registered learners on public leaderboards by a nickname chosen by the teacher or by initials only; (c) ask for a birth year at sign-up and apply the minor rules. The invariant text ("no public leaderboard for under-13") is met for managed accounts only.
