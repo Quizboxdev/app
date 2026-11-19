@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatDate, formatDateTime, humanize, isUuid, shortenIds, shortId, statusTone } from "./format";
+import { formatDate, formatDateTime, humanize, isInPast, isUuid, shortenIds, shortId, statusTone } from "./format";
 
 describe("display formatters", () => {
   it("shortens UUIDs and passes other values through", () => {
@@ -36,4 +36,10 @@ describe("display formatters", () => {
     expect(statusTone("pending_review")).toBe("warning");
     expect(statusTone("something_else")).toBe("neutral");
   });
+});
+
+describe("isInPast", () => {
+  const now = new Date("2026-11-19T12:00:00").getTime();
+  it("is true for an earlier date and false for a later one", () => { expect(isInPast("2026-11-18T09:00", now)).toBe(true); expect(isInPast("2026-11-20T09:00", now)).toBe(false); });
+  it("an empty or unreadable value is not in the past", () => { expect(isInPast("", now)).toBe(false); expect(isInPast(null, now)).toBe(false); expect(isInPast("not a date", now)).toBe(false); });
 });
