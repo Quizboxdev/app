@@ -1,28 +1,34 @@
 # December 2026 release-readiness gate: evidence, defects, decision
 
-Date: 2026-11-19. Code under test: `main` at 5abac1d (after PR #115). Written for the owner and the engineers who will apply the correction.
+Date: 2026-11-19. Code under test: `main` at 6dc95d6. Written for the owner and the engineers who will apply the correction.
 
-## Decision: LIMITED GO (conditional, supervised pilot only)
+## Decision: LIMITED GO for a supervised pilot on Production, after two read-only confirmations and two migrations; NO-GO for using Preview as a security test bed until its grants are fixed
 
-Not a full GO, not a NO-GO. No P0 defect was found: no test showed one user reading another user's data, reaching administrator rights, or moving money. Two P1 defects (one root cause) let a signed-in learner change their own safeguarding flags and create classes; a one-migration correction is written and proven. A supervised school pilot may start once the conditions below are met.
+Updated 2026-11-19 evening, after the gate ran on **Preview** and Production's live function text and policies were compared with the test database.
+- **Production:** no P0. The two worst findings seen on Preview are absent there (profiles.role is not editable by a learner; browser roles hold no TRUNCATE). Production's policies match the test database except two read policies; its attempt functions were loaded into the test database and the gate re-run: 78 pass, 10 fail, the same 10 as before.
+- **Preview:** a confirmed P0 (a learner could set their own role to admin) and open TRUNCATE on 183 tables. Cause: Preview was rebuilt with Supabase's default open grants. Production is not affected. Migration `20261120110000_reassert_browser_role_grants` closes it.
+- Two P1 defects (one root cause, D-01) exist on Production's rules and are closed by `20261120100000_learner_profile_write_guards`.
 
 | # | Condition for the pilot | Who | Status |
 |---|---|---|---|
-| 1 | Run the gate on **Preview** (command below). Expect the same 10 failures as the "before" column: that confirms Preview carries the same rules as the scratch database. | Owner | Not done: this session could not reach Preview |
-| 2 | Run `supabase/tests/december_gate_preflight_readonly.sql` on **Production** (read-only) and confirm section 3 shows no codes shared across letter case, and section 4 shows 0 for "teacher profiles owned by a learner account" and "classes whose owning teacher account is a learner account". | Owner | Not done |
-| 3 | Review and apply migration `20261120100000_learner_profile_write_guards.sql` to Preview, re-run the gate (expect 86 pass, 2 fail: AG-07 and MB-04 only), then apply to Production. | Owner, Claude prepares the scripts | Not done |
-| 4 | Pilot learners under 13 are created through the **managed learner** flow (teacher or parent provisions them), never self-registered, until decision AG-07 is made. | Owner | Decision needed |
-| 5 | The gate file named in the brief, `01_Release_Readiness_Gate.md`, was **not found** on this computer or in Google Drive. The checks follow the brief's list. If the file sets thresholds or extra checks, they were not applied. | Owner | Send the file |
+| 1 | Gate run on Preview | Owner | Done 2026-11-19: 13 fail, 75 pass (evidence/gate-preview-2026-11-19.txt) |
+| 2 | Production checked read-only for the profiles rule, TRUNCATE, attempt functions | Owner | Done: profiles rule and TRUNCATE correct; attempt functions identical to Preview's |
+| 3 | `december_gate_preflight_readonly.sql` on Production: no join codes shared across letter case; 0 learner-owned teacher profiles and classes | Owner | Not done |
+| 4 | Apply `20261120100000` to Preview, then Production; apply `20261120110000` to Preview (Production: not needed); re-run the gate on Preview, expect 86 pass, 2 fail | Owner | Not done |
+| 5 | Pilot learners under 13 are created through the managed learner flow until decision AG-07 | Owner | Decision needed |
+| 6 | The file `01_Release_Readiness_Gate.md` was never found; if it sets extra checks or thresholds they were not applied | Owner | Send the file |
 
 ## What was run, and on what
 
 The gate is `supabase/tests/december_readiness_gate.sql`: 88 checks in one transaction that ends in ROLLBACK, run as the real `authenticated` and `anon` roles with real JWT claims, so row-level security and grants apply exactly as in the app. It calls the real RPCs (`qb_join_class`, `qb_publish_assignment`, `qb_start_attempt`, `qb_save_response`, `qb_complete_attempt`, `qb_family_link_request`, and others). Nothing is mocked and no test was skipped. Data is synthetic: addresses end in `@e2e.quizbox.invalid`, ids start `d0a70000`.
 
-**Database used: a local scratch PostgreSQL 18, not Preview.** The Supabase connector in this session sees no QuizBox project, and no Preview credentials exist on this computer. The scratch database is the schema-only production dump of 2026-10-30 (`dev\fp\prod_schema.sql`: 208 tables, 172 policies) plus every migration in this repository applied in order (581 functions, 173 policies). 38 migration files stopped with "already exists" because the dump already contained them; 5 older migrations stopped on their own pre-checks for the same reason. No data was copied from any environment. Drift between this scratch database and Preview or Production is possible: that is why condition 1 exists.
+**Databases used.** (1) Preview, run by the owner: `evidence/gate-preview-2026-11-19.txt`. (2) A local scratch PostgreSQL 18 made from the schema-only production dump of 2026-10-30 plus the repository migrations, then **overlaid with Production's exact function definitions** exported read-only on 2026-11-19 (672 functions; line endings normalised). Production's and Preview's policy fingerprints were compared with the scratch database: Preview equals Production; scratch differs from Production only in `learning_events_owner_read` and `mastery_owner_read` (both read-only rules) plus storage and cron policies the gate does not touch. Evidence: `gate-production-synced-before.txt` and `-after.txt`. No data was copied from any environment. The gate was never run on Production (it writes, even though it rolls back).
+
+The first scratch run used repository functions that were older than the live ones; that made QZ-11 (another learner completing an attempt) look different. The test now checks the effect (attempt still open, no reward or learning event) instead of the absence of an exception, because the completion RPC reports some refusals as a JSON reply. With Production's functions it passes.
 
 Also run: the new PGlite test for the correction (10 tests) and the static checks (10 tests, one marked `it.fails` for a known defect). `tsc --noEmit` and ESLint on the new files are clean. Full suite on this branch: 2,221 passed, 1 expected fail (MB-D1), 119 skipped (the live Preview tests, which need `.env.branch.local`, absent here). The first full run had 4 failures, all in the release-kit test that wants paste-ready parts for every new migration; they are added and the test passes.
 
-## Results by area (before the correction / after)
+## Results by area (Production-matched database: before the corrections / after)
 
 | Area | Checks | Before | After |
 |---|---|---|---|
@@ -39,13 +45,19 @@ Also run: the new PGlite test for the correction (10 tests) and the static check
 | MB mobile reliability (database side) | 4 | 3 pass, 1 fail | 3 pass, 1 fail |
 | **Total** | **88** | **78 pass, 10 fail** | **86 pass, 2 fail** |
 
-Full output: `docs/release-readiness/evidence/gate-before-correction.txt` and `gate-after-correction.txt`. After applying the rollback file the gate returned to 78 pass, 10 fail, and applying the correction again returned it to 86 / 2, so the rollback was tested in both directions.
+Full output: `evidence/gate-production-synced-before.txt` and `-after.txt`. Preview's own run is `evidence/gate-preview-2026-11-19.txt` (13 fail: the 10 above plus AU-03, AU-11 and a QZ-11 test flaw since fixed). Rollbacks were tested in both directions: the correction and the grants migration each flip the matching checks back and forth.
 
 ## Defects
 
 Severity rule used: **P0** = another person's data exposed, administrator or money rights gained, or data destroyed. **P1** = a safeguard or authorization boundary can be bypassed by a signed-in user; fix before the pilot. **P2** = integrity or policy gap with limited reach; fix soon. **P3** = cosmetic or low value.
 
-### P0: none.
+### P0: none on Production. One on Preview (D-05, below).
+
+### P0 on Preview only, D-05: a learner could set their own role to admin, and browser roles held TRUNCATE on 183 tables
+- Checks failing on Preview: AU-03, AU-11. Passing on Production (read-only comparison, 2026-11-19: only `full_name` is updatable on profiles; 0 of 198 tables with TRUNCATE).
+- Cause: Preview was rebuilt with Supabase's default open table grants and never received the rule set by `20261002150000` (lines 231-232).
+- Correction: `20261120110000_reassert_browser_role_grants` (revoke update on profiles, grant update(full_name); revoke TRUNCATE, REFERENCES, TRIGGER on every public table). No change on Production. Reproduced and proven on a scratch database given Preview's grants.
+- Lesson recorded: a Preview rebuild must end with the grant rules; the gate's AU-03 and AU-11 now catch it.
 
 ### P1 D-01: a learner can give themselves a teacher profile and edit their own safeguarding flags
 - Checks failing: AU-05, AU-05b, AG-01, AG-02, AG-08.
