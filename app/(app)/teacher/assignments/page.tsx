@@ -2,7 +2,7 @@
 
 import HelpLink from "@/components/help/HelpLink";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { bootstrapUser } from "@/lib/auth";
 import { countActiveLearnersByClass, listTeacherAssignments, listTeacherClasses, publishAssignment } from "@/lib/api/teacher";
 import { setAssignmentGradeOverride } from "@/lib/api/markets";
@@ -14,6 +14,8 @@ import { assignmentPhase } from "@/lib/learning/analytics";
 import KnowledgeWindow, { KnowledgeWindowGrid } from "@/components/qinsignia/KnowledgeWindow";
 import { useWorkspaceFlags } from "@/components/WorkspaceProvider";
 import { getQuestionAvailability, listApprovedQuestionsForNode, listCurriculumNodes } from "@/lib/api/curriculum";
+import { useDraft } from "@/lib/drafts/use-draft";
+import DraftNotice from "@/components/DraftNotice";
 
 export default function TeacherAssignmentsPage() {
   const cards = useWorkspaceFlags().q_insignia_subject_cards_v02;
@@ -24,6 +26,16 @@ export default function TeacherAssignmentsPage() {
   const learnersIn = (row: any) => (row?.id in learnerCounts ? learnerCounts[row.id] : null);
   const learnerLabel = (row: any) => { const n = learnersIn(row); return n === null ? "" : `${n} ${n === 1 ? "learner" : "learners"}`; };
   const selectedClass = useMemo(() => classes.find((row) => row.id === classId), [classes, classId]);
+  // Unfinished work is kept as a draft (shown in "Unfinished work"). Choosing a class clears the topic, so a restored topic and hand-picked questions wait in `pending` until the class's topics have loaded.
+  const pending = useRef<{ classId: string; nodeId: string; selectedIds: string[] } | null>(null);
+  const draft = useDraft<Record<string, any>>({ kind: "assignment", scope: "wizard", title, path: "/teacher/assignments", empty: !classId && !title.trim(),
+    value: { classId, nodeId: pending.current?.nodeId ?? nodeId, selectedIds: pending.current?.selectedIds ?? selectedIds, title, description, difficulty, count, attempts, minutes, dueAt, mode, selectionMode, gradeOverride, overrideReason },
+    apply: (v) => {
+      pending.current = { classId: String(v.classId ?? ""), nodeId: String(v.nodeId ?? ""), selectedIds: Array.isArray(v.selectedIds) ? v.selectedIds : [] };
+      setTitle(String(v.title ?? "")); setDescription(String(v.description ?? "")); setDifficulty(String(v.difficulty ?? "")); setCount(Number(v.count) || 5); setAttempts(Number(v.attempts) || 1); setMinutes(Number(v.minutes) || 30);
+      setDueAt(String(v.dueAt ?? "")); setMode(v.mode === "PRACTICE" ? "PRACTICE" : "ASSESSMENT"); setSelectionMode(v.selectionMode === "MANUAL" ? "MANUAL" : "AUTOMATIC"); setGradeOverride(Boolean(v.gradeOverride)); setOverrideReason(String(v.overrideReason ?? ""));
+      setClassId(String(v.classId ?? ""));
+    }, ready: ctx !== null });
 
   async function refresh(context: any) { const teacherId = String(context.teacherProfile?.id ?? ""); const [classRows, assignmentRows] = await Promise.all([listTeacherClasses(teacherId), listTeacherAssignments(teacherId, context.userId)]); setClasses(classRows); setRows(assignmentRows); countActiveLearnersByClass(classRows.map((c: any) => String(c.id))).then(setLearnerCounts).catch(() => setLearnerCounts({})); }
   useEffect(() => { bootstrapUser().then(async (context) => { setCtx(context); await refresh(context); }).catch((reason) => setError(reason.message)); }, []);
@@ -35,7 +47,11 @@ export default function TeacherAssignmentsPage() {
     Promise.all([
       listCurriculumNodes({ curriculumId: selectedClass.curriculum_id, gradeCode, subjectCode: subject, nodeType: "learning_indicator" }),
       listCurriculumNodes({ curriculumId: selectedClass.curriculum_id, gradeCode, subjectCode: subject, nodeType: "learning_objective" }),
-    ]).then(([indicators, goals]) => setObjectives([...indicators, ...goals])).catch((reason) => setError(reason.message));
+    ]).then(([indicators, goals]) => {
+      setObjectives([...indicators, ...goals]);
+      const held = pending.current; pending.current = null;
+      if (held && held.classId === selectedClass.id) { setNodeId(held.nodeId); setSelectedIds(held.selectedIds); }
+    }).catch((reason) => { pending.current = null; setError(reason.message); });
   }, [selectedClass]);
   useEffect(() => { if (!nodeId) { setAvailability(null); setQuestions([]); return; } Promise.all([getQuestionAvailability([nodeId], selectedClass?.grade), listApprovedQuestionsForNode(nodeId, selectedClass?.grade)]).then(([available, approved]) => { setAvailability(available[0] ?? { approved_count: 0, easy_count: 0, medium_count: 0, hard_count: 0, multiple_choice_count: 0, true_false_count: 0 }); setQuestions(approved); setSelectedIds([]); }).catch((reason) => setError(reason.message)); }, [nodeId, selectedClass?.grade]);
 
@@ -48,7 +64,7 @@ export default function TeacherAssignmentsPage() {
       const published: any = await publishAssignment({ classId, title, description, curriculumNodeIds: [nodeId], questionCount: selectionMode === "MANUAL" ? selectedIds.length : count, questionIds: selectionMode === "MANUAL" ? selectedIds : undefined, difficulty: difficulty || undefined, selectionMode, mode, attemptsAllowed: attempts, timeLimitMinutes: minutes, dueAt: dueAt ? new Date(dueAt).toISOString() : undefined });
       // Cross-grade work is never implicit: the override is a separate, audited server action.
       if (gradeOverride) await setAssignmentGradeOverride(published?.assignment_id ?? published?.id, overrideReason);
-      setNotice(gradeOverride ? "Assignment published with an audited grade override." : "Assignment published to enrolled learners."); setTitle(""); setDescription(""); setNodeId(""); setSelectedIds([]); setGradeOverride(false); setOverrideReason(""); setRun((n) => n + 1); await refresh(ctx);
+      setNotice(gradeOverride ? "Assignment published with an audited grade override." : "Assignment published to enrolled learners."); setTitle(""); setDescription(""); setNodeId(""); setSelectedIds([]); setGradeOverride(false); setOverrideReason(""); setRun((n) => n + 1); void draft.finish(); await refresh(ctx);
     } catch (reason: any) { setError(reason.message); } finally { setPublishing(false); }
   }
 
@@ -117,6 +133,7 @@ export default function TeacherAssignmentsPage() {
   return <>
     <div className="qb-page-head"><div><h1>Assignments</h1><p>Publish work from approved curriculum-aligned questions. <Link href="/teacher/assignments/by-topic">Assign by topic</Link> shares questions evenly across the topics you taught.</p></div><HelpLink slug="create-an-assignment" label="How to create an assignment" /></div>
     {error && <div className="qb-card qb-error" role="alert">{error}</div>}{notice && <div className="qb-card" role="status">{notice}</div>}
+    <DraftNotice restored={!!draft.restored} expiresAt={draft.expiresAt} noun="assignment" onDiscard={() => { void draft.finish(); setTitle(""); setDescription(""); setNodeId(""); setSelectedIds([]); setClassId(""); setGradeOverride(false); setOverrideReason(""); setRun((n) => n + 1); }} />
     <WorkflowStepper key={run} steps={steps} onComplete={() => void publish()} completeLabel="Publish assignment" busy={publishing} />
     <section className="qb-card" style={{ marginTop: 16 }} aria-labelledby="asg-existing"><h2 id="asg-existing">Existing assignments</h2>
       <div className="qb-list">{rows.map((row) => <div className="qb-row" key={row.id}><div className="qb-row-main"><strong>{row.title}</strong><span>{row.classes?.class_name} · {row.mode ?? "ASSESSMENT"} · {row.question_count ?? 0} questions</span></div><StatusBadge status={assignmentPhase(row)} /></div>)}{!rows.length && <div className="qb-empty"><strong>No assignments yet</strong>Published work appears here.</div>}</div>

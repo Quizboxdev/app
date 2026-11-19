@@ -4,13 +4,17 @@ import HelpLink from "@/components/help/HelpLink";
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { discardDraft, keepDraft, listDrafts, type DraftRow } from "@/lib/api/drafts";
+import { getMyAttemptsPage } from "@/lib/api/assessment";
+import type { MyAttempt } from "@/lib/api/student-types";
 import { DRAFT_LABEL, expiresSoon, timeLeft } from "@/lib/drafts/format";
 import { formatDateTime } from "@/lib/format";
 
 // Unfinished work waiting to be completed. Each draft is deleted 24 hours after its last change; you are warned in the app, on your phone and by email two hours before.
+// Practice or tests the learner has started but not submitted are listed too (they are saved attempts, not drafts, so they are not deleted after 24 hours).
 export default function DraftsPage() {
-  const [rows, setRows] = useState<DraftRow[] | null>(null), [error, setError] = useState(""), [now, setNow] = useState(() => Date.now()), [busy, setBusy] = useState("");
+  const [rows, setRows] = useState<DraftRow[] | null>(null), [error, setError] = useState(""), [now, setNow] = useState(() => Date.now()), [busy, setBusy] = useState(""), [started, setStarted] = useState<MyAttempt[] | null>(null);
   const load = useCallback(() => listDrafts().then(setRows).catch(() => { setRows([]); setError("Drafts are not available right now."); }), []);
+  useEffect(() => { getMyAttemptsPage(1).then((r) => setStarted((r.rows ?? []).filter((a) => String(a.status).toUpperCase() === "IN_PROGRESS"))).catch(() => setStarted([])); }, []);
   useEffect(() => { void load(); const t = setInterval(() => setNow(Date.now()), 60_000); return () => clearInterval(t); }, [load]);
   async function act(id: string, work: () => Promise<unknown>) { setBusy(id); setError(""); try { await work(); await load(); } catch { setError("That did not work. Please try again."); } setBusy(""); }
   return (
@@ -18,7 +22,16 @@ export default function DraftsPage() {
       <div className="qb-page-head"><div><h1>Unfinished work</h1><p>Whatever you were setting up is saved here so you can finish it. Each draft is deleted 24 hours after your last change, and you are warned two hours before.</p></div><HelpLink slug="unfinished-work" label="How drafts work" /></div>
       {error && <div className="qb-card qb-error" role="alert">{error}</div>}
       <div className="qb-card">
-        {rows === null ? <p className="qb-muted">Loading…</p> : rows.length === 0 ? <div className="qb-empty"><strong>Nothing unfinished</strong>When you start something and leave before finishing, it appears here.</div> : (
+        {rows === null || started === null ? <p className="qb-muted">Loading…</p> : rows.length === 0 && started.length === 0 ? <div className="qb-empty"><strong>Nothing unfinished</strong>When you start something and leave before finishing, it appears here.</div> : (
+          <>
+          {started.length > 0 && <>
+            <h2>Started, not finished</h2>
+            <table className="qb-table"><thead><tr><th>Work</th><th>Started</th><th /></tr></thead><tbody>
+              {started.map((a) => <tr key={a.id}><td>Practice or test in progress</td><td>{a.started_at ? formatDateTime(String(a.started_at)) : "—"}</td><td><Link className="qb-btn" href={`/student/attempt/${a.id}`}>Continue</Link></td></tr>)}
+            </tbody></table>
+          </>}
+          {rows.length > 0 && <>
+          {started.length > 0 && <h2 style={{ marginTop: 16 }}>Drafts</h2>}
           <table className="qb-table"><thead><tr><th>Draft</th><th>Type</th><th>Last saved</th><th>Deleted in</th><th /></tr></thead><tbody>
             {rows.map((r) => (
               <tr key={r.id}>
@@ -31,6 +44,8 @@ export default function DraftsPage() {
                 </td>
               </tr>))}
           </tbody></table>
+          </>}
+          </>
         )}
       </div>
     </>
