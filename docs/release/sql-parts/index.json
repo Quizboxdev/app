@@ -544,5 +544,12 @@
   "chars": 4702,
   "parts": 1,
   "note": "Question Banks, Editorial Review and Curriculum Coverage stop timing out on a large question table: the access rules work out the user's context and allowed source documents once per query instead of once per row, and the role once per query. Same rows stay visible. Adds two functions and an index on questions(created_at); replaces three policies on questions. Safe to run again."
+ },
+ {
+  "version": "20261119110000",
+  "name": "topic_title_fixes",
+  "chars": 1595,
+  "parts": 1,
+  "note": "Corrects four mis-typed topic names learners see (English B4-B6 Conversation topic trailing comma, English B5 Using Action Words, Creative Arts B5 Planning, Making and Composing). Title text only. Safe to run again."
  }
 ]
