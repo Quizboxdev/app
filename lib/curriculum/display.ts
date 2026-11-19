@@ -27,6 +27,17 @@ export function niceTitle(text: string | null | undefined): string {
   return t.split(" ").map((w, i) => (i > 0 && SMALL_WORDS.has(w.toLowerCase()) ? w.toLowerCase() : w.split(/([-/])/).map((seg) => (seg === "-" || seg === "/" ? seg : cap(seg))).join(""))).join(" ");
 }
 
+// Topic names for a list. Two strands can have sub-strands of the same name (Creative Arts: Visual Arts and Performing Arts both have "Displaying and Sharing"),
+// so when a name appears twice in the list the strand is added in brackets. Names that appear once are left as they are.
+export function topicNames<T extends { id: string; title: string; strand?: string | null }>(topics: T[]): Map<string, string> {
+  const same = (t: string) => niceTitle(t).toLowerCase();
+  const seen = new Map<string, number>();
+  for (const t of topics) seen.set(same(t.title), (seen.get(same(t.title)) ?? 0) + 1);
+  return new Map(topics.map((t) => { const name = niceTitle(t.title), strand = niceTitle(t.strand); return [t.id, (seen.get(same(t.title)) ?? 0) > 1 && strand ? `${name} (${strand})` : name]; }));
+}
+// "1 question", "2 questions".
+export const questionCount = (n: number): string => `${n} question${n === 1 ? "" : "s"}`;
+
 // The words to show for a topic: its own title, or, when the title is a code or placeholder, the wording of its learning indicator.
 // null means there is nothing readable to show.
 export function topicLabel(t: { title?: string | null; indicator?: string | null }, max = 90): string | null {

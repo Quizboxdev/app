@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { curriculumTrail, levelDisplayName, looksLikeCode, niceTitle, objectiveLabel, splitTopicsForTeacher, topicLabel, topicsInsteadOfStrands } from "./display";
+import { curriculumTrail, levelDisplayName, looksLikeCode, niceTitle, objectiveLabel, questionCount, topicNames, splitTopicsForTeacher, topicLabel, topicsInsteadOfStrands } from "./display";
 
 describe("curriculum display labels", () => {
   it("recognises codes and bare level words, not wording", () => {
@@ -61,4 +61,22 @@ describe("curriculum display labels", () => {
     expect(out[2].via).toBeUndefined();
     expect(out.filter((n) => n.node_type === "strand" && n.id === "s1")).toHaveLength(0);
   });
+});
+
+describe("topic names in a list", () => {
+  it("adds the strand only where two topics share a name", () => {
+    const names = topicNames([
+      { id: "a", title: "Displaying and Sharing", strand: "Visual Arts" }, { id: "b", title: "Displaying and Sharing", strand: "Performing Arts" },
+      { id: "c", title: "Thinking and Exploring Ideas", strand: "Visual Arts" },
+    ]);
+    expect(names.get("a")).toBe("Displaying and Sharing (Visual Arts)");
+    expect(names.get("b")).toBe("Displaying and Sharing (Performing Arts)");
+    expect(names.get("c")).toBe("Thinking and Exploring Ideas");
+  });
+  it("treats names that differ only in capitals as the same, and leaves a repeated name alone when there is no strand to add", () => {
+    const names = topicNames([{ id: "a", title: "Planning, Making and Composing", strand: "Visual Arts" }, { id: "b", title: "Planning, Making And Composing", strand: "Performing Arts" }, { id: "c", title: "Nouns", strand: "" }, { id: "d", title: "Nouns" }]);
+    expect(names.get("a")).toBe("Planning, Making and Composing (Visual Arts)"); expect(names.get("b")).toBe("Planning, Making And Composing (Performing Arts)");
+    expect(names.get("c")).toBe("Nouns"); expect(names.get("d")).toBe("Nouns");
+  });
+  it("says 1 question, not 1 questions", () => { expect(questionCount(1)).toBe("1 question"); expect(questionCount(0)).toBe("0 questions"); expect(questionCount(300)).toBe("300 questions"); });
 });
