@@ -18,13 +18,13 @@ Under the specification's own words: the NO-GO triggers (a P0/P1 touching childr
 
 | Item | Value |
 |---|---|
-| Code under test | `main` at `195e34c` plus the branch `release/answers-merit` (this record's pull request) |
+| Code under test | `main` at `50797ca` (pull request 118 merged) |
 | Preview project | `fngdtxayfoiffbcbmcum` (gate run by the owner 2026-11-19, twice) |
 | Production project | `fmgccmqxfjppqydkhaiu` (read-only checks only; the gate is never run there) |
 | Deployment URL | not recorded in this session |
-| Migrations from this gate | `20261120100000_learner_profile_write_guards` (Preview and Production applied), `20261120110000_reassert_browser_role_grants` (Preview applied; Production no-op), `20261120120000_xp_only_for_answers` (pending) |
+| Migrations from this gate | `20261120100000_learner_profile_write_guards` (Preview and Production applied), `20261120110000_reassert_browser_role_grants` (Preview applied; Production no-op), `20261120120000_xp_only_for_answers` (Preview applied and checked; Production pending) |
 | Production migration history table | 83 rows, newest `20261018130000`: later migrations were applied by hand and not recorded; the history table cannot be used to prove state (known, separate repair) |
-| Test totals | Gate: 90 checks, 89 pass, 1 accepted by the owner (AG-07), 0 fail on the Production-matched database. Vitest: see the pull request |
+| Test totals | Gate: 90 checks, 89 pass, 1 accepted by the owner (AG-07), 0 fail, on the Production-matched database and on Preview (2026-11-19 22:29, after all fixes). Vitest: 2,227 passed, 0 failed, 119 live tests skipped |
 
 ## Release invariants (section 2)
 
@@ -75,7 +75,7 @@ Under the specification's own words: the NO-GO triggers (a P0/P1 touching childr
 | E2E-13 reject, expire, unlink removes access | PASS (db) | GD-11 (revoke); expiry of a request not tested |
 | E2E-14 under-13 protections, no public leaderboard or messaging | PARTIAL | AG-01 to AG-06, AG-08, AG-09 (managed child cannot join a challenge, is excluded from rankings). Self-registered children are not flagged as minors anywhere, so no age rule applies to them (see decisions). No chat feature exists in the code base |
 | E2E-15 cross-school SELECT, INSERT, UPDATE, DELETE | PASS (db) | TN-01 to TN-06; storage objects and exports not tested |
-| E2E-16 no draft or withdrawn question eligible | PASS (db) | AS-02, AS-04; withdrawn-after-assignment is audit check C10 (not run) |
+| E2E-16 no draft or withdrawn question eligible | PASS (db) | AS-02, AS-04; withdrawn-after-assignment is audit check C10 (run on Production: only October test fixtures affected, see OD-3) |
 | E2E-17 free allowance, pilot grants, subscription | PASS (db) | EN-01 to EN-04; purchase path not run |
 | E2E-18 webhook replay cannot duplicate Coins or subscription | NOT RUN | existing payment suites cover replay in isolation; not part of this gate |
 | E2E-19 relogin or reset exposes no earlier session data | NOT RUN | |
