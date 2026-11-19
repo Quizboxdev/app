@@ -11,15 +11,28 @@ export function createSaveQueue<T>(options: {
   // A save the server refused (for example the attempt is already closed) will never succeed: it is dropped and reported, not retried forever.
   isRetryable?: (error: unknown) => boolean;
   onReject?: (key: string, error: unknown) => void;
+  // Where unsaved answers are kept so they survive a page reload or a browser that closes the tab on a weak phone (December gate MB-D1).
+  // Answers found here when the queue is created are queued again; every change to the waiting answers is written back.
+  storage?: { read(): Array<[string, T]>; write(entries: Array<[string, T]>): void };
 }) {
   const delays = options.retryDelaysMs ?? [1000, 2000, 5000, 10000];
   const pending = new Map<string, T>();
+  try { for (const [key, value] of options.storage?.read() ?? []) pending.set(key, value); } catch { /* storage unavailable: carry on in memory */ }
+  let lastWritten = "";
+  const persist = () => {
+    if (!options.storage) return;
+    const entries = [...pending.entries()];
+    const text = JSON.stringify(entries);
+    if (text === lastWritten) return;
+    lastWritten = text;
+    try { options.storage.write(entries); } catch { /* storage full or blocked: memory still holds the answers */ }
+  };
   const failed = new Set<string>();
   let saving = false, attempt = 0, disposed = false;
   let timer: ReturnType<typeof setTimeout> | null = null;
   let running: Promise<boolean> | null = null;
 
-  const emit = () => options.onChange?.({ saving, pending: new Set(pending.keys()), failed: new Set(failed) });
+  const emit = () => { persist(); options.onChange?.({ saving, pending: new Set(pending.keys()), failed: new Set(failed) }); };
   const clearTimer = () => { if (timer) { clearTimeout(timer); timer = null; } };
 
   async function drain(): Promise<boolean> {
@@ -65,6 +78,8 @@ export function createSaveQueue<T>(options: {
     // For the "Try now" button and the browser's online event: do not wait for the next scheduled retry.
     retryNow() { attempt = 0; return flush(); },
     hasUnsaved: () => pending.size > 0,
+    // The answers still waiting to be saved (including ones restored from storage), so the page can show them.
+    snapshot: (): Array<[string, T]> => [...pending.entries()],
     dispose() { disposed = true; clearTimer(); },
   };
 }

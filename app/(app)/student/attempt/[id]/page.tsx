@@ -18,6 +18,7 @@ import ReportQuestion from "@/components/ReportQuestion";
 import { sanitizeLabel } from "@/lib/learning/labels";
 import { Check, ChevronLeft, ChevronRight, CircleAlert, CircleCheck, Clock } from "lucide-react";
 import { createSaveQueue, type SaveQueueState } from "@/lib/assessment/save-queue";
+import { unsavedAnswersStore } from "@/lib/assessment/unsaved-answers";
 import { deadlineFrom, secondsLeft } from "@/lib/assessment/deadline";
 import { GENERIC_ERROR_MESSAGE, NETWORK_ERROR_MESSAGE } from "@/lib/errors";
 
@@ -64,6 +65,8 @@ export default function AttemptPage() {
         await saveResponse({ attemptId: params.id, questionId, selectedAnswer: value.selectedAnswer ?? null, selectedValue: value.selectedValue ?? null, responseSeconds: seconds });
       },
       onChange: setQueueState,
+      // Answers waiting for the network are also kept in the browser, so a reload or a closed tab on a weak phone does not lose them.
+      storage: unsavedAnswersStore<{ value: AnswerState; seconds: number }>(params.id),
       // A dropped connection or a passing server fault is retried; anything else (for example "attempt closed") will never save.
       isRetryable: (e) => e instanceof Error && (e.message === NETWORK_ERROR_MESSAGE || e.message === GENERIC_ERROR_MESSAGE),
       onReject: (_key, e) => setError(e instanceof Error ? e.message : GENERIC_ERROR_MESSAGE),
@@ -95,6 +98,9 @@ export default function AttemptPage() {
             selectedValue: response.selected_value ?? null,
           };
         }
+        // Answers that were still waiting to be saved when the page was last open are shown again and saved now.
+        for (const [restoredId, restored] of queueRef.current?.snapshot() ?? []) saved[restoredId] = restored.value;
+        void queueRef.current?.retryNow();
         setAnswers(saved);
         // Coming back to an unfinished attempt: open on the first question without an answer (or the last one when all are answered).
         const firstOpen = payload.questions.findIndex((q) => saved[q.question_id] === undefined);

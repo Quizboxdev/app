@@ -2,6 +2,8 @@
 
 Date: 2026-11-19. Code under test: `main` at 6dc95d6. Written for the owner and the engineers who will apply the correction.
 
+> **Update 2026-11-19 night.** The real gate specification arrived (`01_Release_Readiness_Gate.md`); the full mapping, gate status and recommendation are now in `RELEASE_GATE_2026-12.md`. Changes since this report was first written: **AG-07 is accepted by the owner** (under-13 learners join a class with its code; the check now records ACCEPTED); **MB-D1 is fixed** (unsent answers are kept in browser storage and restored after a reload); **MB-04 is fixed in the pull request** (migration `20261120120000`: reward follows the answers given, check MB-05 added); check AG-09 (managed child cannot join a public challenge) was added. The gate now has 90 checks: 89 pass, 1 accepted, 0 fail on the Production-matched database.
+
 ## Decision: LIMITED GO for a supervised pilot on Production, after two read-only confirmations and two migrations; NO-GO for using Preview as a security test bed until its grants are fixed
 
 Updated 2026-11-19 evening, after the gate ran on **Preview** and Production's live function text and policies were compared with the test database.

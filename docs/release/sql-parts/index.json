@@ -565,5 +565,12 @@
  "chars": 1175,
  "parts": 1,
  "note": "States again the rules Production already has: a signed-in user may update only their own profile name (not their role), and browser roles hold no TRUNCATE, REFERENCES or TRIGGER on public tables. Fixes Preview, which was rebuilt with open default grants. No change on Production. Rollback: supabase/rollback/reassert_browser_role_grants.sql."
+},
+{
+ "version": "20261120120000",
+ "name": "xp_only_for_answers",
+ "chars": 2197,
+ "parts": 1,
+ "note": "Reward points follow the answers given: a paper with nothing answered earns no completion points, and the completion bonus is the share of the paper answered (20 for a full paper). Changes one line inside the live core_qb_complete_attempt, read from the database; stops with XP_LINE_NOT_FOUND if the line is not there. Existing rewards are untouched. Rollback: supabase/rollback/xp_only_for_answers.sql."
 }
 ]
