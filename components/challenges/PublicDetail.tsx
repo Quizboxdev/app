@@ -93,7 +93,7 @@ export default async function PublicDetail({ slug, format }: { slug: string; for
           </div>
         )}
         {!c.private && c.live && c.audience !== "CLASS" && c.audience !== "SCHOOL" && <div style={{ maxWidth: 820 }}><ShareBar slug={c.slug} title={c.title} format={c.format} /></div>}
-        {!c.private && c.visibility !== "PRIVATE" && <div style={{ maxWidth: 820 }}><ReportChallenge slug={c.slug} /></div>}
+        {!c.private && c.visibility !== "PRIVATE" && <div style={{ maxWidth: 820 }}><ReportChallenge slug={c.slug} noun={f.noun} /></div>}
       </section>
     </PublicShell>
   );

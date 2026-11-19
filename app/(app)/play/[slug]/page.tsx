@@ -73,7 +73,7 @@ export default function PlayPage({ params }: { params: Promise<{ slug: string }>
             {r.state !== "correct" && <div>Correct answer: <strong>{r.correct}</strong></div>}
             {r.explanation && <div className="qb-muted">Why: {r.explanation}</div>}
           </li>))}</ol></div>}
-        <div className="qb-card"><h2>Leaderboard</h2>{board.length === 0 ? <p className="qb-muted">No ranked attempts yet.</p> : <ol className="qb-list">{board.map((b) => <li key={b.rank} style={b.is_me ? { fontWeight: 700 } : undefined}>{b.rank}. {b.name} <span className="qb-muted">{b.score}/{b.max_score} in {formatDuration(b.duration_ms)}</span></li>)}</ol>}</div>
+        <div className="qb-card"><h2>Leaderboard</h2>{board.length === 0 ? <p className="qb-muted">No ranked attempts yet.</p> : <ol className="qb-list" style={{ listStyle: "none", paddingLeft: 0 }}>{board.map((b) => <li key={b.rank} style={b.is_me ? { fontWeight: 700 } : undefined}>{b.rank}. {b.name} <span className="qb-muted">{b.score}/{b.max_score} in {formatDuration(b.duration_ms)}</span></li>)}</ol>}</div>
         {card.visibility !== "PRIVATE" && !card.private && card.audience !== "CLASS" && card.audience !== "SCHOOL" && <ShareBar slug={slug} title={card.title} format={card.format} />}
         {progress.some((s) => s.state === "WAITING") && <div className="qb-card" role="status">Round complete. The next round opens to the top players when this round closes. Come back then.</div>}
         <p><Link className="qb-btn qb-btn-secondary" href={`${fmt.base}/${slug}`}>Back to the {fmt.noun}</Link>{" "}{!result.expired && <button className="qb-btn" style={brandBtn} onClick={() => { setResult(null); sent.current = false; }}>Play again</button>}</p>

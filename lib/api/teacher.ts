@@ -105,6 +105,17 @@ export async function archiveClass(classId: string) {
   return data;
 }
 
+export const CLASS_NAME_MAX = 80;
+
+export async function renameClass(classId: string, name: string) {
+  const clean = name.trim();
+  if (!clean) throw new Error("Give the class a name.");
+  if (clean.length > CLASS_NAME_MAX) throw new Error(`Keep the class name to ${CLASS_NAME_MAX} characters or fewer.`);
+  const { data, error } = await getSupabaseBrowserClient().from("classes").update({ class_name: clean, updated_at: new Date().toISOString() }).eq("id", classId).select("*").single();
+  if (error) throw new Error(userFacingError(error));
+  return data;
+}
+
 export async function listClassRoster(classId: string) {
   const { data, error } = await getSupabaseBrowserClient().from("class_memberships").select("id,student_name,student_email,joined_at,status").eq("class_id", classId).order("joined_at");
   if (error) throw new Error(userFacingError(error));

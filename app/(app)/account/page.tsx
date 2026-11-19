@@ -25,7 +25,7 @@ export default function AccountPage() {
       <div className="qb-page-head" style={{ marginBottom: '2rem' }}>
         <div>
           <h1>Account</h1>
-          <p>Manage your identity, market access, and teaching profile.</p>
+          <p>{account.teacher ? "Manage your identity, market access, and teaching profile." : account.student ? "Manage your identity, market access, and learner profile." : "Manage your identity and market access."}</p>
         </div>
       </div>
       

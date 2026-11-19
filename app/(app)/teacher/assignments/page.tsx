@@ -106,7 +106,7 @@ export default function TeacherAssignmentsPage() {
       </div> },
     { id: "configure", title: "Configure", description: "Title, mode and timing.", isValid: title.trim().length > 0 && !isInPast(dueAt), content:
       <div className="qb-form">
-        <div className="qb-field"><label htmlFor="asg-title">Title</label><input id="asg-title" value={title} onChange={(e) => setTitle(e.target.value)} /></div>
+        <div className="qb-field"><label htmlFor="asg-title">Title</label><input id="asg-title" value={title} onChange={(e) => setTitle(e.target.value)} aria-required="true" aria-invalid={!title.trim() || undefined} />{!title.trim() && <p className="qb-muted qb-small" role="status">Give the assignment a title to continue.</p>}</div>
         <div className="qb-field"><label htmlFor="asg-description">Description</label><textarea id="asg-description" rows={3} value={description} onChange={(e) => setDescription(e.target.value)} /></div>
         <div className="qb-grid cols-2">
           <div className="qb-field"><label htmlFor="asg-mode">Mode</label><select id="asg-mode" value={mode} onChange={(e) => setMode(e.target.value as any)}><option value="ASSESSMENT">Assessment</option><option value="PRACTICE">Practice</option></select></div>
