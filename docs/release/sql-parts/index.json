@@ -551,5 +551,12 @@
   "chars": 1595,
   "parts": 1,
   "note": "Corrects four mis-typed topic names learners see (English B4-B6 Conversation topic trailing comma, English B5 Using Action Words, Creative Arts B5 Planning, Making and Composing). Title text only. Safe to run again."
- }
+ },
+{
+ "version": "20261120100000",
+ "name": "learner_profile_write_guards",
+ "chars": 4060,
+ "parts": 1,
+ "note": "Closes four gaps found by the December readiness gate: a learner can no longer write their own student or teacher profile row (minor flag, managed-by, self-made teacher profile), a teacher can no longer write an assignment into another teacher's class, and class join codes must be unique ignoring letter case and at least 10 characters. Server functions are untouched. Rollback: supabase/rollback/learner_profile_write_guards.sql."
+}
 ]
