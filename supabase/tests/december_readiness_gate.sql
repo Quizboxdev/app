@@ -33,6 +33,9 @@ create function pg_temp.cnt(p text) returns bigint language plpgsql as $$ declar
 -- status: PASS, FAIL (a defect), BLOCKED (the check could not run, with the reason)
 create function pg_temp.rec(p_area text, p_id text, p_test text, p_expected text, p_ok boolean, p_detail text default null) returns void language sql as $$
   insert into gate_results(area, id, test, expected, status, detail) values (p_area, p_id, p_test, p_expected, case when p_ok then 'PASS' else 'FAIL' end, p_detail) $$;
+-- status ACCEPTED: a behaviour the product owner has decided to keep, recorded with the reason and the evidence so it stays visible.
+create function pg_temp.accepted(p_area text, p_id text, p_test text, p_why text, p_detail text) returns void language sql as $$
+  insert into gate_results(area, id, test, expected, status, detail) values (p_area, p_id, p_test, 'owner decision', 'ACCEPTED', p_why || ' | ' || p_detail) $$;
 create function pg_temp.blocked(p_area text, p_id text, p_test text, p_why text) returns void language sql as $$
   insert into gate_results(area, id, test, expected, status, detail) values (p_area, p_id, p_test, '', 'BLOCKED', p_why) $$;
 
@@ -588,6 +591,25 @@ begin
   perform pg_temp.rec('MB','MB-04','Mobile: an attempt that ran out of time with no answers earns no reward points','0 xp', xp = 0, 'xp rows=' || xp || ' complete=' || left(comp::text, 140));
 end $$;
 
+do $$
+declare r jsonb; q uuid; q_wrong text; comp jsonb; full_pts int; part_pts int; part_correct int; att uuid;
+begin
+  -- Rewards follow the answers: a full paper pays the full completion bonus; one wrong answer out of three pays a third of it and no correct-answer points.
+  select points into full_pts from public.xp_transactions where attempt_id = pg_temp.gid('attS1') and reason = 'ASSIGNMENT_COMPLETION';
+  perform pg_temp.as_user(pg_temp.gid('s4'));
+  r := public.qb_start_attempt(pg_temp.gid('asmA1'), pg_temp.gid('asgA1'), pg_temp.gid('classA'), 'gate-merit');
+  att := (r ->> 'attempt_id')::uuid;
+  select (e ->> 'question_id')::uuid into q from jsonb_array_elements(public.qb_get_attempt(att) -> 'questions') e limit 1;
+  select case when correct = 'A' then 'B' else 'A' end into q_wrong from gate_q where id = q;
+  perform public.qb_save_response(att, q, q_wrong, null, 3);
+  comp := public.qb_complete_attempt(att, 'student_submit');
+  perform pg_temp.back();
+  select points into part_pts from public.xp_transactions where attempt_id = att and reason = 'ASSIGNMENT_COMPLETION';
+  select count(*) into part_correct from public.xp_transactions where attempt_id = att and reason = 'CORRECT_ANSWER';
+  perform pg_temp.rec('MB','MB-05','Rewards follow the answers: a full paper pays 20 completion points; 1 wrong answer out of 3 pays 7 and no correct-answer points','20 / 7 / 0', full_pts = 20 and part_pts = 7 and part_correct = 0,
+    'full paper=' || coalesce(full_pts::text, 'none') || ' partial paper=' || coalesce(part_pts::text, 'none') || ' correct-answer rows=' || part_correct || ' reply=' || left(comp::text, 120));
+end $$;
+
 -- ======================= 6. CROSS-TENANT ISOLATION (TN) =======================
 do $$
 declare c int; m int; a int; t int; r int; res text := 'ok';
@@ -898,11 +920,13 @@ end $$;
 do $$
 declare r jsonb; n int;
 begin
-  -- Observation: a self-registered under-13 learner (not managed, no consent) can join a school class by code and appears in the teacher's roster with name and email.
+  -- ACCEPTED BY THE OWNER (2026-11-19): most Basic 4 to Basic 6 learners are under 13 and join their teacher's class with the class code. The class teacher is the school's
+  -- authority for the child, so no guardian or consent record is demanded at the class-code step. The record shows the behaviour as it is, so any change is seen.
   update public.student_profiles set is_minor = true, managed_by = null where user_id = pg_temp.gid('s3');
   perform pg_temp.as_user(pg_temp.gid('s3')); r := public.qb_join_class('QB07-DECGATEAAAA'); perform pg_temp.back();
   select count(*) into n from public.class_memberships where student_user_id = pg_temp.gid('s3') and status = 'active';
-  perform pg_temp.rec('AG','AG-07','A self-registered under-13 learner with no guardian and no consent record cannot join a class (teacher would receive a child''s name and email)','join refused until a guardian or school consent exists', n = 0, r::text);
+  perform pg_temp.accepted('AG','AG-07','A self-registered under-13 learner joins a class with its code and the teacher sees their name and email (owner decision: keep)',
+    'Basic 4-6 learners are mostly under 13; the class teacher stands for the school. Payments, partner access and challenges stay blocked for minors (AG-01, AG-06, AG-08).', 'joined=' || (n = 1) || ' ' || left(r::text, 100));
   delete from public.class_memberships where student_user_id = pg_temp.gid('s3'); update public.student_profiles set is_minor = false where user_id = pg_temp.gid('s3');
   delete from quizbox_private.operation_budgets where actor_id = pg_temp.gid('s3');
 end $$;
@@ -1046,13 +1070,27 @@ begin
   perform pg_temp.rec('AG','AG-08','A self-registered minor cannot lift the partner-access consent block by naming a "manager" on their own profile','still blocked (true)', m is true, 'qb_pg_minor_blocked after the learner edits managed_by=' || m);
   update public.student_profiles set is_minor = false, managed_by = null where user_id = pg_temp.gid('s2');
 end $$;
+
+do $$
+declare r text := 'joined'; n int;
+begin
+  -- A school- or guardian-managed child (what the managed learner flow creates) cannot join a public challenge, so never reaches a leaderboard.
+  insert into public.challenge_campaigns(id, owner_id, slug, title, visibility, status, moderation_state, question_count, time_limit_seconds, max_attempts)
+    values ('d0a70000-0000-4000-8000-0000000000e1', pg_temp.gid('teacherA'), 'dec-gate-public', 'DECGATE public challenge', 'PUBLIC', 'LIVE', 'OK', 3, 600, 1);
+  update public.student_profiles set is_minor = true, managed_by = pg_temp.gid('parentP') where user_id = pg_temp.gid('sMinor');
+  perform pg_temp.as_user(pg_temp.gid('sMinor'));
+  begin perform public.challenge_join('dec-gate-public', null); exception when others then r := 'refused ' || sqlstate || ' ' || sqlerrm; end;
+  perform pg_temp.back();
+  select count(*) into n from public.challenge_participants where campaign_id = 'd0a70000-0000-4000-8000-0000000000e1' and user_id = pg_temp.gid('sMinor');
+  perform pg_temp.rec('AG','AG-09','A managed child cannot join a public challenge (so never appears on a public leaderboard)','refused NOT_AUTHORIZED, no participant row', r like 'refused 42501%' and n = 0, r || ' participant rows=' || n);
+end $$;
 -- ======================= REPORT =======================
 select 'RESULTS' as section;
 select area, id, status, test, coalesce(detail, '') as detail from gate_results order by n;
 select 'SUMMARY' as section;
 select status, count(*) as checks from gate_results group by status order by 1;
 select 'AREAS' as section;
-select area, count(*) filter (where status = 'PASS') as pass, count(*) filter (where status = 'FAIL') as fail, count(*) filter (where status = 'BLOCKED') as blocked from gate_results group by area order by area;
+select area, count(*) filter (where status = 'PASS') as pass, count(*) filter (where status = 'FAIL') as fail, count(*) filter (where status = 'BLOCKED') as blocked, count(*) filter (where status = 'ACCEPTED') as accepted from gate_results group by area order by area;
 select 'FAMILY FLAG BEFORE (this database; the gate switches it on only inside its own transaction)' as section;
 select coalesce(family_flag_before, '(no row)') as flags_family_workspace_before from gate_env;
 -- Nothing above was kept: the whole run was one transaction.

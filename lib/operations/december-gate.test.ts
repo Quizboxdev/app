@@ -87,10 +87,12 @@ describe("mobile reliability that needs no database", () => {
     expect(attemptPage).toMatch(/submitAttempt\(params\.id, "time_expired"\)/);
   });
 
-  // KNOWN DEFECT MB-D1 (P2). Answers waiting for the network are kept only in the page's memory. If the phone's browser reloads or kills the tab during a
-  // lost signal (common on low-memory phones), those answers are gone even though the attempt resumes. This test states the wanted behaviour and is expected
-  // to fail today; `it.fails` turns it red the day the defect is fixed, so the marker is removed then. See docs/release-readiness/DEC-2026-GATE.md.
-  it.fails("MB-D1: answers not yet saved survive a reload of the answer page (kept in browser storage)", () => {
-    expect(attemptPage).toMatch(/sessionStorage|localStorage|indexedDB/);
+  // MB-D1 (fixed): answers waiting for the network are kept in browser storage and restored after a reload. The behaviour is tested in
+  // lib/assessment/save-queue-persistence.test.ts; this checks the page is wired to it.
+  it("MB-D1: the answer page keeps unsaved answers in browser storage and shows them again after a reload", () => {
+    expect(attemptPage).toMatch(/unsavedAnswersStore</);
+    expect(attemptPage).toMatch(/storage:\s*unsavedAnswersStore/);
+    expect(attemptPage).toMatch(/queueRef\.current\?\.snapshot\(\)/);
+    expect(attemptPage).toMatch(/queueRef\.current\?\.retryNow\(\)/);
   });
 });
