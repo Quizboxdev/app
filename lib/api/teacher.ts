@@ -114,7 +114,7 @@ export async function listClassRoster(classId: string) {
 export async function listQuestions(filters: { search?: string; grade?: string; subject?: string; status?: string; difficulty?: string; answerType?: string; strand?: string; substrand?: string; standard?: string; indicator?: string; page?: number; pageSize?: number }) {
   const page = Math.max(1, filters.page ?? 1);
   const pageSize = Math.min(100, Math.max(10, filters.pageSize ?? 25));
-  let query = getSupabaseBrowserClient().from("questions").select("id,question_code,question_text,grade,subject_code,strand_name,substrand_name,content_standard_code,indicator_code,difficulty_label,answer_type,status,source_type,created_at", { count: "exact" });
+  let query = getSupabaseBrowserClient().from("questions").select("id,question_code,question_text,grade,subject_code,strand_name,substrand_name,content_standard_code,indicator_code,difficulty_label,answer_type,status,source_type,created_at");
   if (filters.search) query = query.ilike("question_text", `%${filters.search.replace(/[%_]/g, "")}%`);
   if (filters.grade) query = query.eq("canonical_grade_code", canonicalFilterGrade(filters.grade));
   if (filters.subject) query = query.eq("subject_code", filters.subject);
@@ -125,9 +125,11 @@ export async function listQuestions(filters: { search?: string; grade?: string; 
   if (filters.answerType) query = query.eq("answer_type", filters.answerType);
   if (filters.status) query = query.eq("validation_status", filters.status.toLowerCase());
   if (filters.difficulty) query = query.or(`difficulty_code.eq.${filters.difficulty},difficulty_label.eq.${filters.difficulty}`);
-  const { data, error, count } = await query.order("created_at", { ascending: false }).range((page - 1) * pageSize, page * pageSize - 1);
+  // One extra row tells us whether a next page exists. An exact total would make the database check every question's access rule (75,000+ rows) and time out.
+  const { data, error } = await query.order("created_at", { ascending: false }).range((page - 1) * pageSize, page * pageSize);
   if (error) throw new Error(userFacingError(error));
-  return { rows: data ?? [], count: count ?? 0, page, pageSize };
+  const all = data ?? [];
+  return { rows: all.slice(0, pageSize), hasMore: all.length > pageSize, page, pageSize };
 }
 
 export async function listTeacherAssignments(teacherId: string, userId: string) {

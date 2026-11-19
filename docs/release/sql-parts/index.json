@@ -537,5 +537,12 @@
   "chars": 2832,
   "parts": 1,
   "note": "A learner who joins a class later now receives its open class-wide assignments (trigger plus a one-off backfill). Family classes and chosen-learner work are untouched. Safe to run again."
+ },
+ {
+  "version": "20261119100000",
+  "name": "question_policy_speed",
+  "chars": 4702,
+  "parts": 1,
+  "note": "Question Banks, Editorial Review and Curriculum Coverage stop timing out on a large question table: the access rules work out the user's context and allowed source documents once per query instead of once per row, and the role once per query. Same rows stay visible. Adds two functions and an index on questions(created_at); replaces three policies on questions. Safe to run again."
  }
 ]
