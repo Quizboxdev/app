@@ -90,7 +90,7 @@ function Studio() {
               <h2>What should we call it?</h2>
               <label className="qb-field"><span className="qb-sr-only">Headline</span>
                 <input autoFocus value={headline} maxLength={120} onChange={(e) => setHeadline(e.target.value)} placeholder={role === "SPONSOR" ? "e.g. Know our products: Spring 2027" : "e.g. Who knows the story best?"} style={{ fontSize: 22, padding: 14 }} />
-                <span className="qb-muted qb-small">{headline.length}/120 · This is the big title people see. Watch the card on the right.</span></label>
+                <span className="qb-muted qb-small">{headline.length}/120 · {headline.length >= 120 ? "That is the longest title allowed, so anything more is not added. Shorten it if the end matters." : "This is the big title people see. Watch the card on the right."}</span></label>
               <label className="qb-field">One line that makes people want to join
                 <textarea rows={2} maxLength={500} value={summary} onChange={(e) => setSummary(e.target.value)} placeholder="e.g. Ten quick questions. The fastest correct answers win a prize." /></label>
               {!isStudent && <div className="qb-field"><span>It is about</span>

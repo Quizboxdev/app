@@ -207,7 +207,7 @@ export default function AssignByTopicPage() {
 
     {plan && <section className="qb-card"><h2>3. Details and recipients</h2>
       <div className="qb-form">
-        <div className="qb-field"><label htmlFor="bt-title">Title</label><input id="bt-title" value={title} onChange={(e) => setTitle(e.target.value)}/></div>
+        <div className="qb-field"><label htmlFor="bt-title">Title</label><input id="bt-title" value={title} onChange={(e) => setTitle(e.target.value)} aria-required="true"/>{!title.trim() && <p className="qb-muted qb-small" role="status">Give the assignment a title to continue.</p>}</div>
         <div className="qb-field"><label htmlFor="bt-desc">Instructions</label><textarea id="bt-desc" rows={2} value={description} onChange={(e) => setDescription(e.target.value)}/></div>
         <div className="qb-grid cols-2">
           <div className="qb-field"><label htmlFor="bt-mode">Mode</label><select id="bt-mode" value={mode} onChange={(e) => setMode(e.target.value as "PRACTICE" | "ASSESSMENT")}><option value="PRACTICE">Practice</option><option value="ASSESSMENT">Assessment</option></select></div>

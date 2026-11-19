@@ -3,13 +3,14 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { clearNotifications, dismissNotification, listNotifications, markAllNotificationsRead, markNotificationRead, type Notice } from "@/lib/api/platform";
 import { syncTray } from "@/lib/push/client";
+import { NOTIFICATIONS_CHANGED } from "@/lib/notifications-event";
 import { formatDateTime, resolveLocale, t } from "@/lib/i18n";
 
 export default function NotificationsPage() {
   const [data, setData] = useState<{ unread: number; live: Notice[]; items: Notice[] } | null>(null), [error, setError] = useState("");
   const [locale, setLocale] = useState("en");
   useEffect(() => { setLocale(resolveLocale([navigator.language])); }, []);
-  const load = useCallback(async () => { try { const d = await listNotifications(); setData(d); setError(""); void syncTray(d.items.filter((n) => !n.read).map((n) => n.id)); } catch (cause) { setError((cause as Error).message); } }, []);
+  const load = useCallback(async () => { try { const d = await listNotifications(); setData(d); setError(""); window.dispatchEvent(new Event(NOTIFICATIONS_CHANGED)); void syncTray(d.items.filter((n) => !n.read).map((n) => n.id)); } catch (cause) { setError((cause as Error).message); } }, []);
   useEffect(() => { void load(); }, [load]);
   const open = async (n: Notice) => { if (!n.live && !n.read) { await markNotificationRead(n.id).catch(() => undefined); void load(); } };
   const row = (n: Notice) => <li key={n.id} className={`qb-row${n.read ? "" : " qb-unread"}`}>
