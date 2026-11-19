@@ -15,6 +15,7 @@ import KnowledgeWindow, { KnowledgeWindowGrid } from "@/components/qinsignia/Kno
 import { useWorkspaceFlags } from "@/components/WorkspaceProvider";
 import { getQuestionAvailability, listApprovedQuestionsForNode, listCurriculumNodes } from "@/lib/api/curriculum";
 import { useDraft } from "@/lib/drafts/use-draft";
+import { isInPast } from "@/lib/format";
 import DraftNotice from "@/components/DraftNotice";
 
 export default function TeacherAssignmentsPage() {
@@ -60,6 +61,7 @@ export default function TeacherAssignmentsPage() {
     try {
       if (!ctx || !nodeId || Number(availability?.approved_count ?? 0) < count) throw new Error("There are not enough approved active questions for this objective.");
       if (selectionMode === "MANUAL" && selectedIds.length !== count) throw new Error(`Select exactly ${count} questions before publishing.`);
+      if (isInPast(dueAt)) throw new Error("The due date has already passed. Choose a later date and time, or clear it.");
       if (gradeOverride && overrideReason.trim().length < 5) throw new Error("Enter a reason (at least 5 characters) for assigning outside the class grade.");
       const published: any = await publishAssignment({ classId, title, description, curriculumNodeIds: [nodeId], questionCount: selectionMode === "MANUAL" ? selectedIds.length : count, questionIds: selectionMode === "MANUAL" ? selectedIds : undefined, difficulty: difficulty || undefined, selectionMode, mode, attemptsAllowed: attempts, timeLimitMinutes: minutes, dueAt: dueAt ? new Date(dueAt).toISOString() : undefined });
       // Cross-grade work is never implicit: the override is a separate, audited server action.
@@ -102,7 +104,7 @@ export default function TeacherAssignmentsPage() {
         {availability && Number(availability.approved_count) < count && <p className="qb-error" role="alert">Only {availability.approved_count} approved questions are available for this objective.</p>}
         {selectionMode === "MANUAL" && <div className="qb-list"><strong>Choose questions ({selectedIds.length}/{count})</strong>{questions.map((question) => <label className="qb-row" key={question.id}><input type="checkbox" checked={selectedIds.includes(question.id)} disabled={!selectedIds.includes(question.id) && selectedIds.length >= count} onChange={() => setSelectedIds((current) => current.includes(question.id) ? current.filter((id) => id !== question.id) : [...current, question.id])} /><span><strong>{question.question_code}</strong> · {question.difficulty_label} · {question.question_text}</span></label>)}</div>}
       </div> },
-    { id: "configure", title: "Configure", description: "Title, mode and timing.", isValid: title.trim().length > 0, content:
+    { id: "configure", title: "Configure", description: "Title, mode and timing.", isValid: title.trim().length > 0 && !isInPast(dueAt), content:
       <div className="qb-form">
         <div className="qb-field"><label htmlFor="asg-title">Title</label><input id="asg-title" value={title} onChange={(e) => setTitle(e.target.value)} /></div>
         <div className="qb-field"><label htmlFor="asg-description">Description</label><textarea id="asg-description" rows={3} value={description} onChange={(e) => setDescription(e.target.value)} /></div>
@@ -110,7 +112,7 @@ export default function TeacherAssignmentsPage() {
           <div className="qb-field"><label htmlFor="asg-mode">Mode</label><select id="asg-mode" value={mode} onChange={(e) => setMode(e.target.value as any)}><option value="ASSESSMENT">Assessment</option><option value="PRACTICE">Practice</option></select></div>
           <div className="qb-field"><label htmlFor="asg-attempts">Attempts</label><input id="asg-attempts" type="number" min="1" value={attempts} onChange={(e) => setAttempts(Number(e.target.value))} /></div>
           <div className="qb-field"><label htmlFor="asg-time-limit-minutes">Time limit (minutes)</label><input id="asg-time-limit-minutes" type="number" min="1" value={minutes} onChange={(e) => setMinutes(Number(e.target.value))} /></div>
-          <div className="qb-field"><label htmlFor="asg-due-date">Due date</label><input id="asg-due-date" type="datetime-local" value={dueAt} onChange={(e) => setDueAt(e.target.value)} /></div>
+          <div className="qb-field"><label htmlFor="asg-due-date">Due date</label><input id="asg-due-date" type="datetime-local" value={dueAt} onChange={(e) => setDueAt(e.target.value)} aria-invalid={isInPast(dueAt) || undefined} />{isInPast(dueAt) && <p className="qb-warning" role="alert">That date has already passed. Choose a later date and time, or clear it for no due date.</p>}</div>
         </div>
       </div> },
     { id: "review", title: "Review & publish", description: "Check everything, then publish to enrolled learners.", isValid: !gradeOverride || overrideReason.trim().length >= 5, content:

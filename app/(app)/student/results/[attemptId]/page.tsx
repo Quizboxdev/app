@@ -85,7 +85,7 @@ export default function AttemptResultPage() {
         <p className="qb-muted">{needsWork ? `Practise ${weakest!.title} to lift your mastery.` : percentage >= 85 ? "You are mastering this. Try a competition or a harder set." : "Keep practising to build consistency."}</p>
         <div className="qb-actions">
           <a className="qb-btn secondary" href="#review">Review answers</a>
-          <Link className="qb-btn" href={practiseHref()}>Practise weak areas</Link>
+          <Link className="qb-btn" href={practiseHref()}>{needsWork ? "Practise weak areas" : "Practise more"}</Link>
           {assessmentId && <button className="qb-btn secondary" disabled={retrying} onClick={() => void tryAgain()}>{retrying ? "Starting…" : "Try again"}</button>}
           <Link className="qb-btn ghost" href="/student">Return home</Link>
         </div>

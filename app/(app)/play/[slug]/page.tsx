@@ -8,6 +8,7 @@ import { getLeaderboard, getMaterial, joinChallenge, myProgress, startChallenge,
 import { isAllowanceExhausted, SUBSCRIBE_PATH } from "@/lib/api/access";
 import ShareBar from "@/components/challenges/ShareBar";
 import { buildReview, type PlayedQuestion } from "@/lib/challenges/review";
+import { stageBlock } from "@/lib/challenges/stage-block";
 import { FORMATS, formatOf, formatDuration, readableText, type AttemptResult, type ChallengeCard, type LeaderRow, type StageProgress, type StartedAttempt } from "@/lib/challenges/types";
 
 // The challenge player. The questions arrive without answers; the server scores the attempt when it is submitted (or when time runs out) and only then reveals the answers.
@@ -54,6 +55,7 @@ export default function PlayPage({ params }: { params: Promise<{ slug: string }>
   }
 
   const fmt = FORMATS[formatOf(card?.format)];
+  const blocked = progress.length > 0 ? stageBlock(progress.find((s) => s.stage_no === stage), fmt.noun) : null;
   const accent = card?.brand?.accent;
   const brandBtn = accent ? { background: accent, color: readableText(accent), borderColor: accent } : undefined;
   if (card === undefined) return <div className="qb-card" role="status">Loading…</div>;
@@ -124,6 +126,7 @@ export default function PlayPage({ params }: { params: Promise<{ slug: string }>
           </div>)}
         {card.brand?.welcome && <p>{card.brand.welcome}</p>}
         <p className="qb-muted qb-small">If you win a prize, the organiser may contact you at your account email.</p>
+        {card.live && blocked && <p className="qb-muted" role="status">{blocked} <Link className="qb-link" href="/play">See my challenges</Link> · <Link className="qb-link" href={fmt.noun === "competition" ? "/competition" : "/open"}>Find another</Link></p>}
         {card.live ? <button className="qb-btn" style={brandBtn} disabled={busy || (progress.length > 0 && !progress.some((s) => s.stage_no === stage && s.state === "OPEN"))} onClick={start}>{busy ? "Starting…" : "Start"}</button> : <p className="qb-muted">This {fmt.noun} is not open right now.</p>}
       </div>
       {card.material && (

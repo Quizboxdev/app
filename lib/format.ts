@@ -54,3 +54,10 @@ export function statusTone(value: unknown): StatusTone {
   if (/(pending|review|revision|draft|queued|processing|in_progress|configuring|submitted|open|assigned|scheduled|generating)/.test(status)) return "warning";
   return "neutral";
 }
+
+// True when a date-time typed into a form (the value of a datetime-local box, or an ISO string) is earlier than now. An empty or unreadable value is not "in the past".
+export function isInPast(value: string | null | undefined, now: number = Date.now()): boolean {
+  if (!value) return false;
+  const t = new Date(value).getTime();
+  return Number.isFinite(t) && t < now;
+}

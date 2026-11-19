@@ -8,6 +8,7 @@ import { contentType } from "@/lib/challenges/content-types";
 import { CHALLENGE_CATEGORIES, FORMATS, formatDuration, formatOf, readableText, type Format } from "@/lib/challenges/types";
 import { SITE_URL } from "@/lib/site";
 import ViewBeacon from "@/components/challenges/ViewBeacon";
+import FreeAccountNote from "@/components/challenges/FreeAccountNote";
 import ReportChallenge from "@/components/challenges/ReportChallenge";
 import ShareBar from "@/components/challenges/ShareBar";
 import LogoImage from "@/components/challenges/LogoImage";
@@ -56,7 +57,7 @@ export default async function PublicDetail({ slug, format }: { slug: string; for
           {c.live && seats.full ? (
             <p className="qbp-notice qbp-notice-info" role="status"><strong>This {f.noun} is full.</strong> All {seats.cap} places are taken. Ask the organiser to add more places, or look for another one in the <Link className="qbp-link" href={f.base}>list of open {f.plural}</Link>.</p>
           ) : c.live ? (
-            <p><Link className="qbp-btn" style={btn} href={play}>{format === "COMPETITION" ? "Join the competition" : "Play now"}</Link> <span className="qbp-meta">You need a free account. Sign up and you come straight back here.</span></p>
+            <p><Link className="qbp-btn" style={btn} href={play}>{format === "COMPETITION" ? "Join the competition" : "Play now"}</Link> <FreeAccountNote><span className="qbp-meta">You need a free account. Sign up and you come straight back here.</span></FreeAccountNote></p>
           ) : (
             <p className="qbp-meta">{c.status === "COMPLETED" ? `This ${f.noun} has finished.` : c.status === "PAUSED" ? `This ${f.noun} is paused.` : `This ${f.noun} is not open right now.`}</p>
           )}
@@ -65,7 +66,7 @@ export default async function PublicDetail({ slug, format }: { slug: string; for
           <div className="qbp-card" style={{ maxWidth: 820 }}>
             <h2 className="qbp-h3">Reading material</h2>
             <p>{c.material.types.map((t) => contentType(t).label).join(", ")}: {c.material.documents} document{c.material.documents === 1 ? "" : "s"} with {c.material.sections} chapter{c.material.sections === 1 ? "" : "s"} to read before you play.</p>
-            <p className="qbp-meta">Join with a free account to read. Reading is closed during a timed round and {c.material.closes === "START" ? "when the competition opens" : "when the competition ends"}.</p>
+            <p className="qbp-meta"><FreeAccountNote>Join with a free account to read. </FreeAccountNote>Reading is closed during a timed round and {c.material.closes === "START" ? "when the competition opens" : "when the competition ends"}.</p>
           </div>
         )}
         {!c.private && format === "COMPETITION" && stages.length > 0 && (
