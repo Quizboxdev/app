@@ -558,5 +558,12 @@
  "chars": 4060,
  "parts": 1,
  "note": "Closes four gaps found by the December readiness gate: a learner can no longer write their own student or teacher profile row (minor flag, managed-by, self-made teacher profile), a teacher can no longer write an assignment into another teacher's class, and class join codes must be unique ignoring letter case and at least 10 characters. Server functions are untouched. Rollback: supabase/rollback/learner_profile_write_guards.sql."
+},
+{
+ "version": "20261120110000",
+ "name": "reassert_browser_role_grants",
+ "chars": 1175,
+ "parts": 1,
+ "note": "States again the rules Production already has: a signed-in user may update only their own profile name (not their role), and browser roles hold no TRUNCATE, REFERENCES or TRIGGER on public tables. Fixes Preview, which was rebuilt with open default grants. No change on Production. Rollback: supabase/rollback/reassert_browser_role_grants.sql."
 }
 ]

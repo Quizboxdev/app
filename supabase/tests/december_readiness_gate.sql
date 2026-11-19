@@ -553,12 +553,18 @@ begin
   select count(*) into before_n from public.responses where attempt_id = pg_temp.gid('attS2');
   perform pg_temp.as_user(pg_temp.gid('s1'));
   sav2 := public.qb_save_response(pg_temp.gid('attS2'), q2, 'A', null, 1);
-  begin perform public.qb_complete_attempt(pg_temp.gid('attS2'), 'student_submit'); exception when others then comp := 'refused ' || sqlerrm; end;
+  begin perform public.qb_complete_attempt(pg_temp.gid('attS2'), 'student_submit'); comp := 'no error'; exception when others then comp := 'refused ' || sqlerrm; end;
   begin perform public.qb_get_attempt_review(pg_temp.gid('attS2')); exception when others then rev := 'refused ' || sqlerrm; end;
   perform pg_temp.back();
+  -- The completion RPC reports some refusals as a JSON reply instead of an exception, so the effect is what counts: the attempt must still be open and unrewarded.
   select count(*) into after_n from public.responses where attempt_id = pg_temp.gid('attS2');
-  perform pg_temp.rec('QZ','QZ-11','Another learner cannot write answers into, submit, or read the review of a learner''s IN-PROGRESS attempt','save refused (no row added), submit refused, review refused',
-    (sav2 ? 'message') and after_n = before_n and comp like 'refused%' and rev like 'refused%', 'save reply=' || left(sav2::text, 140) || ' responses ' || before_n || ' -> ' || after_n || ' | complete: ' || comp || ' | review: ' || rev);
+  perform pg_temp.rec('QZ','QZ-11','Another learner cannot write answers into, submit, or read the review of a learner''s IN-PROGRESS attempt, and cannot trigger rewards on it','no answer added, attempt still in_progress, no reward or learning event created for it, review refused',
+    (sav2 ? 'message') and after_n = before_n and rev like 'refused%'
+      and (select status::text from public.attempts where id = pg_temp.gid('attS2')) = 'in_progress'
+      and (select count(*) from public.xp_transactions where attempt_id = pg_temp.gid('attS2')) = 0
+      and (select count(*) from public.learning_events where attempt_id = pg_temp.gid('attS2')) = 0,
+    'save reply=' || left(sav2::text, 120) || ' | responses ' || before_n || ' -> ' || after_n || ' | complete call: ' || comp || ' | attempt status=' || (select status::text from public.attempts where id = pg_temp.gid('attS2'))
+      || ' | xp rows=' || (select count(*) from public.xp_transactions where attempt_id = pg_temp.gid('attS2')) || ' | learning events=' || (select count(*) from public.learning_events where attempt_id = pg_temp.gid('attS2')) || ' | review: ' || rev);
 end $$;
 
 do $$
