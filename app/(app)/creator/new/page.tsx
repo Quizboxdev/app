@@ -14,6 +14,7 @@ import SpotlightCard from "@/components/challenges/SpotlightCard";
 import MaterialUploader from "@/components/challenges/MaterialUploader";
 import AudiencePanel from "@/components/challenges/AudiencePanel";
 import LogoPicker from "@/components/challenges/LogoPicker";
+import { isInPast } from "@/lib/format";
 
 // The quiz studio: one guided path, one question at a time, with a live preview that fills in as you type. Step 1 creates the quiz as a draft; every later step saves as you go,
 // so nothing is lost by leaving. The last step opens the question editor.
@@ -48,6 +49,8 @@ function Studio() {
   });
   const saveAudience = () => run(async () => {
     if (visibility === "PRIVATE" && code.trim().length < 4) throw new Error("Choose an access code of at least 4 characters.");
+    if (isInPast(closes)) throw new Error("The closing time has already passed. Choose a later time, or leave it empty.");
+    if (opens && closes && new Date(closes).getTime() <= new Date(opens).getTime()) throw new Error("The closing time must be after the opening time.");
     await updateCampaign(id, { visibility, access_code: visibility === "PRIVATE" ? code.trim() : null, starts_at: opens ? new Date(opens).toISOString() : null, ends_at: closes ? new Date(closes).toISOString() : null });
     if (!isStudent) await setTargeting(id, levels); await refresh(); setStep(isStudent ? 4 : 3);
   });
@@ -87,7 +90,7 @@ function Studio() {
               <h2>What should we call it?</h2>
               <label className="qb-field"><span className="qb-sr-only">Headline</span>
                 <input autoFocus value={headline} maxLength={120} onChange={(e) => setHeadline(e.target.value)} placeholder={role === "SPONSOR" ? "e.g. Know our products: Spring 2027" : "e.g. Who knows the story best?"} style={{ fontSize: 22, padding: 14 }} />
-                <span className="qb-muted qb-small">{headline.length}/120 · This is the big title people see. Watch the card on the right.</span></label>
+                <span className="qb-muted qb-small">{headline.length}/120 · {headline.length >= 120 ? "That is the longest title allowed, so anything more is not added. Shorten it if the end matters." : "This is the big title people see. Watch the card on the right."}</span></label>
               <label className="qb-field">One line that makes people want to join
                 <textarea rows={2} maxLength={500} value={summary} onChange={(e) => setSummary(e.target.value)} placeholder="e.g. Ten quick questions. The fastest correct answers win a prize." /></label>
               {!isStudent && <div className="qb-field"><span>It is about</span>
@@ -131,7 +134,7 @@ function Studio() {
               </>}
               <div className="qb-grid cols-2">
                 <label className="qb-field">Opens (optional)<input type="datetime-local" value={opens} onChange={(e) => setOpens(e.target.value)} /></label>
-                <label className="qb-field">Closes (optional)<input type="datetime-local" value={closes} onChange={(e) => setCloses(e.target.value)} /></label>
+                <label className="qb-field">Closes (optional)<input type="datetime-local" value={closes} onChange={(e) => setCloses(e.target.value)} aria-invalid={isInPast(closes) || undefined} />{isInPast(closes) && <span className="qb-warning" role="alert">That time has already passed. Choose a later time, or leave it empty.</span>}</label>
               </div>
             </div>
             {!isStudent && <AudiencePanel id={id} draft format={format} current={{ class: campaign?.audience_class_id, institution: campaign?.audience_institution_id }} onChanged={() => void refresh()} onError={setError} />}

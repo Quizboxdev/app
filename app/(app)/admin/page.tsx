@@ -35,8 +35,8 @@ export default function AdminHomePage() {
   const items: { label: string; n: number | null | undefined; href: string; action: string }[] = [
     { label: "Question batches waiting for approval", n: c?.batches_waiting, href: "/admin/question-batches", action: "Approve" },
     { label: "Support requests open", n: q?.support_open, href: "/admin/support", action: "Open" },
-    { label: "Schools waiting for review", n: d?.schools?.waiting, href: "/admin/schools", action: "Review" },
-    { label: "Markets still being set up", n: d?.markets?.CONFIGURING, href: "/admin/market-setup", action: "Open" },
+    { label: "Schools waiting for review", n: d ? (d.schools?.waiting ?? 0) : undefined, href: "/admin/schools", action: "Review" },
+    { label: "Markets still being set up", n: d ? (d.markets?.CONFIGURING ?? 0) : undefined, href: "/admin/market-setup", action: "Open" },
     { label: "Source issues to resolve", n: health?.unresolved_source_issues, href: "/admin/curriculum-sources", action: "Review" },
     { label: "Compensation to resolve", n: health?.unresolved_compensation, href: "/admin/compensation", action: "Resolve" },
   ];
@@ -91,7 +91,7 @@ export default function AdminHomePage() {
                   return (
                     <tr key={i.label}>
                       <td className="name" style={{ fontWeight: 500 }}>{i.label}</td>
-                      <td className="num">{known ? <span className={Number(i.n) > 0 ? "dx-pill warn" : "dx-muted"}>{num(Number(i.n))}</span> : <span className="dx-muted" title="Not reported on this environment yet">—</span>}</td>
+                      <td className="num">{known ? <span className={Number(i.n) > 0 ? "dx-pill warn" : "dx-muted"}>{num(Number(i.n))}</span> : <span className="dx-muted" title={d ? "This count could not be read just now. Press Refresh to try again." : "Loading"}>—</span>}</td>
                       <td>{known && Number(i.n) > 0 && <Link className="dx-btn sm" href={i.href}>{i.action}</Link>}</td>
                     </tr>
                   );

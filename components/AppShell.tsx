@@ -22,7 +22,6 @@ import { SponsorEngineProvider } from "@/components/SponsorEngineFlag";
 import DraftReminder from "@/components/DraftReminder";
 import PolicyGate from "@/components/policies/PolicyGate";
 import HelpStarter from "@/components/help/HelpStarter";
-import SponsoredCarousel from "@/components/challenges/SponsoredCarousel";
 import ConnectionBanner from "@/components/ConnectionBanner";
 import { captureReferralIfAny } from "@/lib/referral/capture";
 
@@ -83,8 +82,9 @@ export default function AppShell({
 
   useEffect(() => { loadFlags().then((f) => setFamilyOn(f.family_workspace === true)).catch(() => setFamilyOn(false)); }, []);
 
-  useEffect(() => {
-    if (!ctx || !accessReady) return;                                                                // do not send anyone away before their staff access has been read
+  // Whether this person may see the current address. Null until their role and staff access have been read, so nobody is sent away early.
+  const routeCheck = useMemo<{ allowed: boolean; home: string } | null>(() => {
+    if (!ctx || !accessReady) return null;
 
     const role = String(ctx.role).toUpperCase();
     const allowedPrefixes = ["ADMIN", "OWNER"].includes(role)
@@ -106,16 +106,18 @@ export default function AppShell({
     if (staff?.enabled) for (const [href] of tabsFor(staff.workflows)) allowedPrefixes.push(href);
     if (sme?.super_admin && staff?.enabled) allowedPrefixes.push("/admin/staff");
 
-    const isAllowed = allowedPrefixes.some(
+    // An administrator with no teaching profile has nothing to show on the teacher dashboard; send them to the admin dashboard instead of an error.
+    const adminWithoutTeaching = ["ADMIN", "OWNER"].includes(role) && pathname === "/teacher" && !ctx.teacherProfile;
+    const isAllowed = !adminWithoutTeaching && allowedPrefixes.some(
       (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)
     );
 
-    if (!isAllowed) {
-      const home = getHomeRouteForRole(role);
-      // A parent's home is /family, which is closed while the Family workspace flag is off; send them to the account page instead of looping.
-      router.replace(home === "/family" && !familyOn ? "/account" : home);
-    }
-  }, [ctx, accessReady, pathname, router, sme, staff, familyOn]);
+    const home = getHomeRouteForRole(role);
+    // A parent's home is /family, which is closed while the Family workspace flag is off; send them to the account page instead of looping.
+    return { allowed: isAllowed, home: home === "/family" && !familyOn ? "/account" : home };
+  }, [ctx, accessReady, pathname, sme, staff, familyOn]);
+
+  useEffect(() => { if (routeCheck && !routeCheck.allowed) router.replace(routeCheck.home); }, [routeCheck, router]);
 
   const inSchool = pathname.startsWith("/school");
   const groups = useMemo<NavGroup[]>(() => {
@@ -350,7 +352,6 @@ export default function AppShell({
         <nav className="qb-nav" aria-label="Main">
           {navGroups}
         </nav>
-        {["STUDENT", "TEACHER"].includes(String(ctx?.role ?? "").toUpperCase()) && !inSchool && <div className="qb-sidebar-sponsor" style={{ padding: "0 12px 12px" }}><SponsoredCarousel compact showLibrary={false} /></div>}
         <div className="qb-follow"><p className="qb-follow-title">Follow QuizBox</p><AppSocialLinks /></div>
       </aside>
 
@@ -390,7 +391,7 @@ export default function AppShell({
             <div className="qb-context-bar"><WorkspaceChip/><MarketContextControl/></div>
             <DraftReminder />
             <HelpStarter pathname={pathname} />
-            <PolicyGate>{children}</PolicyGate>
+            {routeCheck && !routeCheck.allowed ? <p className="qb-muted" role="status">Taking you to your home page…</p> : <PolicyGate>{children}</PolicyGate>}
           </WorkspaceProvider></SponsorEngineProvider>
         </div>
 

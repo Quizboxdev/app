@@ -18,7 +18,9 @@ export default function FamilyRequestsCard() {
       <h2 id="family-requests-title" style={{ margin: 0 }}>Someone wants to link to your account</h2>
       {rows.map((r) => (
         <div key={r.id} style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center", justifyContent: "space-between" }}>
-          <span><strong>{r.parent_name}</strong> asked to be linked as your parent. They would see your progress and could give you work and buy coins for you.</span>
+          {r.relationship_type === "sponsor"
+            ? <span><strong>{r.parent_name}</strong> asked to be linked as your sponsor. They would see your progress and could buy Coins or a subscription for you.</span>
+            : <span><strong>{r.parent_name}</strong> asked to be linked as your parent. They would see your progress and could give you work and buy coins for you.</span>}
           <span style={{ display: "flex", gap: 8 }}>
             <button type="button" className="qb-btn" disabled={busy === r.id} onClick={() => void answer(r, true)}>Accept</button>
             <button type="button" className="qb-btn secondary" disabled={busy === r.id} onClick={() => void answer(r, false)}>Decline</button>

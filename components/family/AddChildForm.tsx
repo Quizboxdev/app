@@ -33,7 +33,7 @@ export default function AddChildForm({ onAdded, onCancel }: { onAdded: (link: Ch
       </div>
       <div className="qb-field"><label htmlFor="ac-school">School (optional)</label><input id="ac-school" value={school} onChange={(e) => setSchool(e.target.value)} maxLength={200} autoComplete="off" /></div>
       <label className="qb-check" style={{ display: "flex", gap: 8, alignItems: "flex-start" }}><input type="checkbox" checked={agree} onChange={(e) => setAgree(e.target.checked)} style={{ marginTop: 4 }} />
-        <span>I am this child&apos;s parent or guardian and I agree to set up their QuizBox account. Children under 13 get extra protection: no chat and no public leaderboards.</span></label>
+        <span>I am this child&apos;s parent or guardian and I agree to set up their QuizBox account. Children under 13 get extra protection.</span></label>
       {error && <div role="alert" className="qb-error">{error}</div>}
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
         <button className="qb-btn" type="submit" disabled={busy || !agree || !first.trim() || !age || !grade}>{busy ? "Adding…" : "Add child"}</button>

@@ -1,12 +1,16 @@
+import { showPublic } from "@/lib/public/visibility";
+
 const ROLES = [
   { href: "#students", title: "Students", tag: "Learn · Practise · Compete", text: "Curriculum practice, feedback and challenges.", color: "var(--blue)" },
+  { href: "#parents", title: "Parents & guardians", tag: "Follow · Support · Pay together", text: "One family workspace for your children's progress, work and challenges.", color: "#a2246b" },
   { href: "#teachers", title: "Teachers", tag: "Teach · Assign · Monitor", text: "Assignments, class mastery and intervention.", color: "#0f7a30" },
   { href: "#schools", title: "Schools", tag: "Organise · Support · Measure", text: "Classes, teachers and participation in one place.", color: "#00758c" },
   { href: "#sponsors", title: "Sponsors", tag: "Support · Challenge · Recognise", text: "Support curriculum-aligned challenges for learners.", color: "#9a5b00" },
   { href: "#smes", title: "Subject experts", tag: "Review · Verify · Improve", text: "Human review of content before it reaches learners.", color: "var(--purple)" },
 ];
 
-export default function RoleEcosystem() {
+// The parents card follows the parents section: it is hidden with it (config/public-visibility.json), so no card links to a block that is not on the page.
+export default function RoleEcosystem({ showParents = showPublic("parents") }: { showParents?: boolean } = {}) {
   return (
     <section id="who" className="qbp-sec" aria-labelledby="qbp-who-title" data-qb-section="personas" data-qb-source="static">
       <div className="qbp-wrap">
@@ -15,7 +19,7 @@ export default function RoleEcosystem() {
           <h2 id="qbp-who-title" className="qbp-h2">Everyone in the learning loop has a clear role</h2>
         </div>
         <ul className="qbp-personas" style={{ listStyle: "none", margin: 0, padding: 0 }}>
-          {ROLES.map((role) => (
+          {ROLES.filter((role) => showParents || role.href !== "#parents").map((role) => (
             <li key={role.title} style={{ display: "grid" }}>
               <a href={role.href} className="qbp-card qbp-persona" style={{ borderTopColor: role.color }}>
                 <span className="qbp-h3">{role.title}</span>

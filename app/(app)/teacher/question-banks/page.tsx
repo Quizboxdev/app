@@ -11,7 +11,7 @@ import { listQuestions } from "@/lib/api/teacher";
 const TYPES = ["SINGLE_CHOICE", "MULTIPLE_CHOICE", "NUMERIC", "FRACTION", "SHORT_TEXT", "EXPRESSION"];
 
 export default function TeacherQuestionBanksPage() {
-  const [result, setResult] = useState({ rows: [] as any[], count: 0, page: 1, pageSize: 25 });
+  const [result, setResult] = useState({ rows: [] as any[], hasMore: false, page: 1, pageSize: 25 });
   const [curricula, setCurricula] = useState<any[]>([]);
   const [curriculumId, setCurriculumId] = useState("");
   const [path, setPath] = useState<CurriculumBrowserNode[]>([]);
@@ -32,11 +32,10 @@ export default function TeacherQuestionBanksPage() {
       .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
   }, [scopeKey, filters, page]); // eslint-disable-line react-hooks/exhaustive-deps
-  const pages = Math.max(1, Math.ceil(result.count / result.pageSize));
   const set = (key: keyof typeof filters) => (event: { target: { value: string } }) => setFilters({ ...filters, [key]: event.target.value });
 
   return <>
-    <div className="qb-page-head"><div><h1>Question Bank</h1><p>Browse the approved questions by grade, subject and topic.</p></div><span className="qb-pill">{result.count} questions</span></div>
+    <div className="qb-page-head"><div><h1>Question Bank</h1><p>Browse the approved questions by grade, subject and topic.</p></div><span className="qb-pill">Page {page}</span></div>
 
     <section className="qb-card" aria-labelledby="qb-scope">
       <div className="qb-page-head"><h2 id="qb-scope">Curriculum scope</h2>
@@ -68,8 +67,8 @@ export default function TeacherQuestionBanksPage() {
     </div>
     <div className="qb-actions" style={{ marginTop: 12 }}>
       <button className="qb-btn secondary" disabled={page <= 1 || loading} onClick={() => setPage(page - 1)}>Previous</button>
-      <span className="qb-muted qb-small">Page {page} of {pages}</span>
-      <button className="qb-btn secondary" disabled={page >= pages || loading} onClick={() => setPage(page + 1)}>Next</button>
+      <span className="qb-muted qb-small">Page {page}</span>
+      <button className="qb-btn secondary" disabled={!result.hasMore || loading} onClick={() => setPage(page + 1)}>Next</button>
     </div>
   </>;
 }

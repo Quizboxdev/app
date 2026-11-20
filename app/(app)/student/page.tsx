@@ -128,12 +128,12 @@ export default function StudentHomePage() {
     <>
       {error && <div className="qb-card qb-error" role="alert">{error}</div>}
       <InstallPrompt />
+      <SponsoredCarousel level={levelFromGrade(klass?.grade)} />
       <SchoolSetupCard />
       <FamilyRequestsCard />
       <FamilyChallengesCard />
       <FamilySetsCard />
       <SubjectsCard />
-      <SponsoredCarousel level={levelFromGrade(klass?.grade)} />
       <section className="qb-dashboard-hero qb-sh-hero" aria-labelledby="sh-title">
         <div>
           <p className="qb-eyebrow">{[klass?.grade, klass?.class_name].filter(Boolean).join(" · ") || "Student workspace"}</p>

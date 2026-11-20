@@ -10,7 +10,7 @@ import { getMyAccess, isAllowanceExhausted, SUBSCRIBE_PATH, type MyAccess } from
 import SubjectIcon from "@/components/SubjectIcon";
 import { useDraft } from "@/lib/drafts/use-draft";
 import DraftNotice from "@/components/DraftNotice";
-import { niceTitle } from "@/lib/curriculum/display";
+import { niceTitle, questionCount, topicNames } from "@/lib/curriculum/display";
 import KnowledgeWindow, { KnowledgeWindowGrid } from "@/components/qinsignia/KnowledgeWindow";
 import { useWorkspaceFlags } from "@/components/WorkspaceProvider";
 import { subjectCardView } from "@/lib/learning/subject-card-state";
@@ -32,6 +32,7 @@ export default function QuickPractice() {
   useEffect(() => { load(); }, []);
   const subject = menu?.subjects.find((s) => s.id === subjectId);
   const effective = useMemo(() => subject ? (mode === "random" ? subject.topics.map((t) => t.id) : mode === "study" ? (studyTopic ? [studyTopic] : []) : ticked) : [], [subject, mode, ticked, studyTopic]);
+  const topicName = useMemo(() => topicNames(subject?.topics ?? []), [subject]);
   const pool = useMemo(() => subject ? subject.topics.filter((t) => effective.includes(t.id)).reduce((n, t) => n + t.available, 0) : 0, [subject, effective]);
   const choices = countChoices(pool), maxCount = maxPracticeCount(pool);
   const [custom, setCustom] = useState("");   // a number typed by the learner or teacher (any whole number from 3 to the maximum)
@@ -104,7 +105,7 @@ export default function QuickPractice() {
           onChange={(e) => setTicked(e.target.checked ? subject.topics.map((t) => t.id) : [])}/> All topics</label>
         <ul className="qb-task-list">
           {subject.topics.map((t) => <li key={t.id}><label><input type="checkbox" checked={ticked.includes(t.id)}
-            onChange={(e) => setTicked(e.target.checked ? [...ticked, t.id] : ticked.filter((x) => x !== t.id))}/> {niceTitle(t.title)} <span className="qb-muted">({t.available} questions)</span></label></li>)}
+            onChange={(e) => setTicked(e.target.checked ? [...ticked, t.id] : ticked.filter((x) => x !== t.id))}/> {topicName.get(t.id) ?? niceTitle(t.title)} <span className="qb-muted">({questionCount(t.available)})</span></label></li>)}
         </ul>
       </>}
       {mode === "study" && <>
@@ -112,7 +113,7 @@ export default function QuickPractice() {
         <ul className="qb-task-list">
           {subject.topics.map((t) => { const pr = progress[t.id]; const pct = pr && pr.total ? Math.round((pr.answered / pr.total) * 100) : 0;
             return <li key={t.id}><label style={{ display: "grid", gap: 4, width: "100%" }}>
-              <span><input type="radio" name="study-topic" checked={studyTopic === t.id} onChange={() => setStudyTopic(t.id)} /> {niceTitle(t.title)} <span className="qb-muted">({t.available} questions)</span></span>
+              <span><input type="radio" name="study-topic" checked={studyTopic === t.id} onChange={() => setStudyTopic(t.id)} /> {topicName.get(t.id) ?? niceTitle(t.title)} <span className="qb-muted">({questionCount(t.available)})</span></span>
               {pr && pr.answered > 0 && <span className="qb-small qb-muted" style={{ display: "grid", gap: 4 }}>
                 <span className="qb-progress-track" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100} aria-label={`${niceTitle(t.title)} answered`}><span className="qb-progress-fill" style={{ width: `${pct}%`, display: "block", height: "100%" }} /></span>
                 {pr.answered} of {pr.total} answered, {pr.correct} correct</span>}

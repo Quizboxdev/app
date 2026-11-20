@@ -11,6 +11,7 @@ import { classifyProficiency } from "@/lib/learning/proficiency";
 import { masteryLevel } from "@/lib/learning/mastery";
 import { practiseHref } from "@/lib/learning/labels";
 import { describeAnswer } from "@/lib/learning/answer-text";
+import { attemptDurationMs, durationText } from "@/lib/learning/attempt-time";
 
 type Indicator = { code: string; title: string; percentage: number; correct: number; total: number };
 
@@ -37,6 +38,7 @@ export default function AttemptResultPage() {
   const stat = (value: unknown) => Number(value ?? 0);
   const answeredTotal = stat(result.correct_count ?? result.correct) + stat(result.incorrect_count ?? result.incorrect);
   const needsWork = weakest && weakest.percentage < 68;
+  const took = attemptDurationMs(result);
 
   async function tryAgain() {
     setRetrying(true); setError("");
@@ -64,6 +66,7 @@ export default function AttemptResultPage() {
           <div><dt>Incorrect</dt><dd>{stat(result.incorrect_count ?? result.incorrect)}</dd></div>
           <div><dt>Unanswered</dt><dd>{stat(result.unanswered_count ?? result.unanswered)}</dd></div>
           <div><dt>XP earned</dt><dd>+{stat(summary.xpEarned)}</dd></div>
+          {took != null && <div><dt>Time taken</dt><dd>{durationText(took)}</dd></div>}
         </dl>
       </section>
 
@@ -85,7 +88,7 @@ export default function AttemptResultPage() {
         <p className="qb-muted">{needsWork ? `Practise ${weakest!.title} to lift your mastery.` : percentage >= 85 ? "You are mastering this. Try a competition or a harder set." : "Keep practising to build consistency."}</p>
         <div className="qb-actions">
           <a className="qb-btn secondary" href="#review">Review answers</a>
-          <Link className="qb-btn" href={practiseHref()}>Practise weak areas</Link>
+          <Link className="qb-btn" href={practiseHref()}>{needsWork ? "Practise weak areas" : "Practise more"}</Link>
           {assessmentId && <button className="qb-btn secondary" disabled={retrying} onClick={() => void tryAgain()}>{retrying ? "Starting…" : "Try again"}</button>}
           <Link className="qb-btn ghost" href="/student">Return home</Link>
         </div>

@@ -1,0 +1,125 @@
+section
+RESULTS
+(1 row)
+area | id | status | test | detail
+AU | AU-01 | PASS | Anonymous visitor reads no row of 15 sensitive tables | 
+AU | AU-02 | PASS | Anonymous visitor cannot run join, start, save, complete, family-link or roster RPCs | join:P0001 start:P0001 save:P0001 complete:P0001 link:42501 roster:P0001 
+AU | AU-03 | PASS | A learner cannot make themselves an administrator by editing their own profile | before=student after=student rows=-1 err=42501
+AU | AU-04 | PASS | A learner cannot create a class (including one that names a teacher profile that is not theirs) | rows=0 err=42501
+AU | AU-05 | PASS | A learner cannot give themselves a teacher profile | rows=0 err=42501
+AU | AU-05b | PASS | Follow-on: a learner with a self-made teacher profile still cannot create a class | classes created by a learner=0 err=42501 permission denied for table teacher_profiles
+AU | AU-06 | PASS | A teacher cannot run an administrator RPC (change the free practice allowance) | refused 42501
+AU | AU-07 | PASS | A learner cannot change or add a platform feature flag | changed=0 err=no error/42501
+AU | AU-08 | PASS | A learner sees no other user's profile row | visible others=0
+CL | CL-01 | PASS | A teacher creates a class through the same insert the app uses | rows=1 err=no error
+CL | CL-02 | PASS | Teacher A cannot create a class that belongs to teacher B | rows=0 err=42501
+CL | CL-03 | PASS | Join codes are unique regardless of letter case (a second class cannot share another class's code) | classes sharing the code ignoring case=1 err=23505
+CL | CL-04 | PASS | The server refuses a short, guessable class code (code strength is enforced by the database, not only the browser) | short code accepted rows=0 err=22023
+JN | JN-01 | PASS | A learner joins a class with its valid code | {"status": "active", "class_id": "d0a70000-0000-4000-8000-000000000021", "class_name": "DECGATE class A", "membership_id": "60b7f1e4-f5cd-4610-b86c-0808d2e9dbd2"}
+JN | JN-02 | PASS | Joining twice (lower case, trailing space) is idempotent: one membership | {"status": "active", "class_id": "d0a70000-0000-4000-8000-000000000021", "class_name": "DECGATE class A", "membership_id": "60b7f1e4-f5cd-4610-b86c-0808d2e9dbd2"}
+JN | JN-03 | PASS | A second learner joins teacher B's class | {"status": "active", "class_id": "d0a70000-0000-4000-8000-000000000022", "class_name": "DECGATE class B", "membership_id": "41e596cc-0a70-4ce4-98aa-014c815a2b4b"}
+JN | JN-04 | PASS | An invalid code is refused with a clear code and no membership | {"error": "INVALID_CLASS_CODE"}
+JN | JN-05 | PASS | An expired code is refused | {"error": "CLASS_CODE_EXPIRED"}
+JN | JN-06 | PASS | An archived class cannot be joined | {"error": "CLASS_NOT_ACTIVE"}
+JN | JN-07 | PASS | A Basic 4 learner cannot join a Basic 7 class | {"error": "CLASS_LEVEL_MISMATCH"}
+JN | JN-08 | PASS | A teacher account cannot join a class as a learner | {"error": "STUDENT_PROFILE_REQUIRED"}
+JN | JN-09 | PASS | Code guessing is rate limited (10 tries a minute per account) | rate-limited tries=4 of 14; last={"error": "QB_RATE_LIMITED"}
+JN | JN-10 | PASS | An oversized code is refused without searching | {"error": "INVALID_CLASS_CODE"}
+AS | AS-01 | PASS | A teacher publishes an assignment of 3 questions from 4 approved ones | {"status": "PUBLISHED", "assessment_id": "5d95cd51-39da-4c4f-95e2-6a4965cf081e", "assignment_id": "afe8f86b-136c-4222-802f-f6a73ae88cd1", "question_count": 3, "recipient_mode": "class"}
+AS | AS-02 | PASS | The assignment contains only approved, active questions from the chosen topic (no review/draft/other-topic question) | DECGATE-q2,DECGATE-q3,DECGATE-q4
+AS | AS-03 | PASS | Only the active members of class A are targeted (s1 yes; s2 in class B, s3 outsider: no) | targets=1
+AS | AS-04 | PASS | Hand-picking one approved and two unapproved questions is refused | INSUFFICIENT_APPROVED_QUESTIONS:1/3
+AS | AS-05 | PASS | Asking for 5 questions when only 4 are approved is refused (unapproved questions never fill the gap) | INSUFFICIENT_APPROVED_QUESTIONS:4/5
+AS | AS-06 | PASS | Teacher B cannot publish an assignment into teacher A's class | CLASS_ACCESS_DENIED rows=0
+AS | AS-07 | PASS | A learner cannot publish an assignment | CLASS_ACCESS_DENIED rows=0
+AS | AS-08 | PASS | Teacher B publishes to their own class B | {"status": "PUBLISHED", "assessment_id": "37b953da-4e9f-48d5-8011-ff1e68160224", "assignment_id": "ee8cbfde-39c4-4ff4-b342-9d7ef258478f", "question_count": 2, "recipient_mode": "class"}
+AS | AS-09 | PASS | A learner who joins after publication still receives the class assignment (late-joiner catch-up) | targets for s4=1 join={"status": "active", "class_id": "d0a70000-0000-4000-8000-000000000021", "class_name": "DECGATE class A", "membership_id": "b5038763-6c9b-4f36-a77c-789caa60f2e0"}
+QZ | QZ-01 | PASS | A targeted learner starts the assignment | {"status": "PASS", "resumed": false, "attempt_id": "88b8a619-8b0f-45f3-b9a4-140d5f996c05", "deadline_at": "2026-11-19T21:56:36.826173+00:00", "question_count": 3}
+QZ | QZ-02 | PASS | Starting again after a phone reload or lost signal resumes the same attempt (no duplicate attempt) | {"status": "PASS", "resumed": true, "attempt_id": "88b8a619-8b0f-45f3-b9a4-140d5f996c05"}
+MB | MB-01 | PASS | Mobile: one in-progress attempt per learner per assignment after repeated starts | 
+QZ | QZ-03 | PASS | The question paper the learner downloads before submitting carries no correct answer and no explanation | {"status": "PASS", "questions": [{"marks": 1.00, "media": null, "options": null, "option_a": "7", "option_b": "10", "option_c": "12", "option_d": "14", "answer_type": "SINGLE_CHOICE", "question_id": "d0a70000-0000-4000-8000-000000000102", "question_text": "Synthetic question q2", "question_order": 1
+QZ | QZ-04 | PASS | A learner cannot read answer keys straight from the question bank or the assignment snapshot tables | questions: rows (0) ; assessment_questions: rows (0)
+QZ | QZ-05 | PASS | The learner saves an answer to each question (the paper contained 3 questions) | questions in paper=3 responses=3 shape={"status": "PASS", "questions": [{"marks": 1.00, "media": null, "options": null, "option_a": "7", "option_b": "10", "option_c": "12", "option_d": "14", "answer_type": "SINGLE_CHOICE", "question_id": "
+QZ | QZ-06 | PASS | Submission is scored by the server: 2 of 3 correct = 66.67 % | {"score": 2.00, "status": "submitted", "correct": 2, "incorrect": 1, "xp_earned": 30, "attempt_id": "88b8a619-8b0f-45f3-b9a4-140d5f996c05", "percentage": 66.67, "unanswered": 0, "proficiency": "Approaching Proficiency", "total_marks": 3.00}
+QZ | QZ-07 | PASS | Submitting twice (double tap, retry after a dropped connection) does not create a second result or a second reward | results=1 completion rewards=1
+MB | MB-02 | PASS | Mobile: a retried submit after a dropped connection returns the stored result | {"score": 2.00, "status": "submitted", "correct": 2, "incorrect": 1, "xp_earned": 30, "attempt_id": "88b8a619-8b0f-45f3-b9a4-140d5f996c05", "percentage": 66.67, "unanswered": 0, "proficiency": "Approaching Proficiency", "total_marks": 3.00}
+QZ | QZ-08 | PASS | After submission an answer cannot be changed (stored answers and score stay as submitted) | server reply={"code": "P0001", "hint": null, "details": null, "message": "QB_ATTEMPT_NOT_ACTIVE"} | score 2.00 -> 2.00
+QZ | QZ-09 | PASS | The attempt limit (2) is enforced by the server | second={"status": "PASS", "resumed": false, "attempt_id": "3b8748e0-cbd1-48e5-8919-9ce9e80b5dd0", "deadline_at": "2026-11-19T21:56:36.826173+00:00", "question_count": 3} third={"code": "P0001", "hint": null, "details": null, "message": "QB_MAX_ATTEMPTS_REACHED"}
+QZ | QZ-10 | PASS | A learner from another class cannot start class A's assignment | {"code": "P0001", "hint": null, "details": null, "message": "QB_ASSESSMENT_RECIPIENT_DENIED"}
+QZ | QZ-11 | PASS | Another learner cannot write answers into, submit, or read the review of a learner's IN-PROGRESS attempt, and cannot trigger rewards on it | save reply={"code": "P0001", "hint": null, "details": null, "message": "QB_ATTEMPT_OWNERSHIP_DENIED"} | responses 0 -> 0 | complete call: no error | attempt status=in_progress | xp rows=0 | learning events=0 | review: refused QB_ATTEMPT_OWNERSHIP_DENIED
+MB | MB-03 | PASS | Mobile: an answer typed after the deadline is refused or discarded (a slow connection gives no extra time) | late save reply={"code": "P0001", "hint": null, "details": null, "message": "QB_ATTEMPT_TIME_EXPIRED"} | answers stored=0 | final status=submitted
+MB | MB-04 | FAIL | Mobile: an attempt that ran out of time with no answers earns no reward points | xp rows=1 complete={"score": 0.00, "status": "submitted", "correct": 0, "incorrect": 0, "xp_earned": 20, "attempt_id": "95403815-e5f6-41c1-9957-b0857c34c66e", 
+TN | TN-01 | PASS | Teacher B sees nothing of class A: no class row, members, assignments, attempts or results | classes=0 members=0 assignments=0 attempts=0 results=0
+TN | TN-02 | PASS | Teacher A sees nothing of class B | classes=0 members=0 assignments=0 attempts=0
+TN | TN-03 | PASS | Teacher B cannot rename, delete or add members to class A | renamed=0 deleted=0 forced-member insert=ok members added=0
+TN | TN-04 | PASS | A learner sees only their own memberships, no classmate rows, no other class's assignments, no other learner's attempts | own=1 others=0 classB assignments=0 other attempts=0
+TN | TN-05 | PASS | Teacher B cannot read class A's attempt breakdown, attempt review or roster by guessing identifiers (IDOR) | breakdown: refused ATTEMPT_NOT_FOUND | review: refused QB_ATTEMPT_OWNERSHIP_DENIED | roster: refused QB_PERMISSION_DENIED
+RP | RP-01 | PASS | Teacher A's roster for class A lists their learners (s1 and the late joiner s4) and not learners of class B or outsiders | {"rows": [{"id": "60b7f1e4-f5cd-4610-b86c-0808d2e9dbd2", "status": "active", "joined_at": "2026-11-19T21:26:36.826173+00:00", "student_name": "Gate s1", "student_email": "dec-gate-s1@e2e.quizbox.invalid", "student_user_id": "d0a70000-0000-4000-8000-0000000000b1"}, {"id": "b5038763-6c9b-4f36-a77c-789
+RP | RP-02 | PASS | A learner cannot open the teacher roster of their own class | refused QB_PERMISSION_DENIED
+RP | RP-03 | PASS | A learner's own results page shows their submitted attempt with the score the server computed | {"rows": [{"id": "f1a534bf-6549-4227-809a-8e1cf41fc466", "grade": "B7", "score": 0.00, "passed": false, "status": "final", "class_id": "d0a70000-0000-4000-8000-000000000021", "tenant_id": null, "attempt_id": "3b8748e0-cbd1-48e5-8919-9ce9e80b5dd0", "c
+RP | RP-04 | PASS | The teacher insights report runs for a teacher and does not mention class B | {"weak_indicators": [{"code": "DECGATE-LI1", "title": "Add and subtract within 20", "class_id": "d0a70000-0000-4000-8000-000000000021", "attempt_count": 3, "learner_count": 1, "average_mastery": 64.93, "average_accuracy": 66.67, "proficiency_state": 
+RP | RP-05 | PASS | A learner who runs the teacher insights report gets no class data (the learner has an attempt in class A) | EXECUTED {"weak_indicators": [], "student_progress": [], "question_difficulty": [], "assignment_completion": []}
+GD | GD-01 | PASS | A parent asks to link to a learner by email: a request is created and the learner is notified | status=requested notifications=1
+GD | GD-02 | PASS | Before the learner accepts, the requesting parent sees no progress or profile of the learner | refused QB_FAMILY_FORBIDDEN
+GD | GD-03 | PASS | A different parent cannot accept the request or see the learner | accept: refused QB_FAMILY_FORBIDDEN | summary: refused QB_FAMILY_FORBIDDEN | status=requested
+GD | GD-04 | PASS | The requesting parent cannot approve their own link (neither through the RPC nor by editing the row) | refused QB_FAMILY_FORBIDDEN | status=requested
+GD | GD-05 | PASS | A parent cannot forge an active link by inserting the row directly | refused 42501 rows=0
+GD | GD-06 | PASS | After the learner accepts, the parent is linked and can read that learner's progress | status=active progress={"best": 66.67, "days": 30, "recent": [{"title": "DECGATE assignment A1", "source": "school", "percentage": 66.67, "submitted_at": "2026-11-19T21:26:36.826173+00:00"}, {"title": "DECGATE assignment A1
+GD | GD-07 | PASS | An unlinked parent cannot read the linked learner's summary, progress or attempt review | refused QB_FAMILY_FORBIDDEN | refused QB_FAMILY_FORBIDDEN | refused QB_ATTEMPT_OWNERSHIP_DENIED
+GD | GD-08 | PASS | A linked parent sees only their own linked learner (not s2); the linked child's answer review is still learner-only | other child: refused QB_FAMILY_FORBIDDEN | attempt review as parent: refused QB_ATTEMPT_OWNERSHIP_DENIED
+GD | GD-09 | PASS | A link request for an unknown address looks the same as for a real one (no account enumeration) and creates nothing | {"ok": true} vs {"ok": true}
+GD | GD-10 | PASS | A learner account cannot send guardian link requests | refused QB_FAMILY_NOT_ADULT
+GD | GD-11 | PASS | After the link is revoked the parent immediately loses access to the learner's progress | {"revoked": 1} | refused QB_FAMILY_FORBIDDEN
+AG | AG-01 | PASS | A managed under-13 learner cannot switch off their own minor flag or guardian (this flag blocks online payment and restricted features) | after the learner edited their own profile: is_minor=t managed_by=d0a70000-0000-4000-8000-0000000000c1 rows=-1 err=42501
+AG | AG-02 | PASS | A learner cannot attach themselves to an unrelated adult as "managed by" them | managed_by= is_minor=f err=42501
+AG | AG-03 | PASS | A managed child cannot be linked by an unrelated adult: no request is created | 
+AG | AG-04 | PASS | A sponsor request for a managed child with no guardian waits for staff verification and shows no child data meanwhile | status=pending_verification | refused QB_FAMILY_FORBIDDEN
+AG | AG-05 | PASS | Neither an unrelated adult nor the child can grant parental consent (RPC or direct write) | unrelated adult: refused QB_FORBIDDEN | child: refused QB_FORBIDDEN | direct: refused 42501 | consent row=none
+AG | AG-06 | PASS | Partner access treats a self-registered minor as blocked until consent, a managed minor and an unflagged learner as not blocked | self-registered minor=t managed minor=f unflagged=f
+AG | AG-07 | FAIL | A self-registered under-13 learner with no guardian and no consent record cannot join a class (teacher would receive a child's name and email) | {"status": "active", "class_id": "d0a70000-0000-4000-8000-000000000021", "class_name": "DECGATE class A", "membership_id": "8124ef25-0b0a-4a44-89f2-8c9dbef8de78"}
+EN | EN-01 | PASS | With the free allowance at 0, an unsubscribed learner is blocked | exhausted=true
+EN | EN-02 | PASS | A pilot grant by a super administrator (28 days) lifts the block | grant={"id": "90876ffb-c872-45e7-b2ce-db74a9781517", "note": "December pilot school, 4 weeks", "plan": "pilot", "source": "man exhausted after grant=false
+EN | EN-03 | PASS | When the pilot period ends the block returns on its own | exhausted=true
+EN | EN-04 | PASS | A revoked pilot grant stops working immediately even if its end date is in the future | exhausted=true
+EN | EN-05 | PASS | A learner, a teacher and a parent cannot grant themselves a subscription, wallet credit, staff role or reviewer approval | 
+EN | EN-06 | PASS | A learner cannot write their own subscription, entitlement, wallet balance or admin capability rows | 
+EN | EN-07 | PASS | A learner cannot read others' subscriptions and a teacher cannot read a learner's pilot grant | other learners visible=0 teacher B sees s2 grant rows=0
+TN | TN-06 | PASS | Teacher B cannot write an assignment row into teacher A's class by editing the table directly | rows inserted=0; class A assignments 1 -> 1; teacher A sees it=0; learner s1 sees it=0; err=42501 new row violates row-level security policy for table "assignments"
+QZ | QZ-12 | PASS | A learner cannot forge a result, a reward, an attempt score or a marked answer by writing the tables directly | 
+AU | AU-09 | PASS | A teacher reads only their own audit entries and cannot edit or delete any | audit rows of other people readable by the teacher=0
+AU | AU-10 | PASS | Every public table has row-level security on | 
+AU | AU-11 | PASS | Browser roles hold no TRUNCATE on public tables and anonymous visitors hold no write privilege | truncate: none | anon write: none
+AG | AG-08 | PASS | A self-registered minor cannot lift the partner-access consent block by naming a "manager" on their own profile | qb_pg_minor_blocked after the learner edits managed_by=true
+(88 rows)
+section
+SUMMARY
+(1 row)
+status | checks
+FAIL | 2
+PASS | 86
+(2 rows)
+section
+AREAS
+(1 row)
+area | pass | fail | blocked
+AG | 7 | 1 | 0
+AS | 9 | 0 | 0
+AU | 12 | 0 | 0
+CL | 4 | 0 | 0
+EN | 7 | 0 | 0
+GD | 11 | 0 | 0
+JN | 10 | 0 | 0
+MB | 3 | 1 | 0
+QZ | 12 | 0 | 0
+RP | 5 | 0 | 0
+TN | 6 | 0 | 0
+(11 rows)
+section
+FAMILY FLAG BEFORE (this database; the gate switches it on only inside its own transaction)
+(1 row)
+flags_family_workspace_before
+true
+(1 row)
+done
+ROLLED BACK. No row of this run exists.
+(1 row)

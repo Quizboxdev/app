@@ -8,6 +8,7 @@ import { previewBlueprint, publishBlueprint, type BlueprintPlan } from "@/lib/ap
 import { createSchedule, isoWeekday, WEEKDAYS } from "@/lib/api/schedules";
 import { canCombineSubjects, classLevel, sectionProblems, sectionsFromLegacyDraft, splitEvenly, toApiSections, totalOf, type SectionDraft } from "@/lib/learning/blueprint";
 import { describeErrorMessage } from "@/lib/errors";
+import { isInPast } from "@/lib/format";
 import { splitTopicsForTeacher } from "@/lib/curriculum/display";
 import { useDraft } from "@/lib/drafts/use-draft";
 import DraftNotice from "@/components/DraftNotice";
@@ -106,7 +107,7 @@ export default function AssignByTopicPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [classId, sectionKey, difficulty, problems.length]);
 
-  const ready = Boolean(classId && sections.length > 0 && problems.length === 0 && plan && !planError && title.trim() && (everyone || recipients.length > 0));
+  const ready = Boolean(classId && sections.length > 0 && problems.length === 0 && plan && !planError && title.trim() && !isInPast(dueAt) && (everyone || recipients.length > 0));
 
   async function publish() {
     if (!ready || busy) return;
@@ -206,13 +207,13 @@ export default function AssignByTopicPage() {
 
     {plan && <section className="qb-card"><h2>3. Details and recipients</h2>
       <div className="qb-form">
-        <div className="qb-field"><label htmlFor="bt-title">Title</label><input id="bt-title" value={title} onChange={(e) => setTitle(e.target.value)}/></div>
+        <div className="qb-field"><label htmlFor="bt-title">Title</label><input id="bt-title" value={title} onChange={(e) => setTitle(e.target.value)} aria-required="true"/>{!title.trim() && <p className="qb-muted qb-small" role="status">Give the assignment a title to continue.</p>}</div>
         <div className="qb-field"><label htmlFor="bt-desc">Instructions</label><textarea id="bt-desc" rows={2} value={description} onChange={(e) => setDescription(e.target.value)}/></div>
         <div className="qb-grid cols-2">
           <div className="qb-field"><label htmlFor="bt-mode">Mode</label><select id="bt-mode" value={mode} onChange={(e) => setMode(e.target.value as "PRACTICE" | "ASSESSMENT")}><option value="PRACTICE">Practice</option><option value="ASSESSMENT">Assessment</option></select></div>
           <div className="qb-field"><label htmlFor="bt-att">Attempts</label><input id="bt-att" type="number" min={1} max={10} value={attempts} onChange={(e) => setAttempts(Math.max(1, Number(e.target.value) || 1))}/></div>
           <div className="qb-field"><label htmlFor="bt-min">Time limit (minutes)</label><input id="bt-min" type="number" min={1} max={180} value={minutes} onChange={(e) => setMinutes(Math.max(1, Number(e.target.value) || 1))}/></div>
-          <div className="qb-field"><label htmlFor="bt-due">Due date</label><input id="bt-due" type="datetime-local" value={dueAt} onChange={(e) => setDueAt(e.target.value)}/></div>
+          <div className="qb-field"><label htmlFor="bt-due">Due date</label><input id="bt-due" type="datetime-local" value={dueAt} onChange={(e) => setDueAt(e.target.value)} aria-invalid={isInPast(dueAt) || undefined}/>{isInPast(dueAt) && <p className="qb-warning" role="alert">That date has already passed. Choose a later date and time, or clear it for no due date.</p>}</div>
         </div>
         <fieldset><legend>Who receives it</legend>
           <label><input type="radio" name="bt-who" checked={everyone} onChange={() => setEveryone(true)}/> Every learner in the class</label>{" "}

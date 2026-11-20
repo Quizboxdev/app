@@ -7,6 +7,7 @@ import PlatformStats from "./PlatformStats";
 import RoleEcosystem from "./RoleEcosystem";
 import GovernanceSection from "./GovernanceSection";
 import StudentSection from "./StudentSection";
+import ParentsSection from "./ParentsSection";
 import TeacherSection from "./TeacherSection";
 import SponsorSection from "./SponsorSection";
 import SmeSection from "./SmeSection";
@@ -24,6 +25,7 @@ export default function PublicHome({ markets, stats = null }: { markets: PublicM
       {showPublic("role_ecosystem") && <RoleEcosystem />}
       {showPublic("governance") && <GovernanceSection />}
       {showPublic("students") && <StudentSection />}
+      {showPublic("parents") && <ParentsSection />}
       {showPublic("teachers") && <TeacherSection />}
       {showPublic("sponsors") && <SponsorSection />}
       {showPublic("reviewers") && <SmeSection />}

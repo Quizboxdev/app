@@ -38,7 +38,8 @@ export default function StudentClassroomPage() {
     setError(""); setNotice("");
     try {
       const result: any = await joinClass(joinCode);
-      setNotice(`Joined ${result.class_name}.`);
+      const already = (data?.memberships ?? []).some((m: any) => m.class_id === result.class_id && m.status === "active");
+      setNotice(already ? `You are already in ${result.class_name}.` : `Joined ${result.class_name}.`);
       setJoinCode("");
       await refresh(studentId);
     } catch (reason: any) {

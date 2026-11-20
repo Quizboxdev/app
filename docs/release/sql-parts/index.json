@@ -481,5 +481,103 @@
   "chars": 8716,
   "parts": 2,
   "note": "Parent accounts, 16 Nov 2026: adds the parent role and parent_profiles (stored like sponsor_profiles). Sign-up of a parent is refused until flags.family_workspace is on. Children stay linked through account_relationships. Safe to run again."
- }
+ },
+ {
+  "version": "20261117100000",
+  "name": "parent_family_help",
+  "chars": 4344,
+  "parts": 1,
+  "note": "Help centre: a parent guide, 'Parents and guardians: create your family workspace' (published, Sponsors tab; rows only, 'on conflict do nothing'). Explains sign-up as a sponsor, adding or linking a child, and privacy. Safe to run again."
+ },
+ {
+  "version": "20261117110000",
+  "name": "parents_sign_up_as_sponsor",
+  "chars": 6146,
+  "parts": 1,
+  "note": "Parents sign up as sponsors: onboarding no longer accepts the parent role (replaces qb_complete_onboarding, one function). Sponsors can mark themselves INDIVIDUAL; organizations keep ORGANIZATION. Family workspace tools are unchanged. Safe to run again."
+ },
+ {
+  "version": "20261117120000",
+  "name": "family_sponsor_links",
+  "chars": 3501,
+  "parts": 1,
+  "note": "Family workspace: a sponsor who asks to link to a student does so as a sponsor (sponsor permissions only: progress, Coins and subscriptions; no assigning). Every other adult still links as a parent. Replaces qb_family_link_request. Safe to run again."
+ },
+ {
+  "version": "20261117130000",
+  "name": "family_guardian_and_staff_approval",
+  "chars": 15298,
+  "parts": 2,
+  "note": "Family workspace: a sponsor can link to any student, including a school-managed or under-13 child. A child with a linked parent or guardian is asked through that guardian first; a child with none is approved by QuizBox staff. Managed children never see or answer requests. Replaces the link request, the request list and the answer functions; adds guardian and staff approval functions. Safe to run again."
+ },
+ {
+  "version": "20261117140000",
+  "name": "sponsor_alumni_type",
+  "chars": 5929,
+  "parts": 1,
+  "note": "Sign-up accepts a third sponsor type, ALUMNI (alumni or old students' association). Replaces qb_complete_onboarding, one function. Safe to run again."
+ },
+ {
+  "version": "20261117150000",
+  "name": "family_alumni_applications",
+  "chars": 8941,
+  "parts": 1,
+  "note": "Alumni sponsors apply for approval to create a family and add selected students. Approved by QuizBox staff or by the administrator of the named school. Adds one table (no client access), a guard on opening a family workspace and four functions; parents and organizations are not affected. Run 20261117140000 first. Safe to run again."
+ },
+ {
+  "version": "20261118100000",
+  "name": "script_checked_batch_approval",
+  "chars": 7231,
+  "parts": 1,
+  "note": ""
+ },
+ {
+  "version": "20261118110000",
+  "name": "class_join_assignment_catch_up",
+  "chars": 2832,
+  "parts": 1,
+  "note": "A learner who joins a class later now receives its open class-wide assignments (trigger plus a one-off backfill). Family classes and chosen-learner work are untouched. Safe to run again."
+ },
+ {
+  "version": "20261119100000",
+  "name": "question_policy_speed",
+  "chars": 4702,
+  "parts": 1,
+  "note": "Question Banks, Editorial Review and Curriculum Coverage stop timing out on a large question table: the access rules work out the user's context and allowed source documents once per query instead of once per row, and the role once per query. Same rows stay visible. Adds two functions and an index on questions(created_at); replaces three policies on questions. Safe to run again."
+ },
+ {
+  "version": "20261119110000",
+  "name": "topic_title_fixes",
+  "chars": 1595,
+  "parts": 1,
+  "note": "Corrects four mis-typed topic names learners see (English B4-B6 Conversation topic trailing comma, English B5 Using Action Words, Creative Arts B5 Planning, Making and Composing). Title text only. Safe to run again."
+ },
+{
+ "version": "20261120100000",
+ "name": "learner_profile_write_guards",
+ "chars": 4060,
+ "parts": 1,
+ "note": "Closes four gaps found by the December readiness gate: a learner can no longer write their own student or teacher profile row (minor flag, managed-by, self-made teacher profile), a teacher can no longer write an assignment into another teacher's class, and class join codes must be unique ignoring letter case and at least 10 characters. Server functions are untouched. Rollback: supabase/rollback/learner_profile_write_guards.sql."
+},
+{
+ "version": "20261120110000",
+ "name": "reassert_browser_role_grants",
+ "chars": 1175,
+ "parts": 1,
+ "note": "States again the rules Production already has: a signed-in user may update only their own profile name (not their role), and browser roles hold no TRUNCATE, REFERENCES or TRIGGER on public tables. Fixes Preview, which was rebuilt with open default grants. No change on Production. Rollback: supabase/rollback/reassert_browser_role_grants.sql."
+},
+{
+ "version": "20261120120000",
+ "name": "xp_only_for_answers",
+ "chars": 2197,
+ "parts": 1,
+ "note": "Reward points follow the answers given: a paper with nothing answered earns no completion points, and the completion bonus is the share of the paper answered (20 for a full paper). Changes one line inside the live core_qb_complete_attempt, read from the database; stops with XP_LINE_NOT_FOUND if the line is not there. Existing rewards are untouched. Rollback: supabase/rollback/xp_only_for_answers.sql."
+},
+{
+ "version": "20261120130000",
+ "name": "help_guides_corrections",
+ "chars": 5480,
+ "parts": 1,
+ "note": "Help centre text corrections from the 20 Nov guide audit: removes links to hidden drafts in the learner and teacher start guides, fixes what a parent's link to an existing child allows, the parent sign-up wording and the under-13 class-code line. Rows only; guides an administrator edited are left alone; safe to run again. Rollback: supabase/rollback/help_guides_corrections.sql."
+}
 ]

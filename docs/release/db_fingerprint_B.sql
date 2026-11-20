@@ -95,7 +95,15 @@ with c(v, k, o) as (values
   ('20261085100000','t','public.family_challenge_invites'),
   ('20261085100000','f','public.qb_family_challenges'),
   ('20261086100000','t','public.help_articles'),
-  ('20261087100000','t','public.parent_profiles')), r as (
+  ('20261087100000','t','public.parent_profiles'),
+  ('20261117100000','r','public.help_articles|slug in (''parents-and-family-workspace'')|1'),
+  ('20261117110000','f','public.qb_complete_onboarding'),
+  ('20261117120000','f','public.qb_family_link_request'),
+  ('20261117130000','f','public.qb_family_guardian_respond'),
+  ('20261117130000','f','public.qb_family_staff_decide'),
+  ('20261117140000','f','public.qb_complete_onboarding'),
+  ('20261117150000','t','public.sponsor_family_applications'),
+  ('20261117150000','f','public.qb_family_application_decide')), r as (
   select v, k, o, case k
     when 't' then to_regclass(o) is not null
     when 'x' then to_regprocedure(o) is null
