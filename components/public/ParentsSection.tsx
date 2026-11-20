@@ -59,7 +59,7 @@ export default function ParentsSection() {
             <ul className="qbp-list">
               <li>You only see the children linked to your family.</li>
               <li>Removing a child ends your link only. Their account, school and results stay the same.</li>
-              <li>Children under 13 have extra protection: no chat and no public leaderboards, and they do not pay online.</li>
+              <li>Children under 13 have extra protection, and they do not pay online.</li>
             </ul>
           </div>
           <div className="qbp-card" style={{ background: "#fdf2f8", borderColor: "#f5c2dc" }}>
