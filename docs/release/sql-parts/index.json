@@ -572,5 +572,12 @@
  "chars": 2197,
  "parts": 1,
  "note": "Reward points follow the answers given: a paper with nothing answered earns no completion points, and the completion bonus is the share of the paper answered (20 for a full paper). Changes one line inside the live core_qb_complete_attempt, read from the database; stops with XP_LINE_NOT_FOUND if the line is not there. Existing rewards are untouched. Rollback: supabase/rollback/xp_only_for_answers.sql."
+},
+{
+ "version": "20261120130000",
+ "name": "help_guides_corrections",
+ "chars": 5480,
+ "parts": 1,
+ "note": "Help centre text corrections from the 20 Nov guide audit: removes links to hidden drafts in the learner and teacher start guides, fixes what a parent's link to an existing child allows, the parent sign-up wording and the under-13 class-code line. Rows only; guides an administrator edited are left alone; safe to run again. Rollback: supabase/rollback/help_guides_corrections.sql."
 }
 ]

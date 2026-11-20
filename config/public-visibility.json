@@ -5,7 +5,7 @@
     "role_ecosystem": true,
     "governance": false,
     "students": true,
-    "parents": true,
+    "parents": false,
     "teachers": true,
     "sponsors": true,
     "reviewers": false,

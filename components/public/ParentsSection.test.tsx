@@ -25,11 +25,15 @@ describe("ParentsSection", () => {
   });
 
   it("states the under-13 protections in the same terms the product uses", () => {
-    expect(html).toContain("no chat and no public leaderboards");
+    expect(html).not.toContain("no public leaderboards"); // not proved in the product (guide audit 2026-11-20), so it is not promised
     expect(html).toContain("do not pay online");
   });
 
   it("is listed in the role section with a link to the parents block", () => {
-    expect(renderToStaticMarkup(<RoleEcosystem />)).toContain('href="#parents"');
+    expect(renderToStaticMarkup(<RoleEcosystem showParents />)).toContain('href="#parents"');
+  });
+
+  it("the role list drops the parents card when the parents section is hidden, so no card points at a block that is not on the page", () => {
+    expect(renderToStaticMarkup(<RoleEcosystem showParents={false} />)).not.toContain('href="#parents"');
   });
 });
