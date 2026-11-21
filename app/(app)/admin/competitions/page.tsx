@@ -30,6 +30,7 @@ export default function AdminCompetitionsPage() {
           <p>Interschool participation, teams, results and sponsorship.</p>
         </div>
         <div className="dx-actions">
+          <Link className="dx-btn sm" href="/creator?format=competition">Competition list</Link><Link className="dx-btn sm" href="/creator">Challenge list</Link>
           <ExportLink dataset="challenges" label="Export challenges" />
           {sponsorEngine && <><Link className="dx-btn sm" href="/admin/competitions/assignments">Review assignment</Link><Link className="dx-btn sm" href="/admin/competitions/oversight">Sponsor oversight</Link></>}
         </div>

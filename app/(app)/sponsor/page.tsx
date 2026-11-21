@@ -4,6 +4,7 @@
 import { useEffect, useState } from "react";
 import LoadError from "@/components/LoadError";
 import Link from "next/link";
+import { verificationView } from "@/lib/sponsor/verification";
 import { bootstrapUser } from "@/lib/auth";
 import CompetitionContentScope from "@/components/CompetitionContentScope";
 import StatCard from "@/components/StatCard";
@@ -78,6 +79,8 @@ export default function SponsorPage() {
         </div>
       </div>
 
+      {String(profile.sponsor_type ?? "ORGANIZATION").toUpperCase() === "ORGANIZATION" && (() => { const v = verificationView(profile.verification_status, profile.verification_note); return <section className="qb-card" role="status" aria-label="Verification" style={{ marginBottom: 12 }}>
+        <span className={`qb-pill${v.tone === "ok" ? " success" : ""}`}>{v.label}</span> <span className="qb-muted">{v.message}</span></section>; })()}
       <DashboardHero eyebrow="Sponsor workspace" title="Turn support into measurable participation." description="Run governed learning competitions and track engagement and performance." primary={sponsorEngine ? { label: "Open workspace", href: "/sponsor/workspace" } : { label: "Browse competitions", href: "/competition" }} secondary={sponsorEngine ? { label: "Browse competitions", href: "/competition" } : undefined} />
       <div className="qb-grid cols-4">
         <StatCard value={rows.length} label="Active sponsorships" />
@@ -160,8 +163,8 @@ export default function SponsorPage() {
 
       {sponsorEngine ? <CompetitionContentScope/> : <section className="qb-card">
         <h2>Create a sponsored competition</h2>
-        <p className="qb-muted">Self-service competition creation for sponsors is being prepared and is not open yet. To run a sponsored competition now, contact the QuizBox team and we will set it up with you.</p>
-        <Link className="qb-btn ghost" href="/contact">Contact QuizBox</Link>
+        <p className="qb-muted">The sponsor workspace (choosing the content, oversight and reports for a sponsored competition) is being prepared and is not open yet. You can already run a competition yourself: start one from Competitions and share the link. For a fully sponsored competition that we set up with you, contact the QuizBox team.</p>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}><Link className="qb-btn" href="/creator?format=competition">Start a competition</Link><Link className="qb-btn ghost" href="/contact">Contact QuizBox</Link></div>
       </section>}
 
       <section className="qb-card">

@@ -28,7 +28,14 @@ export const resendInvitation = (studentId: string) => rpc<{ token: string; expi
 export const revokeInvitation = (studentId: string) => rpc<{ revoked: number }>("qb_family_invite_revoke", { p_student: studentId });
 export const resetChildAccess = (studentId: string) => post<{ ok: true; token: string; expiresAt: string }>("/api/family/children/reset-access", { studentId });
 export const unlinkChild = (studentId: string) => rpc<{ revoked: number }>("qb_family_revoke", { p_student: studentId });
-export const requestLink = (email: string) => rpc<{ ok: true }>("qb_family_link_request", { p_email: email });
+// Sends the request, then notes it with a masked address so the waiting list is the same whether or not the email has an account.
+export const requestLink = async (email: string) => {
+  const r = await rpc<{ ok: true }>("qb_family_link_request", { p_email: email });
+  await rpc<void>("qb_family_note_link_request", { p_email: email }).catch(() => undefined);
+  return r;
+};
+export type PendingLinkRequest = { label: string; created_at: string };
+export const pendingLinkRequests = () => rpc<PendingLinkRequest[]>("qb_family_pending_requests").catch(() => [] as PendingLinkRequest[]);
 
 export type LinkRequest = { id: string; parent_name: string; relationship_type: string; created_at: string };
 export const myLinkRequests = () => rpc<LinkRequest[]>("qb_family_my_requests");

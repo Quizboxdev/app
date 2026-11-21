@@ -20,7 +20,7 @@ export default function CompetitionPage() {
     <>
       <div className="qb-page-head">
         <div>
-          <h1>Competitions</h1>
+          <h1>Compete</h1>
           <p>Competitions have rounds: the best players go through to the next round until a winner is found. Anyone can run one and share the link.</p>
         </div>
         <div><Link className="qb-btn" href="/creator?format=competition">Run a competition</Link></div>

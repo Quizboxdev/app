@@ -7,6 +7,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { adminOverview, cloneCampaign, myCampaigns } from "@/lib/api/challenges";
 import { FORMATS, formatOf, type Format, type MyCampaign } from "@/lib/challenges/types";
 import { humanize } from "@/lib/format";
+import { DEFAULT_VIEW, isFiltered, statusesIn, viewRows, type ListSort, type ListView } from "@/lib/challenges/list-view";
 
 // My challenges and My competitions. Start a new one with the guided studio, find the ones you are running, and keep the ones that finished: any of them can be used as a template and
 // run again for a different audience (questions, rounds, prizes, look and material are copied; the audience and dates are not).
@@ -16,8 +17,10 @@ function Console() {
   const [rows, setRows] = useState<MyCampaign[] | null>(null), [error, setError] = useState(""), [busy, setBusy] = useState(""), [overview, setOverview] = useState<Awaited<ReturnType<typeof adminOverview>> | null>(null);
   useEffect(() => { myCampaigns().then(setRows).catch((e) => { setError(e.message); setRows([]); }); }, []);
   useEffect(() => { adminOverview().then(setOverview).catch(() => setOverview(null)); }, []);   // only admins get an answer
+  const [view, setView] = useState<ListView>(DEFAULT_VIEW);
   const mine = (rows ?? []).filter((r) => formatOf(r.format) === format);
-  const current = mine.filter((r) => !["COMPLETED", "ARCHIVED"].includes(r.status)), past = mine.filter((r) => ["COMPLETED", "ARCHIVED"].includes(r.status));
+  const shown = viewRows(mine, view);
+  const current = shown.filter((r) => !["COMPLETED", "ARCHIVED"].includes(r.status)), past = shown.filter((r) => ["COMPLETED", "ARCHIVED"].includes(r.status));
 
   async function reuse(r: MyCampaign) {
     setBusy(r.id); setError("");
@@ -38,7 +41,7 @@ function Console() {
 
   return (
     <>
-      <div className="qb-page-head"><div><h1>My {fmt.plural}</h1><p>{format === "COMPETITION" ? "Run a competition with rounds: the best players go through to the next round. Share the link, aim it at a class or school, or keep it private with an access code." : "Create a timed quiz anyone can join, share the link, or keep it private with an access code. Answers are scored on the server."}</p></div>
+      <div className="qb-page-head"><div><h1>{format === "COMPETITION" ? `My ${fmt.plural}` : "Create and share"}</h1><p>{format === "COMPETITION" ? "Run a competition with rounds: the best players go through to the next round. Share the link, aim it at a class or school, or keep it private with an access code." : "Create a timed quiz anyone can join, share the link, or keep it private with an access code. Answers are scored on the server."}</p></div>
         <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
           <Link className="qb-btn" href={`/creator/new?format=${format.toLowerCase()}`}>Start a {fmt.noun}</Link>
           <Link className="qb-link" href={format === "COMPETITION" ? "/creator" : "/creator?format=competition"}>{format === "COMPETITION" ? "Go to challenges" : "Go to competitions"}</Link>
@@ -51,6 +54,15 @@ function Console() {
           {overview.top.length > 0 && <ol className="qb-list">{overview.top.map((c) => <li key={c.slug}><Link className="qb-link" href={`/challenges/${c.slug}`}>{c.title}</Link> <span className="qb-muted">{c.status.toLowerCase()} · {c.players} players</span></li>)}</ol>}
         </div>
       )}
+      {mine.length > 3 && <div className="qb-card" style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }} role="search" aria-label={`Find a ${fmt.noun}`}>
+        <input className="qb-input" type="search" placeholder={`Search your ${fmt.plural}`} aria-label={`Search your ${fmt.plural}`} value={view.query} onChange={(e) => setView({ ...view, query: e.target.value })} style={{ minWidth: 220 }} />
+        <select className="qb-input" aria-label="Status" value={view.status} onChange={(e) => setView({ ...view, status: e.target.value })}><option value="">Any status</option>{statusesIn(mine).map((s) => <option key={s} value={s}>{humanize(s)}</option>)}</select>
+        <select className="qb-input" aria-label="Sort by" value={view.sort} onChange={(e) => setView({ ...view, sort: e.target.value as ListSort })}>
+          <option value="recent">Newest</option><option value="title">Title</option><option value="played">Most played</option><option value="questions">Most questions</option><option value="status">Status</option></select>
+        <button type="button" className="qb-btn secondary" onClick={() => setView({ ...view, dir: view.dir === "asc" ? "desc" : "asc" })} aria-label="Reverse the order">{view.dir === "asc" ? "Ascending" : "Descending"}</button>
+        {isFiltered(view) && <button type="button" className="qb-link-btn" onClick={() => setView(DEFAULT_VIEW)}>Clear</button>}
+        {isFiltered(view) && <span className="qb-muted qb-small" role="status">{shown.length} of {mine.length} shown</span>}
+      </div>}
       <div className="qb-card">
         <h2>Running and drafts</h2>
         {rows === null ? <p className="qb-muted">Loading…</p> : current.length === 0 ? <div className="qb-empty"><strong>No {fmt.plural} yet</strong>Press &ldquo;Start a {fmt.noun}&rdquo;. It takes a few minutes, and we guide you through each step.</div> : table(current, false)}
