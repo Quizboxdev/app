@@ -160,8 +160,8 @@ export default function SponsorPage() {
 
       {sponsorEngine ? <CompetitionContentScope/> : <section className="qb-card">
         <h2>Create a sponsored competition</h2>
-        <p className="qb-muted">Self-service competition creation for sponsors is being prepared and is not open yet. To run a sponsored competition now, contact the QuizBox team and we will set it up with you.</p>
-        <Link className="qb-btn ghost" href="/contact">Contact QuizBox</Link>
+        <p className="qb-muted">The sponsor workspace (choosing the content, oversight and reports for a sponsored competition) is being prepared and is not open yet. You can already run a competition yourself: start one from Competitions and share the link. For a fully sponsored competition that we set up with you, contact the QuizBox team.</p>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}><Link className="qb-btn" href="/creator?format=competition">Start a competition</Link><Link className="qb-btn ghost" href="/contact">Contact QuizBox</Link></div>
       </section>}
 
       <section className="qb-card">

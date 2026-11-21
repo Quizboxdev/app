@@ -586,12 +586,5 @@
  "chars": 1317,
  "parts": 1,
  "note": "Adds qb_student_class_cards(): for the signed-in learner, each active class with the teacher's name, the number of active learners and the open assignments. Read only; safe to run again. Rollback: supabase/rollback/student_class_cards.sql."
-},
-{
- "version": "20261121110000",
- "name": "family_link_privacy",
- "chars": 4004,
- "parts": 1,
- "note": "Parent link requests are listed with a masked address for 14 days whether or not the email has an account, so the waiting list no longer reveals who has an account. Adds family_link_notes, qb_family_note_link_request and qb_family_pending_requests. Safe to run again. Rollback: supabase/rollback/family_link_privacy.sql."
 }
 ]
