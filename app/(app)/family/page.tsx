@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
-import { listFamilyChildren, listFamilyProgress, openFamilyWorkspace, type ChildLink, type ChildProgressLine, type FamilyChild } from "@/lib/api/family";
+import { listFamilyChildren, listFamilyProgress, openFamilyWorkspace, pendingLinkRequests, type ChildLink, type ChildProgressLine, type FamilyChild, type PendingLinkRequest } from "@/lib/api/family";
 import AddChildForm from "@/components/family/AddChildForm";
 import LinkExistingForm from "@/components/family/LinkExistingForm";
 import InviteBox from "@/components/family/InviteBox";
@@ -16,12 +16,13 @@ type Mode = "none" | "add" | "link";
 export default function FamilyHomePage() {
   const [state, setState] = useState<"loading" | "off" | "notAdult" | "approval" | "error" | "ready">("loading");
   const [name, setName] = useState("My family"), [children, setChildren] = useState<FamilyChild[]>([]), [mode, setMode] = useState<Mode>("none");
-  const [lines, setLines] = useState<ChildProgressLine[]>([]);
+  const [lines, setLines] = useState<ChildProgressLine[]>([]), [waiting, setWaiting] = useState<PendingLinkRequest[]>([]);
   const [fresh, setFresh] = useState<{ link: ChildLink; name: string } | null>(null), [error, setError] = useState("");
 
   const load = useCallback(async () => {
     try { setChildren(await listFamilyChildren()); setError(""); } catch (e) { setError((e as Error).message); }
     listFamilyProgress(30).then(setLines).catch(() => setLines([]));
+    pendingLinkRequests().then(setWaiting);
   }, []);
   useEffect(() => {
     let live = true;
@@ -36,7 +37,7 @@ export default function FamilyHomePage() {
   if (state === "approval") return <AlumniApplicationForm />;
   if (state === "error") return <section className="qb-card qb-error" role="alert"><h1 style={{ marginTop: 0 }}>Family workspace</h1><p>We could not open your Family workspace. Please try again.</p><button className="qb-btn secondary" onClick={() => window.location.reload()}>Try again</button></section>;
 
-  const active = children.filter((c) => c.status === "active"), waiting = children.filter((c) => c.status !== "active");
+  const active = children.filter((c) => c.status === "active");
   return (
     <div style={{ display: "grid", gap: 16 }}>
       <GuardianRequestsCard />
@@ -75,7 +76,8 @@ export default function FamilyHomePage() {
           {lines.map((l) => <tr key={l.student_id}><td><Link className="qb-link" href={`/family/children/${l.student_id}`}>{l.name}</Link></td><td>{l.completed}</td><td>{l.average === null ? "—" : `${Math.round(Number(l.average))}%`}</td><td>{l.outstanding}</td></tr>)}</tbody></table></div></section>}
 
       {waiting.length > 0 && <section aria-labelledby="fam-waiting"><h2 id="fam-waiting" style={{ margin: "0 0 8px" }}>Waiting for an answer</h2>
-        <div className="qb-card" style={{ display: "grid", gap: 6 }}>{waiting.map((c) => <div key={c.relationship_id}>Waiting for <strong>{c.label ?? "a student"}</strong> to accept your request.</div>)}</div></section>}
+        <div className="qb-card" style={{ display: "grid", gap: 6 }}>{waiting.map((w) => <div key={w.label}>Request sent to <strong>{w.label}</strong>. If that email belongs to a QuizBox student, they will see it and can accept.</div>)}
+          <span className="qb-muted qb-small">We show a shortened address and never say whether an account exists. A request stays here for 14 days.</span></div></section>}
     </div>
   );
 }
