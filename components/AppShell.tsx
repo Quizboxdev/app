@@ -90,7 +90,7 @@ export default function AppShell({
     const role = String(ctx.role).toUpperCase();
     const allowedPrefixes = baseRoutePrefixes(role, familyOn);
     if (sme?.reviewer || sme?.content_admin || sme?.super_admin) allowedPrefixes.push("/review");
-    if (sme?.super_admin) allowedPrefixes.push("/admin/markets", "/admin/partners", "/admin/reviewers", "/admin/compensation", "/admin/policies", "/admin/schools", "/admin/social", "/admin/families");
+    if (sme?.super_admin) allowedPrefixes.push("/admin/markets", "/admin/partners", "/admin/sponsor-verification", "/admin/reviewers", "/admin/compensation", "/admin/policies", "/admin/schools", "/admin/social", "/admin/families");
     if (sme?.super_admin || sme?.sme_support) allowedPrefixes.push("/admin/inbox", "/admin/reviewer-applications", "/admin/tickets", "/admin/help");
     if (sme?.super_admin || sme?.finance_admin) allowedPrefixes.push("/admin/sme-performance", "/admin/payouts", "/admin/payment-checks", "/admin/affiliates");
     if (sme?.super_admin || sme?.finance_admin || sme?.content_admin || sme?.sme_support) allowedPrefixes.push("/admin/exports");
@@ -148,7 +148,7 @@ export default function AppShell({
         ...when(sme?.super_admin, [["/admin/markets", "Markets"]]),
         ["/admin/market-setup", "Market Setup"],
         ...when(sme?.super_admin, [["/admin/schools", "School directory"]]),
-        ...when(sme?.super_admin, [["/admin/partners", "Partner Integrations"]]),
+        ...when(sme?.super_admin, [["/admin/partners", "Partner Integrations"], ["/admin/sponsor-verification", "Sponsor verification"]]),
       ]);
       add("Content & curriculum", [
         ["/admin/content", "Content Operations"],
