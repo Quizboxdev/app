@@ -90,6 +90,14 @@ export async function getStudentClassroom(studentId: string) {
   return { memberships: memberships ?? [], assignments };
 }
 
+export type ClassCard = { class_id: string; teacher_name: string | null; learners: number; open_assignments: number };
+// The teacher's name, the learner count and the open work for each of the learner's classes. Until the database function exists the cards simply show without them.
+export async function getStudentClassCards(): Promise<Record<string, ClassCard>> {
+  const { data, error } = await getSupabaseBrowserClient().rpc("qb_student_class_cards");
+  if (error || !Array.isArray(data)) return {};
+  return Object.fromEntries((data as ClassCard[]).map((c) => [c.class_id, c]));
+}
+
 export async function joinClass(joinCode: string) {
   const { data, error } = await getSupabaseBrowserClient().rpc("qb_join_class", { p_join_code: joinCode.trim().toUpperCase() });
   if (error) throw new Error(userFacingError(error));
