@@ -5,7 +5,7 @@ import StatusBadge from "@/components/StatusBadge";
 import HelpLink from "@/components/help/HelpLink";
 import { formatDateTime, isUuid } from "@/lib/format";
 import { bootstrapUser } from "@/lib/auth";
-import { getStudentClassroom, joinClass } from "@/lib/api/student";
+import { getStudentClassCards, getStudentClassroom, joinClass, type ClassCard } from "@/lib/api/student";
 import SourceChip from "@/components/SourceChip";
 import { countBySource, filterBySource, type SourceFilter } from "@/lib/learning/work-source";
 
@@ -16,9 +16,11 @@ export default function StudentClassroomPage() {
   const [joinCode, setJoinCode] = useState("");
   const [notice, setNotice] = useState("");
   const [source, setSource] = useState<SourceFilter>("all");
+  const [cards, setCards] = useState<Record<string, ClassCard>>({});
 
   async function refresh(id: string) {
     setData(await getStudentClassroom(id));
+    setCards(await getStudentClassCards());
   }
 
   useEffect(() => {
@@ -30,6 +32,7 @@ export default function StudentClassroomPage() {
         return getStudentClassroom(studentId);
       })
       .then(setData)
+      .then(() => getStudentClassCards().then(setCards))
       .catch((e) => setError(e.message));
   }, []);
 
@@ -78,7 +81,8 @@ export default function StudentClassroomPage() {
               <div className="qb-row" key={row.id}>
                 <div className="qb-row-main">
                   <strong>{row.classes?.class_name ?? "Class"}</strong>
-                  <span>{row.classes?.grade ?? "Class"}</span>
+                  <span>{[row.classes?.grade_label ?? row.classes?.grade ?? "Class", cards[row.class_id]?.teacher_name ? `Teacher: ${cards[row.class_id].teacher_name}` : null].filter(Boolean).join(" · ")}</span>
+                  {cards[row.class_id] && <span className="qb-muted qb-small">{cards[row.class_id].learners} learner{cards[row.class_id].learners === 1 ? "" : "s"} · {cards[row.class_id].open_assignments} open assignment{cards[row.class_id].open_assignments === 1 ? "" : "s"}</span>}
                 </div>
                 <StatusBadge status={row.status} />
               </div>
