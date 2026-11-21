@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { CheckCircle2, RotateCcw, Eye, Trash2 } from "lucide-react";
 import { approveBatch, discardBatch, finishApproval, listBatchApprovals, listLoadBatches, previewBatch, revokeBatchApproval, type BatchApproval, type BatchPreview, type LoadBatch } from "@/lib/api/owner";
 import { formatDate } from "@/lib/format";
@@ -9,6 +9,8 @@ import { Kpi, num } from "@/components/admin/DataViz";
 import Link from "next/link";
 import { batchView } from "@/lib/question-loading/queue";
 import { nothingToApprove } from "@/lib/question-loading/approval-hint";
+import { BATCH_TABS, canTickAll, countByTab, tabOf, type BatchTab } from "@/lib/question-loading/batch-tabs";
+import { getSmeContext, type SmeContext } from "@/lib/api/sme";
 
 // Owner-approved batches (the interim review step until reviewers are onboarded). Read the random sample, tick each question you checked,
 // then approve. Approved questions are labelled OWNER_BATCH, never "reviewed by subject experts", and one click revokes the whole batch.
@@ -19,16 +21,22 @@ export default function QuestionBatchesPage() {
   const [preview, setPreview] = useState<BatchPreview | null>(null);
   const [read, setRead] = useState<string[]>([]);
   const [note, setNote] = useState("");
+  const [tab, setTab] = useState<BatchTab>("waiting");
+  const [sme, setSme] = useState<SmeContext | null>(null);
+  const sampleRef = useRef<HTMLElement | null>(null);
   const [busy, setBusy] = useState(false), [error, setError] = useState(""), [done, setDone] = useState(""), [progress, setProgress] = useState("");
 
   const load = () => Promise.all([listLoadBatches(), listBatchApprovals()]).then(([b, a]) => { setBatches(b); setApprovals(a); }).catch((e) => { setError(e.message); setBatches([]); });
   useEffect(() => { void load(); }, []);
+  useEffect(() => { getSmeContext().then(setSme).catch(() => setSme(null)); }, []);
   const activeApproval = (batchId: string) => approvals.find((a) => a.batch_id === batchId && a.status === "ACTIVE");
 
   async function openBatch(id: string) {
     setOpen(id); setPreview(null); setRead([]); setNote(""); setError(""); setDone("");
     try { setPreview(await previewBatch(id)); } catch (e: any) { setError(e.message); }
   }
+  // The sample opens above the list; bring it into view so nobody scrolls to find it.
+  useEffect(() => { if (open) sampleRef.current?.scrollIntoView({ block: "start", behavior: "smooth" }); }, [open, preview]);
   async function reshuffleSample() { if (open) await openBatch(open); }
   async function approve() {
     if (!preview) return;
@@ -68,6 +76,8 @@ Why? (at least 10 characters)`);
   const need = preview?.min_sample_required ?? 20;
   const canApprove = useMemo(() => !!preview && read.length >= need && note.trim().length >= 10 && preview.would_approve > 0, [preview, read, need, note]);
 
+  const counts = batches ? countByTab(batches, (b) => activeApproval(b.id)) : null;
+  const shown = (batches ?? []).filter((b) => { const a = activeApproval(b.id); return tabOf(b, Boolean(a), Boolean(a?.in_progress)) === tab; });
   const rowsOf = (k: "rows_total" | "rows_loaded" | "rows_rejected") => (batches ?? []).reduce((n, b) => n + Number(b[k] ?? 0), 0);
   return (
     <div className="dx-page">
@@ -84,28 +94,7 @@ Why? (at least 10 characters)`);
       {done && <div className="qb-card" role="status"><CheckCircle2 size={16} aria-hidden="true" /> {done}</div>}
       {busy && progress && <div className="qb-card" role="status">Working: {progress} This takes a few seconds for a big batch. Keep this page open.</div>}
 
-      <section className="qb-card">
-        <h2>Loaded batches</h2>
-        {batches === null ? <p className="qb-muted">Loading…</p> : !batches.length ? <p className="qb-muted">No batches loaded yet. Load a file on Load Questions first.</p> :
-          <div className="qb-table-wrap"><table className="qb-table"><thead><tr><th>File</th><th>Loaded</th><th>Status</th><th>Approval</th><th>Action</th></tr></thead><tbody>
-            {batches.map((b) => { const a = activeApproval(b.id), v = batchView(b, Boolean(a), Boolean(a?.in_progress)); return <tr key={b.id}>
-              <td>{b.file_name}<div className="qb-small qb-muted">{formatDate(b.created_at)}</div></td>
-              <td>{v.progress}{b.rows_rejected ? ` (${b.rows_rejected} rejected)` : ""}</td>
-              <td><span className={`qb-pill${v.tone === "ok" ? " success" : ""}`}>{v.label}</span><div className="qb-small qb-muted">{v.hint}</div></td>
-              <td>{a ? <span className={`qb-pill${a.in_progress ? "" : " success"}`}>{a.in_progress ? `Unfinished: ${a.questions_approved} live so far` : `Approved: ${a.questions_approved} live`}</span> : <span className="qb-pill">Not approved</span>}
-                {a?.basis === "SCRIPT_CHECKED" && <div className="qb-small qb-muted">Checked by a script, not read by a person</div>}</td>
-              <td style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                {v.action === "finish" && <button className="qb-btn" disabled={busy} onClick={() => void finish(b)}><CheckCircle2 size={14} aria-hidden="true" /> Finish approval</button>}
-                {["revoke", "finish"].includes(v.action) && a && <button className="qb-btn secondary" disabled={busy} onClick={() => void revoke(a)}><RotateCcw size={14} aria-hidden="true" /> Revoke</button>}
-                {v.action === "review" && <button className="qb-btn" disabled={busy} onClick={() => void openBatch(b.id)}><Eye size={14} aria-hidden="true" /> Review sample</button>}
-                {v.action === "continue" && <Link className="qb-btn" href="/admin/question-loading">Continue loading</Link>}
-                {["review", "continue", "discard"].includes(v.action) && <button className="qb-btn secondary" disabled={busy} onClick={() => void discard(b)}><Trash2 size={14} aria-hidden="true" /> Discard</button>}
-                {v.action === "none" && <span className="qb-muted qb-small">Nothing more to do</span>}
-              </td></tr>; })}
-          </tbody></table></div>}
-      </section>
-
-      {open && <section className="qb-card" style={{ marginTop: 16 }} aria-labelledby="qb-sample">
+      {open && <section ref={sampleRef} className="qb-card" style={{ marginBottom: 16, scrollMarginTop: 72 }} aria-labelledby="qb-sample">
         <h2 id="qb-sample">Sample from {preview?.file ?? "batch"}</h2>
         {!preview ? <p className="qb-muted">Drawing a random sample…</p> : preview.would_approve === 0 ? <>
           {/* Nothing can be approved here, so there is no sample to read and no button to press: say why, and let the person close it. */}
@@ -114,6 +103,9 @@ Why? (at least 10 characters)`);
         </> : <>
           <p className="qb-muted">{preview.questions_found} questions in this batch; {preview.would_approve} pass validation and will go live. Read each question below and tick it when you are satisfied
             the marked answer is certainly right and each wrong option is a believable mistake. You need {need} ticks.</p>
+          {canTickAll(sme) && <label className="qb-small" style={{ display: "flex", gap: 8, alignItems: "center", margin: "8px 0" }}>
+            <input type="checkbox" checked={preview.sample.length > 0 && preview.sample.every((q) => read.includes(q.id))}
+              onChange={(e) => setRead(e.target.checked ? preview.sample.map((q) => q.id) : [])} /> Tick all {preview.sample.length} (administrator only: use it after you have read them)</label>}
           <ol className="qb-task-list">
             {preview.sample.map((q, i) => <li key={q.id} style={{ marginBottom: 12 }}>
               <label style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
@@ -133,6 +125,30 @@ Why? (at least 10 characters)`);
           </div>
         </>}
       </section>}
+      <section className="qb-card">
+        <h2>Loaded batches</h2>
+        <div role="tablist" aria-label="Batch lists" style={{ display: "flex", gap: 8, margin: "8px 0 12px", flexWrap: "wrap" }}>
+          {BATCH_TABS.map(([t, l]) => <button key={t} type="button" role="tab" aria-selected={tab === t} className={tab === t ? "qb-btn" : "qb-btn secondary"} onClick={() => setTab(t)}>{l}{counts ? ` (${counts[t]})` : ""}</button>)}
+        </div>
+        {batches === null ? <p className="qb-muted">Loading…</p> : !batches.length ? <p className="qb-muted">No batches loaded yet. Load a file on Load Questions first.</p> : !shown.length ? <p className="qb-muted">{tab === "waiting" ? "Nothing is waiting for approval." : tab === "approved" ? "No batch has been approved yet." : "No batch has been discarded."}</p> :
+          <div className="qb-table-wrap"><table className="qb-table"><thead><tr><th>File</th><th>Loaded</th><th>Status</th><th>Approval</th><th>Action</th></tr></thead><tbody>
+            {shown.map((b) => { const a = activeApproval(b.id), v = batchView(b, Boolean(a), Boolean(a?.in_progress)); return <tr key={b.id}>
+              <td>{b.file_name}<div className="qb-small qb-muted">{formatDate(b.created_at)}</div></td>
+              <td>{v.progress}{b.rows_rejected ? ` (${b.rows_rejected} rejected)` : ""}</td>
+              <td><span className={`qb-pill${v.tone === "ok" ? " success" : ""}`}>{v.label}</span><div className="qb-small qb-muted">{v.hint}</div></td>
+              <td>{a ? <span className={`qb-pill${a.in_progress ? "" : " success"}`}>{a.in_progress ? `Unfinished: ${a.questions_approved} live so far` : `Approved: ${a.questions_approved} live`}</span> : <span className="qb-pill">Not approved</span>}
+                {a?.basis === "SCRIPT_CHECKED" && <div className="qb-small qb-muted">Checked by a script, not read by a person</div>}</td>
+              <td style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                {v.action === "finish" && <button className="qb-btn" disabled={busy} onClick={() => void finish(b)}><CheckCircle2 size={14} aria-hidden="true" /> Finish approval</button>}
+                {["revoke", "finish"].includes(v.action) && a && <button className="qb-btn secondary" disabled={busy} onClick={() => void revoke(a)}><RotateCcw size={14} aria-hidden="true" /> Revoke</button>}
+                {v.action === "review" && <button className="qb-btn" disabled={busy} onClick={() => void openBatch(b.id)}><Eye size={14} aria-hidden="true" /> Review sample</button>}
+                {v.action === "continue" && <Link className="qb-btn" href="/admin/question-loading">Continue loading</Link>}
+                {["review", "continue", "discard"].includes(v.action) && <button className="qb-btn secondary" disabled={busy} onClick={() => void discard(b)}><Trash2 size={14} aria-hidden="true" /> Discard</button>}
+                {v.action === "none" && <span className="qb-muted qb-small">Nothing more to do</span>}
+              </td></tr>; })}
+          </tbody></table></div>}
+      </section>
+
     </div>
   );
 }
