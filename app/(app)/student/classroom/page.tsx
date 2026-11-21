@@ -57,8 +57,8 @@ export default function StudentClassroomPage() {
     <>
       <div className="qb-page-head">
         <div>
-          <h1>Classroom</h1>
-          <p>Your joined classes and teacher assignments.</p>
+          <h1>Assignments</h1>
+          <p>Work from your teachers and the classes you have joined.</p>
         </div>
         <HelpLink slug="join-a-class" label="How to join a class" />
       </div>
