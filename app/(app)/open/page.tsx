@@ -18,7 +18,7 @@ export default async function OpenPage({ searchParams }: { searchParams: Promise
     <>
       <div className="qb-page-head">
         <div>
-          <h1>{format === "COMPETITION" ? "Open competitions" : "Open challenges"}</h1>
+          <h1>{format === "COMPETITION" ? "Open competitions" : "Challenges"}</h1>
           <p>{format === "COMPETITION" ? "Take part in rounds. The best players go through to the next round until a winner is found." : "Timed quizzes anyone can join. Every answer is scored on our servers, so the leaderboard is fair."}</p>
         </div>
         <nav aria-label="Choose a kind" style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
