@@ -579,5 +579,12 @@
  "chars": 5480,
  "parts": 1,
  "note": "Help centre text corrections from the 20 Nov guide audit: removes links to hidden drafts in the learner and teacher start guides, fixes what a parent's link to an existing child allows, the parent sign-up wording and the under-13 class-code line. Rows only; guides an administrator edited are left alone; safe to run again. Rollback: supabase/rollback/help_guides_corrections.sql."
+},
+{
+ "version": "20261121100000",
+ "name": "student_class_cards",
+ "chars": 1317,
+ "parts": 1,
+ "note": "Adds qb_student_class_cards(): for the signed-in learner, each active class with the teacher's name, the number of active learners and the open assignments. Read only; safe to run again. Rollback: supabase/rollback/student_class_cards.sql."
 }
 ]
