@@ -5,6 +5,7 @@ import PageIntro from "@/components/public/PageIntro";
 import PricingCards from "@/components/pricing/PricingCards";
 import { PUBLIC_LINKS } from "@/components/public/links";
 import { getPrices } from "@/lib/pricing/server";
+import { pricingNote } from "@/lib/pricing/notes";
 
 export const metadata: Metadata = { title: "Pricing | QuizBox", description: "QuizBox plans for learners, teachers, schools, sponsors and companies." };
 export const revalidate = 60;
@@ -18,7 +19,7 @@ export default async function PricingPage() {
       <PageIntro crumb="Pricing" title="Pricing" lead="Simple plans for learners, teachers, schools, sponsors and companies. Start free: everyone gets free sessions when they sign up." />
       <section className="qbp-wrap" style={{ paddingBottom: 64, display: "grid", gap: 24 }} data-qb-section="pricing">
         <PricingCards rows={rows} variant="public" registerHref={PUBLIC_LINKS.register} subscribeHref="/subscribe" />
-        <p className="qbp-meta">{anyPriced ? "Prices are in Ghana cedis." : "Some prices are still being finalised."} To ask about a school plan, or to run a branded quiz for your company, <Link className="qbp-link" href={PUBLIC_LINKS.contact}>contact QuizBox</Link>.</p>
+        <p className="qbp-meta">{pricingNote(anyPriced)} To ask about a school plan, or to run a branded quiz for your company, <Link className="qbp-link" href={PUBLIC_LINKS.contact}>contact QuizBox</Link>.</p>
       </section>
     </PublicShell>
   );
