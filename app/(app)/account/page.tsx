@@ -3,6 +3,7 @@
 import { FormEvent, useCallback, useEffect, useState } from "react";
 import { getMyAccount, listSignupCountries, requestMarketChange, type Account, type SignupCountry } from "@/lib/api/markets";
 import { userFacingError } from "@/lib/errors";
+import { gradeDisplay } from "@/lib/curriculum/grade-label";
 import PushToggle from "@/components/PushToggle";
 import StudentProfileEditor from "@/components/account/StudentProfileEditor";
 import TeacherProfileEditor from "@/components/account/TeacherProfileEditor";
@@ -104,7 +105,7 @@ export default function AccountPage() {
                   <dt className="qb-muted qb-small">Education Level</dt><dd style={{ margin: 0, fontSize: '0.875rem' }}>{config?.education_levels.find((l) => l.code === account.student!.education_level)?.label ?? account.student.education_level ?? "-"}</dd>
                 </dl>
                 <dl className="qb-field" style={{ gap: '0.25rem' }}>
-                  <dt className="qb-muted qb-small">Grade</dt><dd style={{ margin: 0, fontSize: '0.875rem' }}>{config?.grades.find((g) => g.code === account.student!.grade_code)?.label ?? account.student.grade_code ?? "-"}</dd>
+                  <dt className="qb-muted qb-small">Grade</dt><dd style={{ margin: 0, fontSize: '0.875rem' }}>{gradeDisplay(config?.grades.find((g) => g.code === account.student!.grade_code)?.label, account.student.grade_code)}</dd>
                 </dl>
                 <dl className="qb-field" style={{ gap: '0.25rem' }}>
                   <dt className="qb-muted qb-small">Subjects</dt><dd style={{ margin: 0, fontSize: '0.875rem' }}>{account.student.subjects.map((c) => config?.subjects.find((s) => s.code === c)?.label ?? c).join(", ") || "-"}</dd>
