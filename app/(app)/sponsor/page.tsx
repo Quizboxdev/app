@@ -4,6 +4,7 @@
 import { useEffect, useState } from "react";
 import LoadError from "@/components/LoadError";
 import Link from "next/link";
+import { verificationView } from "@/lib/sponsor/verification";
 import { bootstrapUser } from "@/lib/auth";
 import CompetitionContentScope from "@/components/CompetitionContentScope";
 import StatCard from "@/components/StatCard";
@@ -78,6 +79,8 @@ export default function SponsorPage() {
         </div>
       </div>
 
+      {String(profile.sponsor_type ?? "ORGANIZATION").toUpperCase() === "ORGANIZATION" && (() => { const v = verificationView(profile.verification_status, profile.verification_note); return <section className="qb-card" role="status" aria-label="Verification" style={{ marginBottom: 12 }}>
+        <span className={`qb-pill${v.tone === "ok" ? " success" : ""}`}>{v.label}</span> <span className="qb-muted">{v.message}</span></section>; })()}
       <DashboardHero eyebrow="Sponsor workspace" title="Turn support into measurable participation." description="Run governed learning competitions and track engagement and performance." primary={sponsorEngine ? { label: "Open workspace", href: "/sponsor/workspace" } : { label: "Browse competitions", href: "/competition" }} secondary={sponsorEngine ? { label: "Browse competitions", href: "/competition" } : undefined} />
       <div className="qb-grid cols-4">
         <StatCard value={rows.length} label="Active sponsorships" />
