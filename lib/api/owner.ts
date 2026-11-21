@@ -29,7 +29,7 @@ export type BatchPreview = { batch_id: string; file: string; batch_status: strin
 
 export async function listLoadBatches(): Promise<LoadBatch[]> {
   const { data, error } = await getSupabaseBrowserClient().from("question_load_batches")
-    .select("id,file_name,status,rows_total,rows_loaded,rows_rejected,created_at,report").order("created_at", { ascending: false }).limit(100);
+    .select("id,file_name,status,rows_total,rows_loaded,rows_rejected,created_at,report").order("created_at", { ascending: false }).limit(500);
   if (error) throw new Error(userFacingError(error));
   return (data ?? []) as LoadBatch[];
 }
@@ -37,9 +37,9 @@ export async function listBatchApprovals(): Promise<BatchApproval[]> {
   const table = () => getSupabaseBrowserClient().from("question_batch_approvals");
   const columns = "id,batch_id,status,questions_approved,questions_skipped,sample_reviewed,note,created_at,revoked_at";
   // in_progress arrives with migration 20261052100000 and basis with 20261118100000; until then the list is read without them, so approved batches never look unapproved.
-  let { data, error } = await table().select(`${columns},in_progress,basis`).order("created_at", { ascending: false }).limit(200);
-  if (error) ({ data, error } = await table().select(`${columns},in_progress`).order("created_at", { ascending: false }).limit(200));
-  if (error) ({ data, error } = await table().select(columns).order("created_at", { ascending: false }).limit(200));
+  let { data, error } = await table().select(`${columns},in_progress,basis`).order("created_at", { ascending: false }).limit(1000);
+  if (error) ({ data, error } = await table().select(`${columns},in_progress`).order("created_at", { ascending: false }).limit(1000));
+  if (error) ({ data, error } = await table().select(columns).order("created_at", { ascending: false }).limit(1000));
   if (error) return [];   // the approvals table arrives with migration 20261014110000; before that, nothing is approved
   return (data ?? []) as unknown as BatchApproval[];
 }
