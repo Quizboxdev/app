@@ -23,6 +23,7 @@ import DraftReminder from "@/components/DraftReminder";
 import PolicyGate from "@/components/policies/PolicyGate";
 import HelpStarter from "@/components/help/HelpStarter";
 import ConnectionBanner from "@/components/ConnectionBanner";
+import { baseRoutePrefixes, isBaseRoute } from "@/lib/nav/role-routes";
 import { captureReferralIfAny } from "@/lib/referral/capture";
 
 type NavItem = [string, string];
@@ -87,16 +88,7 @@ export default function AppShell({
     if (!ctx || !accessReady) return null;
 
     const role = String(ctx.role).toUpperCase();
-    const allowedPrefixes = ["ADMIN", "OWNER"].includes(role)
-      ? ["/admin", "/teacher", "/practise", "/student/attempt", "/competition", "/marketplace", "/subscribe", "/creator"]
-      : role === "TEACHER"
-        ? ["/teacher", "/practise", "/student/attempt", "/competition", "/marketplace", "/seller", "/subscribe", "/creator"]
-        : role === "SPONSOR"
-          ? ["/sponsor", "/competition", "/marketplace", "/creator"]
-          : ["/student", "/learn", "/practise", "/competition", "/marketplace", "/subscribe", "/creator"];
-
-    allowedPrefixes.push("/account", "/notifications", "/school", "/play", "/open", "/drafts", "/support", "/guides", "/affiliate");
-    if (role !== "STUDENT" && familyOn) allowedPrefixes.push("/family");
+    const allowedPrefixes = baseRoutePrefixes(role, familyOn);
     if (sme?.reviewer || sme?.content_admin || sme?.super_admin) allowedPrefixes.push("/review");
     if (sme?.super_admin) allowedPrefixes.push("/admin/markets", "/admin/partners", "/admin/reviewers", "/admin/compensation", "/admin/policies", "/admin/schools", "/admin/social", "/admin/families");
     if (sme?.super_admin || sme?.sme_support) allowedPrefixes.push("/admin/inbox", "/admin/reviewer-applications", "/admin/tickets", "/admin/help");
@@ -118,6 +110,8 @@ export default function AppShell({
   }, [ctx, accessReady, pathname, sme, staff, familyOn]);
 
   useEffect(() => { if (routeCheck && !routeCheck.allowed) router.replace(routeCheck.home); }, [routeCheck, router]);
+  // Until extra duties are read, a page outside the role's own pages is not shown (no flash of /admin for a teacher); the person sees a short message instead.
+  const holdForAccess = Boolean(ctx && !accessReady && !isBaseRoute(String(ctx.role), pathname, familyOn));
 
   const inSchool = pathname.startsWith("/school");
   const groups = useMemo<NavGroup[]>(() => {
@@ -391,7 +385,7 @@ export default function AppShell({
             <div className="qb-context-bar"><WorkspaceChip/><MarketContextControl/></div>
             <DraftReminder />
             <HelpStarter pathname={pathname} />
-            {routeCheck && !routeCheck.allowed ? <p className="qb-muted" role="status">Taking you to your home page…</p> : <PolicyGate>{children}</PolicyGate>}
+            {holdForAccess ? <p className="qb-muted" role="status">Checking your access…</p> : routeCheck && !routeCheck.allowed ? <p className="qb-muted" role="status">Taking you to your home page…</p> : <PolicyGate>{children}</PolicyGate>}
           </WorkspaceProvider></SponsorEngineProvider>
         </div>
 
