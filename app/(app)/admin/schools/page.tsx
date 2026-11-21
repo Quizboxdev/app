@@ -8,9 +8,10 @@ import {
 } from "@/lib/api/schools";
 import { chunkRows, readSchoolCsv, type ParsedSchools } from "@/lib/schools/csv";
 import { formatDate } from "@/lib/format";
+import AddSchoolPanel from "@/components/admin/AddSchoolPanel";
 import { Kpi, Panel, RankedBars, Segmented, SERIES, SplitBar, TrendCurve, num } from "@/components/admin/DataViz";
 
-type Tab = DirectoryStatus | "import";
+type Tab = DirectoryStatus | "import" | "add";
 const LEVELS: SchoolLevel[] = ["primary", "jhs", "shs"];
 const SIZES = [25, 50, 100];
 type Draft = { name: string; district: string; town: string; ownership: Ownership | ""; levels: SchoolLevel[] };
@@ -37,7 +38,7 @@ export default function SchoolDirectoryPage() {
 
   const filter: AdminListFilter = useMemo(() => ({ query: search, region, district, ownership, level, sort, dir }), [search, region, district, ownership, level, sort, dir]);
   useEffect(() => {
-    if (tab === "import") return;
+    if (tab === "import" || tab === "add") return;
     const mine = ++seq.current;
     setData(null);
     adminListSchools(tab, filter, size, page * size).then((d) => { if (mine === seq.current) setData(d); }).catch((e) => { if (mine === seq.current) { setError(e.message); setData({ total: 0, rows: [], counts: {} }); } });
@@ -48,7 +49,7 @@ export default function SchoolDirectoryPage() {
   const filtered = !!(search || region || district || ownership || level);
   const clear = () => { setQuery(""); setSearch(""); setRegion(""); setDistrict(""); setOwnership(""); setLevel(""); setPage(0); };
   const sortBy = (k: AdminSort) => { if (sort === k) setDir(dir === "asc" ? "desc" : "asc"); else { setSort(k); setDir(k === "linked" || k === "recent" ? "desc" : "asc"); } setPage(0); };
-  const pickRegion = (r: string) => { setRegion(region === r ? "" : r); setDistrict(""); setPage(0); setTab(tab === "import" ? "approved" : tab); };
+  const pickRegion = (r: string) => { setRegion(region === r ? "" : r); setDistrict(""); setPage(0); setTab(tab === "import" || tab === "add" ? "approved" : tab); };
 
   async function run(label: string, action: () => Promise<unknown>) {
     setBusy(true); setError(""); setDone("");
@@ -56,7 +57,7 @@ export default function SchoolDirectoryPage() {
     setBusy(false);
   }
   async function exportCsv() {
-    if (tab === "import") return;
+    if (tab === "import" || tab === "add") return;
     setBusy(true); setError("");
     try {
       const out: AdminSchool[] = [];
@@ -85,7 +86,8 @@ export default function SchoolDirectoryPage() {
       <div className="dx-head">
         <div><h1>School directory</h1><p>The list students and teachers pick their school from. Approve schools people add, merge look-alikes, and keep names accurate.</p></div>
         <div className="dx-actions">
-          <button className="dx-btn" disabled={busy || tab === "import"} onClick={() => void exportCsv()}>Export CSV</button>
+          <button className="dx-btn" disabled={busy || tab === "import" || tab === "add"} onClick={() => void exportCsv()}>Export CSV</button>
+          <button className="dx-btn" onClick={() => { setTab("add"); setOpen(""); setDone(""); setError(""); }}>Add one school</button>
           <button className="dx-btn primary" onClick={() => { setTab("import"); setOpen(""); }}>Import list</button>
         </div>
       </div>
@@ -118,8 +120,8 @@ export default function SchoolDirectoryPage() {
 
       <div className="dx-toolbar">
         <Segmented label="Status" value={tab} onChange={(v) => { setTab(v); setPage(0); setOpen(""); setDone(""); setError(""); }}
-          options={[{ value: "approved", label: "Approved", count: counts.approved }, { value: "pending", label: "Waiting", count: counts.pending }, { value: "rejected", label: "Rejected", count: counts.rejected }, { value: "merged", label: "Merged", count: counts.merged }, { value: "import", label: "Import" }]} />
-        {tab !== "import" && <>
+          options={[{ value: "approved", label: "Approved", count: counts.approved }, { value: "pending", label: "Waiting", count: counts.pending }, { value: "rejected", label: "Rejected", count: counts.rejected }, { value: "merged", label: "Merged", count: counts.merged }, { value: "add", label: "Add one" }, { value: "import", label: "Import" }]} />
+        {tab !== "import" && tab !== "add" && <>
           <select className="dx-select" aria-label="Region" value={region} onChange={(e) => { setRegion(e.target.value); setDistrict(""); setPage(0); }}>
             <option value="">All regions</option>{(stats?.by_region ?? []).map((r) => <option key={r.region} value={r.region}>{r.region}</option>)}
           </select>
@@ -137,7 +139,7 @@ export default function SchoolDirectoryPage() {
         </>}
       </div>
 
-      {tab === "import" ? <ImportPanel onLoaded={() => { setTab("approved"); setPage(0); reload(); }} /> : (
+      {tab === "add" ? <AddSchoolPanel regions={(stats?.by_region ?? []).map((r) => r.region)} onAdded={reload} /> : tab === "import" ? <ImportPanel onLoaded={() => { setTab("approved"); setPage(0); reload(); }} /> : (
         <>
           <div className="dx-table-wrap">
             <table className="dx-table">
