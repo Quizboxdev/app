@@ -13,6 +13,7 @@ import PricingCards from "@/components/pricing/PricingCards";
 import { listPrices } from "@/lib/api/pricing";
 import type { PriceRow } from "@/lib/pricing/format";
 import { formatDate } from "@/lib/format";
+import { freeAllowanceLine, pricingNote } from "@/lib/pricing/notes";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
 const cedis = (minor: number) => `GHS ${(minor / 100).toFixed(2)}`;
@@ -63,7 +64,8 @@ function SubscribeInner() {
         ? "We have not received confirmation yet. If you were charged, do not pay again: your subscription is activated as soon as the payment is confirmed, and you can contact us with your payment reference."
         : "Waiting for your payment to be confirmed. This usually takes under a minute."} <span className="qb-muted qb-small">Reference {returned}</span></div>}
 
-      {!(open && PLANS.some((p) => planPriceMinor(p, catalog?.unit_price_minor) !== null)) && <div className="qb-card" role="note">Prices are being finalised. Nothing is charged today.</div>}
+      {(() => { const free = freeAllowanceLine(access); return free ? <div className="qb-card" role="note">{free}</div> : null; })()}
+      {!(open && PLANS.some((p) => planPriceMinor(p, catalog?.unit_price_minor) !== null)) && <div className="qb-card" role="note">{pricingNote(false)}</div>}
       {learnerCards.length > 0 ? <PricingCards rows={learnerCards} onPay={(r) => void pay(r.code)} payable={(r) => open && !!r.coins && !!r.days} busy={busy} /> :
       <div className="qb-grid cols-3">
         {PLANS.map((p) => {
