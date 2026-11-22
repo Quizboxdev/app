@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { batchView, jobView, shortReason, summarise, type JobInput } from "./queue";
+import { attentionKeys, batchView, dropKeys, jobView, removable, shortReason, summarise, type JobInput, type JobView } from "./queue";
 
 const okPlan = { canLoad: true, blockers: [], unresolved: [], report: { errorRows: 0, issues: [], batchFlags: [] } } as unknown as NonNullable<JobInput["plan"]>;
 const badPlan = (over: Record<string, unknown> = {}) => ({ canLoad: false, blockers: ["QL_CHECK_FAILED"], unresolved: [], report: { errorRows: 2, issues: [{ row: 40, severity: "error", code: "QL_UNSAFE_CONTENT", field: "explanation" }], batchFlags: [] }, ...over }) as unknown as NonNullable<JobInput["plan"]>;
@@ -106,5 +106,22 @@ describe("batches with an interrupted action", () => {
   });
   it("a discard cut off partway offers Discard again", () => {
     expect(batchView(b("DISCARDING"), false)).toMatchObject({ label: "Being discarded", action: "discard" });
+  });
+});
+
+describe("taking files out of the queue", () => {
+  const v = (phase: JobView["phase"]): JobView => ({ phase, label: phase, tone: "muted", runnable: false });
+  it("removes only the ticked files and keeps the order of the rest", () => {
+    const jobs = [{ key: "a" }, { key: "b" }, { key: "c" }];
+    expect(dropKeys(jobs, ["b"]).map((j) => j.key)).toEqual(["a", "c"]);
+    expect(dropKeys(jobs, new Set(["a", "c", "zzz"])).map((j) => j.key)).toEqual(["b"]);
+    expect(dropKeys(jobs, [])).toEqual(jobs);
+  });
+  it("never removes the file that is loading right now", () => {
+    expect(removable(v("running"))).toBe(false);
+    for (const p of ["checking", "ready", "blocked", "needs-source", "done", "stopped", "continue", "loaded-before"] as const) expect(removable(v(p))).toBe(true);
+  });
+  it("finds the files that cannot be loaded as they are", () => {
+    expect(attentionKeys([{ key: "a", view: v("ready") }, { key: "b", view: v("blocked") }, { key: "c", view: v("needs-source") }, { key: "d", view: v("done") }])).toEqual(["b", "c"]);
   });
 });

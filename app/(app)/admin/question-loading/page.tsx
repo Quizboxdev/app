@@ -4,7 +4,7 @@ import Link from "next/link";
 import { listAllCurricula, type CurriculumChoice } from "@/lib/api/curriculum-structure";
 import { findLoadBatchByHash, listApprovedSources, loadCurriculumIndex, runQuestionLoad, type ApprovedSource, type LoadBatchState } from "@/lib/api/question-loading";
 import { CALL_ROWS, CALLS_PER_MINUTE, canContinue, createPacer } from "@/lib/question-loading/resume";
-import { jobView, summarise } from "@/lib/question-loading/queue";
+import { attentionKeys, dropKeys, jobView, removable, summarise } from "@/lib/question-loading/queue";
 import type { CurriculumIndex } from "@/lib/curriculum/verified";
 import { readQuestionFile } from "@/lib/question-loading/read";
 import { buildPlan, describePlan, type LoadPlan } from "@/lib/question-loading/plan";
@@ -41,6 +41,8 @@ export default function QuestionLoadingPage() {
   const [sources, setSources] = useState<ApprovedSource[]>([]), [index, setIndex] = useState<CurriculumIndex | null>(null);
   const [jobs, setJobs] = useState<Job[]>([]), [balance, setBalance] = useState(false);
   const [busy, setBusy] = useState(false), [running, setRunning] = useState(false), [error, setError] = useState("");
+  const [ticked, setTicked] = useState<Set<string>>(new Set()), [inputKey, setInputKey] = useState(0);
+  const fileByKey = useRef(new Map<string, File>());   // the chosen files, so what stays after a removal is what comes back after a refresh
   const curriculum = curricula.find((c) => c.id === curriculumId);
   const jobsRef = useRef<Job[]>([]); jobsRef.current = jobs;
   const patch = (key: string, p: Partial<Job>) => setJobs((prev) => prev.map((j) => (j.key === key ? { ...j, ...p } : j)));
@@ -69,16 +71,17 @@ export default function QuestionLoadingPage() {
     if (!list.length) return;
     if (!fromDraft) void putFiles(FILE_KEY, list);
     const seen = new Set<string>(), made: Job[] = [];
+    fileByKey.current = new Map();
     for (const f of list) {
       try {
         const bytes = new Uint8Array(await f.arrayBuffer()), hash = await sha256Hex(bytes);
         if (seen.has(hash)) continue;
         seen.add(hash);
         const parsed = await readQuestionFile(f.name, bytes);
-        made.push(newJob(f.name, hash, parsed.rows, parsed.fileRows, null));
-      } catch (e) { made.push(newJob(f.name, `unreadable-${made.length}-${f.name}`, [], [], (e as Error).message)); }
+        made.push(newJob(f.name, hash, parsed.rows, parsed.fileRows, null)); fileByKey.current.set(hash, f);
+      } catch (e) { const key = `unreadable-${made.length}-${f.name}`; made.push(newJob(f.name, key, [], [], (e as Error).message)); fileByKey.current.set(key, f); }
     }
-    setJobs(made);
+    setTicked(new Set()); setJobs(made);
   }
   useEffect(() => {
     if (!index || triedFiles.current || jobsRef.current.length > 0 || !restored.current?.files.length) return;
@@ -148,7 +151,20 @@ export default function QuestionLoadingPage() {
     if (!failed) { void draft.finish(); void clearFiles(FILE_KEY); }   // everything loaded: nothing left to come back to
   }
 
-  function clearAll() { void draft.finish(); void clearFiles(FILE_KEY); restored.current = null; triedFiles.current = false; setJobs([]); setBalance(false); setCurriculumId(""); setError(""); }
+  function clearAll() { void draft.finish(); void clearFiles(FILE_KEY); restored.current = null; triedFiles.current = false; fileByKey.current = new Map(); setJobs([]); setTicked(new Set()); setInputKey((k) => k + 1); setBalance(false); setCurriculumId(""); setError(""); }
+
+  // Take files out of the queue (the files on your computer are untouched). A file that is loading right now stays until it finishes.
+  function removeKeys(keys: string[]) {
+    const safe = keys.filter((k) => { const v = views.find((x) => x.job.key === k); return v && removable(v.view); });
+    if (!safe.length) return;
+    const left = dropKeys(jobsRef.current, safe);
+    safe.forEach((k) => fileByKey.current.delete(k));
+    setJobs(left); setTicked(new Set()); setInputKey((k) => k + 1);
+    const keep = left.map((j) => fileByKey.current.get(j.key)).filter((f): f is File => Boolean(f));
+    if (keep.length) void putFiles(FILE_KEY, keep); else void clearFiles(FILE_KEY);
+  }
+  const flip = (key: string, on: boolean) => setTicked((prev) => { const next = new Set(prev); if (on) next.add(key); else next.delete(key); return next; });
+  const tickable = views.filter(({ view }) => removable(view)).map(({ job }) => job.key), tickedNow = tickable.filter((k) => ticked.has(k));
 
   return <>
     <div className="qb-page-head"><div><h1>Load questions</h1>
@@ -166,15 +182,22 @@ export default function QuestionLoadingPage() {
 
     <section className="qb-card"><h2>2. Question files</h2>
       <p className="qb-muted">Choose as many .csv, .txt or .xlsx files as you like. Choosing files again replaces this list.</p>
-      <label>Files<input type="file" multiple accept=".csv,.txt,.xlsx" disabled={!index || index.all.length === 0} onChange={(e) => void choose(Array.from(e.target.files ?? []))} /></label>
+      <label>Files<input type="file" multiple accept=".csv,.txt,.xlsx" disabled={!index || index.all.length === 0} onChange={(e) => void choose(Array.from(e.target.files ?? []))} key={inputKey} /></label>
       {!curriculumId && <p className="qb-muted qb-small">Pick the curriculum first.</p>}
     </section>
 
     {jobs.length > 0 && <section className="qb-card"><h2>3. Check and load</h2>
       <p role="status"><strong>{summary.line}</strong></p>
-      <div className="qb-table-wrap"><table className="qb-table"><thead><tr><th>File</th><th>Questions</th><th>Source</th><th>Status</th><th /></tr></thead><tbody>
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center", marginBottom: 8 }} role="group" aria-label="Take files out of this list">
+        <button type="button" className="qb-btn" disabled={running || tickedNow.length === 0} onClick={() => removeKeys(tickedNow)}>{tickedNow.length ? `Remove ${tickedNow.length} ticked file${tickedNow.length === 1 ? "" : "s"}` : "Remove ticked files"}</button>
+        <button type="button" className="qb-btn secondary" disabled={running || attentionKeys(views.map(({ job, view }) => ({ key: job.key, view }))).length === 0} onClick={() => setTicked(new Set(attentionKeys(views.map(({ job, view }) => ({ key: job.key, view })))))}>Tick the files that need attention</button>
+        <button type="button" className="qb-link-btn" disabled={running || tickable.length === 0} onClick={() => { if (window.confirm(`Remove all ${tickable.length} file${tickable.length === 1 ? "" : "s"} from this list? The files on your computer are not touched. Anything already loaded stays loaded.`)) removeKeys(tickable); }}>Remove all files</button>
+        <span className="qb-muted qb-small">Tick a file to take it out of the list, for example one that is damaged. Nothing is deleted from your computer.</span>
+      </div>
+      <div className="qb-table-wrap"><table className="qb-table"><thead><tr><th style={{ width: 32 }}><input type="checkbox" aria-label="Tick all files" disabled={running || tickable.length === 0} checked={tickable.length > 0 && tickedNow.length === tickable.length} onChange={(e) => setTicked(e.target.checked ? new Set(tickable) : new Set())} /></th><th>File</th><th>Questions</th><th>Source</th><th>Status</th><th /></tr></thead><tbody>
         {views.map(({ job, view }) => <Fragment key={job.key}>
-          <tr>
+          <tr style={ticked.has(job.key) ? { background: "rgba(220, 38, 38, 0.06)" } : undefined}>
+            <td><input type="checkbox" aria-label={`Tick ${job.name} to remove it from the list`} disabled={!removable(view)} checked={ticked.has(job.key)} onChange={(e) => flip(job.key, e.target.checked)} /></td>
             <td>{job.name}</td>
             <td>{n(job.loadRows.length)}{job.plan ? <span className="qb-muted qb-small" style={{ display: "block" }}>{job.plan.topics.length} topics</span> : null}</td>
             <td className="qb-small"><select aria-label={`Source for ${job.name}`} value={job.sourceIds.length === 1 ? job.sourceIds[0] : ""} disabled={job.running || ["done", "loaded-before"].includes(view.phase)}
@@ -185,7 +208,7 @@ export default function QuestionLoadingPage() {
               {view.detail ? <span className={`qb-small ${view.tone === "bad" ? "qb-error" : "qb-muted"}`} style={{ display: "block" }}>{view.detail}</span> : null}</td>
             <td><button type="button" className="qb-link-btn" onClick={() => patch(job.key, { open: !job.open })}>{job.open ? "Hide details" : "Details"}</button></td>
           </tr>
-          {job.open && <tr><td colSpan={5}>
+          {job.open && <tr><td colSpan={6}>
             <fieldset><legend>Source this file was written from</legend>
               {sources.map((s) => <label key={s.id}><input type="checkbox" checked={job.sourceIds.includes(s.id)} onChange={(e) => patch(job.key, { manualSource: true, sourceIds: e.target.checked ? [...job.sourceIds, s.id] : job.sourceIds.filter((x) => x !== s.id) })} />{s.title}</label>)}
               <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>

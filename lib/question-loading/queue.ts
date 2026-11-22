@@ -63,6 +63,12 @@ export function summarise(items: Array<{ view: JobView; rowsCount: number; saved
   return { files, questions, ready: files, attention, line: parts.join(" · ") };
 }
 
+// Taking files out of the queue. A file that is loading right now is never removed; everything else can go (the file on the computer is untouched).
+export const removable = (view: JobView): boolean => view.phase !== "running";
+export function dropKeys<T extends { key: string }>(jobs: T[], keys: Iterable<string>): T[] { const gone = new Set(keys); return jobs.filter((j) => !gone.has(j.key)); }
+// The files worth ticking in one go: the ones that cannot be loaded as they are (unreadable, off the curriculum, no source).
+export const attentionKeys = (items: Array<{ key: string; view: JobView }>): string[] => items.filter((i) => ["blocked", "needs-source"].includes(i.view.phase)).map((i) => i.key);
+
 // What each loaded batch is, and the one thing to do next. Every state has a way forward; none ends in a dead label.
 export type BatchRow = { status: string; rows_total: number; rows_loaded: number; rows_rejected: number; report?: Record<string, unknown> | null };
 export type BatchAction = "review" | "continue" | "discard" | "revoke" | "finish" | "none";
