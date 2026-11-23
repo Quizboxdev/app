@@ -23,6 +23,12 @@ describe("security headers", () => {
     expect(CONTENT_SECURITY_POLICY).toMatch(/connect-src [^;]*https:\/\/challenges\.cloudflare\.com/);
     expect(CONTENT_SECURITY_POLICY).toContain("frame-src https://challenges.cloudflare.com");
   });
+  it("allows the Help video player (youtube-nocookie) and thumbnails (i.ytimg.com), and no other YouTube origin", () => {
+    expect(CONTENT_SECURITY_POLICY).toMatch(/frame-src [^;]*https:\/\/www\.youtube-nocookie\.com/);
+    expect(CONTENT_SECURITY_POLICY).toMatch(/img-src [^;]*https:\/\/i\.ytimg\.com/);
+    expect(CONTENT_SECURITY_POLICY).not.toContain("https://www.youtube.com");
+    expect(CONTENT_SECURITY_POLICY).not.toMatch(/script-src [^;]*youtube/);
+  });
   it("asks browsers to report violations to our own collector", () => {
     expect(CONTENT_SECURITY_POLICY).toContain("report-uri /api/ops/csp-report");
   });

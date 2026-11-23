@@ -1,5 +1,6 @@
 import Link from "next/link";
 import HelpFooter from "./HelpFooter";
+import HelpVideos from "./HelpVideos";
 import { categoryLabel, withoutTitleLine, type HelpDetail } from "@/lib/help/categories";
 import { RenderText, parseBlocks, slugOf } from "@/lib/policies/render";
 import styles from "./PublicHelpArticle.module.css";
@@ -15,6 +16,7 @@ export default function PublicHelpArticle({ detail }: { detail: HelpDetail }) {
     <div className={styles.layout}>
       <div className={styles.main}>
         <header className={styles.header}><p className="qbp-eyebrow">{categoryLabel(article.category)}</p><h1>{article.title}</h1><p className={styles.meta}>Updated [date]</p><p className={styles.lead}>{article.summary}</p></header>
+        <HelpVideos slug={article.slug} inApp={false} />
         <div className={`qbp-prose ${styles.body}`}><RenderText source={source} helpBase="/help" linkClass="qbp-link" normalizeHeadings /></div>
         <HelpFooter slug={article.slug} title={article.title} category={article.category} inApp={false} />
       </div>

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import HelpFooter from "./HelpFooter";
+import HelpVideos from "./HelpVideos";
 import { categoryLabel, withoutTitleLine, type HelpDetail } from "@/lib/help/categories";
 import { RenderText } from "@/lib/policies/render";
 
@@ -9,6 +10,7 @@ export default function HelpArticleView({ detail, inApp }: { detail: HelpDetail;
   return (
     <article>
       <p className={inApp ? "qb-muted qb-small" : "qbp-meta"}><Link className={link} href={base}>All guides</Link> · {categoryLabel(a.category)}</p>
+      <HelpVideos slug={a.slug} inApp={inApp} />
       <div className={inApp ? "qb-card" : "qbp-prose"} style={inApp ? undefined : { maxWidth: 760 }}>
         <div className={inApp ? "qbp-prose" : undefined} style={{ maxWidth: 760 }}><RenderText source={withoutTitleLine(a.body)} helpBase={base} linkClass={link} normalizeHeadings /></div>
       </div>

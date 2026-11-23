@@ -67,7 +67,7 @@ export default function AdminHelpPage() {
   return (
     <>
       <div className="qb-page-head"><div><h1>Help guides</h1><p>The guides people read at <Link className="qb-link" href="/guides">Help</Link> and on the website. Write, preview, publish. Learners, teachers, schools and sponsors only: no administrator workflows.</p></div>
-        <ExportLink dataset="help_articles" /><button className="qb-btn" onClick={() => { baseline.current = { ...blank }; setForm({ ...blank }); setNotice(""); setError(""); }}>New guide</button></div>
+        <Link className="qb-btn qb-btn-secondary" href="/admin/help/videos">Help videos</Link><ExportLink dataset="help_articles" /><button className="qb-btn" onClick={() => { baseline.current = { ...blank }; setForm({ ...blank }); setNotice(""); setError(""); }}>New guide</button></div>
       {error && <div className="qb-card qb-error" role="alert">{error}</div>}
       {notice && <div className="qb-card" role="status"><strong>{notice}</strong></div>}
       {form && <DraftNotice restored={!!draft.restored} expiresAt={draft.expiresAt} noun="guide" onDiscard={() => { void draft.finish(); baseline.current = null; setForm(null); }} />}

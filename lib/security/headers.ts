@@ -16,10 +16,10 @@ export function contentSecurityPolicy(mode: CspMode): string {
     "script-src 'self' 'unsafe-inline' https://va.vercel-scripts.com https://challenges.cloudflare.com",
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "font-src 'self' data: https://fonts.gstatic.com",
-    `img-src 'self' data: blob: ${supabase}`,
+    `img-src 'self' data: blob: ${supabase} https://i.ytimg.com`,
     `connect-src 'self' ${supabase} wss://*.supabase.co https://vitals.vercel-insights.com https://challenges.cloudflare.com`,
-    // The Turnstile (captcha) box is a frame served by Cloudflare.
-    "frame-src https://challenges.cloudflare.com",
+    // The Turnstile (captcha) box is a frame served by Cloudflare. Help videos play in the privacy-enhanced YouTube player, and their thumbnails come from i.ytimg.com (img-src above).
+    "frame-src https://challenges.cloudflare.com https://www.youtube-nocookie.com",
     "media-src 'self' blob:",
     "frame-ancestors 'none'",
     "base-uri 'self'",
