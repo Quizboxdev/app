@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Search } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { HELP_CATEGORIES, categoryLabel, type HelpMeta } from "@/lib/help/categories";
+import WatchAndLearn from "./WatchAndLearn";
 import styles from "./HelpCentre.module.css";
 
 // Canvas 11 presentation. Article content, categories and popularity remain server-owned.
@@ -51,6 +52,7 @@ export default function HelpCentre({ guides, unavailable = false }: { guides: He
       </div>
       {results && results.length > 0 && <section aria-label="Search results"><h2>Search results</h2>{articleList(results)}</section>}
     </section>
+    {results === null && query.trim().length < 2 && <WatchAndLearn base="/help" audience={null} className={`qbp-wrap ${styles.section}`} />}
     <section className={styles.band} aria-labelledby="help-topics-title"><div className={`qbp-wrap ${styles.stack}`}>
       <h2 id="help-topics-title">Browse by topic</h2>
       {unavailable ? <div className={styles.panel} role="status"><h3>Help articles could not load</h3><p>Please try again in a moment.</p><button type="button" onClick={() => window.location.reload()} className="qbp-btn2">Try again</button></div> : topics.length === 0 ? <div className={styles.panel}><h3>No articles available yet</h3><p>Please check back, or contact support.</p></div> : <div className={styles.topics}>{topics.map(c => <button type="button" key={c.id} className={styles.topic} aria-pressed={topic === c.id} aria-controls="help-topic-articles" onClick={() => { setTopic(c.id); setQuery(""); }}><strong>{c.label}</strong><span>Articles: {c.articles.length}</span></button>)}</div>}
