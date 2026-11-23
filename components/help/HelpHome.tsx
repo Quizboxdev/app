@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { HELP_CATEGORIES, type HelpMeta } from "@/lib/help/categories";
+import WatchAndLearn from "./WatchAndLearn";
 
 // The Help home: a search box that answers as you type, then the guides grouped by topic. Used on the public site (/help) and inside the app (/guides, inside the signed-in menu).
 // Search asks the server (it searches the steps too, not only titles); the topic list works without any search. A "Still stuck?" box leads to a support request or the contact form.
@@ -44,6 +45,7 @@ export default function HelpHome({ guides, base, audience, inApp }: { guides: He
         </div>
       ) : (
         <>
+          <WatchAndLearn base={base} audience={audience} />
           {popular.length > 0 && !audience && <div className={card}><h2 style={{ marginTop: 0 }}>Most read</h2><ul style={{ margin: 0 }}>{popular.map((g) => <li key={g.slug}><Link className={link} href={`${base}/${g.slug}`}>{g.title}</Link></li>)}</ul></div>}
           <div style={{ display: "grid", gap: 16, gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))" }}>
             {byCategory.map((c) => (

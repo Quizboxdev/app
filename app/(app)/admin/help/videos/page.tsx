@@ -6,6 +6,7 @@ import { adminVideos, deleteVideo, saveVideo, setVideoState, type AdminVideo } f
 import { adminGuides, type AdminGuide } from "@/lib/api/help";
 import { HELP_AUDIENCES } from "@/lib/help/categories";
 import { formatDuration, parseDuration, parseYouTubeId, thumbnailUrl, watchOnYouTubePath } from "@/lib/help/video";
+import { videosCsv, videosCsvName } from "@/lib/help/video-export";
 
 // Admin, Help videos. The library of how-to videos kept on QuizBox's YouTube channel. Paste the YouTube link, choose who it is for and which Help guides it appears on, then publish.
 // People watch it on the guide (the player loads only after they press play), and "Watch on YouTube" counts the click and sends them to the channel. Plays and clicks are shown here.
@@ -71,11 +72,20 @@ export default function AdminHelpVideosPage() {
   const open = (v: AdminVideo) => { setError(""); setNotice(""); setForm(toForm(v)); };
   const titleOf = useMemo(() => new Map(guides.map((g) => [g.slug, g.title])), [guides]);
   const shown = (rows ?? []).filter((r) => filter === "all" || r.state === filter);
+  const exportCsv = () => {
+    try {
+      const url = URL.createObjectURL(new Blob([videosCsv(rows ?? [], (s) => titleOf.get(s) ?? s)], { type: "text/csv;charset=utf-8" }));
+      const a = document.createElement("a"); a.href = url; a.download = videosCsvName(); a.click(); URL.revokeObjectURL(url);
+      setError(""); setNotice(`Exported ${(rows ?? []).length} video${(rows ?? []).length === 1 ? "" : "s"}.`);
+    } catch { setError("The export did not work. Please try again."); }
+  };
   const totals = (rows ?? []).reduce((t, r) => ({ plays: t.plays + r.plays, outbound: t.outbound + r.outbound }), { plays: 0, outbound: 0 });
   return (
     <>
       <div className="qb-page-head"><div><h1>Help videos</h1><p>How-to videos on QuizBox&apos;s YouTube channel, shown on the <Link className="qb-link" href="/admin/help">Help guides</Link> they explain. Anyone who presses play, or &quot;Watch on YouTube&quot;, is counted here.</p></div>
-        <button className="qb-btn" onClick={() => { setForm({ ...blank }); setNotice(""); setError(""); }}>New video</button></div>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          <button className="qb-btn qb-btn-secondary" disabled={!rows || rows.length === 0} onClick={exportCsv}>Export CSV</button>
+          <button className="qb-btn" onClick={() => { setForm({ ...blank }); setNotice(""); setError(""); }}>New video</button></div></div>
       {error && <div className="qb-card qb-error" role="alert">{error}</div>}
       {notice && <div className="qb-card" role="status"><strong>{notice}</strong></div>}
       <nav aria-label="Filter" style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>{(["all", "published", "draft"] as const).map((f) => <button key={f} className={`qb-btn${filter === f ? "" : " qb-btn-secondary"}`} onClick={() => setFilter(f)}>{f === "all" ? "All" : f === "published" ? "Published" : "Drafts"}</button>)}</nav>
