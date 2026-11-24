@@ -35,6 +35,11 @@ describe("choosing the source for a question file", () => {
   it("picks one source per subject for a file that mixes subjects", () => {
     expect(sourcesForSubjects(SOURCES, ["Science", "History"]).sort()).toEqual(["s10", "s5"]);
   });
+  it("matches Information and Communications Technology to the ICT source", () => {
+    expect(sourceMatchesSubject("ICT Curriculum", "Information And Communications Technology")).toBe(true);
+    expect(sourceMatchesSubject("ICT Curriculum", "Information And Communication Technology")).toBe(true);
+    expect(sourceMatchesSubject("ICT Curriculum", "Computing")).toBe(false);
+  });
   it("does not let grade or level words decide a match", () => {
     expect(sourceMatchesSubject("Science B7-B9 Common Core Programme", "Science")).toBe(true);
     expect(sourceMatchesSubject("Social Studies B7-B9 Common Core Programme", "Science")).toBe(false);
