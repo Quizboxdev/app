@@ -91,7 +91,7 @@ export default function AppShell({
     const allowedPrefixes = baseRoutePrefixes(role, familyOn);
     if (sme?.reviewer || sme?.content_admin || sme?.super_admin) allowedPrefixes.push("/review");
     if (sme?.super_admin) allowedPrefixes.push("/admin/markets", "/admin/partners", "/admin/sponsor-verification", "/admin/reviewers", "/admin/compensation", "/admin/policies", "/admin/schools", "/admin/social", "/admin/families");
-    if (sme?.super_admin || sme?.sme_support) allowedPrefixes.push("/admin/inbox", "/admin/reviewer-applications", "/admin/tickets", "/admin/help");
+    if (sme?.super_admin || sme?.sme_support) allowedPrefixes.push("/admin/inbox", "/admin/reviewer-applications", "/admin/tickets", "/admin/help", "/admin/posts");
     if (sme?.super_admin || sme?.finance_admin) allowedPrefixes.push("/admin/sme-performance", "/admin/payouts", "/admin/payment-checks", "/admin/affiliates");
     if (sme?.super_admin || sme?.finance_admin || sme?.content_admin || sme?.sme_support) allowedPrefixes.push("/admin/exports");
 
@@ -129,10 +129,10 @@ export default function AppShell({
     const staffTabs: NavItem[] = staff?.enabled ? tabsFor(staff.workflows) : [];
     const seen = new Set<string>();
     const administration: NavItem[] = [
-      ...when(sme?.super_admin, [["/admin/markets", "Markets"], ["/admin/schools", "School directory"], ["/admin/social", "Social channels"], ["/admin/curriculum-sources", "Curriculum Sources"], ["/admin/reviewers", "Reviewers"], ["/admin/compensation", "Compensation"], ["/admin/policies", "Policies"], ["/admin/tickets", "Support requests"], ["/admin/help", "Help guides"], ["/admin/help/videos", "Help videos"]]),
+      ...when(sme?.super_admin, [["/admin/markets", "Markets"], ["/admin/schools", "School directory"], ["/admin/social", "Social channels"], ["/admin/curriculum-sources", "Curriculum Sources"], ["/admin/reviewers", "Reviewers"], ["/admin/compensation", "Compensation"], ["/admin/policies", "Policies"], ["/admin/tickets", "Support requests"], ["/admin/help", "Help guides"], ["/admin/posts", "Posts"], ["/admin/help/videos", "Help videos"]]),
       ...when(sme?.super_admin || sme?.finance_admin, [["/admin/sme-performance", "SME Performance"], ["/admin/payouts", "Payouts"], ["/admin/payment-checks", "Payment checks"], ["/admin/affiliates", "Affiliates"]]),
       ...when(sme?.super_admin || sme?.finance_admin || sme?.content_admin || sme?.sme_support, [["/admin/exports", "Export data"]]),
-      ...when(sme?.sme_support && !sme?.super_admin, [["/admin/inbox", "Enquiry Inbox"], ["/admin/tickets", "Support requests"], ["/admin/help", "Help guides"], ["/admin/help/videos", "Help videos"], ["/admin/reviewer-applications", "Reviewer Applications"]]),
+      ...when(sme?.sme_support && !sme?.super_admin, [["/admin/inbox", "Enquiry Inbox"], ["/admin/tickets", "Support requests"], ["/admin/help", "Help guides"], ["/admin/posts", "Posts"], ["/admin/help/videos", "Help videos"], ["/admin/reviewer-applications", "Reviewer Applications"]]),
       ...staffTabs,
       ...when(sme?.super_admin && staff?.enabled, [["/admin/staff", "Staff access"]]),
     ].filter(([href]) => !seen.has(href) && seen.add(href));
@@ -186,7 +186,7 @@ export default function AppShell({
         ...when(sme?.super_admin && staff?.enabled, [["/admin/staff", "Staff access"]]),
         ["/admin/pricing", "Prices"],
         ["/admin/tickets", "Support requests"],
-        ["/admin/help", "Help guides"], ["/admin/help/videos", "Help videos"],
+        ["/admin/help", "Help guides"], ["/admin/posts", "Posts"], ["/admin/help/videos", "Help videos"],
         ["/admin/refunds", "Refunds"],
         ["/admin/policies", "Policies"],
         ["/admin/exports", "Export data"],

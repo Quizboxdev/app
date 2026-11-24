@@ -1,0 +1,36 @@
+/* A marketing post on its own public page: flyer, title, summary, article, and a glossy Subscribe panel at the foot. Uses the site tokens from globals.css. */
+.post { padding-top: 24px; padding-bottom: 72px; max-width: 800px; font-family: var(--font-sans); color: var(--ink); overflow-wrap: anywhere; }
+.post a:focus-visible, .post button:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+.crumb { display: flex; flex-wrap: wrap; gap: 8px; font-size: 13px; color: var(--ink-body); margin-bottom: 20px; }
+.crumb a { color: var(--blue-strong); text-underline-offset: 3px; }
+.flyer { margin: 0 0 28px; border-radius: var(--radius-lg); overflow: hidden; border: 1px solid var(--line); box-shadow: var(--shadow); background: var(--soft); }
+.flyer img { display: block; width: 100%; height: auto; }
+.header { display: grid; gap: 14px; margin-bottom: 28px; }
+.header p { margin: 0; }
+.header h1 { margin: 0; font-family: var(--font-display); font-size: clamp(28px, 4vw, 42px); line-height: 1.15; font-weight: 800; }
+.meta { font-size: 13px; color: var(--ink-muted); }
+.lead { font-size: 18px; line-height: 1.6; color: var(--ink-body); }
+.body { max-width: none; color: var(--ink-body); }
+.body :is(h2, h3, h4) { color: var(--ink); font-family: var(--font-display); }
+.body :is(pre, table) { max-width: 100%; overflow-x: auto; }
+/* The subscribe links the article carries inside its text. */
+.body p > strong:first-child:has(+ a) { color: var(--ink); }
+.body a { color: var(--blue-strong); font-weight: 700; text-underline-offset: 3px; }
+
+/* The glossy panel. A gradient, a soft highlight across the top and a light edge. Text stays white on the dark gradient (contrast above 7:1). */
+.panel { position: relative; overflow: hidden; margin-top: 44px; padding: 36px 32px; border-radius: 24px; color: #fff; isolation: isolate;
+  background: linear-gradient(135deg, #1b3fd8 0%, #5b2bd6 55%, #a22bd0 100%); box-shadow: 0 18px 40px rgba(40, 30, 140, .35), inset 0 1px 0 rgba(255, 255, 255, .35); }
+.panel::before { content: ""; position: absolute; inset: 0 0 45% 0; background: linear-gradient(180deg, rgba(255, 255, 255, .26), rgba(255, 255, 255, 0)); z-index: -1; pointer-events: none; }
+.panel::after { content: ""; position: absolute; width: 340px; height: 340px; right: -90px; bottom: -150px; border-radius: 50%; background: radial-gradient(circle, rgba(255, 255, 255, .28), rgba(255, 255, 255, 0) 70%); z-index: -1; pointer-events: none; }
+.panel h2 { margin: 0 0 8px; font-family: var(--font-display); font-size: clamp(24px, 3vw, 32px); line-height: 1.2; font-weight: 800; color: #fff; }
+.panel p { margin: 0; max-width: 560px; font-size: 16px; line-height: 1.6; color: rgba(255, 255, 255, .92); }
+.points { list-style: none; margin: 18px 0 22px; padding: 0; display: grid; gap: 8px; font-size: 15px; }
+.points li { display: flex; gap: 10px; align-items: flex-start; }
+.points li::before { content: "\2713"; flex: none; display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: rgba(255, 255, 255, .22); font-size: 13px; font-weight: 800; }
+.actions { display: flex; flex-wrap: wrap; gap: 14px 20px; align-items: center; }
+.cta { display: inline-flex; align-items: center; justify-content: center; min-height: 52px; padding: 0 30px; border-radius: 14px; font-size: 17px; font-weight: 800; text-decoration: none;
+  color: #2a1fa8 !important; background: linear-gradient(180deg, #ffffff, #e9e6ff); box-shadow: 0 8px 20px rgba(0, 0, 0, .25), inset 0 -2px 0 rgba(90, 60, 200, .18); transition: transform .15s ease, box-shadow .15s ease; }
+.cta:hover { transform: translateY(-2px); box-shadow: 0 12px 26px rgba(0, 0, 0, .3), inset 0 -2px 0 rgba(90, 60, 200, .18); }
+.signin { color: #fff; font-size: 14px; text-underline-offset: 3px; }
+@media (max-width: 640px) { .panel { padding: 28px 20px; border-radius: 20px; } .cta { width: 100%; } }
+@media (prefers-reduced-motion: reduce) { .cta { transition: none; } .cta:hover { transform: none; } }
