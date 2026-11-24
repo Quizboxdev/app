@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { MIG, U, makeCtx, read, type Ctx } from "./mock-exams-fixture";
 
-// Mock exams, sponsor delivery (migration 20261124110000): a gift to the family, and a shared link with paid places. The REAL marketplace and mock-exam migrations are loaded; the wallet, the family permission
+// Mock exams, sponsor delivery (migration 20261124130000): a gift to the family, and a shared link with paid places. The REAL marketplace and mock-exam migrations are loaded; the wallet, the family permission
 // check and the attempt engine are stand-ins (they have their own tests), and no real payment is made.
 const ROLLBACK = read("supabase/rollback/mock_exams_sponsor_delivery.sql");
 const { TEACHER, STUDENT, SPONSOR_OK, SPONSOR_NEW, SPONSOR_IND, SPONSOR_ALUMNI, SPONSOR_PARENT, KID, KID2, KID_NO_ASSIGN, JOINER1, JOINER2, JOINER3, MANAGED } = U;

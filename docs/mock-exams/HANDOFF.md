@@ -14,7 +14,7 @@ Branch `claude/mock-exams`. Nothing here was applied to Preview or Production, d
 | 4. App layer | `lib/api/mock-exams.ts`, `lib/mock-exams/*`, `components/mock/*`, `app/(app)/mock-exams/*`, `app/api/teacher/mock-exams/export/route.ts` | Screens, wrapper, export route. |
 | 5. Existing screens touched | `app/(app)/marketplace/{page,[slug]/page,mine/page}.tsx`, `app/(app)/admin/marketplace/page.tsx`, `app/(app)/seller/items/[id]/page.tsx`, `components/AppShell.tsx`, `lib/nav/role-routes.ts`, `lib/core/config.ts`, `lib/api/marketplace.ts` | A Mock exam badge, exam description on the listing, "My mock exams" with Start/Continue, staff review of an exam's contents, a menu entry (only while the flag is on), a message for the seller page. |
 
-| 6. Sponsor delivery | `supabase/migrations/20261124110000_mock_exams_sponsor_delivery.sql` (+ rollback), `components/mock/FamilyGivePanel.tsx`, `LinkPanel.tsx`, `lib/mock-exams/links.ts`, `app/(app)/mock-exams/join/[code]/page.tsx`, and "My mock exams" on `marketplace/mine` | A sponsor gives an exam to their family (free) or shares it by link for places paid for in Coins; the learner's private copy and attempts are the same engine as a purchase. |
+| 6. Sponsor delivery | `supabase/migrations/20261124130000_mock_exams_sponsor_delivery.sql` (+ rollback), `components/mock/FamilyGivePanel.tsx`, `LinkPanel.tsx`, `lib/mock-exams/links.ts`, `app/(app)/mock-exams/join/[code]/page.tsx`, and "My mock exams" on `marketplace/mine` | A sponsor gives an exam to their family (free) or shares it by link for places paid for in Coins; the learner's private copy and attempts are the same engine as a purchase. |
 
 ### User flows
 - **Sponsor, family:** Share -> Give to my family -> tick children (only those the sponsor may assign work to) -> Give. Each child finds it under My question sets -> My mock exams for 90 days. Results show the child's name. Can be taken back.
@@ -84,7 +84,7 @@ New tests: `mock-exams-authoring-sql.test.ts` (19), `mock-exams-delivery-sql.tes
 
 Do not apply anything until the PR is merged and `main` is pulled. Then, with the guarded script used for the other migrations:
 
-1. `20261122100000` (authoring), 2. `20261122110000` (delivery), 3. `20261122120000` (marketplace; needs `20261043100000` to be on that database), 4. `20261124110000` (sponsor delivery; needs the family workspace migrations and `qb_challenge_active_user`, both already on Preview).
+1. `20261122100000` (authoring), 2. `20261122110000` (delivery), 3. `20261122120000` (marketplace; needs `20261043100000` to be on that database), 4. `20261124130000` (sponsor delivery; needs the family workspace migrations and `qb_challenge_active_user`, both already on Preview).
 2. Turn on `flags.mock_exams` in Preview only. Leave `flags.marketplace` as it is on each environment. For the family gift also `flags.family_workspace` (already on in Preview); for links turn on `flags.mock_exam_links` (new, off).
 3. Preview click-through (use the existing test teacher, a test class and two test students): build a 20-question exam over two years; make one topic short and check the recovery help; publish; assign to the class; take it as a student; read the results; download CSV and Excel and open the Excel file; (if the Marketplace is on in Preview) list it at a test price, approve it as staff, buy it with the Paystack test mode, start it, take it, then refund it and confirm a new attempt is refused.
 

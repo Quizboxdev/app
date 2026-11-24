@@ -102,7 +102,7 @@ export async function downloadResults(q: Omit<ExportQuery, "format">, format: "c
   return { rows: Number(res.headers.get("x-export-rows") ?? 0), total: Number(res.headers.get("x-export-total") ?? 0) };
 }
 
-// Giving an exam to the family, and sharing it by link with paid places (migration 20261124110000). The database checks every call; this only asks and shows.
+// Giving an exam to the family, and sharing it by link with paid places (migration 20261124130000). The database checks every call; this only asks and shows.
 export type FamilyGift = { grant_id: string; student_id: string; name: string; version_no: number; expires_at: string; active: boolean; status: string; attempts_used: number; last_percent: number | null };
 export type ShareLink = { id: string; code: string; path: string; version_no: number; seats_paid: number; coins_paid: number; joined: number; attempts: number; closes_at: string; status: "open" | "closed" | "ended"; behind_current: boolean; created_at: string };
 export type LinkList = { enabled: boolean; eligible: boolean; coins_per_seat: number; max_seats: number; access_days: number; links: ShareLink[] };

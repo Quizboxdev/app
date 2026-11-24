@@ -606,21 +606,21 @@
  "name": "mock_exams_authoring",
  "chars": 52352,
  "parts": 7,
- "note": "Mock exams part 1 of 3, off behind flags.mock_exams: tables for exams, rounds, chosen questions and immutable published versions, and the functions to build an exam across years (year, subject, topic, count), choose questions without substitution or duplicates, review and publish a version. Tables and settings are kept on rollback. Rollback: supabase/rollback/mock_exams_authoring.sql."
+ "note": ""
 },
 {
  "version": "20261122110000",
  "name": "mock_exams_delivery",
  "chars": 27472,
  "parts": 4,
- "note": "Mock exams part 2 of 3: assign a published version to a class through qb_publish_assignment, and the owner-only results, student-by-question review and export dataset. Needs 20261122100000. Rollback: supabase/rollback/mock_exams_delivery.sql."
+ "note": ""
 },
 {
  "version": "20261122120000",
  "name": "mock_exams_marketplace",
  "chars": 28921,
  "parts": 4,
- "note": "Mock exams part 3 of 3: sell an exam as a Marketplace listing pinned to a published version, open the buyer's private copy of the purchased version, and refuse attempts without a live purchase (trigger on attempts). Needs 20261043100000 and the two earlier mock-exam migrations. Rollback: supabase/rollback/mock_exams_marketplace.sql."
+ "note": ""
 },
 {
  "version": "20261123100000",
@@ -646,13 +646,6 @@
   "parts": 1,
   "note": ""
  },
-{
- "version": "20261124110000",
- "name": "mock_exams_sponsor_delivery",
- "chars": 35051,
- "parts": 5,
- "note": "Mock exams part 4 of 4, links off behind flags.mock_exam_links: a sponsor gives an exam to the children they may assign work to, or shares it by link for places paid for in Coins (1 Coin each); learners take their own private copy of the shared version. Verified alumni sponsors and family sponsors may now build. Needs the three earlier mock-exam migrations. Rollback: supabase/rollback/mock_exams_sponsor_delivery.sql."
-}
  {
   "version": "20261124110000",
   "name": "grade_label_every_function",
@@ -666,5 +659,12 @@
   "chars": 8380,
   "parts": 1,
   "note": ""
- }
+ },
+{
+ "version": "20261124130000",
+ "name": "mock_exams_sponsor_delivery",
+ "chars": 35051,
+ "parts": 5,
+ "note": ""
+}
 ]

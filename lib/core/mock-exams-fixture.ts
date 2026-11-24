@@ -9,7 +9,7 @@ import { expect } from "vitest";
 export const read = (p: string) => readFileSync(new URL(`../../${p}`, import.meta.url), "utf8").replace(/\r\n/g, "\n");
 export const MIG = {
   get authoring() { return read("supabase/migrations/20261122100000_mock_exams_authoring.sql"); }, get delivery() { return read("supabase/migrations/20261122110000_mock_exams_delivery.sql"); },
-  get marketplaceMock() { return read("supabase/migrations/20261122120000_mock_exams_marketplace.sql"); }, get sponsorMock() { return read("supabase/migrations/20261124110000_mock_exams_sponsor_delivery.sql"); }, get marketplace() { return read("supabase/migrations/20261043100000_marketplace.sql"); },
+  get marketplaceMock() { return read("supabase/migrations/20261122120000_mock_exams_marketplace.sql"); }, get sponsorMock() { return read("supabase/migrations/20261124130000_mock_exams_sponsor_delivery.sql"); }, get marketplace() { return read("supabase/migrations/20261043100000_marketplace.sql"); },
 };
 const BLUEPRINT = read("supabase/migrations/20261055100000_assessment_blueprint.sql");
 const cut = (sql: string, from: string) => { const a = sql.indexOf(from), open = sql.indexOf("$fn$", a), close = sql.indexOf("$fn$;", open + 4); return sql.slice(a, close + 5); };

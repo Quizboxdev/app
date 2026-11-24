@@ -1,4 +1,4 @@
--- Rollback for 20261124110000_mock_exams_sponsor_delivery.sql: removes the family-gift and shared-link functions and puts back the earlier author rule, entitlement check and attempt listing.
+-- Rollback for 20261124130000_mock_exams_sponsor_delivery.sql: removes the family-gift and shared-link functions and puts back the earlier author rule, entitlement check and attempt listing.
 -- KEPT on purpose: the tables mock_exam_links and mock_exam_grants, the grant_id column and every private copy, attempt and result (they record who was given what and what they answered), and the Coins already paid for places.
 -- After this, gifted copies cannot start new attempts (the entitlement check no longer knows gifts); take a note of any open links first, as people who paid for places cannot be refunded by this script.
 begin;
