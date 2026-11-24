@@ -637,6 +637,9 @@
  "note": "Publishes the 8 family guides as one set (only unedited drafts). Run only when the Family workspace is open on that database. Safe to run again. Rollback: supabase/rollback/family_guides_published.sql."
 },
  {
+  "version": "20261124120000",
+  "name": "marketing_posts",
+  "chars": 8380,
   "version": "20261124100000",
   "name": "import_shs_grade_label",
   "chars": 1721,
@@ -650,4 +653,18 @@
  "parts": 5,
  "note": "Mock exams part 4 of 4, links off behind flags.mock_exam_links: a sponsor gives an exam to the children they may assign work to, or shares it by link for places paid for in Coins (1 Coin each); learners take their own private copy of the shared version. Verified alumni sponsors and family sponsors may now build. Needs the three earlier mock-exam migrations. Rollback: supabase/rollback/mock_exams_sponsor_delivery.sql."
 }
+ {
+  "version": "20261124110000",
+  "name": "grade_label_every_function",
+  "chars": 2043,
+  "parts": 1,
+  "note": ""
+ },
+ {
+  "version": "20261124120000",
+  "name": "marketing_posts",
+  "chars": 8380,
+  "parts": 1,
+  "note": ""
+ }
 ]
