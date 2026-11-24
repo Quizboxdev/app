@@ -8,10 +8,10 @@ const FILLER = new Set(["of", "and", "the", "for", "in", "upper", "lower", "prim
   "standards", "based", "curriculum", "syllabus", "common", "core", "programme"]);
 const ALIASES: Record<string, string> = { rme: "religious moral", ict: "information communication technology", pe: "physical" };
 
-const words = (text: string): string[] => {
-  const k = keyOf(text);
-  return (ALIASES[k] ?? k).split(" ").filter((w) => w && !FILLER.has(w) && !/^(b|shs|jhs)?\d+$/.test(w));
-};
+// "Information and Communications Technology" (the file's subject) and "ICT Curriculum" (the source) differ only by an s: one stem for both.
+const STEM: Record<string, string> = { communications: "communication" };
+const words = (text: string): string[] => keyOf(text).split(" ").flatMap((w) => (ALIASES[w] ?? w).split(" "))
+  .map((w) => STEM[w] ?? w).filter((w) => w && !FILLER.has(w) && !/^(b|shs|jhs)?\d+$/.test(w));
 
 export function sourceMatchesSubject(sourceTitle: string, fileSubject: string): boolean {
   const s = words(sourceTitle), f = words(fileSubject);

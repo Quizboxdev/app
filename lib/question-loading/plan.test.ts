@@ -52,6 +52,22 @@ describe("verified curriculum lookup", () => {
   });
 });
 
+describe("a code printed under several content standards", () => {
+  const mk = (cs: string, indicator: string) => ({ subject: "French", grade: "SHS 2", strand_no: "2", strand: "Decouvrir", sub_strand: "Parler du travail", content_standard_code: cs, content_standard: cs,
+    indicator_code: "2.2.2.L1.1", indicator, exemplars: "", page: "40", wording_verified: "yes", flags: "", level: "SHS" as const });
+  const shared = buildIndex([mk("2.2.2.CS.1", "Ecouter ou regarder et reagir a une presentation ou une conversation sur le travail du pere"), mk("2.2.2.CS.2", "Ecouter ou regarder et reagir a une presentation ou une conversation sur le travail de la mere")]);
+  const q = { subject: "French", grade: "SHS2", indicator_code: "2.2.2.L1.1", strand: "Decouvrir", sub_strand: "Parler du travail" };
+  it("stays ambiguous without the topic, and with a topic that fits neither or both", () => {
+    expect(resolveIndicator(shared, q).status).toBe("AMBIGUOUS_INDICATOR");
+    expect(resolveIndicator(shared, { ...q, topic: "Ecouter un texte sans rapport avec les deux indicateurs" }).status).toBe("AMBIGUOUS_INDICATOR");
+    expect(resolveIndicator(shared, { ...q, topic: "Ecouter ou regarder et reagir a une presentation ou une conversation" }).status).toBe("AMBIGUOUS_INDICATOR");
+  });
+  it("is decided by the topic wording when exactly one indicator matches (also when a long title was cut at a word)", () => {
+    expect(resolveIndicator(shared, { ...q, topic: "Ecouter ou regarder et reagir a une presentation ou une conversation sur le travail de la mere" })).toMatchObject({ status: "RESOLVED", indicator: { content_standard_code: "2.2.2.CS.2" } });
+    expect(resolveIndicator(shared, { ...q, topic: "Ecouter ou regarder et reagir a une presentation ou une conversation sur le travail du" })).toMatchObject({ status: "RESOLVED", indicator: { content_standard_code: "2.2.2.CS.1" } });
+  });
+});
+
 describe("loading plan", () => {
   const block = (topic: string, indicator_code: string, concepts: string[], n = 50) => Array.from({ length: n }, (_, i) => row({
     topic, indicator_code, concept: concepts[i % concepts.length], difficulty: i < 15 ? "easy" : i < 35 ? "medium" : "hard",
