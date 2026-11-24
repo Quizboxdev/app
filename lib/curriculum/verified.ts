@@ -54,7 +54,7 @@ export type Resolution =
   | { status: "UNKNOWN_SUBJECT" | "UNKNOWN_GRADE" | "UNKNOWN_INDICATOR" | "AMBIGUOUS_INDICATOR"; candidates: VerifiedIndicator[] };
 
 // Places one question's (subject, grade, indicator code, strand, sub-strand) on a verified indicator, or says exactly why it cannot.
-export function resolveIndicator(index: CurriculumIndex, q: { subject: string; grade: string; indicator_code: string; strand?: string; sub_strand?: string }): Resolution {
+export function resolveIndicator(index: CurriculumIndex, q: { subject: string; grade: string; indicator_code: string; strand?: string; sub_strand?: string; topic?: string }): Resolution {
   const bySubject = index.all.filter((r) => subjectMatches(q.subject, r.subject));
   if (!bySubject.length) return { status: "UNKNOWN_SUBJECT", candidates: [] };
   const g = gradeKey(q.grade), byGrade = bySubject.filter((r) => gradeKey(r.grade) === g);
@@ -70,5 +70,15 @@ export function resolveIndicator(index: CurriculumIndex, q: { subject: string; g
   const narrow = (rows: VerifiedIndicator[]) => rows.filter((r) => (!q.sub_strand || keyOf(r.sub_strand).includes(keyOf(q.sub_strand)) || keyOf(q.sub_strand).includes(keyOf(r.sub_strand)))
     && (!q.strand || keyOf(r.strand).includes(keyOf(q.strand)) || keyOf(q.strand).includes(keyOf(r.strand))));
   const narrowed = [...new Map(narrow([...distinct.values()]).map((r) => [`${keyOf(r.strand)}|${keyOf(r.sub_strand)}|${keyOf(r.indicator)}`, r])).values()];
-  return narrowed.length === 1 ? { status: "RESOLVED", indicator: narrowed[0] } : { status: "AMBIGUOUS_INDICATOR", candidates: narrowed.length ? narrowed : [...distinct.values()] };
+  if (narrowed.length === 1) return { status: "RESOLVED", indicator: narrowed[0] };
+  // Still shared (SHS prints one code under several content standards): a question's topic is the wording of its indicator, so the wording decides. Only an exact match, or a
+  // match of one wording at the start of the other (a long topic title is cut at a word boundary), counts, and only when exactly one candidate matches.
+  const pool = narrowed.length ? narrowed : [...distinct.values()];
+  const topic = keyOf(q.topic ?? "");
+  if (topic.length >= 20) {
+    const hits = pool.filter((r) => { const w = keyOf(r.indicator); return w === topic || (Math.min(w.length, topic.length) >= 20 && (w.startsWith(topic) || topic.startsWith(w))); });
+    const distinctHits = [...new Map(hits.map((r) => [`${keyOf(r.strand)}|${keyOf(r.sub_strand)}|${r.content_standard_code}|${keyOf(r.indicator)}`, r])).values()];
+    if (distinctHits.length === 1) return { status: "RESOLVED", indicator: distinctHits[0] };
+  }
+  return { status: "AMBIGUOUS_INDICATOR", candidates: pool };
 }
