@@ -5,6 +5,7 @@ import PageIntro from "@/components/public/PageIntro";
 import InterestForm from "@/components/public/InterestForm";
 import { PUBLIC_LINKS } from "@/components/public/links";
 import { SPONSOR_GROUPS } from "@/components/public/SponsorSection";
+import SponsorCompare from "@/components/public/SponsorCompare";
 import { SPONSOR_TYPES } from "@/lib/public/intake";
 
 export const metadata: Metadata = { title: "Sponsor with QuizBox", description: "Support curriculum-aligned challenges for the learners you care about. Sponsor onboarding is subject to QuizBox approval." };
@@ -16,17 +17,7 @@ export default function SponsorInterestPage() {
         lead="Sponsor curriculum-aligned challenges for the school you came from or a community you care about. Questions are built from approved curriculum material and reviewed by subject experts, and each challenge is approved by QuizBox before it goes live." />
       <section className="qbp-wrap" style={{ paddingTop: 16, paddingBottom: 24, display: "grid", gap: 12 }} data-qb-section="sponsor-compare">
         <h2 className="qbp-h2" style={{ fontSize: 22 }}>Why a QuizBox challenge</h2>
-        <div style={{ overflowX: "auto" }}>
-          <table className="qbp-compare">
-            <thead><tr><th scope="col">Giving the usual way</th><th scope="col">A QuizBox challenge</th></tr></thead>
-            <tbody>
-              <tr><td>Books and materials to ship, store and hand out</td><td>Delivered digitally to learners on a phone, tablet or computer</td></tr>
-              <tr><td>Little way to know whether materials are used</td><td>Participation, completion and scores tracked for your challenge</td></tr>
-              <tr><td>Results are hard to see</td><td>Results by question and, where applicable, a leaderboard</td></tr>
-              <tr><td>You run the logistics yourself</td><td>QuizBox runs the platform; you set the audience and the recognition</td></tr>
-            </tbody>
-          </table>
-        </div>
+        <SponsorCompare />
         <div className="qbp-actions"><Link className="qbp-btn" href={PUBLIC_LINKS.registerSponsor}>Create a sponsor account</Link><a className="qbp-btn2" href="#sponsor-interest-form">Register sponsor interest</a></div>
       </section>
       <section className="qbp-wrap qbp-split" style={{ paddingBottom: 64, paddingTop: 16 }} data-qb-section="sponsor-interest">

@@ -65,9 +65,37 @@ describe("parents page", () => {
     expect(html).not.toMatch(/GHS|Scholar Pass|Exam Mastery|100%|accredited|\bMB\b/i);
   });
   it("is reachable from the main menu", () => {
-    expect(html).toContain('>For parents</a>');
+    expect(html).toContain('>Parents</a>');
   });
   it("is in the public paths so it is in the sitemap", () => {
     expect(PUBLIC_PATHS).toContain("/parents");
+  });
+});
+
+describe("teachers, schools and sponsors pages", () => {
+  const pages = [
+    { name: "teachers", mod: () => import("@/app/(public)/teachers/page"), has: ["Assign in minutes.", "Create a teacher account", "Automatic marking", "Class mastery"] },
+    { name: "schools", mod: () => import("@/app/(public)/schools/page"), has: ["Register school interest", "Institutional access is set up by QuizBox after review", "One school profile"] },
+    { name: "sponsors", mod: () => import("@/app/(public)/sponsors/page"), has: ["Create a sponsor account", "Registration is not approval", "Why a QuizBox challenge", "not guaranteed by QuizBox"] },
+  ];
+  for (const p of pages) {
+    it(`${p.name}: renders its hero, benefits, steps and questions, with no unproven claim`, async () => {
+      const Page = (await p.mod()).default;
+      const html = renderToStaticMarkup(<Page />);
+      for (const t of p.has) expect(html).toContain(t);
+      expect(html).toContain("application/ld+json");
+      expect(html).not.toMatch(/GHS|100%|accredited|\bMB\b|hours saved|Scholar Pass/i);
+      expect(html.match(/<h1/g)).toHaveLength(1);
+    });
+  }
+  it("are in the main menu, the home tabs and the sitemap paths", () => {
+    const tabs = renderToStaticMarkup(<StakeholderTabs />);
+    for (const path of ["/teachers", "/schools", "/sponsors"]) {
+      expect(PUBLIC_PATHS).toContain(path);
+      expect(tabs).toContain(`href="${path}"`);
+    }
+    const header = renderToStaticMarkup(<HeroSection />);
+    expect(header).toContain('href="/teachers"');
+    expect(header).toContain('href="/sponsors"');
   });
 });

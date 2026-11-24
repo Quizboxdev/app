@@ -1,8 +1,8 @@
 import Disclosure from "./Disclosure";
-import { faqJsonLd, faqsFor } from "@/lib/public/faq";
+import { faqJsonLd, faqsFor, type FaqPlace } from "@/lib/public/faq";
 
-// Common questions as an accordion. `where` picks the home page list or the parents page list.
-export default function FaqSection({ where = "home", id = "faq" }: { where?: "home" | "parents"; id?: string }) {
+// Common questions as an accordion. `where` picks the list for the home page or an audience page.
+export default function FaqSection({ where = "home", id = "faq" }: { where?: FaqPlace; id?: string }) {
   const items = faqsFor(where);
   return (
     <section id={id} className="qbp-sec qbp-alt" aria-labelledby={`${id}-title`} data-qb-section="faq">

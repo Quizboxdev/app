@@ -19,9 +19,10 @@ export default function HeroSection() {
         <div className="qbp-actions">
           <Link className="qbp-btn" href={PUBLIC_LINKS.registerStudent} prefetch>Start practising, free</Link>
           <Link className="qbp-btn2" href="/parents">For parents</Link>
-          <Link className="qbp-btn2" href={PUBLIC_LINKS.registerTeacher}>For teachers and schools</Link>
+          <Link className="qbp-btn2" href="/teachers">For teachers</Link>
+          <Link className="qbp-btn2" href="/schools">For schools</Link>
         </div>
-        <p className="qbp-meta" style={{ marginTop: 8 }}>Sponsors and alumni: <Link className="qbp-link" href={PUBLIC_LINKS.sponsor}>sponsor a school challenge</Link>. Subject experts: <Link className="qbp-link" href={PUBLIC_LINKS.sme}>join as a reviewer</Link>.</p>
+        <p className="qbp-meta" style={{ marginTop: 8 }}>Sponsors and alumni: <Link className="qbp-link" href="/sponsors">sponsor a school challenge</Link>. Subject experts: <Link className="qbp-link" href={PUBLIC_LINKS.sme}>join as a reviewer</Link>.</p>
       </div>
       <div className="qbp-hero-mark">
         <Image src="/brand/quizbox-mark.webp" alt="QuizBox mark: neon nested squares around a Q" width={340} height={340} priority sizes="(max-width: 960px) 260px, 340px" />

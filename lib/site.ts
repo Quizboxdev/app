@@ -14,4 +14,4 @@ export function returnOrigin(requestUrl: string): string {
 }
 
 // Public, indexable marketing and legal pages. Everything else (workspaces, auth, onboarding) is private.
-export const PUBLIC_PATHS = ["/", "/join/country", "/join/school", "/join/sme", "/join/sponsor", "/pricing", "/contact", "/privacy", "/terms", "/refunds", "/cookies", "/help", "/parents"] as const;
+export const PUBLIC_PATHS = ["/", "/join/country", "/join/school", "/join/sme", "/join/sponsor", "/pricing", "/contact", "/privacy", "/terms", "/refunds", "/cookies", "/help", "/parents", "/teachers", "/schools", "/sponsors"] as const;

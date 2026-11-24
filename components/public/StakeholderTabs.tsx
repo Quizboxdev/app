@@ -11,11 +11,11 @@ export const AUDIENCES = [
   { id: "parents", label: "Parents", color: "#a2246b", title: "A study habit you can follow from home",
     text: "Bring your children's learning into one family space. Follow what they complete, give them practice and challenges, and turn an evening of study into a routine you can celebrate.", cta: "See how it works for parents", href: "/parents" },
   { id: "teachers", label: "Teachers", color: "#0f7a30", title: "Assign in minutes, mark automatically",
-    text: "Give your class curriculum-aligned questions, let automatic marking do the scoring, and use class mastery to see who needs help before the next lesson.", cta: "Create a teacher account", href: PUBLIC_LINKS.registerTeacher },
+    text: "Give your class curriculum-aligned questions, let automatic marking do the scoring, and use class mastery to see who needs help before the next lesson.", cta: "See how it works for teachers", href: "/teachers" },
   { id: "schools", label: "Schools", color: "#00758c", title: "Classes, teachers and participation in one place",
-    text: "See how classes take part across the school, keep assessment consistent, and prepare teams for challenges and competitions.", cta: "Register your school", href: PUBLIC_LINKS.school },
+    text: "See how classes take part across the school, keep assessment consistent, and prepare teams for challenges and competitions.", cta: "See how it works for schools", href: "/schools" },
   { id: "sponsors", label: "Sponsors & alumni", color: "#9a5b00", title: "Support learners and see what happens",
-    text: "Sponsor a curriculum-aligned challenge for your old school or a community. You choose who takes part and the recognition, QuizBox approves it before it goes live, and you follow participation and results.", cta: "Explore sponsoring", href: PUBLIC_LINKS.sponsor },
+    text: "Sponsor a curriculum-aligned challenge for your old school or a community. You choose who takes part and the recognition, QuizBox approves it before it goes live, and you follow participation and results.", cta: "Explore sponsoring", href: "/sponsors" },
 ] as const;
 
 export default function StakeholderTabs() {
