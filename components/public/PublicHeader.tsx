@@ -10,7 +10,10 @@ import { bootstrapUser, getHomeRouteForRole } from "@/lib/auth";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
 const NAV = [
-  { href: "/#who", label: "Who it's for" },
+  { href: "/parents", label: "Parents" },
+  { href: "/teachers", label: "Teachers" },
+  { href: "/schools", label: "Schools" },
+  { href: "/sponsors", label: "Sponsors" },
   { href: "/challenges", label: "Challenges" },
   { href: "/competitions", label: "Competitions" },
   { href: "/#curriculum", label: "Curriculum" },

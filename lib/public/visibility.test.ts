@@ -14,6 +14,6 @@ describe("public home visibility", () => {
     expect(showPublic("reviewers")).toBe(false);
     expect(showPublic("content_pipeline")).toBe(false);
     expect(showPublic("students")).toBe(true);
-    expect(showPublic("parents")).toBe(false); // hidden until the Family workspace is on in Production (guide audit 2026-11-20); set true the same day
+    expect(showPublic("parents")).toBe(true); // switched on 2026-11-24 by the owner: the Family workspace is open to every parent on Production
   });
 });
