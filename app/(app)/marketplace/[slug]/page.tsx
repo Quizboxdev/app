@@ -3,14 +3,17 @@
 import { use, useEffect, useState } from "react";
 import Link from "next/link";
 import { buy, cedis, day, listing, sourceLine, type ListingDetail } from "@/lib/api/marketplace";
+import { listingInfo, type ListingInfo } from "@/lib/api/mock-exams";
+import { gradeLabel } from "@/lib/mock-exams/grades";
+import { purposeLabel } from "@/lib/mock-exams/purposes";
 
 // One question set: where it comes from, what it costs, a few sample questions (never the answers), and the Buy button.
 // Buying sends the set's id to the server, which prices it from the database and opens Paystack; the sale is recorded when Paystack confirms the payment.
 export default function ListingPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = use(params);
-  const [item, setItem] = useState<ListingDetail | null | undefined>(undefined), [error, setError] = useState(""), [busy, setBusy] = useState(false);
+  const [item, setItem] = useState<ListingDetail | null | undefined>(undefined), [error, setError] = useState(""), [busy, setBusy] = useState(false), [exam, setExam] = useState<ListingInfo | null>(null);
 
-  useEffect(() => { listing(slug).then(setItem).catch((e) => { setError(e.message); setItem(null); }); }, [slug]);
+  useEffect(() => { listing(slug).then(setItem).catch((e) => { setError(e.message); setItem(null); }); listingInfo(slug).then(setExam); }, [slug]);
 
   async function pay() {
     if (!item) return;
@@ -35,7 +38,7 @@ export default function ListingPage({ params }: { params: Promise<{ slug: string
 
       <div className="qb-grid cols-2" style={{ alignItems: "start" }}>
         <div className="qb-card" style={{ display: "grid", gap: 12 }}>
-          <h3 style={{ margin: 0 }}>About this set</h3>
+          <h3 style={{ margin: 0 }}>{exam ? "About this mock exam" : "About this set"}</h3>
           {item.description ? <p style={{ margin: 0 }}>{item.description}</p> : <p className="qb-muted" style={{ margin: 0 }}>An end-of-term question set.</p>}
           <ul className="qb-list" style={{ margin: 0 }}>
             <li><strong>Source:</strong> {item.subject}, {item.school}</li>
@@ -44,6 +47,16 @@ export default function ListingPage({ params }: { params: Promise<{ slug: string
             <li><strong>Written by:</strong> {item.seller}, a verified teacher</li>
             {item.purchases > 0 && <li><strong>Bought by:</strong> {item.purchases} {item.purchases === 1 ? "learner" : "learners"}</li>}
           </ul>
+          {exam && <>
+            <ul className="qb-list" style={{ margin: 0 }}>
+              <li><strong>Purpose:</strong> {purposeLabel(exam.purpose)} for {gradeLabel(exam.target_grade)}</li>
+              <li><strong>Size:</strong> {exam.question_count} questions, {exam.total_marks} marks, {exam.time_limit_minutes} minutes</li>
+              <li><strong>Attempts:</strong> {exam.attempts_allowed} {exam.attempts_allowed === 1 ? "attempt" : "attempts"} within {exam.access_days} days of paying</li>
+            </ul>
+            <h4 style={{ margin: "8px 0 0" }}>What it covers</h4>
+            <ul className="qb-list" style={{ margin: 0 }}>{exam.rounds.map((r, n) => <li key={n}>{gradeLabel(r.grade_code)} · {r.subject_label} · {r.topic_title} ({r.questions} {r.questions === 1 ? "question" : "questions"})</li>)}</ul>
+            <p className="qb-small qb-muted" style={{ margin: 0 }}>You take it online, it is marked for you, and you see your result afterwards. Questions and answers are not shown before you pay.</p>
+          </>}
           {!!item.samples.length && <>
             <h4 style={{ margin: "8px 0 0" }}>A taste of the questions</h4>
             <ol className="qb-list" style={{ margin: 0 }}>{item.samples.map((s, n) => <li key={n}>{s}</li>)}</ol>
@@ -53,10 +66,10 @@ export default function ListingPage({ params }: { params: Promise<{ slug: string
 
         <div className="qb-card qb-form" style={{ display: "grid", gap: 12 }}>
           <div><span className="qb-muted qb-small">Price</span><div style={{ fontSize: 28, fontWeight: 700 }}>{cedis(item.price_minor)}</div></div>
-          <p className="qb-small qb-muted" style={{ margin: 0 }}>Pay once by mobile money or card. The set stays in your account for {item.access_days} days, and you can practise it as often as you like.</p>
+          <p className="qb-small qb-muted" style={{ margin: 0 }}>{exam ? `Pay once by mobile money or card. You can take the exam up to ${exam.attempts_allowed} ${exam.attempts_allowed === 1 ? "time" : "times"} within ${item.access_days} days.` : `Pay once by mobile money or card. The set stays in your account for ${item.access_days} days, and you can practise it as often as you like.`}</p>
           {error && <p className="qb-error" role="alert">{error}</p>}
           {item.mine ? <p className="qb-muted">This is your own set.</p> :
-            owned ? <><p className="qb-ok">You have this set until {day(item.owned_until)}.</p><Link className="qb-btn" href="/marketplace/mine">Open my question sets</Link></> :
+            owned ? <><p className="qb-ok">You have this set until {day(item.owned_until)}.</p><Link className="qb-btn" href="/marketplace/mine">{exam ? "Open my exams" : "Open my question sets"}</Link></> :
             <button className="qb-btn" disabled={busy} onClick={() => void pay()}>{busy ? "Opening payment…" : `Buy for ${cedis(item.price_minor)}`}</button>}
           <p className="qb-small qb-muted" style={{ margin: 0 }}>Refunds follow the <Link className="qb-link" href="/refunds">Refund Policy</Link>.</p>
         </div>

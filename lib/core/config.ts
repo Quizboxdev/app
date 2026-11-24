@@ -18,6 +18,8 @@ export const FEATURE_FLAGS = [
   "teacher_profile_edit",
   // Parents and guardians run a Family workspace: link children, give them work, and buy coins and subscriptions for them. Closed in the database until the owner turns it on.
   "family_workspace",
+  // Mock exams: teachers and verified sponsors build cumulative exams from several years, assign them to classes, read results, export them, and (teachers) sell them on the Marketplace. Closed in the database until the owner turns it on.
+  "mock_exams",
 ] as const;
 export type FeatureFlag = (typeof FEATURE_FLAGS)[number];
 export type FlagMap = Record<FeatureFlag, boolean>;
@@ -26,7 +28,7 @@ export type FlagMap = Record<FeatureFlag, boolean>;
 export const DEFAULT_FLAGS: FlagMap = {
   student_self_pay: false, paid_challenges: false, offline_learning: false, guardian_consent_required: false, sponsor_consent_required: true, buy_coins_enabled: false,
   q_insignia_subject_cards_v02: false, q_insignia_concept_photos: false,
-  design_v02_help: false, repeat_assignments: false, teacher_profile_edit: false, family_workspace: false,
+  design_v02_help: false, repeat_assignments: false, teacher_profile_edit: false, family_workspace: false, mock_exams: false,
 };
 
 export function flagsFromSettings(rows: Array<{ key: string; value: unknown }>): FlagMap {

@@ -62,6 +62,7 @@ export default function AppShell({
   const [staff, setStaff] = useState<MyStaffAccess | null>(null);                                  // the connected workflows a Super Admin gave this person (Admin, Staff access)
   const [accessReady, setAccessReady] = useState(false);                                              // true once both the SME context and the staff workflows have been read
   const [moreOpen, setMoreOpen] = useState(false);
+  const [mockOn, setMockOn] = useState(false);                                                      // the Mock exams flag (closed until the owner opens it)
   const [familyOn, setFamilyOn] = useState(false);                                                  // the Family workspace flag (closed until the owner opens it)
   const contentRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
@@ -81,7 +82,7 @@ export default function AppShell({
       .catch((error) => router.replace(error instanceof Error && error.message === "ONBOARDING_REQUIRED" ? "/onboarding" : error instanceof Error && error.message === "ACCOUNT_SUSPENDED" ? "/login?suspended=1" : loginHrefFor(window.location.pathname)));
   }, [router]);
 
-  useEffect(() => { loadFlags().then((f) => setFamilyOn(f.family_workspace === true)).catch(() => setFamilyOn(false)); }, []);
+  useEffect(() => { loadFlags().then((f) => { setFamilyOn(f.family_workspace === true); setMockOn(f.mock_exams === true); }).catch(() => { setFamilyOn(false); setMockOn(false); }); }, []);
 
   // Whether this person may see the current address. Null until their role and staff access have been read, so nobody is sent away early.
   const routeCheck = useMemo<{ allowed: boolean; home: string } | null>(() => {
@@ -201,9 +202,11 @@ export default function AppShell({
         ["/sponsor", "Dashboard"],
         ["/drafts", "Unfinished work"],
         ...when(sponsorEngine, [["/sponsor/workspace", "Workspace"]]),
+        ...when(mockOn, [["/mock-exams", "Mock exams"]]),
         ["/creator", "Challenges"],
         ["/competition", "Competitions"],
         ["/marketplace", "Marketplace"],
+        ...when(mockOn, [["/seller", "Sell on the Marketplace"]]),
       ]);
       add("SME", when(reviewer, [["/review", "SME Reviews"]]));
       add("Family", family);
@@ -218,6 +221,7 @@ export default function AppShell({
         ["/teacher/classes", "Classes"],
         ["/teacher/learners", "Young learners"],
         ["/teacher/assignments", "Assignments"],
+        ...when(mockOn, [["/mock-exams", "Mock exams"]]),
         ["/teacher/gradebook", "Gradebook"],
         ["/teacher/question-banks", "Question Banks"],
         ["/practise", "Practise questions"],
@@ -249,7 +253,7 @@ export default function AppShell({
     add("SME", when(reviewer, [["/review", "SME Reviews"]]));
     add("Administration", administration);
     return groups;
-  }, [ctx, inSchool, sme, staff, sponsorEngine, familyOn]);
+  }, [ctx, inSchool, sme, staff, sponsorEngine, familyOn, mockOn]);
 
   const nav = useMemo(() => groups.flatMap((group) => group.items), [groups]);
   // The most specific matching link is the current page (so /admin is not active on /admin/content).
