@@ -12,8 +12,23 @@ export const metadata: Metadata = { title: "Sponsor with QuizBox", description: 
 export default function SponsorInterestPage() {
   return (
     <PublicShell>
-      <PageIntro crumb="Sponsors" eyebrow="Support · Challenge · Recognise" title="Sponsor with QuizBox"
-        lead="Individuals, alumni groups, foundations, NGOs, companies and other approved education partners can support curriculum-aligned challenges. Sponsor onboarding and competition approval are subject to QuizBox governance." />
+      <PageIntro crumb="Sponsors" eyebrow="Support · Challenge · Recognise" title="Direct, measurable academic impact for your school or community"
+        lead="Sponsor curriculum-aligned challenges for the school you came from or a community you care about. Questions are built from approved curriculum material and reviewed by subject experts, and each challenge is approved by QuizBox before it goes live." />
+      <section className="qbp-wrap" style={{ paddingTop: 16, paddingBottom: 24, display: "grid", gap: 12 }} data-qb-section="sponsor-compare">
+        <h2 className="qbp-h2" style={{ fontSize: 22 }}>Why a QuizBox challenge</h2>
+        <div style={{ overflowX: "auto" }}>
+          <table className="qbp-compare">
+            <thead><tr><th scope="col">Giving the usual way</th><th scope="col">A QuizBox challenge</th></tr></thead>
+            <tbody>
+              <tr><td>Books and materials to ship, store and hand out</td><td>Delivered digitally to learners on a phone, tablet or computer</td></tr>
+              <tr><td>Little way to know whether materials are used</td><td>Participation, completion and scores tracked for your challenge</td></tr>
+              <tr><td>Results are hard to see</td><td>Results by question and, where applicable, a leaderboard</td></tr>
+              <tr><td>You run the logistics yourself</td><td>QuizBox runs the platform; you set the audience and the recognition</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div className="qbp-actions"><Link className="qbp-btn" href={PUBLIC_LINKS.registerSponsor}>Create a sponsor account</Link><a className="qbp-btn2" href="#sponsor-interest-form">Register sponsor interest</a></div>
+      </section>
       <section className="qbp-wrap qbp-split" style={{ paddingBottom: 64, paddingTop: 16 }} data-qb-section="sponsor-interest">
         <div style={{ display: "grid", gap: 16 }}>
           <div className="qbp-card">
@@ -26,7 +41,7 @@ export default function SponsorInterestPage() {
             <ul className="qbp-list">{SPONSOR_GROUPS.map((g) => <li key={g.title}><strong>{g.title}</strong>: {g.text}</li>)}</ul>
           </div>
         </div>
-        <div className="qbp-card">
+        <div className="qbp-card" id="sponsor-interest-form">
           <h2 className="qbp-h3">Register sponsor interest</h2>
           <p className="qbp-meta">Not ready to begin onboarding? Soon you will be able to tell us what you would like to support.</p>
           <InterestForm

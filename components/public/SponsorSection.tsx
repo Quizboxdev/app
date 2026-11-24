@@ -24,19 +24,17 @@ const MOTIVATIONS = [
   "A community group wants to reward learners in its area.",
 ];
 
-const PHASES = [
-  { title: "1 · Define", text: "Objective, market, curriculum and level, audience, format" },
-  { title: "2 · Build & review", text: "Supporting material, content generation or curation, SME review" },
-  { title: "3 · Approve & publish", text: "Governance and approval, then publication" },
-  { title: "4 · Run & recognize", text: "Participants, tracking, recognition, analytics" },
-];
-
-const STEPS = [
-  "Define the education objective", "Select the country / market", "Select curriculum, level, grade and subject", "Define the intended learner audience",
-  "Set the competition format", "Provide approved supporting material where relevant", "Generate or curate competition content", "Submit content into the SME review workflow",
-  "Complete governance / approval requirements", "Publish the competition", "Invite or register participants", "Track participation and results",
-  "Recognise winners and participants", "Review competition analytics",
-];
+// The four stages of a sponsored competition, each with the steps it holds (14 in all).
+export const SPONSOR_STAGES = [
+  { title: "1 · Define", text: "Decide what you want to achieve and who you want to reach.",
+    steps: ["Define the education objective", "Select the country / market", "Select curriculum, level, grade and subject", "Define the intended learner audience", "Set the competition format"] },
+  { title: "2 · Build & review", text: "Content is prepared from approved material and checked by subject experts.",
+    steps: ["Provide approved supporting material where relevant", "Generate or curate competition content", "Submit content into the SME review workflow"] },
+  { title: "3 · Approve & publish", text: "Governance checks come first, then the competition goes live.",
+    steps: ["Complete governance / approval requirements", "Publish the competition"] },
+  { title: "4 · Run & recognise", text: "Learners take part, and you follow participation and results.",
+    steps: ["Invite or register participants", "Track participation and results", "Recognise winners and participants", "Review competition analytics"] },
+] as const;
 
 export default function SponsorSection() {
   return (
@@ -79,14 +77,17 @@ export default function SponsorSection() {
         </Disclosure>
 
         <div style={{ display: "grid", gap: 12 }}>
-          <h3 className="qbp-h3">How a sponsored competition comes together</h3>
-          <div className="qbp-grid">
-            {PHASES.map((p) => <div key={p.title} className="qbp-card"><span className="qbp-step" style={{ color: "var(--blue)" }}>{p.title}</span><p className="qbp-meta">{p.text}</p></div>)}
-          </div>
-          <Disclosure title="See all 14 steps">
-            <ol className="qbp-list">{STEPS.map((s) => <li key={s}>{s}</li>)}</ol>
-            <p className="qbp-meta" style={{ marginTop: 8 }}>Available options depend on the market, competition type and QuizBox approval.</p>
-          </Disclosure>
+          <h3 className="qbp-h3">Sponsor a verified academic competition in four stages</h3>
+          <ol className="qbp-stages" style={{ listStyle: "none", margin: 0, padding: 0 }}>
+            {SPONSOR_STAGES.map((stage) => (
+              <li key={stage.title} className="qbp-card">
+                <span className="qbp-step" style={{ color: "var(--blue)" }}>{stage.title}</span>
+                <p className="qbp-body" style={{ fontSize: 14, color: "#33415c" }}>{stage.text}</p>
+                <ul className="qbp-list">{stage.steps.map((step) => <li key={step}>{step}</li>)}</ul>
+              </li>
+            ))}
+          </ol>
+          <p className="qbp-meta">Available options depend on the market, competition type and QuizBox approval.</p>
         </div>
 
         <div className="qbp-split">

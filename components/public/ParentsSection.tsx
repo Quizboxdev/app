@@ -2,16 +2,16 @@ import Link from "next/link";
 import { PUBLIC_LINKS } from "./links";
 
 // Parents use their own accent so the home page does not reuse the schools colour.
-const PARENT_COLOR = "#a2246b";
+export const PARENT_COLOR = "#a2246b";
 
-const FAMILY_FEATURES = [
+export const FAMILY_FEATURES = [
   { title: "One workspace for every child", text: "Add a child, or link a child who already has a QuizBox account. Each child keeps their own account and school class." },
   { title: "Follow their progress", text: "See each child's completed work, their monthly average and what is still to do." },
   { title: "Give practice and challenges", text: "Set approved practice, share question sets you have bought and invite children to challenges you choose." },
   { title: "Pay once for the family", text: "Buy Coins or a subscription for one child or several children in a single checkout. Each child gets their own." },
 ];
 
-const STEPS = [
+export const FAMILY_STEPS = [
   { title: "1 · Sign up as a sponsor", text: "Choose Sponsor, parent or organization, then Myself, a parent or guardian. Your Family workspace opens from the menu." },
   { title: "2 · Add or link children", text: "Create an account for a child, or ask a student who already has one to link with you." },
   { title: "3 · Learn together", text: "Give work, follow progress, and buy Coins or subscriptions for your children." },
@@ -28,6 +28,7 @@ export default function ParentsSection() {
             <p className="qbp-body">Bring your children&apos;s QuizBox learning together. Follow their progress, give them practice and challenges, and buy Coins or subscriptions for the whole family in one checkout.</p>
             <div className="qbp-actions">
               <Link className="qbp-btn" href={PUBLIC_LINKS.registerSponsor} prefetch>Sign up as a parent or guardian</Link>
+              <Link className="qbp-btn2" href="/parents">See the parents page</Link>
               <Link className="qbp-btn2" href="/help/parents-and-family-workspace">How to create your family</Link>
             </div>
           </div>
@@ -44,7 +45,7 @@ export default function ParentsSection() {
         <div style={{ display: "grid", gap: 12 }}>
           <h3 className="qbp-h3">How it works</h3>
           <div className="qbp-grid">
-            {STEPS.map((step) => (
+            {FAMILY_STEPS.map((step) => (
               <div key={step.title} className="qbp-card">
                 <span className="qbp-step" style={{ color: PARENT_COLOR }}>{step.title}</span>
                 <p className="qbp-meta">{step.text}</p>
@@ -68,7 +69,6 @@ export default function ParentsSection() {
           </div>
         </div>
 
-        <p className="qbp-meta" style={{ fontSize: 13 }}>The Family workspace is opening account by account. If Family is not in your menu yet, the guide explains what to do.</p>
       </div>
     </section>
   );

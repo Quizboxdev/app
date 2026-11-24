@@ -5,6 +5,8 @@ import PublicShell from "./PublicShell";
 import HeroSection from "./HeroSection";
 import PlatformStats from "./PlatformStats";
 import RoleEcosystem from "./RoleEcosystem";
+import StakeholderTabs from "./StakeholderTabs";
+import FaqSection from "./FaqSection";
 import GovernanceSection from "./GovernanceSection";
 import StudentSection from "./StudentSection";
 import ParentsSection from "./ParentsSection";
@@ -23,6 +25,7 @@ export default function PublicHome({ markets, stats = null }: { markets: PublicM
       <HeroSection />
       {showPublic("platform_stats") && <PlatformStats stats={stats} />}
       {showPublic("role_ecosystem") && <RoleEcosystem />}
+      {showPublic("stakeholder_tabs") && <StakeholderTabs />}
       {showPublic("governance") && <GovernanceSection />}
       {showPublic("students") && <StudentSection />}
       {showPublic("parents") && <ParentsSection />}
@@ -33,6 +36,7 @@ export default function PublicHome({ markets, stats = null }: { markets: PublicM
       {showPublic("content_pipeline") && <ContentPipeline />}
       {showPublic("competitions") && <CompetitionSection />}
       {showPublic("curriculum_subjects") && <CurriculumSubjects markets={markets} />}
+      {showPublic("faq") && <FaqSection where="home" />}
       {showPublic("final_cta") && <FinalCta />}
     </PublicShell>
   );

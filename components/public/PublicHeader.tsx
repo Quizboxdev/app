@@ -11,6 +11,7 @@ import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
 const NAV = [
   { href: "/#who", label: "Who it's for" },
+  { href: "/parents", label: "For parents" },
   { href: "/challenges", label: "Challenges" },
   { href: "/competitions", label: "Competitions" },
   { href: "/#curriculum", label: "Curriculum" },
