@@ -52,6 +52,9 @@ export default function ItemEditor({ params }: { params: Promise<{ id: string }>
   }
 
   if (!loaded) return <div className="qb-card qb-muted">Loading…</div>;
+  // A mock exam is listed here like any set but its questions come from the exam itself, so it is managed under Mock exams.
+  if (item?.mock_exam_id) return <div className="qb-card"><h2>{item.title}</h2><p><span className="qb-pill purple">Mock exam</span> <span className="qb-pill neutral">{ITEM_STATUS[item.status]}</span></p>
+    <p>This listing is a mock exam. Its questions, price and review are managed from the exam itself.</p><Link className="qb-btn" href={`/mock-exams/${item.mock_exam_id}`}>Open the mock exam</Link></div>;
   return (
     <>
       <div className="qb-page-head"><div><p className="qb-small"><Link className="qb-link" href="/seller/items">← Your question sets</Link></p><h1>{isNew ? "Add a question set" : item?.title || "Question set"}</h1>

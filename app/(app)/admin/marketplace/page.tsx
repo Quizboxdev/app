@@ -1,5 +1,6 @@
 "use client";
 
+import AdminMockListing from "@/components/mock/AdminMockListing";
 import { useCallback, useEffect, useState } from "react";
 import ExportLink from "@/components/admin/ExportLink";
 import { Kpi, Segmented, num } from "@/components/admin/DataViz";
@@ -36,6 +37,7 @@ function Review({ onError }: { onError: (m: string) => void }) {
         <h3 style={{ margin: 0 }}>{open.title}</h3>
         <p className="qb-small qb-muted" style={{ margin: 0 }}>{sourceLine({ subject: open.subject, school_name: open.school_name, grade: open.grade, term: open.term })} · {cedis(open.price_minor)} · by {open.seller.name} ({open.seller.school}, {open.seller.status})</p>
         {open.description && <p style={{ margin: 0 }}>{open.description}</p>}
+        <AdminMockListing itemId={open.id} />
         <ol style={{ margin: 0, display: "grid", gap: 8, maxHeight: 420, overflow: "auto" }}>
           {open.questions.map((q, i) => <li key={i}><span>{q.question_text}</span>{q.duplicate && <span className="qb-pill danger" style={{ marginLeft: 6 }}>matches another seller</span>}
             <div className="qb-small">{q.options.map((o, n) => <span key={n} style={{ marginRight: 12, fontWeight: n === q.correct_index ? 700 : 400 }}>{String.fromCharCode(65 + n)}. {o}{n === q.correct_index ? " ✓" : ""}</span>)}</div>
