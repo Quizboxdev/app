@@ -602,6 +602,27 @@
  "note": "Sponsor verification for organisations: adds who decided, when and why on sponsor_profiles, a queue for super administrators (qb_admin_sponsor_queue) and a decision function (qb_admin_sponsor_decide, a decline needs a reason, the sponsor is notified, audited). Shown, not enforced. Safe to run again. Rollback: supabase/rollback/sponsor_verification.sql."
 },
 {
+ "version": "20261122100000",
+ "name": "mock_exams_authoring",
+ "chars": 52352,
+ "parts": 7,
+ "note": ""
+},
+{
+ "version": "20261122110000",
+ "name": "mock_exams_delivery",
+ "chars": 27472,
+ "parts": 4,
+ "note": ""
+},
+{
+ "version": "20261122120000",
+ "name": "mock_exams_marketplace",
+ "chars": 28921,
+ "parts": 4,
+ "note": ""
+},
+{
  "version": "20261123100000",
  "name": "help_videos",
  "chars": 10974,
@@ -638,5 +659,12 @@
   "chars": 8380,
   "parts": 1,
   "note": ""
- }
+ },
+{
+ "version": "20261124130000",
+ "name": "mock_exams_sponsor_delivery",
+ "chars": 35051,
+ "parts": 5,
+ "note": ""
+}
 ]

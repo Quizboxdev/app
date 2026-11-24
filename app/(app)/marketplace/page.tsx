@@ -4,11 +4,13 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { catalog, cedis, GRADE_OPTIONS, marketplaceOpen, SUBJECT_SUGGESTIONS, type Listing } from "@/lib/api/marketplace";
 import HelpLink from "@/components/help/HelpLink";
+import { listingKinds } from "@/lib/api/mock-exams";
 
 // The Marketplace shelf: end-of-term question sets from verified teachers. Every card names its source (subject and school) so a buyer knows exactly where a set comes from.
 export default function MarketplacePage() {
   const [open, setOpen] = useState<boolean | null>(null), [items, setItems] = useState<Listing[]>([]), [error, setError] = useState(""), [loading, setLoading] = useState(true);
   const [q, setQ] = useState(""), [subject, setSubject] = useState(""), [grade, setGrade] = useState(""), [school, setSchool] = useState("");
+  const [mocks, setMocks] = useState<Set<string>>(new Set());
 
   useEffect(() => { marketplaceOpen().then(setOpen); }, []);
   useEffect(() => {
@@ -21,6 +23,7 @@ export default function MarketplacePage() {
     return () => clearTimeout(t);
   }, [open, q, subject, grade, school]);
 
+  useEffect(() => { let alive = true; listingKinds(items.map((i) => i.slug)).then((s) => { if (alive) setMocks(new Set(s)); }); return () => { alive = false; }; }, [items]);
   const schools = useMemo(() => [...new Set(items.map((i) => i.school))].sort(), [items]);
   const clear = () => { setQ(""); setSubject(""); setGrade(""); setSchool(""); };
 
@@ -57,6 +60,7 @@ export default function MarketplacePage() {
             {items.map((i) => (
               <Link key={i.slug} href={`/marketplace/${i.slug}`} className="qb-card" style={{ display: "grid", gap: 8, alignContent: "start", textDecoration: "none", color: "inherit" }}>
                 <span className="qb-pill teal" style={{ justifySelf: "start" }}>{i.subject} · {i.school}</span>
+                {mocks.has(i.slug) && <span className="qb-pill purple" style={{ justifySelf: "start" }}>Mock exam</span>}
                 <h3 style={{ margin: 0 }}>{i.title}</h3>
                 <p className="qb-muted qb-small" style={{ margin: 0 }}>{[i.grade, i.term, `${i.questions} questions`].filter(Boolean).join(" · ")}</p>
                 {i.summary && <p className="qb-small" style={{ margin: 0 }}>{i.summary}</p>}

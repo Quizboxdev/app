@@ -12,6 +12,9 @@ describe("pages open to a role before extra duties are read", () => {
     expect(isBaseRoute("STUDENT", "/admin", false)).toBe(false);
   });
   it("opens /family only when the Family workspace is on and the person is not a student", () => {
+    expect(isBaseRoute("STUDENT", "/mock-exams/join/abc123def0", false)).toBe(true);      // a learner opens a sponsor's shared exam link
+    expect(isBaseRoute("STUDENT", "/mock-exams", false)).toBe(false);                      // but the exam builder is not theirs
+    expect(isBaseRoute("SPONSOR", "/seller", false)).toBe(true);
     expect(isBaseRoute("SPONSOR", "/family", true)).toBe(true);
     expect(isBaseRoute("SPONSOR", "/family", false)).toBe(false);
     expect(isBaseRoute("STUDENT", "/family", true)).toBe(false);

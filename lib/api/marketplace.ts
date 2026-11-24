@@ -7,7 +7,7 @@ export type ListingDetail = Listing & { id: string; description: string; samples
 export type Seller = { id: string; display_name: string; school_name: string; phone: string; payout_method: "mobile_money" | "bank"; payout_network: string; payout_account_masked: string; payout_account_name: string;
   status: "pending" | "verified" | "suspended"; review_note: string; terms_accepted: boolean; enabled: boolean };
 export type SellerInput = { display_name: string; school: string; phone: string; method: "mobile_money" | "bank"; network: string; account: string; account_name: string; accept_terms: boolean };
-export type MyItem = { id: string; slug: string; title: string; subject: string; grade: string; term: string | null; school_name: string; price_minor: number; status: "draft" | "submitted" | "approved" | "rejected" | "unlisted";
+export type MyItem = { mock_exam_id?: string | null; id: string; slug: string; title: string; subject: string; grade: string; term: string | null; school_name: string; price_minor: number; status: "draft" | "submitted" | "approved" | "rejected" | "unlisted";
   review_note: string; question_count: number; updated_at: string; sales: number; gross_minor: number; share_minor: number };
 export type ItemInput = { id: string | null; title: string; description: string; subject: string; grade: string; term: string; school: string; price_minor: number };
 export type QuestionInput = { question_text: string; options: string[]; correct_index: number; explanation?: string };
@@ -42,14 +42,14 @@ export const day = (iso: string | null) => (iso ? new Date(iso).toLocaleDateStri
 
 const MESSAGES: Record<string, string> = {
   QB_AUTHENTICATION_REQUIRED: "Please sign in.", QB_FORBIDDEN: "You do not have permission to do that.", QB_NOT_FOUND: "We could not find that.", QB_NOT_A_SELLER: "Set up your seller account first.",
-  QB_TEACHERS_ONLY: "Only teachers can sell question sets.", QB_TERMS_REQUIRED: "Please accept the seller terms.", QB_SELLER_INVALID: "Check your details. The phone and account numbers must be digits, and names need at least 2 letters.",
+  QB_TEACHERS_ONLY: "Only teachers and verified organisation sponsors can sell on the Marketplace.", QB_TERMS_REQUIRED: "Please accept the seller terms.", QB_SELLER_INVALID: "Check your details. The phone and account numbers must be digits, and names need at least 2 letters.",
   QB_SELLER_SUSPENDED: "Your seller account is paused. Please contact support.", QB_SELLER_NOT_VERIFIED: "Your seller account has not been verified yet. We will tell you when it is.",
   QB_PRICE_INVALID: "The price must be a whole number of cedis between GHS 5 and GHS 200.", QB_ITEM_INVALID: "Check the title, subject, class and school.", QB_ITEM_LOCKED: "This set is on sale or waiting for review. Take it off sale to change it.",
   QB_QUESTIONS_INVALID: "Each question needs 2 to 5 different answers and one correct answer.", QB_QUESTIONS_DUPLICATE: "The same question appears twice.", QB_TOO_FEW_QUESTIONS: "Add more questions before sending the set for review.",
   QB_PAYOUT_BELOW_MINIMUM: "You have not reached the smallest payout yet.", QB_PAYOUT_ALREADY_REQUESTED: "You already have a payout waiting to be paid.", QB_QUOTE_CHANGED: "Your balance changed. Please look at the new amount and approve again.",
   QB_PAYOUT_NOT_OPEN: "That payout has already been dealt with.", QB_REASON_REQUIRED: "Please write a short reason.", QB_REFERENCE_REQUIRED: "Enter the transfer reference.", QB_INVALID_DECISION: "That choice is not allowed.", QB_NOT_SUBMITTED: "That set is not waiting for review.",
   QB_OWN_ITEM: "This is your own set.", QB_ALREADY_OWNED: "You already have this set.", QB_NOT_PURCHASED: "You need to buy this set first.", QB_FEATURE_DISABLED: "The Marketplace is not open yet.", QB_MINOR_CANNOT_PAY: "Please ask your teacher or a parent to buy this.",
-  QB_INVALID_ATTEMPT: "That score is not valid.",
+  QB_INVALID_ATTEMPT: "That score is not valid.", QB_MOCK_ITEM_HAS_NO_QUESTION_COPY: "This listing is a mock exam. Change it from Mock exams.",
 };
 const message = (e: { message?: string }) => MESSAGES[/(QB_[A-Z_]+)/.exec(e.message ?? "")?.[1] ?? ""] ?? "That did not work. Please try again.";
 const rpc = <T>(fn: string, args: Record<string, unknown> = {}): Promise<T> => Promise.resolve(getSupabaseBrowserClient().rpc(fn, args)).then(({ data, error }) => { if (error) throw new Error(message(error)); return data as T; });
