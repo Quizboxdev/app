@@ -666,5 +666,12 @@
  "chars": 35051,
  "parts": 5,
  "note": ""
+},
+{
+ "version": "20261125100000",
+ "name": "admin_live_stats",
+ "chars": 19367,
+ "parts": 3,
+ "note": ""
 }
 ]

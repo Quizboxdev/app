@@ -103,7 +103,9 @@ with c(v, k, o) as (values
   ('20261117130000','f','public.qb_family_staff_decide'),
   ('20261117140000','f','public.qb_complete_onboarding'),
   ('20261117150000','t','public.sponsor_family_applications'),
-  ('20261117150000','f','public.qb_family_application_decide')), r as (
+  ('20261117150000','f','public.qb_family_application_decide'),
+  ('20261125100000','t','quizbox_stats.snapshots'),
+  ('20261125100000','f','public.qb_admin_live')), r as (
   select v, k, o, case k
     when 't' then to_regclass(o) is not null
     when 'x' then to_regprocedure(o) is null

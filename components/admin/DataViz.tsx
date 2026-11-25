@@ -34,29 +34,45 @@ export function Legend({ items }: { items: { label: string; color: string }[] })
   return <ul className="dx-legend" aria-label="Legend">{items.map((i) => <li key={i.label}><span className="dx-swatch" style={{ background: i.color }} aria-hidden="true" />{i.label}</li>)}</ul>;
 }
 
-export type BarRow = { key: string; label: string; segments: { value: number; color: string; name: string }[] };
+export type BarRow = { key: string; label: string; segments: { value: number; color: string; name: string }[]; sub?: BarRow[] };
+const sum = (r: BarRow) => r.segments.reduce((s, x) => s + x.value, 0);
 
-// Ranked horizontal bars (segments stack, 2px apart). Click a row to filter by it. Shows the first rows and a "Show all" switch.
+function Bar({ row, max, unit, className = "", ...button }: { row: BarRow; max: number; unit: string; className?: string; onClick?: () => void; "aria-pressed"?: boolean; "aria-expanded"?: boolean }) {
+  const total = sum(row);
+  const detail = `${row.label}: ${num(total)} ${unit}${row.segments.length > 1 ? " (" + row.segments.filter((s) => s.value > 0).map((s) => `${s.name} ${num(s.value)}`).join(", ") + ")" : ""}`;
+  const Row = button.onClick ? "button" : "div";
+  return (
+    <Row className={`dx-bar-row${className}`} title={detail} aria-label={detail} {...(button.onClick ? { type: "button" as const, ...button } : {})}>
+      <span className="dx-bar-label">{row.label}</span>
+      <span className="dx-bar-track" aria-hidden="true">
+        <span className="dx-bar-fill" style={{ width: `${(total / max) * 100}%` }}>
+          {row.segments.filter((s) => s.value > 0).map((s) => <span key={s.name} className="dx-seg" style={{ flexGrow: s.value, background: s.color }} />)}
+        </span>
+      </span>
+      <span className="dx-bar-value">{num(total)}</span>
+    </Row>
+  );
+}
+
+// Ranked horizontal bars (segments stack, 2px apart). Click a row to filter by it, or, where a row has sub rows, to open them underneath. Shows the first rows and a "Show all" switch.
 export function RankedBars({ rows, active, onPick, limit = 8, unit = "schools" }: { rows: BarRow[]; active?: string; onPick?: (key: string) => void; limit?: number; unit?: string }) {
   const [all, setAll] = useState(false);
+  const [openKey, setOpenKey] = useState<string | null>(null);
   const shown = all ? rows : rows.slice(0, limit);
-  const max = Math.max(1, ...rows.map((r) => r.segments.reduce((s, x) => s + x.value, 0)));
+  const max = Math.max(1, ...rows.map(sum));
   return (
     <div className="dx-bars">
       {shown.map((r) => {
-        const total = r.segments.reduce((s, x) => s + x.value, 0);
-        const detail = `${r.label}: ${num(total)} ${unit}${r.segments.length > 1 ? " (" + r.segments.filter((s) => s.value > 0).map((s) => `${s.name} ${num(s.value)}`).join(", ") + ")" : ""}`;
-        const Row = onPick ? "button" : "div";
+        if (onPick) return <Bar key={r.key} row={r} max={max} unit={unit} className={active === r.key ? " is-active" : ""} onClick={() => onPick(r.key)} aria-pressed={active === r.key} />;
+        if (!r.sub?.length) return <Bar key={r.key} row={r} max={max} unit={unit} />;
+        const open = openKey === r.key;
+        // Sub rows have their own scale, so the subjects of a small class can still be compared.
+        const subMax = Math.max(1, ...r.sub.map(sum));
         return (
-          <Row key={r.key} className={`dx-bar-row${active === r.key ? " is-active" : ""}`} title={detail} aria-label={detail} {...(onPick ? { type: "button" as const, onClick: () => onPick(r.key), "aria-pressed": active === r.key } : {})}>
-            <span className="dx-bar-label">{r.label}</span>
-            <span className="dx-bar-track" aria-hidden="true">
-              <span className="dx-bar-fill" style={{ width: `${(total / max) * 100}%` }}>
-                {r.segments.filter((s) => s.value > 0).map((s) => <span key={s.name} className="dx-seg" style={{ flexGrow: s.value, background: s.color }} />)}
-              </span>
-            </span>
-            <span className="dx-bar-value">{num(total)}</span>
-          </Row>
+          <div key={r.key} className="dx-bar-group">
+            <Bar row={r} max={max} unit={unit} className={open ? " is-active" : ""} onClick={() => setOpenKey(open ? null : r.key)} aria-expanded={open} />
+            {open && <div className="dx-bar-sub" role="group" aria-label={`${r.label} breakdown`}>{r.sub.map((s) => <Bar key={s.key} row={s} max={subMax} unit={unit} />)}</div>}
+          </div>
         );
       })}
       {rows.length > limit && <button type="button" className="dx-link" onClick={() => setAll(!all)}>{all ? "Show fewer" : `Show all ${rows.length}`}</button>}
