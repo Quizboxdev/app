@@ -1161,6 +1161,10 @@ button.dx-bar-row:focus-visible { outline: 2px solid var(--blue); outline-offset
 .dx-seg { display: block; min-width: 2px; }
 .dx-bar-fill .dx-seg:last-child { border-radius: 0 4px 4px 0; }
 .dx-bar-value { text-align: right; font-variant-numeric: tabular-nums; color: var(--ink); }
+.dx-bar-group { display: grid; gap: 1px; }
+.dx-bar-sub { display: grid; gap: 1px; margin: 2px 0 6px 12px; padding-left: 8px; border-left: 2px solid var(--line); }
+.dx-bar-sub .dx-bar-row { grid-template-columns: minmax(110px, 200px) minmax(0, 1fr) 48px; }
+.dx-bar-sub .dx-bar-track, .dx-bar-sub .dx-bar-fill { height: 7px; }
 .dx-split { display: flex; gap: 2px; height: 12px; }
 .dx-split .dx-seg:first-child { border-radius: 4px 0 0 4px; }
 .dx-split .dx-seg:last-child { border-radius: 0 4px 4px 0; }

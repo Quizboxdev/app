@@ -1,11 +1,14 @@
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
 // Admin dashboard figures (migration 20261077100000). One read-only call; each section is null when that part is not available on the environment.
+
+// grade is empty from the older call for SHS questions; subjects comes only from qb_admin_live.
+export type ClassCount = { grade: string | null; live: number; in_review: number; subjects?: { subject: string; live: number; in_review: number }[] };
 export type Dash = {
   generated_at: string; days: number;
   users: { total: number; new_7d: number; new_prev_7d: number; by_role: Record<string, number>; signups: { week: string; added: number }[] } | null;
   learning: { attempts_7d: number; attempts_prev_7d: number; attempts_total: number; daily: { week: string; started: number; submitted: number }[] } | null;
-  content: { live: number; in_review: number; by_class: { grade: string; live: number; in_review: number }[]; batches_waiting: number } | null;
+  content: { live: number; in_review: number; by_class: ClassCount[]; batches_waiting: number } | null;
   queues: { support_open: number; support_waiting_for_user: number; support_new_7d: number } | null;
   markets: Record<string, number> | null;
   schools: { listed: number; waiting: number } | null;
@@ -27,4 +30,7 @@ export function changeText(now: number, before: number, unit = "last week"): str
 
 // Classes in teaching order (Primary, JHS, SHS), then anything else.
 const ORDER = ["B1", "B2", "B3", "B4", "B5", "B6", "B7", "B8", "B9", "B10", "SHS1", "SHS2", "SHS3"];
-export const sortClasses = <T extends { grade: string }>(rows: T[]): T[] => [...rows].sort((a, b) => (ORDER.indexOf(a.grade) + 1 || 99) - (ORDER.indexOf(b.grade) + 1 || 99) || a.grade.localeCompare(b.grade));
+export const sortClasses = <T extends { grade: string | null }>(rows: T[]): T[] => [...rows].sort((a, b) => (ORDER.indexOf(a.grade ?? "") + 1 || 99) - (ORDER.indexOf(b.grade ?? "") + 1 || 99) || (a.grade ?? "").localeCompare(b.grade ?? ""));
+
+// "B4" stays as it is, "SHS1" reads "SHS 1", and a missing code is named instead of showing an empty label.
+export const classLabel = (grade: string | null): string => (!grade ? "SHS / not labelled" : grade.replace(/^SHS(\d)$/, "SHS $1"));
