@@ -673,5 +673,40 @@
  "chars": 19367,
  "parts": 3,
  "note": ""
-}
+},
+ {
+  "version": "20261126100000",
+  "name": "interschool_core",
+  "chars": 51250,
+  "parts": 7,
+  "note": ""
+ },
+ {
+  "version": "20261126110000",
+  "name": "interschool_registration",
+  "chars": 50763,
+  "parts": 8,
+  "note": ""
+ },
+ {
+  "version": "20261126120000",
+  "name": "interschool_play",
+  "chars": 69036,
+  "parts": 10,
+  "note": ""
+ },
+ {
+  "version": "20261126130000",
+  "name": "interschool_billing",
+  "chars": 28188,
+  "parts": 4,
+  "note": ""
+ },
+ {
+  "version": "20261126140000",
+  "name": "interschool_awards",
+  "chars": 16289,
+  "parts": 3,
+  "note": ""
+ }
 ]

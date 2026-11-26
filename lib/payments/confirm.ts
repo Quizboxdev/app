@@ -8,10 +8,14 @@ import { logFallback } from "@/lib/ops/log";
 // The browser's say-so is never used: only Paystack's own answer counts, only for a payment that belongs to the caller, and the event id is the webhook's, so whichever arrives first settles it and the other is a harmless duplicate.
 export type ConfirmState = "confirmed" | "pending" | "failed" | "unknown";
 export async function confirmPayment(admin: SupabaseClient, secretKey: string, userId: string, reference: string, fetchImpl?: typeof fetch, staff = false): Promise<{ state: ConfirmState; error?: string }> {
-  if (!/^QBF?-[A-Za-z0-9]{8,64}$/.test(reference)) return { state: "unknown" };
+  if (!/^QB[FS]?-[A-Za-z0-9]{8,64}$/.test(reference)) return { state: "unknown" };
+  // A competition sponsorship payment belongs to whoever started it (or the invoice's sponsor); the attempt table is private, so a server-only function answers.
+  const isSponsorship = reference.startsWith("QBS-");
   // A family order belongs to the parent who made it; its status is the order's.
   const isOrder = reference.startsWith("QBF-");
-  const { data: intent } = isOrder
+  const { data: intent } = isSponsorship
+    ? await admin.rpc("interschool_payment_status", { p_reference: reference }).then((r) => { const a = r.data as { payer_user_id: string; sponsor_user_id: string | null; status: string } | null; return { data: a ? { payer_user_id: a.payer_user_id, beneficiary_user_id: a.sponsor_user_id ?? a.payer_user_id, status: a.status === "duplicate" || a.status === "mismatch" ? "failed" : a.status } : null }; })
+    : isOrder
     ? await admin.from("family_orders").select("parent_user_id, status").eq("reference", reference).maybeSingle().then((r) => ({ data: r.data ? { payer_user_id: (r.data as { parent_user_id: string }).parent_user_id, beneficiary_user_id: (r.data as { parent_user_id: string }).parent_user_id, status: (r.data as { status: string }).status === "paid" || (r.data as { status: string }).status === "fulfilled" ? "successful" : (r.data as { status: string }).status } : null }))
     : await admin.from("payment_intents").select("payer_user_id, beneficiary_user_id, status").eq("reference", reference).maybeSingle();
   const row = intent as { payer_user_id: string; beneficiary_user_id: string; status: string } | null;

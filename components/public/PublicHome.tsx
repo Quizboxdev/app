@@ -16,10 +16,12 @@ import SmeSection from "./SmeSection";
 import SchoolsSection from "./SchoolsSection";
 import ContentPipeline from "./ContentPipeline";
 import CompetitionSection from "./CompetitionSection";
+import InterschoolFeed from "@/components/interschool/Feed";
+import type { PublicListing } from "@/lib/interschool/types";
 import CurriculumSubjects from "./CurriculumSubjects";
 import FinalCta from "./FinalCta";
 
-export default function PublicHome({ markets, stats = null }: { markets: PublicMarkets | null; stats?: PublicPlatformStats | null }) {
+export default function PublicHome({ markets, stats = null, competitions = [] }: { markets: PublicMarkets | null; stats?: PublicPlatformStats | null; competitions?: PublicListing[] }) {
   return (
     <PublicShell>
       <HeroSection />
@@ -35,6 +37,7 @@ export default function PublicHome({ markets, stats = null }: { markets: PublicM
       {showPublic("schools") && <SchoolsSection />}
       {showPublic("content_pipeline") && <ContentPipeline />}
       {showPublic("competitions") && <CompetitionSection />}
+      <InterschoolFeed items={competitions} surface="public" />
       {showPublic("curriculum_subjects") && <CurriculumSubjects markets={markets} />}
       {showPublic("faq") && <FaqSection where="home" />}
       {showPublic("final_cta") && <FinalCta />}

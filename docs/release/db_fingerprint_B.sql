@@ -105,7 +105,31 @@ with c(v, k, o) as (values
   ('20261117150000','t','public.sponsor_family_applications'),
   ('20261117150000','f','public.qb_family_application_decide'),
   ('20261125100000','t','quizbox_stats.snapshots'),
-  ('20261125100000','f','public.qb_admin_live')), r as (
+  ('20261125100000','f','public.qb_admin_live'),
+  ('20261126100000','t','quizbox_interschool.competitions'),
+  ('20261126100000','t','quizbox_interschool.divisions'),
+  ('20261126100000','f','quizbox_interschool.require_on'),
+  ('20261126100000','f','public.interschool_update'),
+  ('20261126100000','f','public.interschool_topics'),
+  ('20261126110000','t','quizbox_interschool.school_entries'),
+  ('20261126110000','t','quizbox_interschool.candidates'),
+  ('20261126110000','f','quizbox_interschool.source_of'),
+  ('20261126110000','f','public.interschool_school_respond'),
+  ('20261126110000','f','public.interschool_track'),
+  ('20261126120000','t','quizbox_interschool.fixtures'),
+  ('20261126120000','t','quizbox_interschool.sittings'),
+  ('20261126120000','f','quizbox_interschool.round_ctx'),
+  ('20261126120000','f','quizbox_interschool.settle_fixtures'),
+  ('20261126120000','f','public.interschool_operations'),
+  ('20261126130000','t','quizbox_interschool.quotations'),
+  ('20261126130000','t','quizbox_interschool.invoices'),
+  ('20261126130000','f','quizbox_interschool.require_billing'),
+  ('20261126130000','f','public.interschool_payment_start'),
+  ('20261126130000','f','public.interschool_billing'),
+  ('20261126140000','t','quizbox_interschool.certificates'),
+  ('20261126140000','f','public.interschool_issue_certificates'),
+  ('20261126140000','f','public.interschool_verify_certificate'),
+  ('20261126140000','f','public.interschool_admin_overview')), r as (
   select v, k, o, case k
     when 't' then to_regclass(o) is not null
     when 'x' then to_regprocedure(o) is null
