@@ -2,9 +2,10 @@
 // recognised values survive; anything else falls back to the default login screen.
 // SME and school are deliberately not self-registration roles (SME applications are an
 // approval-controlled option of teacher onboarding).
+// "parent" is a sign-up choice, not an account role: a parent or guardian becomes a sponsor of type INDIVIDUAL (see signupRole).
 
 export type AuthMode = "login" | "register";
-export type RegistrationRole = "student" | "teacher" | "sponsor";
+export type RegistrationRole = "student" | "teacher" | "parent" | "sponsor";
 export type RegistrationIntent = "sme";
 
 export type RegistrationParams = {
@@ -16,7 +17,13 @@ export type RegistrationParams = {
 
 type RawParams = Record<string, string | string[] | undefined> | URLSearchParams | null | undefined;
 
-const ROLES: readonly RegistrationRole[] = ["student", "teacher", "sponsor"];
+const ROLES: readonly RegistrationRole[] = ["student", "teacher", "parent", "sponsor"];
+
+// What a sign-up choice is stored as: the account role, and for a parent or guardian the sponsor type that onboarding pre-selects.
+export function signupRole(choice: string): { role: "student" | "teacher" | "sponsor"; sponsor_type?: "INDIVIDUAL" } {
+  if (choice === "parent") return { role: "sponsor", sponsor_type: "INDIVIDUAL" };
+  return { role: choice === "teacher" || choice === "sponsor" ? choice : "student" };
+}
 
 function first(raw: RawParams, key: string): string | null {
   if (!raw) return null;

@@ -12,7 +12,7 @@ import { authErrorMessage, signUpErrorMessage } from "@/lib/auth-errors";
 import { AUTH_CALLBACK_PATH, RESET_SUCCESS_MESSAGE } from "@/lib/auth-recovery";
 import { listSignupCountries, type SignupCountry } from "@/lib/api/markets";
 import { recordAuthFailure } from "@/lib/api/platform";
-import type { RegistrationParams } from "@/lib/public/registration-params";
+import { signupRole, type RegistrationParams } from "@/lib/public/registration-params";
 import AuthShell from "@/components/auth/AuthShell";
 import SocialButtons from "@/components/auth/SocialButtons";
 import PasswordField from "@/components/auth/PasswordField";
@@ -99,7 +99,7 @@ export default function LoginForm({ initial }: { initial: RegistrationParams }) 
         options: {
           ...captchaOptions(captcha.token),
           emailRedirectTo: new URL(AUTH_CALLBACK_PATH, window.location.origin).href,
-          data: { full_name: fullName.trim(), country_code: countryCode, role, ...(smeIntent ? { sme_intent: true } : {}) },
+          data: { full_name: fullName.trim(), country_code: countryCode, ...signupRole(role), ...(smeIntent ? { sme_intent: true } : {}) },
         },
       });
       if (error) throw error;
@@ -160,7 +160,7 @@ export default function LoginForm({ initial }: { initial: RegistrationParams }) 
           <div className="qb-field">
             <label htmlFor="auth-role">I am a</label>
             <select id="auth-role" value={role} onChange={(e) => setRole(e.target.value)} required disabled={busy}>
-              <option value="student">Student</option><option value="teacher">Teacher</option><option value="sponsor">Sponsor / organization</option>
+              <option value="student">Student</option><option value="teacher">Teacher</option><option value="parent">Parent or guardian</option><option value="sponsor">Sponsor or organization</option>
             </select>
           </div>
         )}

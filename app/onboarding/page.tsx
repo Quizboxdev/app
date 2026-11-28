@@ -14,7 +14,8 @@ import BrandLockup from "@/components/BrandLockup";
 export default function OnboardingPage() {
   const router = useRouter();
   const [countries, setCountries] = useState<SignupCountry[]>([]);
-  const [countryCode, setCountryCode] = useState(""), [role, setRole] = useState<OnboardingRole>("student"), [fullName, setFullName] = useState("");
+  // "parent" is a choice on this screen only: it is saved as a sponsor of type INDIVIDUAL.
+  const [countryCode, setCountryCode] = useState(""), [role, setRole] = useState<OnboardingRole | "parent">("student"), [fullName, setFullName] = useState("");
   const [level, setLevel] = useState(""), [grade, setGrade] = useState(""), [school, setSchool] = useState("");
   const [subjects, setSubjects] = useState<string[]>([]);
   const [org, setOrg] = useState({ organization_name: "", contact_name: "", contact_email: "", contact_phone: "" });
@@ -30,7 +31,7 @@ export default function OnboardingPage() {
       const meta = data.user.user_metadata ?? {};
       setFullName(String(meta.full_name ?? meta.name ?? ""));   // a social sign-in (Google, LinkedIn, Facebook) supplies "name"
       setCountryCode(String(meta.country_code ?? ""));
-      if (["student", "teacher", "sponsor"].includes(meta.role)) setRole(meta.role);
+      if (["student", "teacher", "sponsor"].includes(meta.role)) setRole(meta.role === "sponsor" && meta.sponsor_type === "INDIVIDUAL" ? "parent" : meta.role);
       // Set by the public "Apply to become a QuizBox SME" link; only pre-ticks the approval-controlled option.
       if (meta.role === "teacher" && meta.sme_intent === true) setApplySme(true);
       setOrg((current) => ({ ...current, contact_email: data.user?.email ?? "" }));
@@ -49,10 +50,11 @@ export default function OnboardingPage() {
     try {
       if (!country?.available) throw new Error("QB_COUNTRY_NOT_AVAILABLE");
       await completeOnboarding({
-        country_code: countryCode, role, full_name: fullName, school_name: school,
+        country_code: countryCode, role: role === "parent" ? "sponsor" : role, full_name: fullName, school_name: school,
         ...(role === "student" ? { education_level: level, grade_code: grade, subjects: [] } : {}),
         ...(role === "teacher" ? { subjects, apply_sme: applySme, qualifications, years_experience: Number(years) } : {}),
         ...(role === "sponsor" ? { ...org, sponsor_type: sponsorType } : {}),
+        ...(role === "parent" ? { ...org, organization_name: org.organization_name || fullName, contact_name: org.contact_name || fullName, sponsor_type: "INDIVIDUAL" as const } : {}),
       });
       const ctx = await bootstrapUser();
       router.replace(takeNext() ?? getHomeRouteForRole(String(ctx.role)));
@@ -73,7 +75,7 @@ export default function OnboardingPage() {
             {country && !country.available && <div className="qb-error" role="alert">QuizBox is not yet available in this country.</div>}
           </div>
           <div className="qb-field"><label htmlFor="ob-role">I am a</label>
-            <select id="ob-role" value={role} onChange={(e) => setRole(e.target.value as OnboardingRole)}><option value="student">Student</option><option value="teacher">Teacher</option><option value="sponsor">Sponsor, parent or organization</option></select>
+            <select id="ob-role" value={role} onChange={(e) => setRole(e.target.value as OnboardingRole)}><option value="student">Student</option><option value="teacher">Teacher</option><option value="parent">Parent or guardian</option><option value="sponsor">Sponsor or organization</option></select>
           </div>
           {country?.available && role === "student" && <>
             <div className="qb-field"><label htmlFor="ob-level">Education level</label><select id="ob-level" value={level} required onChange={(e) => { setLevel(e.target.value); setGrade(""); }}><option value="">Select education level</option>{country.education_levels.map((l) => <option key={l.code} value={l.code}>{l.label}</option>)}</select></div>
@@ -87,9 +89,14 @@ export default function OnboardingPage() {
               <div className="qb-field"><label htmlFor="ob-years">Years of experience</label><input id="ob-years" type="number" min={0} value={years} onChange={(e) => setYears(e.target.value)}/></div></>}
           </>}
           {country?.available && role === "teacher" && <div className="qb-field"><label htmlFor="ob-school">School / institution</label><input id="ob-school" value={school} onChange={(e) => setSchool(e.target.value)} required/></div>}
+          {country?.available && role === "parent" && <>
+            <p className="qb-muted qb-small" style={{ margin: 0 }}>After you sign up, add your children from your Family workspace in the menu. Each child can have their own account.</p>
+            <div className="qb-field"><label htmlFor="ob-email">Contact email</label><input id="ob-email" type="email" value={org.contact_email} onChange={(e) => setOrg({ ...org, contact_email: e.target.value })} required/></div>
+            <div className="qb-field"><label htmlFor="ob-phone">Phone (optional)</label><input id="ob-phone" type="tel" value={org.contact_phone} onChange={(e) => setOrg({ ...org, contact_phone: e.target.value })}/></div>
+          </>}
           {country?.available && role === "sponsor" && <>
-            <div className="qb-field"><label htmlFor="ob-kind">Who is signing up?</label><select id="ob-kind" value={sponsorType} onChange={(e) => setSponsorType(e.target.value as "ORGANIZATION" | "INDIVIDUAL" | "ALUMNI")}><option value="ORGANIZATION">An organization</option><option value="INDIVIDUAL">Myself, a parent or guardian</option><option value="ALUMNI">An alumni or old students&apos; association</option></select></div>
-            {sponsorType === "INDIVIDUAL" && <p className="qb-muted qb-small" style={{ margin: 0 }}>After you sign up, add your children from your Family workspace in the menu. Each child can have their own account.</p>}
+            <div className="qb-field"><label htmlFor="ob-kind">Who is signing up?</label><select id="ob-kind" value={sponsorType} onChange={(e) => setSponsorType(e.target.value as "ORGANIZATION" | "INDIVIDUAL" | "ALUMNI")}><option value="ORGANIZATION">An organization</option><option value="INDIVIDUAL">Myself, as an individual sponsor</option><option value="ALUMNI">An alumni or old students&apos; association</option></select></div>
+            {sponsorType === "INDIVIDUAL" && <p className="qb-muted qb-small" style={{ margin: 0 }}>A parent or guardian? Choose <strong>Parent or guardian</strong> above. Either way, you can add children from your Family workspace in the menu.</p>}
             {sponsorType === "ALUMNI" && <p className="qb-muted qb-small" style={{ margin: 0 }}>Alumni sponsors take part in a school&apos;s competitions by invitation. To support selected students through a family, you apply for approval in your Family workspace after you sign up.</p>}
             <div className="qb-field"><label htmlFor="ob-org">{sponsorType === "INDIVIDUAL" ? "Your full name" : sponsorType === "ALUMNI" ? "Association or group name" : "Organization name"}</label><input id="ob-org" value={org.organization_name} onChange={(e) => setOrg({ ...org, organization_name: e.target.value })} required/></div>
             <div className="qb-field"><label htmlFor="ob-contact">Contact name</label><input id="ob-contact" value={org.contact_name} onChange={(e) => setOrg({ ...org, contact_name: e.target.value })}/></div>

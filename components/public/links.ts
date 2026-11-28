@@ -10,6 +10,7 @@ export const PUBLIC_LINKS = {
   registerStudent: registerHref({ role: "student" }),
   registerTeacher: registerHref({ role: "teacher" }),
   registerSponsor: registerHref({ role: "sponsor" }),
+  registerParent: registerHref({ role: "parent" }),
   registerSme: registerHref({ role: "teacher", intent: "sme" }),
   sponsor: "/join/sponsor",
   sme: "/join/sme",
