@@ -75,6 +75,9 @@ export const sha256Hex = async (bytes: Uint8Array): Promise<string> => {
 export const passagePrompt = (title: string, chunk: Chunk, count: number) =>
 `You are writing quiz questions for a QuizBox challenge based on the book "${title}".
 Use ONLY the passage below. Write ${count} different multiple-choice questions a reader could answer from it. Rules: one clearly correct option, three plausible wrong options of similar length, no trick wording, plain text.
-Output ONLY CSV lines, no header, no commentary, fields in double quotes: "question","option A","option B","option C","option D","correct letter A-D","one-sentence explanation","exact quote copied word for word from the passage (under 200 characters) that proves the answer"
+For the quote: copy ONE continuous piece of the passage exactly as it is written (same words, same order, no "...", nothing added or left out), 5 to 30 words long, that proves the answer.
+Output ONLY the CSV lines: no heading, no numbering, no code block, no text before or after. One question per line, every field in double quotes, in this order:
+"question","option A","option B","option C","option D","correct letter A-D","one-sentence explanation","the quote"
+Inside a field, write any double quote mark as a single quote mark.
 ${chunk.heading ? `Heading: ${chunk.heading}\n` : ""}PASSAGE:
 ${chunk.body}`;
