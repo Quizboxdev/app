@@ -57,7 +57,8 @@ describe("parents page", () => {
   it("explains the routine, the family space and sign-up as a sponsor-parent", () => {
     expect(html).toContain("school progress.");
     for (const t of ["1 · Agree the reward", "2 · Sit down for a short sprint", "3 · Look at the result together"]) expect(html).toContain(t);
-    expect(html).toContain("Sponsor, parent or organization");
+    expect(html).toContain("<strong>Parent or guardian</strong>");
+    expect(html).toContain('href="/login?mode=register&amp;role=parent"');
     expect(html).toContain("Create your family space");
     expect(html).toContain("they do not pay online");
   });

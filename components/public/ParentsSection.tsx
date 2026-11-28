@@ -12,7 +12,7 @@ export const FAMILY_FEATURES = [
 ];
 
 export const FAMILY_STEPS = [
-  { title: "1 · Sign up as a sponsor", text: "Choose Sponsor, parent or organization, then Myself, a parent or guardian. Your Family workspace opens from the menu." },
+  { title: "1 · Sign up as a parent", text: "Choose Parent or guardian under \"I am a\". Your Family workspace opens from the menu." },
   { title: "2 · Add or link children", text: "Create an account for a child, or ask a student who already has one to link with you." },
   { title: "3 · Learn together", text: "Give work, follow progress, and buy Coins or subscriptions for your children." },
 ];
@@ -27,7 +27,7 @@ export default function ParentsSection() {
             <h2 id="qbp-parents-title" className="qbp-h2">One family space for your children&apos;s learning</h2>
             <p className="qbp-body">Bring your children&apos;s QuizBox learning together. Follow their progress, give them practice and challenges, and buy Coins or subscriptions for the whole family in one checkout.</p>
             <div className="qbp-actions">
-              <Link className="qbp-btn" href={PUBLIC_LINKS.registerSponsor} prefetch>Sign up as a parent or guardian</Link>
+              <Link className="qbp-btn" href={PUBLIC_LINKS.registerParent} prefetch>Sign up as a parent or guardian</Link>
               <Link className="qbp-btn2" href="/parents">See the parents page</Link>
               <Link className="qbp-btn2" href="/help/parents-and-family-workspace">How to create your family</Link>
             </div>

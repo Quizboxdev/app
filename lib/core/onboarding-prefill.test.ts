@@ -11,7 +11,8 @@ describe("onboarding pre-fills country and role from the sign-up details", () =>
     expect(lines.some((l) => /^\s*setCountryCode\(String\(meta\.country_code/.test(l))).toBe(true);
   });
   it("applies the role as real code, not inside a comment", () => {
-    expect(lines.some((l) => /^\s*if \(\["student", "teacher", "sponsor"\]\.includes\(meta\.role\)\) setRole\(meta\.role\);/.test(l))).toBe(true);
+    // A sponsor who chose "Parent or guardian" at sign-up (sponsor_type INDIVIDUAL) comes back as the parent choice.
+    expect(lines.some((l) => /^\s*if \(\["student", "teacher", "sponsor"\]\.includes\(meta\.role\)\) setRole\(meta\.role === "sponsor" && meta\.sponsor_type === "INDIVIDUAL" \? "parent" : meta\.role\);/.test(l))).toBe(true);
   });
   it("no line hides executable statements after a comment marker", () => {
     const hidden = lines.map((l, i) => ({ l, n: i + 1 })).filter(({ l }) => /\/\/[^\n]*\b(set[A-Z]\w+\(|router\.\w+\()/.test(l) && !/^\s*\/\//.test(l) && !/https?:\/\//.test(l));
