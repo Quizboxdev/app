@@ -21,7 +21,8 @@ describe("ParentsSection", () => {
   it("links to the parent guide and to sign-up", () => {
     expect(html).toContain('href="/help/parents-and-family-workspace"');
     expect(html).toContain("Sign up as a parent or guardian");
-    expect(html).toContain("Myself, a parent or guardian");
+    expect(html).toContain("Choose Parent or guardian");
+    expect(html).toContain('href="/login?mode=register&amp;role=parent"');
   });
 
   it("states the under-13 protections in the same terms the product uses", () => {

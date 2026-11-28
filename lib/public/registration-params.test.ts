@@ -1,5 +1,14 @@
 import { describe, expect, it } from "vitest";
-import { parseRegistrationParams, registerHref } from "./registration-params";
+import { parseRegistrationParams, registerHref, signupRole } from "./registration-params";
+
+describe("signupRole", () => {
+  it("stores a parent or guardian as an individual sponsor, and nothing else as more than it asked for", () => {
+    expect(signupRole("parent")).toEqual({ role: "sponsor", sponsor_type: "INDIVIDUAL" });
+    expect(signupRole("sponsor")).toEqual({ role: "sponsor" });
+    expect(signupRole("teacher")).toEqual({ role: "teacher" });
+    expect(signupRole("admin")).toEqual({ role: "student" });
+  });
+});
 
 describe("parseRegistrationParams", () => {
   it("defaults to login when no mode is given", () => {
@@ -15,6 +24,7 @@ describe("parseRegistrationParams", () => {
     expect(parseRegistrationParams({ mode: "register", role: "Student" }).role).toBe("student");
     expect(parseRegistrationParams({ mode: "REGISTER", role: "teacher" }).role).toBe("teacher");
     expect(parseRegistrationParams({ mode: "register", role: "sponsor" }).role).toBe("sponsor");
+    expect(parseRegistrationParams({ mode: "register", role: "Parent" }).role).toBe("parent");
   });
 
   it("rejects privileged or unknown roles", () => {

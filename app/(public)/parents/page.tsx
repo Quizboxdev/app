@@ -30,10 +30,10 @@ export default function ParentsPage() {
           <h1 id="qbp-parents-hero" className="qbp-h1">Turn screen time into <span className="qbp-accent">school progress.</span></h1>
           <p className="qbp-lead">A short, regular study habit your child can keep, with one family space where you follow what they do. Questions are built from the GES and NaCCA approved curriculum and reviewed by a subject expert before your child sees them.</p>
           <div className="qbp-actions">
-            <Link className="qbp-btn" href={PUBLIC_LINKS.registerSponsor} prefetch>Create your family space</Link>
+            <Link className="qbp-btn" href={PUBLIC_LINKS.registerParent} prefetch>Create your family space</Link>
             <Link className="qbp-btn2" href="/help/parents-and-family-workspace">How to set up your family</Link>
           </div>
-          <p className="qbp-meta">When you sign up, choose <strong>Sponsor, parent or organization</strong>, then <strong>Myself, a parent or guardian</strong>. Your Family workspace opens from the menu.</p>
+          <p className="qbp-meta">When you sign up, choose <strong>Parent or guardian</strong> under &ldquo;I am a&rdquo;. Your Family workspace opens from the menu.</p>
         </div>
       </section>
 
@@ -84,7 +84,7 @@ export default function ParentsPage() {
             <h2 id="qbp-parents-cta" className="qbp-h2">Start with one child and one subject.</h2>
             <p className="qbp-body">Free to start. Add more children whenever you are ready.</p>
           </div>
-          <div className="qbp-actions"><Link className="qbp-btn" href={PUBLIC_LINKS.registerSponsor} prefetch>Create your family space</Link><Link className="qbp-btn2" href={PUBLIC_LINKS.login} prefetch>Sign in</Link></div>
+          <div className="qbp-actions"><Link className="qbp-btn" href={PUBLIC_LINKS.registerParent} prefetch>Create your family space</Link><Link className="qbp-btn2" href={PUBLIC_LINKS.login} prefetch>Sign in</Link></div>
         </div>
       </section>
     </PublicShell>
