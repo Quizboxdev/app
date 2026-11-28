@@ -19,6 +19,8 @@ export const ensureProviders = (): string[] => {
 const functionMissing = (error: { code?: string; message?: string } | null | undefined) => !!error && (error.code === "PGRST202" || error.code === "42883" || /could not find the function|does not exist/i.test(error.message ?? ""));
 
 export async function fulfilAfter(admin: SupabaseClient, outcome: string | undefined, reference: string): Promise<{ ok: boolean; failure?: string }> {
+  // A sponsorship invoice is funded (or reopened after a refund) by the payment event itself, in one database transaction: nothing else is granted.
+  if (reference.startsWith("QBS-")) return { ok: true };
   // A family order: grant every child's subscription (or take them back after a refund). Each step is idempotent, like the single-payment path below.
   if (reference.startsWith("QBF-")) {
     if (outcome === "credited" || outcome === "already_settled" || outcome === "duplicate_event") { const done = await admin.rpc("qb_family_order_fulfil", { p_reference: reference }); return done.error ? { ok: false, failure: "fulfilment_failed" } : { ok: true }; }

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import PublicHome from "@/components/public/PublicHome";
 import { getPublicMarkets } from "@/lib/public/signup-markets";
 import { getPublicPlatformStats } from "@/lib/public/platform-stats";
+import { listPublicCompetitions } from "@/lib/interschool/server";
 
 export const metadata: Metadata = {
   title: "QuizBox — Learn. Practise. Compete.",
@@ -22,6 +23,6 @@ export const metadata: Metadata = {
 export const revalidate = 300;
 
 export default async function RootPage() {
-  const [markets, stats] = await Promise.all([getPublicMarkets(), getPublicPlatformStats()]);
-  return <PublicHome markets={markets} stats={stats} />;
+  const [markets, stats, competitions] = await Promise.all([getPublicMarkets(), getPublicPlatformStats(), listPublicCompetitions(3)]);
+  return <PublicHome markets={markets} stats={stats} competitions={competitions} />;
 }

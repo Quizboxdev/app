@@ -41,6 +41,13 @@ export async function applyVerifiedPaymentEvent(admin: SupabaseClient, event: Ve
     if (family.error) throw new Error(family.error.message);
     return family.data as { outcome: string };
   }
+  // A competition sponsorship invoice: the database checks the exact amount, credits it once and flags a second payment for refund.
+  if (event.reference.startsWith("QBS-")) {
+    const sponsorship = await admin.rpc("interschool_payment_apply", { p_provider: event.provider, p_event_id: event.eventId, p_reference: event.reference, p_status: event.status,
+      p_provider_reference: event.providerReference ?? null, p_amount_minor: event.amountMinor, p_currency: event.currency, p_payload: event.payload ?? {} });
+    if (sponsorship.error) throw new Error(sponsorship.error.message);
+    return sponsorship.data as { outcome: string };
+  }
   const { data, error } = await admin.rpc("qb_payment_apply_event", {
     p_provider: event.provider, p_event_id: event.eventId, p_reference: event.reference, p_status: event.status,
     p_provider_reference: event.providerReference ?? null, p_amount_minor: event.amountMinor, p_currency: event.currency,

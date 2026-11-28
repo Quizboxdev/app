@@ -3,6 +3,8 @@ import { getLibraryStats, listPublicChallenges } from "@/lib/challenges/server";
 import { CONTENT_TYPES } from "@/lib/challenges/content-types";
 import { CHALLENGE_CATEGORIES, FORMATS, formatDuration, type Format } from "@/lib/challenges/types";
 import LogoImage from "@/components/challenges/LogoImage";
+import InterschoolFeed from "@/components/interschool/Feed";
+import { listPublicCompetitions } from "@/lib/interschool/server";
 
 export const dynamic = "force-dynamic";
 
@@ -12,7 +14,7 @@ const when = (iso: string | null) => (iso ? new Date(iso).toLocaleDateString("en
 // What is open to join, inside the signed-in app: the same list the public site shows, but every link goes straight to the play page, so nobody is asked to sign in again.
 export default async function OpenPage({ searchParams }: { searchParams: Promise<{ format?: string }> }) {
   const format: Format = (await searchParams).format === "competition" ? "COMPETITION" : "CHALLENGE", f = FORMATS[format];
-  const [items, stats] = await Promise.all([listPublicChallenges(format), getLibraryStats()]);
+  const [items, stats, interschool] = await Promise.all([listPublicChallenges(format), getLibraryStats(), format === "COMPETITION" ? listPublicCompetitions(12) : Promise.resolve([])]);
   const library = stats.documents > 0 ? CONTENT_TYPES.filter((t) => stats.by_type[t.id]).map((t) => `${stats.by_type[t.id]} ${t.plural}`).join(" · ") : "";
   return (
     <>
@@ -27,6 +29,7 @@ export default async function OpenPage({ searchParams }: { searchParams: Promise
           <Link className="qb-btn qb-btn-secondary" href="/creator">Create one</Link>
         </nav>
       </div>
+      <InterschoolFeed items={interschool} surface="app" />
       {library && <p className="qb-muted" style={{ marginBottom: 12 }}><strong>On QuizBox now:</strong> {library}. Read the material, then take the quiz.</p>}
       {items.length === 0 ? (
         <div className="qb-card">

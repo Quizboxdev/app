@@ -64,6 +64,7 @@ export default function AppShell({
   const [moreOpen, setMoreOpen] = useState(false);
   const [mockOn, setMockOn] = useState(false);                                                      // the Mock exams flag (closed until the owner opens it)
   const [familyOn, setFamilyOn] = useState(false);                                                  // the Family workspace flag (closed until the owner opens it)
+  const [interschoolOn, setInterschoolOn] = useState(false);                                      // the Inter-school flag (closed until the owner opens it)
   const contentRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
   const router = useRouter();
@@ -82,7 +83,7 @@ export default function AppShell({
       .catch((error) => router.replace(error instanceof Error && error.message === "ONBOARDING_REQUIRED" ? "/onboarding" : error instanceof Error && error.message === "ACCOUNT_SUSPENDED" ? "/login?suspended=1" : loginHrefFor(window.location.pathname)));
   }, [router]);
 
-  useEffect(() => { loadFlags().then((f) => { setFamilyOn(f.family_workspace === true); setMockOn(f.mock_exams === true); }).catch(() => { setFamilyOn(false); setMockOn(false); }); }, []);
+  useEffect(() => { loadFlags().then((f) => { setFamilyOn(f.family_workspace === true); setMockOn(f.mock_exams === true); setInterschoolOn(f.interschool === true); }).catch(() => { setFamilyOn(false); setMockOn(false); setInterschoolOn(false); }); }, []);
 
   // Whether this person may see the current address. Null until their role and staff access have been read, so nobody is sent away early.
   const routeCheck = useMemo<{ allowed: boolean; home: string } | null>(() => {
@@ -139,7 +140,7 @@ export default function AppShell({
     ].filter(([href]) => !seen.has(href) && seen.add(href));
 
     if (inSchool) {
-      add("School", [["/school", "Overview"], ["/school/classes", "Classes"], ["/school/teachers", "Teachers"], ["/school/learners", "Learners"], ["/school/performance", "Performance"], ["/creator", "Challenges"], ["/creator?format=competition", "Competitions"]]);
+      add("School", [["/school", "Overview"], ["/school/classes", "Classes"], ["/school/teachers", "Teachers"], ["/school/learners", "Learners"], ["/school/performance", "Performance"], ["/creator", "Challenges"], ["/creator?format=competition", "Competitions"], ...when(interschoolOn, [["/interschool", "Inter-school"]])]);
       return groups;
     }
 
@@ -165,6 +166,7 @@ export default function AppShell({
         ["/creator", "Challenges"],
         ["/admin/challenge-reports", "Challenge Reports"],
         ["/admin/competitions", "Competition Operations"],
+        ...when(interschoolOn, [["/admin/interschool", "Inter-school"]]),
         ...when(sponsorEngine, [["/admin/competitions/assignments", "Assignments"], ["/admin/competitions/oversight", "Oversight"]]),
       ]);
       add("SME & payments", [
@@ -205,6 +207,7 @@ export default function AppShell({
         ...when(mockOn, [["/mock-exams", "Mock exams"]]),
         ["/creator", "Challenges"],
         ["/competition", "Competitions"],
+        ...when(interschoolOn, [["/interschool", "Inter-school"]]),
         ["/marketplace", "Marketplace"],
         ...when(mockOn, [["/seller", "Sell on the Marketplace"]]),
       ]);
@@ -226,7 +229,7 @@ export default function AppShell({
         ["/teacher/question-banks", "Question Banks"],
         ["/practise", "Practise questions"],
       ]);
-      add("Explore", [["/creator", "Challenges"], ["/open", "Open to join"], ["/competition", "Competitions"], ["/marketplace", "Marketplace"], ...seller]);
+      add("Explore", [["/creator", "Challenges"], ["/open", "Open to join"], ["/competition", "Competitions"], ...when(interschoolOn, [["/interschool", "Inter-school"]]), ["/marketplace", "Marketplace"], ...seller]);
       add("SME", when(reviewer, [["/review", "SME Reviews"]]));
       add("Family", family);
       add("Administration", administration);
@@ -239,6 +242,7 @@ export default function AppShell({
       ["/practise", "Practise"],
       ["/student/classroom", "Assignments"],
       ["/competition", "Compete"],
+      ...when(interschoolOn, [["/interschool", "Inter-school"]]),
       ["/open", "Challenges"],
       ["/play", "My challenges"],
       ["/creator", "Create and share"],
@@ -253,7 +257,7 @@ export default function AppShell({
     add("SME", when(reviewer, [["/review", "SME Reviews"]]));
     add("Administration", administration);
     return groups;
-  }, [ctx, inSchool, sme, staff, sponsorEngine, familyOn, mockOn]);
+  }, [ctx, inSchool, sme, staff, sponsorEngine, familyOn, mockOn, interschoolOn]);
 
   const nav = useMemo(() => groups.flatMap((group) => group.items), [groups]);
   // The most specific matching link is the current page (so /admin is not active on /admin/content).

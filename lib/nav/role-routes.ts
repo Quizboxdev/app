@@ -1,6 +1,6 @@
 // The pages a signed-in role may open before any extra duties (reviewer, finance, staff) are read. Duties only ADD pages, so a path outside this list
 // may still be allowed later; a path inside it is allowed at once. The shell uses this to avoid flashing a page the person will be sent away from.
-const SHARED = ["/account", "/notifications", "/school", "/play", "/open", "/drafts", "/support", "/guides", "/affiliate", "/mock-exams/join"];
+const SHARED = ["/account", "/notifications", "/school", "/play", "/open", "/drafts", "/support", "/guides", "/affiliate", "/mock-exams/join", "/interschool"];
 const BY_ROLE: Record<string, string[]> = {
   ADMIN: ["/admin", "/teacher", "/practise", "/student/attempt", "/competition", "/marketplace", "/subscribe", "/creator", "/mock-exams"],
   TEACHER: ["/teacher", "/practise", "/student/attempt", "/competition", "/marketplace", "/seller", "/subscribe", "/creator", "/mock-exams"],

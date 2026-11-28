@@ -14,7 +14,7 @@ const COPY: Record<Format, { title: string; lead: string; none: string; noneText
 };
 
 // One list for both formats: a Challenge is a single timed round, a Competition has rounds that pass players on.
-export default async function PublicList({ format }: { format: Format }) {
+export default async function PublicList({ format, after }: { format: Format; after?: React.ReactNode }) {
   const f = FORMATS[format], copy = COPY[format];
   const [items, stats] = await Promise.all([listPublicChallenges(format), getLibraryStats()]);
   const library = stats.documents > 0 ? CONTENT_TYPES.filter((t) => stats.by_type[t.id]).map((t) => `${stats.by_type[t.id]} ${t.plural}`).join(" · ") : "";
@@ -44,6 +44,7 @@ export default async function PublicList({ format }: { format: Format }) {
           </div>
         )}
       </section>
+      {after}
     </PublicShell>
   );
 }
