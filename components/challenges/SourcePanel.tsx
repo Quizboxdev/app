@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { contentChunks, contentList } from "@/lib/api/challenges";
+import { allChunks, contentList } from "@/lib/api/challenges";
 import { passagePrompt } from "@/lib/challenges/chunker";
 import { contentType } from "@/lib/challenges/content-types";
 import type { ContentAsset, Passage } from "@/lib/challenges/types";
@@ -18,7 +18,13 @@ export default function SourcePanel({ campaignId, picked, onPick, onError, reade
   useEffect(() => { void load(); }, [load]);
   async function view(versionId: string) {
     setViewing(versionId); setPassages([]);
-    try { setPassages(await contentChunks(campaignId, versionId)); } catch (e: any) { onError(e.message); }
+    try { setPassages(await allChunks(campaignId, versionId)); } catch (e: any) { onError(e.message); }
+  }
+  // Copying the prompt also chooses that passage, so the questions that come back are looked for there first.
+  const [copied, setCopied] = useState("");
+  async function copyPrompt(p: Passage) {
+    try { await navigator.clipboard.writeText(passagePrompt(asset?.title ?? "the book", { heading: p.heading, body: p.body }, 5)); setCopied(p.id); onPick(p); }
+    catch { onError("Could not copy. Select the passage text and copy it by hand."); }
   }
   const asset = assets?.find((a) => a.versions.some((v) => v.version_id === viewing));
 
@@ -39,13 +45,13 @@ export default function SourcePanel({ campaignId, picked, onPick, onError, reade
       {viewing && (
         <div className="qb-card">
           <h2>Passages{asset ? `: ${asset.title}` : ""}</h2>
-          <p className="qb-muted">Pick a passage, then paste questions on the Questions tab: they will cite it. Or copy a ready-made prompt to get a chat assistant to draft questions from one passage, then paste its answer back.</p>
+          <p className="qb-muted">Pick a passage, then paste questions on the Questions tab: they will cite it. Or copy a ready-made prompt into a chat assistant (Gemini, ChatGPT), then paste its whole answer on the Questions tab as it is. Each quote is matched to your book automatically.</p>
           {picked && <p role="status"><strong>Selected:</strong> passage {picked.position}{picked.heading ? ` (${picked.heading})` : ""}. <button className="qb-link-btn" onClick={() => onPick(null)}>Clear</button></p>}
           <ol className="qb-list">{passages.map((p) => (
             <li key={p.id} style={picked?.id === p.id ? { fontWeight: 600 } : undefined}>
               {p.heading && <em>{p.heading}. </em>}{p.body.length > 260 ? `${p.body.slice(0, 260)}…` : p.body}
               <div><button className="qb-link-btn" onClick={() => onPick(p)}>Use this passage</button>{" · "}
-                <button className="qb-link-btn" onClick={() => void navigator.clipboard.writeText(passagePrompt(asset?.title ?? "the book", { heading: p.heading, body: p.body }, 5))}>Copy question-writing prompt</button></div>
+                <button className="qb-link-btn" onClick={() => void copyPrompt(p)}>{copied === p.id ? "Prompt copied" : "Copy question-writing prompt"}</button></div>
             </li>))}</ol>
         </div>
       )}

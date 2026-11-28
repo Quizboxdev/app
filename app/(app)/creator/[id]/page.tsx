@@ -2,8 +2,9 @@
 
 import { Suspense, use, useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { getCampaignForEdit, publishCampaign, setCampaignStatus, setQuestions } from "@/lib/api/challenges";
+import { allPassages, getCampaignForEdit, publishCampaign, setCampaignStatus, setQuestions } from "@/lib/api/challenges";
 import { parseQuestionCsv } from "@/lib/challenges/csv";
+import { placeQuestions, toCsvLine, type Unplaced } from "@/lib/challenges/quote-match";
 import type { EditableQuestion, Passage, Prize, StageInfo } from "@/lib/challenges/types";
 import StagesPanel from "@/components/challenges/StagesPanel";
 import SourcePanel from "@/components/challenges/SourcePanel";
@@ -54,13 +55,24 @@ export default function CreatorEditPage({ params }: { params: Promise<{ id: stri
     try { const msg = await work(); if (msg) setNotice(msg); await load(); } catch (e: any) { setError(e.message); }
     setBusy(false);
   }
+  // Pasted questions are matched to the passage their quote comes from (the chosen one first, then the whole book), and each quote is replaced by the book's own wording.
+  // Lines that cannot be matched stay in the box with their line numbers; the rest are saved.
   const addFromCsv = () => run(async () => {
     const parsed = parseQuestionCsv(csv);
-    if (parsed.errors.length) throw new Error(parsed.errors.slice(0, 3).join(" "));
-    if (!passage && parsed.questions.some((q) => q.source_quote)) throw new Error("These questions have source quotes. Pick the passage they come from on the Source tab first.");
-    if (!passage && campaign?.category === "book") throw new Error("Pick the passage these questions come from on the Source tab first.");
-    const added = parsed.questions.map((q) => ({ ...q, stage_no: stage, ...(passage ? { source_chunk_id: passage.id } : {}) }));
-    const r = await setQuestions(id, [...questions, ...added]); setCsv(""); return `${r.count} questions saved.`;
+    if (parsed.errors.length) throw new Error(parsed.errors.slice(0, 3).join(" ") + (parsed.errors.length > 3 ? ` (${parsed.errors.length - 3} more)` : ""));
+    const book = campaign?.category === "book";
+    const passages = book || parsed.questions.some((q) => q.source_quote) ? await allPassages(id) : [];
+    if (book && !passages.length) throw new Error("Load the book on the Source tab first: every question in a book challenge must quote it.");
+    const { placed, unplaced } = placeQuestions(parsed.questions, parsed.lines, passages, passage, book);
+    let saved = "";
+    if (placed.length) { const r = await setQuestions(id, [...questions, ...placed.map((q) => ({ ...q, stage_no: stage }))]); saved = `${placed.length} question${placed.length === 1 ? "" : "s"} added (${r.count} in total).`; }
+    setCsv(unplaced.map((u) => toCsvLine(u.question)).join("\n"));
+    if (!unplaced.length) return saved;
+    const where = (reason: Unplaced["reason"]) => unplaced.filter((u) => u.reason === reason).map((u) => u.line).join(", ");
+    const notFound = where("NOT_FOUND"), noQuote = where("NO_QUOTE");
+    throw new Error([saved, `${unplaced.length} question${unplaced.length === 1 ? " was" : "s were"} not added and ${unplaced.length === 1 ? "is" : "are"} back in the box.`,
+      notFound && `Line ${notFound}: the quote is not in the book. Copy a sentence from the passage exactly, or ask the assistant to quote it word for word.`,
+      noQuote && `Line ${noQuote}: add a quote from the book at the end of the line.`].filter(Boolean).join(" "));
   });
   const updateQ = (i: number, patch: Partial<EditableQuestion>) => setQ((qs) => qs.map((q, k) => (k === i ? { ...q, ...patch } : q)));
 
@@ -100,7 +112,8 @@ export default function CreatorEditPage({ params }: { params: Promise<{ id: stri
               {limited ? <div className="qb-card" role="note"><strong>Curriculum questions only.</strong> As a learner you build your quiz from approved QuizBox questions, for your friends and classmates. It is shared by link or code and is not listed publicly.</div> : <div className="qb-card qb-form">
                 <h3>Paste your own questions</h3>
                 <p className="qb-muted">One question per line: question, option A, B, C, D, correct letter (A to D), explanation (optional){campaign.category === "book" ? ", source quote (word for word from the passage)" : ", source quote (optional)"}. Separate with commas or tabs; put a field in double quotes if it contains a comma. Two or three options also work.</p>
-                {passage ? <p role="status"><strong>Citing passage {passage.position}</strong>{passage.heading ? ` (${passage.heading})` : ""}. <button className="qb-link-btn" onClick={() => setPassage(null)}>Clear</button></p> : campaign.category === "book" ? <p className="qb-muted">Pick a passage on the Source tab first: every question in a book challenge must cite one.</p> : null}
+                {passage ? <p role="status"><strong>Looking first in passage {passage.position}</strong>{passage.heading ? ` (${passage.heading})` : ""}. <button className="qb-link-btn" onClick={() => setPassage(null)}>Clear</button></p> : null}
+                {campaign.category === "book" && <p className="qb-muted">Each quote is found in your book automatically, even if the assistant changed punctuation or spacing. You can paste the assistant&apos;s answer exactly as it is.</p>}
                 <textarea rows={6} value={csv} onChange={(e) => setCsv(e.target.value)} placeholder={'What is 7 x 8?,54,56,58,64,B,7 x 8 = 56'} />
                 <button className="qb-btn" disabled={busy || !csv.trim()} onClick={addFromCsv}>Add these questions</button>
               </div>}

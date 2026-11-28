@@ -61,7 +61,18 @@ export const setAudience = (id: string, target: { classId?: string | null; insti
 export const openCompetitions = (format: Format = "COMPETITION") => call<import("@/lib/challenges/types").PublicChallenge[]>("challenge_public_list", { p_limit: 24, p_offset: 0, p_format: format });
 export const myProgress = (slug: string) => call<StageProgress[]>("challenge_my_progress", { p_slug: slug });
 export const contentList = (campaign: string) => call<ContentAsset[]>("challenge_content_list", { p_campaign: campaign });
-export const contentChunks = (campaign: string, version: string, offset = 0) => call<Passage[]>("challenge_content_chunks", { p_campaign: campaign, p_version: version, p_limit: 50, p_offset: offset });
+export const contentChunks = (campaign: string, version: string, offset = 0, limit = 50) => call<Passage[]>("challenge_content_chunks", { p_campaign: campaign, p_version: version, p_limit: limit, p_offset: offset });
+// Every passage of one version (the database returns at most 400 at a time).
+export async function allChunks(campaign: string, version: string): Promise<Passage[]> {
+  const out: Passage[] = [];
+  for (let offset = 0; offset < 20000; offset += 400) { const page = await contentChunks(campaign, version, offset, 400); out.push(...page); if (page.length < 400) break; }
+  return out;
+}
+// Every passage of every document loaded for a challenge, newest documents first.
+export async function allPassages(campaign: string): Promise<Passage[]> {
+  const versions = (await contentList(campaign)).flatMap((a) => a.versions.map((v) => v.version_id)).reverse();
+  return (await Promise.all(versions.map((v) => allChunks(campaign, v)))).flat();
+}
 export const setPrizes = (id: string, prizes: Prize[]) => call<{ ok: true; count: number }>("challenge_set_prizes", { p_id: id, p_prizes: prizes });
 export const finalizeChallenge = (id: string) => call<{ ok: true; awards?: number; already_finalized?: boolean }>("challenge_finalize", { p_id: id });
 export const awardsList = (id: string) => call<Award[]>("challenge_awards_list", { p_id: id });
